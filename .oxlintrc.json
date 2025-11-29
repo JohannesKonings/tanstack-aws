@@ -1,0 +1,12 @@
+{
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "style": "warn"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "no-console": "error",
+    "typescript/no-floating-promises": "error"
+  }
+}

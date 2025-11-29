@@ -3,10 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
-    "serve": "vite preview",
-    "test": "vitest run"
+    "webapp:dev": "vite dev --port 3000",
+    "webapp:build": "vite build",
+    "webapp:serve": "vite preview",
+    "test": "vitest run",
+    "lint": "oxlint . --type-aware",
+    "lint:fix": "oxlint . --type-aware --fix",
+    "format": "oxfmt . -c .oxfmtrc.json",
+    "format:check": "oxfmt . -c .oxfmtrc.json --check"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.1",
@@ -53,6 +57,9 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "jsdom": "^27.0.0",
+    "oxfmt": "0.15.0",
+    "oxlint": "1.30.0",
+    "oxlint-tsgolint": "^0.8.2",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
