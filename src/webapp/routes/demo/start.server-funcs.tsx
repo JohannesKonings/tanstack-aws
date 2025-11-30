@@ -15,7 +15,7 @@ const loggedServerFunction = createServerFn({ method: "GET" }).middleware([
 ]);
 */
 
-const TODOS_FILE = 'todos.json';
+const TODOS_FILE = '/tmp/todos.json';
 
 async function readTodos() {
   return JSON.parse(
