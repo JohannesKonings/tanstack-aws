@@ -1,25 +1,17 @@
-import {
-  Code,
-  Function,
-  FunctionUrl,
-  FunctionUrlAuthType,
-  InvokeMode,
-  Runtime,
-} from 'aws-cdk-lib/aws-lambda';
+import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { Construct } from 'constructs';
 import { Duration, Tags } from 'aws-cdk-lib';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
 import path from 'node:path';
 
-type WebappServerProps = {};
-
 export class WebappServer extends Construct {
-  readonly webappServerFunctionUrl: FunctionUrl;
+  readonly webappServer: Function;
 
-  constructor(scope: Construct, id: string, props?: WebappServerProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const webappServer = new Function(this, 'WebappServer', {
+    this.webappServer = new Function(this, 'WebappServer', {
       code: Code.fromAsset(
         path.join(path.dirname(new URL(import.meta.url).pathname), '../../.output/server'),
       ),
@@ -30,11 +22,14 @@ export class WebappServer extends Construct {
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(60),
     });
-    Tags.of(webappServer).add('IsWebAppServer', 'true');
+    Tags.of(this.webappServer).add('IsWebAppServer', 'true');
 
-    this.webappServerFunctionUrl = webappServer.addFunctionUrl({
-      authType: FunctionUrlAuthType.AWS_IAM,
-      invokeMode: InvokeMode.RESPONSE_STREAM,
-    });
+    this.webappServer.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
+        effect: Effect.ALLOW,
+        resources: ['*'],
+      }),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { convertToModelMessages, stepCountIs, streamText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
+// import { anthropic } from '@ai-sdk/anthropic';
+import { bedrock } from '@ai-sdk/amazon-bedrock';
 import { createFileRoute } from '@tanstack/react-router';
 
 import getTools from '@/webapp/utils/demo.tools';
@@ -22,7 +23,8 @@ export const Route = createFileRoute('/demo/api/tanchat')({
           const tools = await getTools();
 
           const result = await streamText({
-            model: anthropic('claude-haiku-4-5'),
+            // model: anthropic('claude-haiku-4-5'),
+            model: bedrock('us.amazon.nova-pro-v1:0'),
             messages: convertToModelMessages(messages),
             temperature: 0.7,
             stopWhen: stepCountIs(5),

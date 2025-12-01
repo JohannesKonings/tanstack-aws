@@ -4,26 +4,47 @@ import { WebappDistribution } from './WebappDistribution.ts';
 import { WebappServer } from './WebappServer.ts';
 import { WebappAssetsDeployment } from './WebappAssetsDeployment.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
-
-type WebappProps = {};
+import { WebappApi } from './WebappApi.ts';
+import { WebappFunctionUrl } from './WebappFunctionUrl.ts';
 
 export class Webapp extends Construct {
-  constructor(scope: Construct, id: string, props: WebappProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
-    const {} = props;
 
     const webappServer = new WebappServer(this, 'WebappServer');
 
-    const assetsBucket = new WebappAssetsBucket(this, 'WebappAssetsBucket');
-
-    const distribution = new WebappDistribution(this, 'WebappDistribution', {
-      assetsBucket: assetsBucket.assetsBucket,
-      webappServerFunctionUrl: webappServer.webappServerFunctionUrl,
+    const webappServerFunctionUrl = new WebappFunctionUrl(this, 'WebappServerFunctionUrl', {
+      webappServer: webappServer.webappServer,
     });
 
-    new WebappAssetsDeployment(this, 'WebappAssetsDeployment', {
+    const webappApi = new WebappApi(this, 'WebappApi', {
+      webappServer: webappServer.webappServer,
+    });
+
+    const assetsBucket = new WebappAssetsBucket(this, 'WebappAssetsBucket');
+
+    // const distributionFunctionUrl = new WebappDistribution(this, 'WebappDistributionFunctionUrl', {
+    //   assetsBucket: assetsBucket.assetsBucket,
+    //   originBehaviorKind: 'functionUrl',
+    //   webappServerApi: webappApi.webappApi,
+    //   webappServerFunctionUrl: webappServerFunctionUrl.webappServerFunctionUrl,
+    // });
+
+    // new WebappAssetsDeployment(this, 'WebappAssetsDeploymentFunctionUrl', {
+    //   assetsBucket: assetsBucket.assetsBucket,
+    //   distribution: distributionFunctionUrl.distribution,
+    // });
+
+    const distributionApiGw = new WebappDistribution(this, 'WebappDistributionApiGw', {
       assetsBucket: assetsBucket.assetsBucket,
-      distribution: distribution.distribution,
+      originBehaviorKind: 'apiGw',
+      webappServerApi: webappApi.webappApi,
+      webappServerFunctionUrl: webappServerFunctionUrl.webappServerFunctionUrl,
+    });
+
+    new WebappAssetsDeployment(this, 'WebappAssetsDeploymentApiGw', {
+      assetsBucket: assetsBucket.assetsBucket,
+      distribution: distributionApiGw.distribution,
     });
   }
 }

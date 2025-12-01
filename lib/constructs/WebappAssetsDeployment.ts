@@ -24,6 +24,7 @@ export class WebappAssetsDeployment extends Construct {
       destinationBucket: assetsBucket,
       distribution,
       distributionPaths: ['/*'],
+      prune: true,
       sources: [Source.asset(sourcePath)],
     });
   }
