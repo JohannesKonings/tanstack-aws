@@ -1,8 +1,7 @@
-import { convertToModelMessages, stepCountIs, streamText } from 'ai';
 // import { anthropic } from '@ai-sdk/anthropic';
 import { bedrock } from '@ai-sdk/amazon-bedrock';
 import { createFileRoute } from '@tanstack/react-router';
-
+import { convertToModelMessages, stepCountIs, streamText } from 'ai';
 import getTools from '@/webapp/utils/demo.tools';
 
 const SYSTEM_PROMPT = `You are a helpful assistant for a store that sells guitars.

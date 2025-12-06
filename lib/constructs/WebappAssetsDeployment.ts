@@ -1,7 +1,7 @@
-import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
 import type { Distribution } from 'aws-cdk-lib/aws-cloudfront';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { Construct } from 'constructs';
 import path from 'node:path';
 
 type WebappAssetsDeploymentProps = {

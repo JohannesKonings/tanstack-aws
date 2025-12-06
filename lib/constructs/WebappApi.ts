@@ -1,6 +1,6 @@
 import { EndpointType, LambdaRestApi, ResponseTransferMode } from 'aws-cdk-lib/aws-apigateway';
-import { Construct } from 'constructs';
 import { Function } from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 
 type WebappApiProps = {
   webappServer: Function;

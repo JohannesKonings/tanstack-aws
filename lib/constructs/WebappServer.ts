@@ -1,7 +1,6 @@
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
-
 import { Duration, Tags } from 'aws-cdk-lib';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import path from 'node:path';
 

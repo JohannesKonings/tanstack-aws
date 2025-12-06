@@ -5,17 +5,17 @@
   "scripts": {
     "webapp:dev": "vite dev --port 3000",
     "webapp:build": "vite build",
-    "webapp:serve": "vite preview",
+    "webapp:serve": "node .output/server/index.mjs",
     "test": "vitest run",
     "lint": "oxlint . --type-aware",
-    "lint:fix": "oxlint . --type-aware --fix",
+    "lint:fix": "pnpm lint --fix",
     "format": "oxfmt . -c .oxfmtrc.json",
-    "format:check": "oxfmt . -c .oxfmtrc.json --check",
+    "format:check": "pnpm format --check",
     "cdk": "cdk"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.1",
     "@ai-sdk/amazon-bedrock": "3.0.62",
+    "@ai-sdk/anthropic": "^2.0.1",
     "@ai-sdk/mcp": "^0.0.5",
     "@ai-sdk/react": "^2.0.8",
     "@modelcontextprotocol/sdk": "^1.8.0",
@@ -62,12 +62,13 @@
     "aws-cdk-lib": "^2.230.0",
     "cdk-nag": "^2.37.55",
     "constructs": "^10.4.3",
+    "eslint-cdk-plugin": "^3.4.4",
     "jsdom": "^27.0.0",
     "oxfmt": "0.15.0",
     "oxlint": "1.30.0",
     "oxlint-tsgolint": "^0.8.2",
     "typescript": "5.9.3",
-    "vite": "^7.1.7",
+    "vite": "8.0.0-beta.0",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
   }

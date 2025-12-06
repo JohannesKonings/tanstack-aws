@@ -1,3 +1,9 @@
 {
-  "singleQuote": true
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "singleQuote": true,
+  "experimentalSortImports": {
+    "ignoreCase": true,
+    "newlinesBetween": false,
+    "order": "asc"
+  }
 }

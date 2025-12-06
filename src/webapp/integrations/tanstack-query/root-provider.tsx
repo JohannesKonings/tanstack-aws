@@ -1,10 +1,10 @@
+import { QueryClient } from '@tanstack/react-query';
 // oxlint-disable func-style
 import { createTRPCClient, httpBatchStreamLink } from '@trpc/client';
-import { QueryClient } from '@tanstack/react-query';
-import { TRPCProvider } from '@/webapp/integrations/trpc/react';
-import type { TRPCRouter } from '@/webapp/integrations/trpc/router';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
+import type { TRPCRouter } from '@/webapp/integrations/trpc/router';
+import { TRPCProvider } from '@/webapp/integrations/trpc/react';
 
 function getUrl() {
   const base = (() => {
