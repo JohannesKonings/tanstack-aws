@@ -1,6 +1,5 @@
 import { EventClient } from '@tanstack/devtools-event-client';
 import { useState, useEffect } from 'react';
-
 import { store, fullName } from './demo-store';
 
 type EventMap = {

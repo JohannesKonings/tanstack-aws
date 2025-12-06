@@ -1,5 +1,4 @@
 import { Function, FunctionUrl, FunctionUrlAuthType, InvokeMode } from 'aws-cdk-lib/aws-lambda';
-
 import { Construct } from 'constructs';
 
 type WebappFunctionUrlProps = {

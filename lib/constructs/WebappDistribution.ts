@@ -1,3 +1,6 @@
+import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Duration } from 'aws-cdk-lib';
 import {
   AllowedMethods,
   CachePolicy,
@@ -10,18 +13,15 @@ import {
   ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { Construct } from 'constructs';
 import {
   FunctionUrlOrigin,
   HttpOrigin,
   RestApiOrigin,
   S3BucketOrigin,
 } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { SSMParameterReader } from './SSMParameterReader.ts';
 import { Version, type IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
-import { Duration } from 'aws-cdk-lib';
-import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Construct } from 'constructs';
+import { SSMParameterReader } from './SSMParameterReader.ts';
 
 // const cspAllowedSources = [
 //   'https://login.microsoftonline.com',

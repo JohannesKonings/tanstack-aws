@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+// oxlint-disable func-style
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
 
 export const Route = createFileRoute('/demo/tanstack-query')({
   component: TanStackQueryDemo,
@@ -13,16 +14,16 @@ type Todo = {
 
 function TanStackQueryDemo() {
   const { data, refetch } = useQuery<Todo[]>({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/demo/api/tq-todos').then((res) => res.json()),
     initialData: [],
+    queryFn: () => fetch('/demo/api/tq-todos').then((res) => res.json()),
+    queryKey: ['todos'],
   });
 
   const { mutate: addTodo } = useMutation({
     mutationFn: (todo: string) =>
       fetch('/demo/api/tq-todos', {
-        method: 'POST',
         body: JSON.stringify(todo),
+        method: 'POST',
       }).then((res) => res.json()),
     onSuccess: () => refetch(),
   });

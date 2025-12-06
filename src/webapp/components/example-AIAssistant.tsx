@@ -1,16 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import type { UIMessage } from 'ai';
+import { useChat } from '@ai-sdk/react';
 import { useStore } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
-
-import { Send, X, ChevronRight } from 'lucide-react';
-import { Streamdown } from 'streamdown';
-
-import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-
+import { Send, X, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Streamdown } from 'streamdown';
 import GuitarRecommendation from './example-GuitarRecommendation';
-
-import type { UIMessage } from 'ai';
 
 export const showAIAssistant = new Store(false);
 

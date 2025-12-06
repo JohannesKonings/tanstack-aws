@@ -4,9 +4,13 @@
     "perf": "warn",
     "style": "warn"
   },
-  "plugins": ["react"],
+  "plugins": [
+    "react"
+  ],
   "rules": {
     "no-console": "error",
+    "sort-imports": "off",
+    "sort-keys": "off",
     "typescript/no-floating-promises": "error"
   }
 }

@@ -1,11 +1,10 @@
 import { Construct } from 'constructs';
-
-import { WebappDistribution } from './WebappDistribution.ts';
-import { WebappServer } from './WebappServer.ts';
-import { WebappAssetsDeployment } from './WebappAssetsDeployment.ts';
-import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
 import { WebappApi } from './WebappApi.ts';
+import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
+import { WebappAssetsDeployment } from './WebappAssetsDeployment.ts';
+import { WebappDistribution } from './WebappDistribution.ts';
 import { WebappFunctionUrl } from './WebappFunctionUrl.ts';
+import { WebappServer } from './WebappServer.ts';
 
 export class Webapp extends Construct {
   constructor(scope: Construct, id: string) {

@@ -1,8 +1,4 @@
 import { Link } from '@tanstack/react-router';
-
-import TanChatAIAssistant from './example-AIAssistant.tsx';
-
-import { useState } from 'react';
 import {
   ChevronDown,
   ChevronRight,
@@ -16,6 +12,8 @@ import {
   Store,
   X,
 } from 'lucide-react';
+import { useState } from 'react';
+import TanChatAIAssistant from './example-AIAssistant.tsx';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);

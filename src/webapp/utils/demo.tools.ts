@@ -1,8 +1,8 @@
-import guitars from '../data/example-guitars';
 import { tool } from 'ai';
 // import { experimental_createMCPClient } from '@ai-sdk/mcp'
 // import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { z } from 'zod';
+import guitars from '../data/example-guitars';
 
 // Example of using an SSE MCP server
 // const mcpClient = await experimental_createMCPClient({

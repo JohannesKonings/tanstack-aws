@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib';
-import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
-import { App, Aspects } from 'aws-cdk-lib';
+// import * as cdk from 'aws-cdk-lib';
+import { App } from 'aws-cdk-lib';
+// import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
+
 import { TanstackAwsStack } from '../lib/tanstack-aws.ts';
 
 const workloadRegion = 'us-east-2';

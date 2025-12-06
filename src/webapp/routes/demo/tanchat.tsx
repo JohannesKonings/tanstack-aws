@@ -1,14 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { Send } from 'lucide-react';
-import { Streamdown } from 'streamdown';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
-
 import type { UIMessage } from 'ai';
-
+import { useChat } from '@ai-sdk/react';
+import { createFileRoute } from '@tanstack/react-router';
+import { DefaultChatTransport } from 'ai';
+import { Send } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Streamdown } from 'streamdown';
 import GuitarRecommendation from '@/webapp/components/example-GuitarRecommendation';
-
 import './tanchat.css';
 
 function InitalLayout({ children }: { children: React.ReactNode }) {
