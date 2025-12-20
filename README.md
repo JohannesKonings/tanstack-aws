@@ -1,5 +1,10 @@
 Welcome to your new TanStack app! 
 
+# Further Reading
+
+* https://johanneskonings.dev/blog/2025-11-30-tanstack-start-aws-serverless/
+* https://johanneskonings.dev/blog/2025-12-20-tanstack-start-aws-db-simple/
+
 # Getting Started
 
 To run this application:
