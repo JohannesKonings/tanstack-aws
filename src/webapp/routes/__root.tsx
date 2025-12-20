@@ -1,7 +1,8 @@
+// oxlint-disable func-style
 import type { QueryClient } from '@tanstack/react-query';
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
+import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import type { TRPCRouter } from '@/webapp/integrations/trpc/router';
 import Header from '../components/Header';
@@ -36,7 +37,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
-
+  notFoundComponent: () => <p>Not Found</p>,  
   shellComponent: RootDocument,
 });
 

@@ -9,7 +9,21 @@
   ],
   "rules": {
     "no-console": "error",
-    "sort-imports": "off",
+    "sort-imports": [
+      "error",
+      {
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": false,
+        "ignoreCase": true,
+        "memberSyntaxSortOrder": [
+          "none",
+          "all",
+          "multiple",
+          "single"
+        ],
+        "allowSeparatedGroups": true
+      }
+    ],
     "sort-keys": "off",
     "typescript/no-floating-promises": "error"
   }
