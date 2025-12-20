@@ -15,7 +15,7 @@ const api = {
     return todoSchema.array().parse(data);
   },
 
-  async createTodos(todo: Omit<Todo, 'id'>) {
+  async createTodo(todo: Omit<Todo, 'id'>) {
     await fetch(todoApiPath, {
       method: 'POST',
       headers: {
@@ -59,7 +59,7 @@ export const todosCollection = createCollection(
         status: mutation.modified.status,
       }));
       for (const item of newItems) {
-        api.createTodos(item);
+        api.createTodo(item);
       }
     },
     onUpdate: async ({ transaction }) => {

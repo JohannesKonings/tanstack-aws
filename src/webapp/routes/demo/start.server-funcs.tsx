@@ -17,6 +17,7 @@ const loggedServerFunction = createServerFn({ method: "GET" }).middleware([
 
 const TODOS_FILE = '/tmp/todos.json';
 
+// oxlint-disable-next-line func-style
 async function readTodos() {
   return JSON.parse(
     await fs.promises.readFile(TODOS_FILE, 'utf-8').catch(() =>
@@ -50,6 +51,7 @@ export const Route = createFileRoute('/demo/start/server-funcs')({
   loader: async () => await getTodos(),
 });
 
+// oxlint-disable-next-line func-style
 function Home() {
   const router = useRouter();
   let todos = Route.useLoaderData();
@@ -60,7 +62,7 @@ function Home() {
     todos = await addTodo({ data: todo });
     setTodo('');
     router.invalidate();
-  }, [todo]);
+  }, [todo, todos, router]);
 
   return (
     <div
