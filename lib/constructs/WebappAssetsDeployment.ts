@@ -25,6 +25,7 @@ export class WebappAssetsDeployment extends Construct {
       distribution,
       distributionPaths: ['/*'],
       prune: true,
+      memoryLimit: 2048,
       sources: [Source.asset(sourcePath)],
     });
   }

@@ -19,7 +19,7 @@ import {
   RestApiOrigin,
   S3BucketOrigin,
 } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { Version, type IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
+import { type IFunctionUrl, Version } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { SSMParameterReader } from './SSMParameterReader.ts';
 

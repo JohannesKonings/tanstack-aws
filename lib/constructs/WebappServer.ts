@@ -4,11 +4,16 @@ import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import path from 'node:path';
 
+type WebappServerProps = {
+  tableName: string;
+};
 export class WebappServer extends Construct {
   readonly webappServer: Function;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: WebappServerProps) {
     super(scope, id);
+
+    const { tableName } = props;
 
     this.webappServer = new Function(this, 'WebappServer', {
       code: Code.fromAsset(
@@ -20,6 +25,9 @@ export class WebappServer extends Construct {
       runtime: Runtime.NODEJS_24_X,
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(60),
+      environment: {
+        DDB_TODOS_TABLE_NAME: tableName,
+      },
     });
     Tags.of(this.webappServer).add('IsWebAppServer', 'true');
 

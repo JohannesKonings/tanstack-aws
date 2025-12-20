@@ -11,6 +11,12 @@ const config = defineConfig({
     devtools(),
     nitro({
       awsLambda: { streaming: true },
+      alias: {
+        'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
+      },
+      externals: {
+        inline: ['mnemonist'],
+      },
       preset: 'aws-lambda',
     }),
     // this is the plugin that enables path aliases

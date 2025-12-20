@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import { DatabaseTodos } from './DatabaseTodos.ts';
 import { WebappApi } from './WebappApi.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
 import { WebappAssetsDeployment } from './WebappAssetsDeployment.ts';
@@ -10,7 +11,13 @@ export class Webapp extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const webappServer = new WebappServer(this, 'WebappServer');
+    const databaseTodos = new DatabaseTodos(this, 'DatabaseTodos');
+
+    const webappServer = new WebappServer(this, 'WebappServer', {
+      tableName: databaseTodos.dbTodos.tableName,
+    });
+
+    databaseTodos.dbTodos.grantReadWriteData(webappServer.webappServer);
 
     const webappServerFunctionUrl = new WebappFunctionUrl(this, 'WebappServerFunctionUrl', {
       webappServer: webappServer.webappServer,

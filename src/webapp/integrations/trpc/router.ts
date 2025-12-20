@@ -11,6 +11,7 @@ const todos = [
 const todosRouter = {
   list: publicProcedure.query(() => todos),
   add: publicProcedure.input(z.object({ name: z.string() })).mutation(({ input }) => {
+    // oxlint-disable-next-line no-magic-numbers
     const newTodo = { id: todos.length + 1, name: input.name };
     todos.push(newTodo);
     return newTodo;
