@@ -1,6 +1,6 @@
 import { queryCollectionOptions } from '@tanstack/query-db-collection';
 import { createCollection } from '@tanstack/react-db';
-import { getContext } from '@/webapp/integrations/tanstack-query/root-provider';
+import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
 import { type Todo, todoSchema } from '../types/todo';
 
 // const todoApiPath = '/demo/api/tq-todos';

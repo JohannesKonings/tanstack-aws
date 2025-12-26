@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 // oxlint-disable func-style
 import { useEffect, useState } from 'react';
-import { getPunkSongs } from '@/webapp/data/demo.punk-songs';
+import { getPunkSongs } from '#src/webapp/data/demo.punk-songs';
 
 export const Route = createFileRoute('/demo/start/ssr/spa-mode')({
   component: RouteComponent,

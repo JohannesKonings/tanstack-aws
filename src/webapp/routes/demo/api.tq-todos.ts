@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import { type Todo, todoSchema } from '@/webapp/types/todo';
+import { type Todo, todoSchema } from '#src/webapp/types/todo';
 
 let todos: Todo[] = [
   {

@@ -4,7 +4,7 @@ import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import type { TRPCRouter } from '@/webapp/integrations/trpc/router';
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 import Header from '../components/Header';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import StoreDevtools from '../lib/demo-store-devtools';

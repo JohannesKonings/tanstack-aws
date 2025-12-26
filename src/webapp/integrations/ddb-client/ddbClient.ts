@@ -6,7 +6,7 @@ import {
   QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { type Todo, todoSchema, type TodoUpdate } from '@/webapp/types/todo';
+import { type Todo, todoSchema, type TodoUpdate } from '#src/webapp/types/todo.ts';
 
 const TODOS_PK = 'TODO';
 const TODOS_TABLE_ENV = 'DDB_TODOS_TABLE_NAME';

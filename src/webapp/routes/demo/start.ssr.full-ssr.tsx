@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { getPunkSongs } from '@/webapp/data/demo.punk-songs';
+import { getPunkSongs } from '#src/webapp/data/demo.punk-songs';
 
 export const Route = createFileRoute('/demo/start/ssr/full-ssr')({
   component: RouteComponent,

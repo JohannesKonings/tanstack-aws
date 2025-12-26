@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
 import { WebappApi } from './WebappApi.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
@@ -12,12 +13,15 @@ export class Webapp extends Construct {
     super(scope, id);
 
     const databaseTodos = new DatabaseTodos(this, 'DatabaseTodos');
+    const databasePersons = new DatabasePersons(this, 'DatabasePersons');
 
     const webappServer = new WebappServer(this, 'WebappServer', {
-      tableName: databaseTodos.dbTodos.tableName,
+      tableNameTodos: databaseTodos.dbTodos.tableName,
+      tableNamePersons: databasePersons.dbPersons.tableName,
     });
 
     databaseTodos.dbTodos.grantReadWriteData(webappServer.webappServer);
+    databasePersons.dbPersons.grantReadWriteData(webappServer.webappServer);
 
     const webappServerFunctionUrl = new WebappFunctionUrl(this, 'WebappServerFunctionUrl', {
       webappServer: webappServer.webappServer,

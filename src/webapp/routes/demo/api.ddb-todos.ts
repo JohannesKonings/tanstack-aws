@@ -1,11 +1,11 @@
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
-import { createTodosDdbClient } from '@/webapp/integrations/ddb-client/ddbClient';
+import { createTodosDdbClient } from '#src/webapp/integrations/ddb-client/ddbClient';
 import {
   createTodoRequestSchema,
   deleteTodosRequestSchema,
   updateTodosRequestSchema,
-} from '@/webapp/types/todo';
+} from '#src/webapp/types/todo';
 
 const todosClient = createTodosDdbClient();
 
