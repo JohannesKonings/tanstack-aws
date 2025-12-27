@@ -121,49 +121,16 @@ Remaining minor tasks:
 | Get person with all data | `pk = PERSON#<id>` | Get person + all related entities (collection query) |
 | Get person's addresses | `pk = PERSON#<id>, sk begins_with ADDRESS#` | All addresses for a person |
 | Get person's bank accounts | `pk = PERSON#<id>, sk begins_with BANK#` | All bank accounts for a person |
-| **Get ALL entities** | GSI2: `gsi2pk = ALL_DATA` | **List all entities for Orama search index** |
 
 ### 2.3 Global Secondary Indexes
 
-No additional Global Secondary Indexes are required for this basic multi-entity example. The primary key structure is sufficient for all access patterns.
+**GSI1: List All Persons** is used for querying all persons.
 
-**GSI2: List All Entities (for Orama Search Index)**
+**Note on GSI2:** A Global Secondary Index (GSI2) for efficiently fetching all entities for search functionality is **postponed**. It will be implemented when search capability is added in a future phase. This includes:
+- Partition Key: `gsi2pk = "ALL_DATA"`
+- Sort Key: `gsi2sk = "PERSON#<personId>#<entityType>#<entityId>"`
 
-For efficiently building the Orama search index, we need to fetch ALL entities (persons + addresses + contacts + employments + bank accounts) in a single query. This GSI allows fetching all data grouped by personId:
-
-```
-GSI2:
-  - Partition Key: gsi2pk = "ALL_DATA" (constant for all entities)
-  - Sort Key: gsi2sk = "PERSON#<personId>#<entityType>#<entityId>"
-  
-All entities are indexed:
-  - Person:      gsi2sk = "PERSON#abc123#PROFILE"
-  - Address:     gsi2sk = "PERSON#abc123#ADDRESS#addr1"
-  - BankAccount: gsi2sk = "PERSON#abc123#BANK#bank1"
-  - ContactInfo: gsi2sk = "PERSON#abc123#CONTACT#cont1"
-  - Employment:  gsi2sk = "PERSON#abc123#EMPLOYMENT#emp1"
-```
-
-**Why GSI2 instead of Parallel Scans?**
-
-With single-table design, entity scans read the **entire table** per entity type:
-
-| Approach | Items Read | RCUs per Index Build | Daily Cost (10 builds) |
-|----------|-----------|---------------------|------------------------|
-| **GSI2 Query** | 50k | ~3,125 | ~31,250 RCUs |
-| **5 Entity Scans** | 5×50k = 250k | ~15,625 | ~156,250 RCUs |
-
-**Trade-off Analysis (for >100 writes/day):**
-- GSI2 extra write cost: ~200 WCUs/day (2x per write)
-- GSI2 read savings: ~125,000 RCUs/day (assuming 10 index builds)
-- **Net benefit: Massive read savings outweigh write overhead**
-
-**GSI2 Benefits:**
-- ✅ Single query fetches ALL data (vs 5× table scans)
-- ✅ Data sorted by personId for trivial client-side grouping
-- ✅ 5x cheaper reads in single-table design
-- ✅ Faster latency (~2-5s vs ~5-10s for parallel scans)
-- ⚠️ Trade-off: 2x WCU per write + extra GSI storage
+When implementing search, GSI2 will provide efficient bulk data fetching compared to multiple table scans.
 
 ---
 
@@ -195,9 +162,9 @@ With single-table design, entity scans read the **entire table** per entity type
 ### Phase 2: CDK Infrastructure Updates
 
 #### 3.3 Update Database Construct
-- [ ] Modify `/lib/constructs/DatabasePersons.ts`
+- [x] Modify `/lib/constructs/DatabasePersons.ts`
   - Add GSI1 for listing all persons (`gsi1pk`, `gsi1sk`)
-  - Add GSI2 for listing all entities for Orama (`gsi2pk`, `gsi2sk`)
+  - GSI2 for listing all entities is **postponed** until search implementation
   - Keep existing pk/sk structure
 
 #### 3.4 Update Webapp Construct

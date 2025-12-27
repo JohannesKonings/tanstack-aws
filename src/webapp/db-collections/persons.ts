@@ -23,107 +23,100 @@ import { createServerFn } from '@tanstack/react-start';
 /**
  * Get all persons (profile only)
  */
-export const fetchPersons = createServerFn({ method: 'GET' }).handler(async () =>
+const fetchPersons = createServerFn({ method: 'GET' }).handler(async () =>
   electrodbClient.getAllPersons(),
 );
 
 /**
- * Get a person with all related entities
- */
-export const fetchPersonWithRelations = createServerFn({ method: 'GET' })
-  .inputValidator((input: string) => input)
-  .handler(async ({ data: personId }) => electrodbClient.getPersonWithRelations(personId));
-
-/**
  * Create a new person
  */
-export const createPersonFn = createServerFn({ method: 'POST' })
+const createPersonFn = createServerFn({ method: 'POST' })
   .inputValidator((input: Person) => PersonSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createPerson(data));
 
 /**
  * Update a person
  */
-export const updatePersonFn = createServerFn({ method: 'POST' })
+const updatePersonFn = createServerFn({ method: 'POST' })
   .inputValidator((input: { personId: string; updates: Partial<Person> }) => input)
   .handler(async ({ data }) => electrodbClient.updatePerson(data.personId, data.updates));
 
 /**
  * Delete a person
  */
-export const deletePersonFn = createServerFn({ method: 'POST' })
+const deletePersonFn = createServerFn({ method: 'POST' })
   .inputValidator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.deletePerson(personId));
 
 // --- Address Server Functions ---
 
-export const fetchAddresses = createServerFn({ method: 'GET' })
+const fetchAddresses = createServerFn({ method: 'GET' })
   .inputValidator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.getAddressesByPersonId(personId));
 
-export const createAddressFn = createServerFn({ method: 'POST' })
+const createAddressFn = createServerFn({ method: 'POST' })
   .inputValidator((input: Address) => AddressSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createAddress(data));
 
-export const updateAddressFn = createServerFn({ method: 'POST' })
+const updateAddressFn = createServerFn({ method: 'POST' })
   .inputValidator((input: Address) => AddressSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateAddress(data));
 
-export const deleteAddressFn = createServerFn({ method: 'POST' })
+const deleteAddressFn = createServerFn({ method: 'POST' })
   .inputValidator((input: { personId: string; addressId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteAddress(data.personId, data.addressId));
 
 // --- BankAccount Server Functions ---
 
-export const fetchBankAccounts = createServerFn({ method: 'GET' })
+const fetchBankAccounts = createServerFn({ method: 'GET' })
   .inputValidator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.getBankAccountsByPersonId(personId));
 
-export const createBankAccountFn = createServerFn({ method: 'POST' })
+const createBankAccountFn = createServerFn({ method: 'POST' })
   .inputValidator((input: BankAccount) => BankAccountSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createBankAccount(data));
 
-export const updateBankAccountFn = createServerFn({ method: 'POST' })
+const updateBankAccountFn = createServerFn({ method: 'POST' })
   .inputValidator((input: BankAccount) => BankAccountSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateBankAccount(data));
 
-export const deleteBankAccountFn = createServerFn({ method: 'POST' })
+const deleteBankAccountFn = createServerFn({ method: 'POST' })
   .inputValidator((input: { personId: string; bankId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteBankAccount(data.personId, data.bankId));
 
 // --- ContactInfo Server Functions ---
 
-export const fetchContacts = createServerFn({ method: 'GET' })
+const fetchContacts = createServerFn({ method: 'GET' })
   .inputValidator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.getContactsByPersonId(personId));
 
-export const createContactFn = createServerFn({ method: 'POST' })
+const createContactFn = createServerFn({ method: 'POST' })
   .inputValidator((input: ContactInfo) => ContactInfoSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createContact(data));
 
-export const updateContactFn = createServerFn({ method: 'POST' })
+const updateContactFn = createServerFn({ method: 'POST' })
   .inputValidator((input: ContactInfo) => ContactInfoSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateContact(data));
 
-export const deleteContactFn = createServerFn({ method: 'POST' })
+const deleteContactFn = createServerFn({ method: 'POST' })
   .inputValidator((input: { personId: string; contactId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteContact(data.personId, data.contactId));
 
 // --- Employment Server Functions ---
 
-export const fetchEmployments = createServerFn({ method: 'GET' })
+const fetchEmployments = createServerFn({ method: 'GET' })
   .inputValidator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.getEmploymentsByPersonId(personId));
 
-export const createEmploymentFn = createServerFn({ method: 'POST' })
+const createEmploymentFn = createServerFn({ method: 'POST' })
   .inputValidator((input: Employment) => EmploymentSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createEmployment(data));
 
-export const updateEmploymentFn = createServerFn({ method: 'POST' })
+const updateEmploymentFn = createServerFn({ method: 'POST' })
   .inputValidator((input: Employment) => EmploymentSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateEmployment(data));
 
-export const deleteEmploymentFn = createServerFn({ method: 'POST' })
+const deleteEmploymentFn = createServerFn({ method: 'POST' })
   .inputValidator((input: { personId: string; employmentId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteEmployment(data.personId, data.employmentId));
 

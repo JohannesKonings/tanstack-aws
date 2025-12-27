@@ -1,15 +1,5 @@
 import { type ZodObject, type ZodRawShape, type ZodType } from 'zod';
 
-/**
- * ElectroDB attribute type definition
- * Derived from Zod schemas to ensure single source of truth
- */
-export type ElectroDBAttribute = {
-  type: 'string' | 'number' | 'boolean' | 'list' | 'map' | 'set' | 'any' | readonly string[];
-  required?: boolean;
-  default?: unknown;
-};
-
 // Helper to get the schema's internal type discriminator (Zod 4 uses def.type)
 const getZodTypeName = (schema: ZodType): string => {
   // Access the internal _zod.def.type which exists in Zod 4
@@ -31,32 +21,31 @@ const resolveDefaultValue = (defaultValue: unknown): unknown => {
 };
 
 /**
- * Convert a single Zod type to ElectroDB attribute definition
+ * Attribute result type - using 'any' to match ElectroDB's flexible attribute types
  */
-const convertZodType = (zodType: ZodType): ElectroDBAttribute => {
-  const typeName = getZodTypeName(zodType);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ElectroDBAttributeResult = Record<string, any>;
 
-  // Handle optional wrapper
-  if (typeName === 'optional') {
-    const inner = convertZodType(unwrapSchema(zodType));
-    return { ...inner, required: false };
+// Handle wrapper types (optional, nullable, default)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleWrapperType = (typeName: string, zodType: ZodType): any | null => {
+  if (typeName === 'optional' || typeName === 'nullable') {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return { ...convertZodType(unwrapSchema(zodType)), required: false };
   }
-
-  // Handle nullable
-  if (typeName === 'nullable') {
-    const inner = convertZodType(unwrapSchema(zodType));
-    return { ...inner, required: false };
-  }
-
-  // Handle default values
   if (typeName === 'default') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-use-before-define
     const inner = convertZodType(unwrapSchema(zodType));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const defaultValue = (zodType as any)._zod?.def?.defaultValue;
     return { ...inner, default: resolveDefaultValue(defaultValue) };
   }
+  return null;
+};
 
-  // Handle primitives
+// Handle primitive types (string, number, boolean)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handlePrimitiveType = (typeName: string): any | null => {
   if (typeName === 'string') {
     return { type: 'string', required: true };
   }
@@ -66,58 +55,101 @@ const convertZodType = (zodType: ZodType): ElectroDBAttribute => {
   if (typeName === 'boolean') {
     return { type: 'boolean', required: true };
   }
+  return null;
+};
 
-  // Handle enums - ElectroDB supports enum as array of strings
+// Handle enum types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleEnumType = (typeName: string, zodType: ZodType): any | null => {
   if (typeName === 'enum') {
+    // Zod 4: .options is an array of enum values, or extract from entries object
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const values = (zodType as any)._zod?.def?.entries ?? (zodType as any)._zod?.values ?? [];
-    return { type: values as readonly string[], required: true };
+    const { options } = zodType as any;
+    if (Array.isArray(options) && options.length) {
+      return { type: options as readonly string[], required: true };
+    }
+    // Fallback: entries is an object like { male: 'male', female: 'female' }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const entries = (zodType as any)._zod?.def?.entries;
+    if (entries && typeof entries === 'object') {
+      return { type: Object.values(entries) as readonly string[], required: true };
+    }
+    // Default to string if enum extraction fails
+    return { type: 'string', required: true };
   }
+  return null;
+};
 
-  // Handle arrays
+// Handle collection types (array, object)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleCollectionType = (typeName: string): any | null => {
   if (typeName === 'array' || typeName === 'tuple') {
     return { type: 'list', required: true };
   }
-
-  // Handle objects (nested)
   if (typeName === 'object' || typeName === 'record') {
     return { type: 'map', required: true };
   }
+  return null;
+};
 
-  // Handle literals
-  if (typeName === 'literal') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (zodType as any)._zod?.def?.value;
-    if (typeof value === 'string') {
-      return { type: [value] as readonly string[], required: true };
-    }
-    if (typeof value === 'number') {
-      return { type: 'number', required: true };
-    }
-    if (typeof value === 'boolean') {
-      return { type: 'boolean', required: true };
-    }
-    return { type: 'any', required: true };
-  }
-
-  // Handle union types
+// Handle union and intersection types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleUnionType = (typeName: string): any | null => {
   if (typeName === 'union') {
     return { type: 'any', required: true };
   }
-
-  // Handle intersection types
   if (typeName === 'intersection') {
     return { type: 'map', required: true };
   }
+  return null;
+};
 
-  // Handle pipe (transform)
+// Handle pipe/transform types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handlePipeType = (typeName: string, zodType: ZodType): any | null => {
   if (typeName === 'pipe' || typeName === 'transform') {
-    const inner = unwrapSchema(zodType);
-    return convertZodType(inner);
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return convertZodType(unwrapSchema(zodType));
   }
+  return null;
+};
 
-  // Default to string for unknown types
-  return { type: 'string', required: true };
+// Handle literal types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleLiteralType = (typeName: string, zodType: ZodType): any | null => {
+  if (typeName !== 'literal') {
+    return null;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const value = (zodType as any)._zod?.def?.value;
+  if (typeof value === 'string') {
+    return { type: [value] as readonly string[], required: true };
+  }
+  if (typeof value === 'number') {
+    return { type: 'number', required: true };
+  }
+  if (typeof value === 'boolean') {
+    return { type: 'boolean', required: true };
+  }
+  return { type: 'any', required: true };
+};
+
+/**
+ * Convert a single Zod type to ElectroDB attribute definition
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const convertZodType = (zodType: ZodType): any => {
+  const typeName = getZodTypeName(zodType);
+
+  return (
+    handleWrapperType(typeName, zodType) ??
+    handlePrimitiveType(typeName) ??
+    handleEnumType(typeName, zodType) ??
+    handleCollectionType(typeName) ??
+    handleUnionType(typeName) ??
+    handlePipeType(typeName, zodType) ??
+    handleLiteralType(typeName, zodType) ?? { type: 'string', required: true }
+  );
 };
 
 /**
@@ -126,21 +158,21 @@ const convertZodType = (zodType: ZodType): ElectroDBAttribute => {
  *
  * @example
  * ```typescript
- * const personAttributes = zodToElectroDBAttributes(PersonSchema.omit({ id: true }))
- * // Returns: { firstName: { type: 'string', required: true }, ... }
+ * const personAttributes = zodToElectroDBAttributes(PersonSchema)
+ * // Returns: { id: { type: 'string', required: true }, firstName: { type: 'string', required: true }, ... }
  * ```
  */
 export const zodToElectroDBAttributes = <TShape extends ZodRawShape>(
   schema: ZodObject<TShape>,
-): Record<keyof TShape, ElectroDBAttribute> => {
+): ElectroDBAttributeResult => {
   const { shape } = schema;
-  const attributes: Record<string, ElectroDBAttribute> = {};
+  const attributes: ElectroDBAttributeResult = {};
 
   for (const [key, zodType] of Object.entries(shape)) {
     attributes[key] = convertZodType(zodType as ZodType);
   }
 
-  return attributes as Record<keyof TShape, ElectroDBAttribute>;
+  return attributes;
 };
 
 /**
@@ -148,6 +180,6 @@ export const zodToElectroDBAttributes = <TShape extends ZodRawShape>(
  * Useful for ElectroDB enum validation
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getEnumValues = (enumSchema: ZodType): readonly string[] =>
+const getEnumValues = (enumSchema: ZodType): readonly string[] =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (enumSchema as any)._zod?.def?.entries ?? (enumSchema as any)._zod?.values ?? [];

@@ -16,7 +16,7 @@ const EmploymentFormSchema = z.object({
   currency: z.string().length(3, 'Use a 3-letter currency code').default('USD'),
 });
 
-export type EmploymentFormValues = z.infer<typeof EmploymentFormSchema>;
+type EmploymentFormValues = z.infer<typeof EmploymentFormSchema>;
 
 interface EmploymentFormProps {
   employment?: Employment;

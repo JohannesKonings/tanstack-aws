@@ -1,5 +1,13 @@
-import { Entity, type EntityConfiguration, Service } from 'electrodb';
 import { getDdbDocClient } from '#src/webapp/integrations/ddb-client/ddbClient.ts';
+import { zodToElectroDBAttributes } from '#src/webapp/integrations/electrodb/zod-to-electrodb.ts';
+import {
+  AddressSchema,
+  BankAccountSchema,
+  ContactInfoSchema,
+  EmploymentSchema,
+  PersonSchema,
+} from '#src/webapp/types/person.ts';
+import { Entity, type EntityConfiguration, Service } from 'electrodb';
 
 // =============================================================================
 // Table Configuration
@@ -13,6 +21,16 @@ const getEntityConfig = (): EntityConfiguration => ({
 });
 
 // =============================================================================
+// Derived ElectroDB Attributes from Zod Schemas (Single Source of Truth)
+// =============================================================================
+
+const personAttributes = zodToElectroDBAttributes(PersonSchema);
+const addressAttributes = zodToElectroDBAttributes(AddressSchema);
+const bankAccountAttributes = zodToElectroDBAttributes(BankAccountSchema);
+const contactInfoAttributes = zodToElectroDBAttributes(ContactInfoSchema);
+const employmentAttributes = zodToElectroDBAttributes(EmploymentSchema);
+
+// =============================================================================
 // Person Entity
 // =============================================================================
 
@@ -23,15 +41,7 @@ export const PersonEntity = new Entity(
       version: '1',
       service: 'persons',
     },
-    attributes: {
-      id: { type: 'string', required: true },
-      firstName: { type: 'string', required: true },
-      lastName: { type: 'string', required: true },
-      dateOfBirth: { type: 'string' },
-      gender: { type: ['male', 'female', 'other', 'prefer_not_to_say'] as const },
-      createdAt: { type: 'string', required: true },
-      updatedAt: { type: 'string', required: true },
-    },
+    attributes: personAttributes,
     indexes: {
       primary: {
         pk: { field: 'pk', composite: ['id'] },
@@ -42,12 +52,6 @@ export const PersonEntity = new Entity(
         index: 'GSI1',
         pk: { field: 'gsi1pk', composite: [], template: 'PERSONS' },
         sk: { field: 'gsi1sk', composite: ['lastName', 'firstName', 'id'] },
-      },
-      // GSI2: Fetch all entities for Orama
-      allData: {
-        index: 'GSI2',
-        pk: { field: 'gsi2pk', composite: [], template: 'ALL_DATA' },
-        sk: { field: 'gsi2sk', composite: ['id'] },
       },
     },
   },
@@ -65,27 +69,11 @@ export const AddressEntity = new Entity(
       version: '1',
       service: 'persons',
     },
-    attributes: {
-      id: { type: 'string', required: true },
-      personId: { type: 'string', required: true },
-      type: { type: ['home', 'work', 'billing', 'shipping'] as const, required: true },
-      street: { type: 'string', required: true },
-      city: { type: 'string', required: true },
-      state: { type: 'string', required: true },
-      postalCode: { type: 'string', required: true },
-      country: { type: 'string', required: true },
-      isPrimary: { type: 'boolean', default: false },
-    },
+    attributes: addressAttributes,
     indexes: {
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
-      },
-      // GSI2: Fetch all entities for Orama
-      allData: {
-        index: 'GSI2',
-        pk: { field: 'gsi2pk', composite: [], template: 'ALL_DATA' },
-        sk: { field: 'gsi2sk', composite: ['personId', 'id'] },
       },
     },
   },
@@ -103,26 +91,11 @@ export const BankAccountEntity = new Entity(
       version: '1',
       service: 'persons',
     },
-    attributes: {
-      id: { type: 'string', required: true },
-      personId: { type: 'string', required: true },
-      bankName: { type: 'string', required: true },
-      accountType: { type: ['checking', 'savings', 'investment'] as const, required: true },
-      accountNumberLast4: { type: 'string', required: true },
-      iban: { type: 'string' },
-      bic: { type: 'string' },
-      isPrimary: { type: 'boolean', default: false },
-    },
+    attributes: bankAccountAttributes,
     indexes: {
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
-      },
-      // GSI2: Fetch all entities for Orama
-      allData: {
-        index: 'GSI2',
-        pk: { field: 'gsi2pk', composite: [], template: 'ALL_DATA' },
-        sk: { field: 'gsi2sk', composite: ['personId', 'id'] },
       },
     },
   },
@@ -140,24 +113,11 @@ export const ContactInfoEntity = new Entity(
       version: '1',
       service: 'persons',
     },
-    attributes: {
-      id: { type: 'string', required: true },
-      personId: { type: 'string', required: true },
-      type: { type: ['email', 'phone', 'mobile', 'linkedin', 'twitter'] as const, required: true },
-      value: { type: 'string', required: true },
-      isPrimary: { type: 'boolean', default: false },
-      isVerified: { type: 'boolean', default: false },
-    },
+    attributes: contactInfoAttributes,
     indexes: {
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
-      },
-      // GSI2: Fetch all entities for Orama
-      allData: {
-        index: 'GSI2',
-        pk: { field: 'gsi2pk', composite: [], template: 'ALL_DATA' },
-        sk: { field: 'gsi2sk', composite: ['personId', 'id'] },
       },
     },
   },
@@ -175,28 +135,11 @@ export const EmploymentEntity = new Entity(
       version: '1',
       service: 'persons',
     },
-    attributes: {
-      id: { type: 'string', required: true },
-      personId: { type: 'string', required: true },
-      companyName: { type: 'string', required: true },
-      position: { type: 'string', required: true },
-      department: { type: 'string' },
-      startDate: { type: 'string', required: true },
-      endDate: { type: 'string' },
-      isCurrent: { type: 'boolean', default: false },
-      salary: { type: 'number' },
-      currency: { type: 'string', default: 'USD' },
-    },
+    attributes: employmentAttributes,
     indexes: {
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
-      },
-      // GSI2: Fetch all entities for Orama
-      allData: {
-        index: 'GSI2',
-        pk: { field: 'gsi2pk', composite: [], template: 'ALL_DATA' },
-        sk: { field: 'gsi2sk', composite: ['personId', 'id'] },
       },
     },
   },
@@ -207,7 +150,7 @@ export const EmploymentEntity = new Entity(
 // Persons Service - Collection Queries
 // =============================================================================
 
-export const PersonsService = new Service(
+const PersonsService = new Service(
   {
     person: PersonEntity,
     address: AddressEntity,
@@ -222,15 +165,15 @@ export const PersonsService = new Service(
 // Type Exports
 // =============================================================================
 
-export type PersonEntityType = typeof PersonEntity;
-export type AddressEntityType = typeof AddressEntity;
-export type BankAccountEntityType = typeof BankAccountEntity;
-export type ContactInfoEntityType = typeof ContactInfoEntity;
-export type EmploymentEntityType = typeof EmploymentEntity;
+type PersonEntityType = typeof PersonEntity;
+type AddressEntityType = typeof AddressEntity;
+type BankAccountEntityType = typeof BankAccountEntity;
+type ContactInfoEntityType = typeof ContactInfoEntity;
+type EmploymentEntityType = typeof EmploymentEntity;
 
 // ElectroDB inferred types
-export type PersonItem = ReturnType<typeof PersonEntity.parse>;
-export type AddressItem = ReturnType<typeof AddressEntity.parse>;
-export type BankAccountItem = ReturnType<typeof BankAccountEntity.parse>;
-export type ContactInfoItem = ReturnType<typeof ContactInfoEntity.parse>;
-export type EmploymentItem = ReturnType<typeof EmploymentEntity.parse>;
+type PersonItem = ReturnType<typeof PersonEntity.parse>;
+type AddressItem = ReturnType<typeof AddressEntity.parse>;
+type BankAccountItem = ReturnType<typeof BankAccountEntity.parse>;
+type ContactInfoItem = ReturnType<typeof ContactInfoEntity.parse>;
+type EmploymentItem = ReturnType<typeof EmploymentEntity.parse>;

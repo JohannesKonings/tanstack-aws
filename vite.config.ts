@@ -19,7 +19,7 @@ const config = defineConfig({
       },
       preset: 'aws-lambda',
     }),
-    // this is the plugin that enables path aliases
+    // This is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
@@ -27,7 +27,11 @@ const config = defineConfig({
     tanstackStart({
       srcDirectory: 'src/webapp',
     }),
-    viteReact(),
+    viteReact({
+      babel: {
+        plugins: [['babel-plugin-react-compiler', {}]],
+      },
+    }),
   ],
 });
 

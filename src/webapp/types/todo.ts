@@ -9,9 +9,9 @@ export const todoSchema = z.object({
 export type Todo = z.infer<typeof todoSchema>;
 
 export const createTodoRequestSchema = todoSchema;
-export type CreateTodoRequest = z.infer<typeof createTodoRequestSchema>;
+type CreateTodoRequest = z.infer<typeof createTodoRequestSchema>;
 
-export const todoUpdateSchema = z.object({
+const todoUpdateSchema = z.object({
   id: z.number(),
   changes: z
     .object({
@@ -23,7 +23,7 @@ export const todoUpdateSchema = z.object({
 export type TodoUpdate = z.infer<typeof todoUpdateSchema>;
 
 export const updateTodosRequestSchema = z.array(todoUpdateSchema);
-export type UpdateTodosRequest = z.infer<typeof updateTodosRequestSchema>;
+type UpdateTodosRequest = z.infer<typeof updateTodosRequestSchema>;
 
 export const deleteTodosRequestSchema = z.array(z.number());
-export type DeleteTodosRequest = z.infer<typeof deleteTodosRequestSchema>;
+type DeleteTodosRequest = z.infer<typeof deleteTodosRequestSchema>;

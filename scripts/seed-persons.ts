@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// oxlint-disable max-statements
 /* oxlint-disable no-console, no-await-in-loop, no-magic-numbers */
 /**
  * Seed Script for DB Persons

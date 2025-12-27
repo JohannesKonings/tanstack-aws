@@ -2,7 +2,6 @@
  * ElectroDB-based Persons Client
  *
  * Uses ElectroDB entities for type-safe DynamoDB operations.
- * Includes GSI2 query for fetching all entities (for Orama search).
  */
 
 import type {
@@ -11,7 +10,6 @@ import type {
   ContactInfo,
   Employment,
   Person,
-  PersonWithRelations,
 } from '#src/webapp/types/person.ts';
 import {
   AddressEntity,
@@ -25,19 +23,8 @@ import {
 // Types for All Data Response
 // =============================================================================
 
-export interface AllEntitiesData {
-  persons: Person[];
-  addresses: Address[];
-  bankAccounts: BankAccount[];
-  contacts: ContactInfo[];
-  employments: Employment[];
-}
-
-export interface PaginatedAllDataResponse {
-  data: AllEntitiesData;
-  cursor: string | null;
-  hasMore: boolean;
-}
+// Note: AllEntitiesData types are removed as GSI2 (used for Orama search) is postponed.
+// These will be added back when search functionality is implemented.
 
 // =============================================================================
 // Person Operations
@@ -57,97 +44,6 @@ export const getAllPersons = async (): Promise<Person[]> => {
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
   }));
-};
-
-/**
- * Get a person by ID
- */
-export const getPersonById = async (personId: string): Promise<Person | null> => {
-  const result = await PersonEntity.get({ id: personId }).go();
-  if (!result.data) {
-    return null;
-  }
-
-  return {
-    id: result.data.id,
-    firstName: result.data.firstName,
-    lastName: result.data.lastName,
-    dateOfBirth: result.data.dateOfBirth,
-    gender: result.data.gender,
-    createdAt: result.data.createdAt,
-    updatedAt: result.data.updatedAt,
-  };
-};
-
-/**
- * Get a person with all related entities
- */
-export const getPersonWithRelations = async (
-  personId: string,
-): Promise<PersonWithRelations | null> => {
-  // Use ElectroDB collection query to get all entities for a person
-  const [person, addresses, bankAccounts, contacts, employments] = await Promise.all([
-    PersonEntity.get({ id: personId }).go(),
-    AddressEntity.query.primary({ personId }).go(),
-    BankAccountEntity.query.primary({ personId }).go(),
-    ContactInfoEntity.query.primary({ personId }).go(),
-    EmploymentEntity.query.primary({ personId }).go(),
-  ]);
-
-  if (!person.data) {
-    return null;
-  }
-
-  return {
-    id: person.data.id,
-    firstName: person.data.firstName,
-    lastName: person.data.lastName,
-    dateOfBirth: person.data.dateOfBirth,
-    gender: person.data.gender,
-    createdAt: person.data.createdAt,
-    updatedAt: person.data.updatedAt,
-    addresses: addresses.data.map((addr) => ({
-      id: addr.id,
-      personId: addr.personId,
-      type: addr.type,
-      street: addr.street,
-      city: addr.city,
-      state: addr.state,
-      postalCode: addr.postalCode,
-      country: addr.country,
-      isPrimary: addr.isPrimary ?? false,
-    })),
-    bankAccounts: bankAccounts.data.map((bank) => ({
-      id: bank.id,
-      personId: bank.personId,
-      bankName: bank.bankName,
-      accountType: bank.accountType,
-      accountNumberLast4: bank.accountNumberLast4,
-      iban: bank.iban,
-      bic: bank.bic,
-      isPrimary: bank.isPrimary ?? false,
-    })),
-    contacts: contacts.data.map((contact) => ({
-      id: contact.id,
-      personId: contact.personId,
-      type: contact.type,
-      value: contact.value,
-      isPrimary: contact.isPrimary ?? false,
-      isVerified: contact.isVerified ?? false,
-    })),
-    employments: employments.data.map((emp) => ({
-      id: emp.id,
-      personId: emp.personId,
-      companyName: emp.companyName,
-      position: emp.position,
-      department: emp.department,
-      startDate: emp.startDate,
-      endDate: emp.endDate ?? null,
-      isCurrent: emp.isCurrent ?? false,
-      salary: emp.salary,
-      currency: emp.currency ?? 'USD',
-    })),
-  };
 };
 
 /**
@@ -286,117 +182,4 @@ export const updateEmployment = async (employment: Employment): Promise<Employme
 
 export const deleteEmployment = async (personId: string, employmentId: string): Promise<void> => {
   await EmploymentEntity.delete({ personId, id: employmentId }).go();
-};
-
-// =============================================================================
-// GSI2: Fetch All Entities for Orama Search (with Pagination)
-// =============================================================================
-
-const ITEMS_PER_PAGE = 1000;
-
-/**
- * Fetch all entities from all entity types using GSI2.
- * Returns paginated results for loading into Orama search.
- *
- * @param cursor - The pagination cursor (LastEvaluatedKey as base64)
- * @returns Paginated response with all entity types
- */
-export const getAllEntitiesForSearch = async (
-  cursor?: string | null,
-): Promise<PaginatedAllDataResponse> => {
-  const data: AllEntitiesData = {
-    persons: [],
-    addresses: [],
-    bankAccounts: [],
-    contacts: [],
-    employments: [],
-  };
-
-  // Query all entities using GSI2 via the Service
-  // We need to query each entity type separately since they share the same GSI2
-  const [personsResult, addressesResult, bankAccountsResult, contactsResult, employmentsResult] =
-    await Promise.all([
-      PersonEntity.query.allData({}).go({
-        limit: ITEMS_PER_PAGE,
-        cursor: cursor ?? undefined,
-      }),
-      AddressEntity.query.allData({}).go({
-        limit: ITEMS_PER_PAGE,
-        cursor: cursor ?? undefined,
-      }),
-      BankAccountEntity.query.allData({}).go({
-        limit: ITEMS_PER_PAGE,
-        cursor: cursor ?? undefined,
-      }),
-      ContactInfoEntity.query.allData({}).go({
-        limit: ITEMS_PER_PAGE,
-        cursor: cursor ?? undefined,
-      }),
-      EmploymentEntity.query.allData({}).go({
-        limit: ITEMS_PER_PAGE,
-        cursor: cursor ?? undefined,
-      }),
-    ]);
-
-  // Map results to typed arrays
-  data.persons = personsResult.data as Person[];
-  data.addresses = addressesResult.data as Address[];
-  data.bankAccounts = bankAccountsResult.data as BankAccount[];
-  data.contacts = contactsResult.data as ContactInfo[];
-  data.employments = employmentsResult.data as Employment[];
-
-  // Determine if there's more data (any entity type has a cursor)
-  const hasMore = Boolean(
-    personsResult.cursor ||
-    addressesResult.cursor ||
-    bankAccountsResult.cursor ||
-    contactsResult.cursor ||
-    employmentsResult.cursor,
-  );
-
-  // Use the first available cursor for next page
-  const nextCursor =
-    personsResult.cursor ||
-    addressesResult.cursor ||
-    bankAccountsResult.cursor ||
-    contactsResult.cursor ||
-    employmentsResult.cursor ||
-    null;
-
-  return {
-    data,
-    cursor: nextCursor,
-    hasMore,
-  };
-};
-
-/**
- * Fetch ALL entities for Orama (iterates through all pages)
- * Use with caution - for initial load only, consider streaming for large datasets
- */
-export const getAllEntitiesComplete = async (): Promise<AllEntitiesData> => {
-  const allData: AllEntitiesData = {
-    persons: [],
-    addresses: [],
-    bankAccounts: [],
-    contacts: [],
-    employments: [],
-  };
-
-  const fetchAllPages = async (currentCursor: string | null): Promise<void> => {
-    const { data, cursor: nextCursor, hasMore } = await getAllEntitiesForSearch(currentCursor);
-    allData.persons.push(...data.persons);
-    allData.addresses.push(...data.addresses);
-    allData.bankAccounts.push(...data.bankAccounts);
-    allData.contacts.push(...data.contacts);
-    allData.employments.push(...data.employments);
-
-    if (hasMore && nextCursor) {
-      await fetchAllPages(nextCursor);
-    }
-  };
-
-  await fetchAllPages(null);
-
-  return allData;
 };

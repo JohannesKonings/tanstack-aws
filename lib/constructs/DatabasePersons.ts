@@ -13,7 +13,7 @@ export class DatabasePersons extends Construct {
     });
 
     // GSI1: For listing all persons
-    // gsi1pk = "PERSONS", gsi1sk = "PERSON#<personId>"
+    // Example gsi1pk = "PERSONS", gsi1sk = "PERSON#<personId>"
     this.dbPersons.addGlobalSecondaryIndex({
       indexName: 'GSI1',
       partitionKey: { name: 'gsi1pk', type: AttributeType.STRING },
@@ -21,13 +21,13 @@ export class DatabasePersons extends Construct {
       projectionType: ProjectionType.ALL,
     });
 
-    // GSI2: For fetching ALL entities (for Orama search index)
-    // gsi2pk = "ALL_DATA" (constant), gsi2sk = "PERSON#<personId>#<entityType>#<entityId>"
-    this.dbPersons.addGlobalSecondaryIndex({
-      indexName: 'GSI2',
-      partitionKey: { name: 'gsi2pk', type: AttributeType.STRING },
-      sortKey: { name: 'gsi2sk', type: AttributeType.STRING },
-      projectionType: ProjectionType.ALL,
-    });
+    // GSI2: For fetching all entities (postponed until search implementation)
+    // Uncomment when search functionality is implemented
+    // THIS.dbPersons.addGlobalSecondaryIndex({
+    //   IndexName: 'GSI2',
+    //   PartitionKey: { name: 'gsi2pk', type: AttributeType.STRING },
+    //   SortKey: { name: 'gsi2sk', type: AttributeType.STRING },
+    //   ProjectionType: ProjectionType.ALL,
+    // });
   }
 }

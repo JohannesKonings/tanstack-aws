@@ -11,10 +11,10 @@ export type Gender = z.infer<typeof GenderEnum>;
 export const AddressTypeEnum = z.enum(['home', 'work', 'billing', 'shipping']);
 export type AddressType = z.infer<typeof AddressTypeEnum>;
 
-export const AccountTypeEnum = z.enum(['checking', 'savings', 'investment']);
+const AccountTypeEnum = z.enum(['checking', 'savings', 'investment']);
 export type AccountType = z.infer<typeof AccountTypeEnum>;
 
-export const ContactTypeEnum = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
+const ContactTypeEnum = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
 export type ContactType = z.infer<typeof ContactTypeEnum>;
 
 // =============================================================================
@@ -106,200 +106,13 @@ export type Employment = z.infer<typeof EmploymentSchema>;
 // =============================================================================
 
 /**
- * PersonWithRelations - Person with all related entities
+ * Person with all related entities (addresses, bank accounts, contacts, employments)
  */
-export const PersonWithRelationsSchema = PersonSchema.extend({
-  addresses: z.array(AddressSchema).default([]),
-  bankAccounts: z.array(BankAccountSchema).default([]),
-  contacts: z.array(ContactInfoSchema).default([]),
-  employments: z.array(EmploymentSchema).default([]),
+const PersonWithRelationsSchema = PersonSchema.extend({
+  addresses: z.array(AddressSchema),
+  bankAccounts: z.array(BankAccountSchema),
+  contacts: z.array(ContactInfoSchema),
+  employments: z.array(EmploymentSchema),
 });
 
 export type PersonWithRelations = z.infer<typeof PersonWithRelationsSchema>;
-
-// =============================================================================
-// DynamoDB Item Types (for single-table design)
-// =============================================================================
-
-/**
- * Base DynamoDB item with pk/sk
- */
-export const DynamoDBItemSchema = z.object({
-  pk: z.string(),
-  sk: z.string(),
-  gsi1pk: z.string().optional(),
-  gsi1sk: z.string().optional(),
-  entityType: z.enum(['PERSON', 'ADDRESS', 'BANK', 'CONTACT', 'EMPLOYMENT']),
-});
-
-export type DynamoDBItem = z.infer<typeof DynamoDBItemSchema>;
-
-/**
- * Person DynamoDB item
- */
-export const PersonDynamoDBItemSchema = DynamoDBItemSchema.extend({
-  entityType: z.literal('PERSON'),
-}).merge(PersonSchema.omit({ id: true }));
-
-export type PersonDynamoDBItem = z.infer<typeof PersonDynamoDBItemSchema>;
-
-/**
- * Address DynamoDB item
- */
-export const AddressDynamoDBItemSchema = DynamoDBItemSchema.extend({
-  entityType: z.literal('ADDRESS'),
-}).merge(AddressSchema.omit({ id: true, personId: true }));
-
-export type AddressDynamoDBItem = z.infer<typeof AddressDynamoDBItemSchema>;
-
-/**
- * BankAccount DynamoDB item
- */
-export const BankAccountDynamoDBItemSchema = DynamoDBItemSchema.extend({
-  entityType: z.literal('BANK'),
-}).merge(BankAccountSchema.omit({ id: true, personId: true }));
-
-export type BankAccountDynamoDBItem = z.infer<typeof BankAccountDynamoDBItemSchema>;
-
-/**
- * ContactInfo DynamoDB item
- */
-export const ContactInfoDynamoDBItemSchema = DynamoDBItemSchema.extend({
-  entityType: z.literal('CONTACT'),
-}).merge(ContactInfoSchema.omit({ id: true, personId: true }));
-
-export type ContactInfoDynamoDBItem = z.infer<typeof ContactInfoDynamoDBItemSchema>;
-
-/**
- * Employment DynamoDB item
- */
-export const EmploymentDynamoDBItemSchema = DynamoDBItemSchema.extend({
-  entityType: z.literal('EMPLOYMENT'),
-}).merge(EmploymentSchema.omit({ id: true, personId: true }));
-
-export type EmploymentDynamoDBItem = z.infer<typeof EmploymentDynamoDBItemSchema>;
-
-// =============================================================================
-// Request/Response Schemas
-// =============================================================================
-
-/**
- * Create person request
- */
-export const CreatePersonRequestSchema = PersonSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>;
-
-/**
- * Update person request
- */
-export const UpdatePersonRequestSchema = PersonSchema.partial().omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type UpdatePersonRequest = z.infer<typeof UpdatePersonRequestSchema>;
-
-/**
- * Create address request
- */
-export const CreateAddressRequestSchema = AddressSchema.omit({
-  id: true,
-});
-
-export type CreateAddressRequest = z.infer<typeof CreateAddressRequestSchema>;
-
-/**
- * Create bank account request
- */
-export const CreateBankAccountRequestSchema = BankAccountSchema.omit({
-  id: true,
-});
-
-export type CreateBankAccountRequest = z.infer<typeof CreateBankAccountRequestSchema>;
-
-/**
- * Create contact info request
- */
-export const CreateContactInfoRequestSchema = ContactInfoSchema.omit({
-  id: true,
-});
-
-export type CreateContactInfoRequest = z.infer<typeof CreateContactInfoRequestSchema>;
-
-/**
- * Create employment request
- */
-export const CreateEmploymentRequestSchema = EmploymentSchema.omit({
-  id: true,
-});
-
-export type CreateEmploymentRequest = z.infer<typeof CreateEmploymentRequestSchema>;
-
-// =============================================================================
-// Helper Types for Search
-// =============================================================================
-
-/**
- * Person summary for search results (lightweight)
- * Includes fields from all entity types for cross-entity search
- */
-export const PersonSummarySchema = z.object({
-  // Person fields
-  id: z.uuid(),
-  firstName: z.string(),
-  lastName: z.string(),
-  // Address fields
-  city: z.string().optional(),
-  country: z.string().optional(),
-  // Contact fields
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  // Employment fields
-  companyName: z.string().optional(),
-  position: z.string().optional(),
-  // Bank fields
-  bankName: z.string().optional(),
-});
-
-export type PersonSummary = z.infer<typeof PersonSummarySchema>;
-
-// =============================================================================
-// Key Helpers
-// =============================================================================
-
-export const DynamoDBKeys = {
-  person: {
-    pk: (personId: string) => `PERSON#${personId}`,
-    sk: () => 'PROFILE',
-    gsi1pk: () => 'PERSONS',
-    gsi1sk: (personId: string) => `PERSON#${personId}`,
-  },
-  address: {
-    pk: (personId: string) => `PERSON#${personId}`,
-    sk: (addressId: string) => `ADDRESS#${addressId}`,
-  },
-  bankAccount: {
-    pk: (personId: string) => `PERSON#${personId}`,
-    sk: (bankId: string) => `BANK#${bankId}`,
-  },
-  contactInfo: {
-    pk: (personId: string) => `PERSON#${personId}`,
-    sk: (contactId: string) => `CONTACT#${contactId}`,
-  },
-  employment: {
-    pk: (personId: string) => `PERSON#${personId}`,
-    sk: (employmentId: string) => `EMPLOYMENT#${employmentId}`,
-  },
-  // Extract IDs from keys
-  extractPersonId: (pk: string) => pk.replace('PERSON#', ''),
-  extractAddressId: (sk: string) => sk.replace('ADDRESS#', ''),
-  extractBankId: (sk: string) => sk.replace('BANK#', ''),
-  extractContactId: (sk: string) => sk.replace('CONTACT#', ''),
-  extractEmploymentId: (sk: string) => sk.replace('EMPLOYMENT#', ''),
-} as const;

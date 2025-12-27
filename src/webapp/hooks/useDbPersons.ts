@@ -15,7 +15,7 @@ import {
 // oxlint-disable no-magic-numbers
 // oxlint-disable func-style
 import { useLiveQuery } from '@tanstack/react-db';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 // =============================================================================
 // Persons List Hook
@@ -28,25 +28,25 @@ export function usePersons() {
   // Live query for all persons
   const query = useLiveQuery(personsCollection);
 
-  // Mutation functions
-  const addPerson = useCallback((person: Person) => {
+  // Mutation functions (React Compiler handles memoization)
+  const addPerson = (person: Person) => {
     personsCollection.insert(person);
-  }, []);
+  };
 
-  const updatePerson = useCallback((id: string, changes: Partial<Person>) => {
+  const updatePerson = (id: string, changes: Partial<Person>) => {
     personsCollection.update(id, (draft) => {
       Object.assign(draft, changes, { updatedAt: new Date().toISOString() });
     });
-  }, []);
+  };
 
-  const deletePerson = useCallback((id: string) => {
+  const deletePerson = (id: string) => {
     personsCollection.delete(id);
-  }, []);
+  };
 
   return {
     persons: query.data ?? [],
     isLoading: query.isLoading,
-    error: query.error,
+    isError: query.isError,
     addPerson,
     updatePerson,
     deletePerson,
@@ -60,43 +60,34 @@ export function usePersons() {
 /**
  * Hook for accessing addresses of a specific person
  */
-export function usePersonAddresses(personId: string) {
+function usePersonAddresses(personId: string) {
   const collection = useMemo(() => createAddressesCollection(personId), [personId]);
 
   const query = useLiveQuery(collection);
 
-  const addAddress = useCallback(
-    (address: Omit<Address, 'id' | 'personId'>) => {
-      const newAddress: Address = {
-        ...address,
-        id: crypto.randomUUID(),
-        personId,
-      };
-      collection.insert(newAddress);
-    },
-    [collection, personId],
-  );
+  const addAddress = (address: Omit<Address, 'id' | 'personId'>) => {
+    const newAddress: Address = {
+      ...address,
+      id: crypto.randomUUID(),
+      personId,
+    };
+    collection.insert(newAddress);
+  };
 
-  const updateAddress = useCallback(
-    (addressId: string, changes: Partial<Address>) => {
-      collection.update(addressId, (draft) => {
-        Object.assign(draft, changes);
-      });
-    },
-    [collection],
-  );
+  const updateAddress = (addressId: string, changes: Partial<Address>) => {
+    collection.update(addressId, (draft) => {
+      Object.assign(draft, changes);
+    });
+  };
 
-  const deleteAddress = useCallback(
-    (addressId: string) => {
-      collection.delete(addressId);
-    },
-    [collection],
-  );
+  const deleteAddress = (addressId: string) => {
+    collection.delete(addressId);
+  };
 
   return {
     addresses: query.data ?? [],
     isLoading: query.isLoading,
-    error: query.error,
+    isError: query.isError,
     addAddress,
     updateAddress,
     deleteAddress,
@@ -106,38 +97,29 @@ export function usePersonAddresses(personId: string) {
 /**
  * Hook for accessing bank accounts of a specific person
  */
-export function usePersonBankAccounts(personId: string) {
+function usePersonBankAccounts(personId: string) {
   const collection = useMemo(() => createBankAccountsCollection(personId), [personId]);
 
   const query = useLiveQuery(collection);
 
-  const addBankAccount = useCallback(
-    (account: Omit<BankAccount, 'id' | 'personId'>) => {
-      const newAccount: BankAccount = {
-        ...account,
-        id: crypto.randomUUID(),
-        personId,
-      };
-      collection.insert(newAccount);
-    },
-    [collection, personId],
-  );
+  const addBankAccount = (account: Omit<BankAccount, 'id' | 'personId'>) => {
+    const newAccount: BankAccount = {
+      ...account,
+      id: crypto.randomUUID(),
+      personId,
+    };
+    collection.insert(newAccount);
+  };
 
-  const updateBankAccount = useCallback(
-    (accountId: string, changes: Partial<BankAccount>) => {
-      collection.update(accountId, (draft) => {
-        Object.assign(draft, changes);
-      });
-    },
-    [collection],
-  );
+  const updateBankAccount = (accountId: string, changes: Partial<BankAccount>) => {
+    collection.update(accountId, (draft) => {
+      Object.assign(draft, changes);
+    });
+  };
 
-  const deleteBankAccount = useCallback(
-    (accountId: string) => {
-      collection.delete(accountId);
-    },
-    [collection],
-  );
+  const deleteBankAccount = (accountId: string) => {
+    collection.delete(accountId);
+  };
 
   return {
     bankAccounts: query.data ?? [],
@@ -152,43 +134,34 @@ export function usePersonBankAccounts(personId: string) {
 /**
  * Hook for accessing contacts of a specific person
  */
-export function usePersonContacts(personId: string) {
+function usePersonContacts(personId: string) {
   const collection = useMemo(() => createContactsCollection(personId), [personId]);
 
   const query = useLiveQuery(collection);
 
-  const addContact = useCallback(
-    (contact: Omit<ContactInfo, 'id' | 'personId'>) => {
-      const newContact: ContactInfo = {
-        ...contact,
-        id: crypto.randomUUID(),
-        personId,
-      };
-      collection.insert(newContact);
-    },
-    [collection, personId],
-  );
+  const addContact = (contact: Omit<ContactInfo, 'id' | 'personId'>) => {
+    const newContact: ContactInfo = {
+      ...contact,
+      id: crypto.randomUUID(),
+      personId,
+    };
+    collection.insert(newContact);
+  };
 
-  const updateContact = useCallback(
-    (contactId: string, changes: Partial<ContactInfo>) => {
-      collection.update(contactId, (draft) => {
-        Object.assign(draft, changes);
-      });
-    },
-    [collection],
-  );
+  const updateContact = (contactId: string, changes: Partial<ContactInfo>) => {
+    collection.update(contactId, (draft) => {
+      Object.assign(draft, changes);
+    });
+  };
 
-  const deleteContact = useCallback(
-    (contactId: string) => {
-      collection.delete(contactId);
-    },
-    [collection],
-  );
+  const deleteContact = (contactId: string) => {
+    collection.delete(contactId);
+  };
 
   return {
     contacts: query.data ?? [],
     isLoading: query.isLoading,
-    error: query.error,
+    isError: query.isError,
     addContact,
     updateContact,
     deleteContact,
@@ -198,43 +171,34 @@ export function usePersonContacts(personId: string) {
 /**
  * Hook for accessing employments of a specific person
  */
-export function usePersonEmployments(personId: string) {
+function usePersonEmployments(personId: string) {
   const collection = useMemo(() => createEmploymentsCollection(personId), [personId]);
 
   const query = useLiveQuery(collection);
 
-  const addEmployment = useCallback(
-    (employment: Omit<Employment, 'id' | 'personId'>) => {
-      const newEmployment: Employment = {
-        ...employment,
-        id: crypto.randomUUID(),
-        personId,
-      };
-      collection.insert(newEmployment);
-    },
-    [collection, personId],
-  );
+  const addEmployment = (employment: Omit<Employment, 'id' | 'personId'>) => {
+    const newEmployment: Employment = {
+      ...employment,
+      id: crypto.randomUUID(),
+      personId,
+    };
+    collection.insert(newEmployment);
+  };
 
-  const updateEmployment = useCallback(
-    (employmentId: string, changes: Partial<Employment>) => {
-      collection.update(employmentId, (draft) => {
-        Object.assign(draft, changes);
-      });
-    },
-    [collection],
-  );
+  const updateEmployment = (employmentId: string, changes: Partial<Employment>) => {
+    collection.update(employmentId, (draft) => {
+      Object.assign(draft, changes);
+    });
+  };
 
-  const deleteEmployment = useCallback(
-    (employmentId: string) => {
-      collection.delete(employmentId);
-    },
-    [collection],
-  );
+  const deleteEmployment = (employmentId: string) => {
+    collection.delete(employmentId);
+  };
 
   return {
     employments: query.data ?? [],
     isLoading: query.isLoading,
-    error: query.error,
+    isError: query.isError,
     addEmployment,
     updateEmployment,
     deleteEmployment,

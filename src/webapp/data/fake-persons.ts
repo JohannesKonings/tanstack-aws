@@ -33,7 +33,7 @@ export function initFaker(seed: number = SEED) {
 /**
  * Generate a fake person
  */
-export function generatePerson(overrides?: Partial<Person>): Person {
+function generatePerson(overrides?: Partial<Person>): Person {
   const now = new Date().toISOString();
   const gender = faker.helpers.arrayElement<Gender>([
     'male',
@@ -60,7 +60,7 @@ export function generatePerson(overrides?: Partial<Person>): Person {
 /**
  * Generate a fake address for a person
  */
-export function generateAddress(personId: string, overrides?: Partial<Address>): Address {
+function generateAddress(personId: string, overrides?: Partial<Address>): Address {
   const addressTypes: AddressType[] = ['home', 'work', 'billing', 'shipping'];
 
   return {
@@ -80,7 +80,7 @@ export function generateAddress(personId: string, overrides?: Partial<Address>):
 /**
  * Generate a fake bank account for a person
  */
-export function generateBankAccount(
+function generateBankAccount(
   personId: string,
   overrides?: Partial<BankAccount>,
 ): BankAccount {
@@ -102,7 +102,7 @@ export function generateBankAccount(
 /**
  * Generate a fake contact info for a person
  */
-export function generateContactInfo(
+function generateContactInfo(
   personId: string,
   type?: ContactType,
   overrides?: Partial<ContactInfo>,
@@ -143,7 +143,7 @@ export function generateContactInfo(
 /**
  * Generate a fake employment record for a person
  */
-export function generateEmployment(
+function generateEmployment(
   personId: string,
   isCurrent: boolean = false,
   overrides?: Partial<Employment>,
@@ -170,7 +170,7 @@ export function generateEmployment(
 // Person with Relations Generator
 // =============================================================================
 
-export interface GeneratePersonOptions {
+interface GeneratePersonOptions {
   addressCount?: { min: number; max: number };
   bankAccountCount?: { min: number; max: number };
   contactCount?: { min: number; max: number };
@@ -187,7 +187,7 @@ const defaultOptions: Required<GeneratePersonOptions> = {
 /**
  * Generate a person with all related entities
  */
-export function generatePersonWithRelations(options?: GeneratePersonOptions): PersonWithRelations {
+function generatePersonWithRelations(options?: GeneratePersonOptions): PersonWithRelations {
   const opts = { ...defaultOptions, ...options };
   const person = generatePerson();
 
@@ -254,7 +254,7 @@ export function generatePersons(
 /**
  * Generate persons in batches (for memory efficiency with large datasets)
  */
-export async function* generatePersonsBatched(
+async function* generatePersonsBatched(
   totalCount: number,
   batchSize: number = 100,
   options?: GeneratePersonOptions,
@@ -282,7 +282,7 @@ export async function* generatePersonsBatched(
 /**
  * Get primary email from contacts
  */
-export function getPrimaryEmail(contacts: ContactInfo[]): string | undefined {
+function getPrimaryEmail(contacts: ContactInfo[]): string | undefined {
   const primary = contacts.find((c) => c.type === 'email' && c.isPrimary);
   return primary?.value ?? contacts.find((c) => c.type === 'email')?.value;
 }
@@ -290,7 +290,7 @@ export function getPrimaryEmail(contacts: ContactInfo[]): string | undefined {
 /**
  * Get primary address city
  */
-export function getPrimaryCity(addresses: Address[]): string | undefined {
+function getPrimaryCity(addresses: Address[]): string | undefined {
   const primary = addresses.find((a) => a.isPrimary);
   return primary?.city ?? addresses[0]?.city;
 }
@@ -298,7 +298,7 @@ export function getPrimaryCity(addresses: Address[]): string | undefined {
 /**
  * Get current employer
  */
-export function getCurrentEmployer(employments: Employment[]): string | undefined {
+function getCurrentEmployer(employments: Employment[]): string | undefined {
   const current = employments.find((e) => e.isCurrent);
   return current?.companyName;
 }
@@ -306,6 +306,6 @@ export function getCurrentEmployer(employments: Employment[]): string | undefine
 /**
  * Get full name
  */
-export function getFullName(person: Person): string {
+function getFullName(person: Person): string {
   return `${person.firstName} ${person.lastName}`;
 }
