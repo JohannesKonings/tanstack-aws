@@ -4,9 +4,23 @@
 
 This document outlines the implementation plan for a "DB Persons" feature similar to the existing "DB Todo" but with a more complex multi-entity data model. The feature will manage persons with related entities like addresses and banking data using DynamoDB single-table design **powered by ElectroDB**.
 
+This is a **simple multi-entity example** focused on basic CRUD operations with TanStack DB and ElectroDB. Search functionality is postponed to a future branch.
+
 **Key Design Decision:** ElectroDB schemas are **derived from Zod schemas** to ensure a single source of truth. When Zod schemas are updated, ElectroDB entities automatically reflect those changes.
 
 ---
+
+## Status Update
+
+- Completed: Collections + server functions for persons and related entities
+- Completed: React hooks `useDbPersons.ts` with CRUD mutations and live queries
+- Completed: UI CRUD for persons, addresses, contacts, bank accounts, employment via modals
+- Added: Person detail panel, edit modal, and create person modal
+- Notes: Adjusted code to comply with strict oxlint rules (no ternary, id-length, max-statements); replaced Tailwind shrink classes per linter
+
+Remaining minor tasks:
+- Refine statement counts in route components if flagged by linter
+- Document search/indexing phase (postponed)
 
 ## 1. Data Model Design
 
@@ -111,16 +125,7 @@ This document outlines the implementation plan for a "DB Persons" feature simila
 
 ### 2.3 Global Secondary Indexes
 
-**GSI1: List All Persons**
-```
-GSI1:
-  - Partition Key: gsi1pk
-  - Sort Key: gsi1sk
-  
-For listing all persons:
-  - gsi1pk: "PERSONS"
-  - gsi1sk: "PERSON#<personId>"
-```
+No additional Global Secondary Indexes are required for this basic multi-entity example. The primary key structure is sufficient for all access patterns.
 
 **GSI2: List All Entities (for Orama Search Index)**
 
@@ -234,136 +239,43 @@ With single-table design, entity scans read the **entire table** per entity type
 ### Phase 4: Orama Search + TanStack Pacer
 
 #### 3.6 Create Search Index
-- [ ] Create `/src/webapp/integrations/orama/personSearch.ts`
-  - In-memory full-text search using `@orama/orama`
-  - Cross-column fuzzy search across Person fields
-  - Typo tolerance with Levenshtein distance
+### Phase 4: TanStack DB Collections with Server Functions
 
-#### 3.7 TanStack Pacer for Debouncing
-- [ ] Install `@tanstack/react-pacer` for search input debouncing
-  - Use `useDebouncedValue` hook for reactive value debouncing
-  - Access `isPending` state to show loading indicator during debounce
-  - Benefits over manual `setTimeout`:
-    - Type-safe with full TypeScript support
-    - Built-in pending state tracking
-    - Proper cleanup on unmount
-    - Consistent TanStack ecosystem integration
+#### 4.1 Create Server Functions & Collections
+ - [x] Create `/src/webapp/db-collections/persons.ts`
+  - Define server functions for DynamoDB operations (co-located with collections)
+  - personsCollection - Base collection using server functions
+  - addressesCollection - Addresses collection
+  - bankAccountsCollection - Bank accounts collection
+  - contactInfosCollection - Contact info collection
+  - employmentsCollection - Employment history collection
 
-**Orama Search Schema - Cross-Entity Fields:**
+#### 4.2 Create Live Query Collections for Related Data
+- [ ] Create derived collections using `createLiveQueryCollection` for:
+  - Filtering addresses by personId
+  - Filtering bank accounts by personId
+  - Combining person with related entities via joins
 
-The search index includes at least one field from **each entity type** for comprehensive cross-entity search:
-
-| Entity | Search Fields | Purpose |
-|--------|---------------|---------|
-| **Person** | firstName, lastName, fullName | Name search |
-| **Address** | city, country | Location search |
-| **ContactInfo** | email, phone | Contact search |
-| **Employment** | companyName, position | Work search |
-| **BankAccount** | bankName | Bank search |
+#### 4.3 Query Operators Reference
+Available operators for filtering (from TanStack DB docs):
 
 ```typescript
-import { create, insertMultiple, search } from '@orama/orama'
+import { eq, gt, gte, lt, lte, like, ilike, inArray, and, or, not } from '@tanstack/db'
 
-// Create search index schema with fields from ALL entities
-export const createPersonSearchIndex = () => {
-  return create({
-    schema: {
-      // Person fields
-      id: 'string',
-      firstName: 'string',
-      lastName: 'string',
-      fullName: 'string',
-      
-      // Address fields (from primary address)
-      city: 'string',
-      country: 'string',
-      
-      // ContactInfo fields (primary email & phone)
-      email: 'string',
-      phone: 'string',
-      
-      // Employment fields (current job)
-      companyName: 'string',
-      position: 'string',
-      
-      // BankAccount fields (primary bank)
-      bankName: 'string',
-    },
-  })
-}
+// Examples
+eq(user.id, '123')           // Equality
+gt(user.age, 18)             // Greater than
+gte(user.age, 18)            // Greater than or equal
+lt(user.age, 65)             // Less than
+lte(user.age, 65)            // Less than or equal
+like(user.name, 'John%')     // Case-sensitive pattern matching
+ilike(user.name, 'john%')    // Case-insensitive pattern matching
+inArray(user.id, ['1', '2']) // Array membership
 
-// Search with fuzzy matching & typo tolerance
-export const searchPersons = async (
-  db: Awaited<ReturnType<typeof createPersonSearchIndex>>,
-  term: string,
-  options?: { limit?: number; tolerance?: number }
-) => {
-  return search(db, {
-    term,
-    tolerance: options?.tolerance ?? 1,  // Allow 1 typo
-    limit: options?.limit ?? 50,
-    threshold: 0,  // Only return matches containing all keywords
-  })
-}
-```
-
-**Fetching ALL Data for Orama via GSI2:**
-
-Use GSI2 to fetch all entities in a single query, then group by personId client-side:
-
-```typescript
-import { PersonsService } from '@/webapp/integrations/electrodb/personsService'
-
-// Fetch all entities via GSI2 (single query!)
-export async function fetchAllDataForOrama() {
-  // Query GSI2 - returns ALL entities sorted by personId
-  const result = await PersonsService.collections
-    .allData({})  // GSI2: gsi2pk = "ALL_DATA"
-    .go({ pages: 'all' })  // Paginate through all results
-  
-  // Result is already grouped by entity type:
-  // { person: [...], address: [...], contactInfo: [...], employment: [...], bankAccount: [...] }
-  
-  // Build lookup maps for related entities
-  const addressMap = groupBy(result.data.address, 'personId')
-  const contactMap = groupBy(result.data.contactInfo, 'personId')
-  const employmentMap = groupBy(result.data.employment, 'personId')
-  const bankMap = groupBy(result.data.bankAccount, 'personId')
-  
-  // Transform to Orama search documents
-  return result.data.person.map(person => ({
-    // Person fields
-    id: person.personId,
-    firstName: person.firstName,
-    lastName: person.lastName,
-    fullName: `${person.firstName} ${person.lastName}`,
-    
-    // Address fields (primary)
-    city: addressMap[person.personId]?.find(a => a.isPrimary)?.city ?? '',
-    country: addressMap[person.personId]?.find(a => a.isPrimary)?.country ?? '',
-    
-    // Contact fields (primary email & phone)
-    email: contactMap[person.personId]?.find(c => c.type === 'email' && c.isPrimary)?.value ?? '',
-    phone: contactMap[person.personId]?.find(c => c.type === 'phone' && c.isPrimary)?.value ?? '',
-    
-    // Employment fields (current job)
-    companyName: employmentMap[person.personId]?.find(e => e.isCurrent)?.companyName ?? '',
-    position: employmentMap[person.personId]?.find(e => e.isCurrent)?.position ?? '',
-    
-    // Bank fields (primary bank)
-    bankName: bankMap[person.personId]?.find(b => b.isPrimary)?.bankName ?? '',
-  }))
-}
-
-// Helper function
-function groupBy<T>(arr: T[], key: keyof T): Record<string, T[]> {
-  return arr.reduce((acc, item) => {
-    const k = String(item[key])
-    acc[k] = acc[k] || []
-    acc[k].push(item)
-    return acc
-  }, {} as Record<string, T[]>)
-}
+// Logical operators
+and(condition1, condition2)
+or(condition1, condition2)
+not(condition)
 ```
 
 **Why GSI2 instead of multiple scans?**
@@ -753,7 +665,7 @@ not(condition)
 ### Phase 6: Hooks
 
 #### 3.11 Create React Hooks
-- [ ] Create `/src/webapp/hooks/useDbPersons.ts`
+ - [x] Create `/src/webapp/hooks/useDbPersons.ts`
   - `usePersons()` - List all persons using `useLiveQuery`
   - `usePerson(personId)` - Single person with all related data
   - `usePersonMutations()` - CRUD operations using collection methods
@@ -1116,20 +1028,16 @@ src/webapp/
 ├── db-collections/
 │   └── persons.ts                         # Server functions + TanStack DB collections
 ├── integrations/
-│   ├── electrodb/
-│   │   ├── zod-to-electrodb.ts            # Zod → ElectroDB schema converter
-│   │   ├── entities.ts                    # ElectroDB entities (derived from Zod)
-│   │   └── personsService.ts              # ElectroDB Service for collection queries
-│   └── orama/
-│       └── personSearch.ts                # Orama search index & functions
+│   └── electrodb/
+│       ├── zod-to-electrodb.ts            # Zod → ElectroDB schema converter
+│       ├── entities.ts                    # ElectroDB entities (derived from Zod)
+│       └── personsService.ts              # ElectroDB Service for collection queries
 ├── hooks/
-│   ├── useDbPersons.ts                    # React hooks for CRUD
-│   └── usePersonSearch.ts                 # Orama search hook
+│   └── useDbPersons.ts                    # React hooks for CRUD
 ├── components/
 │   └── persons/
 │       ├── PersonCard.tsx
 │       ├── PersonForm.tsx
-│       ├── PersonSearchInput.tsx          # Fuzzy search input
 │       ├── AddressCard.tsx
 │       ├── AddressForm.tsx
 │       ├── BankAccountCard.tsx
@@ -1144,7 +1052,7 @@ scripts/
 └── seed-persons.ts                        # Data seeding script
 
 lib/constructs/
-└── DatabasePersons.ts                     # (Modified) Add GSI
+└── DatabasePersons.ts                     # (Modified) Infrastructure updates
 ```
 
 **Note:** No API route files needed - Server functions are co-located in `db-collections/persons.ts`
@@ -1155,9 +1063,9 @@ lib/constructs/
 
 | File | Changes |
 |------|---------|
-| `/lib/constructs/DatabasePersons.ts` | Add GSI1 for listing persons, Add GSI2 for fetching all entities |
+| `/lib/constructs/DatabasePersons.ts` | Infrastructure setup (no GSI required for basic example) |
 | `/lib/constructs/Webapp.ts` | Add `grantReadWriteData` for persons table |
-| `/package.json` | Add seed script, add `@faker-js/faker`, `@orama/orama`, `@tanstack/react-pacer`, and `electrodb` dependencies |
+| `/package.json` | Add seed script, add `@faker-js/faker` and `electrodb` dependencies |
 
 ---
 
@@ -1168,12 +1076,11 @@ lib/constructs/
 3. **CDK Updates** - Infrastructure changes (deploy after)
 4. **Zod-to-ElectroDB Converter** - Utility to derive ElectroDB schemas from Zod
 5. **ElectroDB Entities & Service** - Type-safe DynamoDB operations
-6. **Orama Search** - Cross-column fuzzy search integration
-7. **Collections + Server Functions** - TanStack DB integration (using ElectroDB)
-8. **Hooks** - React integration (including search hook)
-9. **UI Components** - Reusable components
-10. **Pages** - Final UI assembly with search
-11. **Seed Script** - Populate DynamoDB with 10k persons (using ElectroDB batch)
+6. **Collections + Server Functions** - TanStack DB integration (using ElectroDB)
+7. **Hooks** - React integration
+8. **UI Components** - Reusable components
+9. **Pages** - Final UI assembly (simple list + detail views)
+10. **Seed Script** - Populate DynamoDB with 10k persons (using ElectroDB batch)
 
 ---
 
@@ -1193,11 +1100,9 @@ All decisions have been made:
 
 6. **Person Profile Photo**: ✅ **DECIDED** - No profile photos needed
 
-7. **GSI Requirement**: ✅ **DECIDED** - Add required GSIs for efficient querying
+7. **Data Volume**: ✅ **DECIDED** - 10,000 persons with batch seeding
 
-8. **Search**: ✅ **DECIDED** - Use Orama for client-side fuzzy search with typo tolerance
-
-9. **Data Volume**: ✅ **DECIDED** - 10,000 persons with batch seeding
+8. **Search**: ✅ **DECIDED** - Search functionality postponed to future branch
 
 ---
 
@@ -1210,8 +1115,6 @@ All decisions have been made:
 | Backend | TanStack Start Server Functions |
 | Data Fetching | TanStack Query + queryCollectionOptions |
 | Local State | TanStack DB Collections with Live Queries |
-| **Search** | **Orama (in-memory fuzzy search with typo tolerance)** |
-| **Debouncing** | **TanStack Pacer (`useDebouncedValue` hook)** |
 | Optimistic Updates | TanStack DB (built-in via onInsert/onUpdate/onDelete handlers) |
 | UI Framework | React + TailwindCSS + shadcn/ui |
 | Type Safety | Zod + TypeScript |
@@ -1220,74 +1123,76 @@ All decisions have been made:
 
 ---
 
-## 9. Orama Search Key Concepts
+## 9. Multi-User Data Synchronization
 
-### Why Orama for 10k Persons?
-- **In-memory**: No external service needed (unlike OpenSearch/Elasticsearch)
-- **Fast**: < 10ms search response for 10k documents
-- **Fuzzy**: Built-in typo tolerance with Levenshtein distance
-- **Lightweight**: ~2KB gzipped, runs in browser
-- **Cross-entity**: Search across ALL entities (Person, Address, Contact, Employment, Bank)
+### Sync Strategy: Polling + Refetch on Focus
 
-### Cross-Entity Search Fields
+For the basic multi-entity example, use polling for simplicity:
 
-| Entity | Search Fields | Example Searches |
-|--------|---------------|------------------|
-| **Person** | firstName, lastName, fullName | "John Doe", "Smith" |
-| **Address** | city, country | "New York", "Germany" |
-| **ContactInfo** | email, phone | "john@example.com", "555-1234" |
-| **Employment** | companyName, position | "Google", "Software Engineer" |
-| **BankAccount** | bankName | "Chase", "Deutsche Bank" |
-
-### Search Architecture
-```
-Page Load → Fetch ALL entities via GSI2 → Build Orama index → Ready to search
-   │
-   └── Single query fetches ~50k items (10k persons + related entities)
-   └── Index building: ~3-4s for 10k persons (background)
-
-User Types → TanStack Pacer debounce (200ms) → Orama search → Instant results (< 10ms)
-```
-
-### Orama Configuration
 ```typescript
-const searchIndex = create({
-  schema: {
-    // Person fields
-    id: 'string',
-    firstName: 'string',
-    lastName: 'string',
-    fullName: 'string',
-    
-    // Address fields
-    city: 'string',
-    country: 'string',
-    
-    // ContactInfo fields
-    email: 'string',
-    phone: 'string',
-    
-    // Employment fields
-    companyName: 'string',
-    position: 'string',
-    
-    // BankAccount fields
-    bankName: 'string',
-  },
-})
-
-// Cross-entity search with typo tolerance
-search(searchIndex, {
-  term: 'jonh chase new york',  // Searches across person name, bank, city
-  tolerance: 1,                  // Allow 1 character difference per word
-  limit: 50,
-  threshold: 0,                  // Require all keywords
+// In persons collection definition
+export const personsCollection = createCollection({
+  ...queryCollectionOptions({
+    queryKey: ['persons'],
+    queryFn: getAllPersons,
+    getId: (person) => person.id,
+    // TanStack Query options for sync
+    staleTime: 30_000,        // Consider data fresh for 30s
+    refetchInterval: 60_000,  // Poll every 60s for updates
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+  }),
+  onInsert: async (person) => { /* ... */ },
+  onUpdate: async (person) => { /* ... */ },
+  onDelete: async (id) => { /* ... */ },
 })
 ```
+
+**Benefits:**
+- Simple to implement
+- No additional AWS infrastructure needed
+- Acceptable latency for person directory use case
 
 ---
 
-## 10. ElectroDB Key Concepts
+## 10. Future Enhancements (Search & Real-Time)
+
+### Search Implementation (Postponed)
+
+Full-text search across multi-entity data is planned for a future branch:
+
+- **Orama Search**: Client-side fuzzy search with typo tolerance
+- **Cross-Entity Search**: Search across Person, Address, Contact, Employment, and BankAccount fields
+- **Search Index Building**: Efficient data fetching via collection queries
+- **TanStack Pacer**: Debouncing search input for optimized performance
+
+See future search branch for implementation details.
+
+### Real-Time Synchronization (Future)
+
+Alternative sync strategies for higher update frequency:
+
+- **WebSocket (API Gateway)**: For real-time updates via WebSocket
+- **AppSync Subscriptions**: GraphQL subscriptions for real-time data
+- **DynamoDB Streams**: Process changes via Lambda + DynamoDB Streams
+
+These are deferred to a specialized real-time branch.
+
+---
+
+## 11. Estimated Timeline
+
+| Phase | Estimated Time |
+|-------|---------------|
+| Types & Fake Data | 2-3 hours |
+| CDK Updates | 1 hour |
+| ElectroDB Integration | 3-4 hours |
+| Collections + Server Functions | 2-3 hours |
+| Hooks | 1-2 hours |
+| UI Components | 4-6 hours |
+| Pages | 2-3 hours |
+| Seed Script (10k) | 1-2 hours |
+| Testing & Polish | 2-3 hours |
+| **Total** | **18-26 hours** |
 
 ### Why ElectroDB?
 - **Type-safe DynamoDB operations** with fluent API

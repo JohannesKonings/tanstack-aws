@@ -1,24 +1,26 @@
+import type {
+  Address,
+  BankAccount,
+  ContactInfo,
+  Employment,
+  Person,
+} from '#src/webapp/types/person';
+import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
-import {
-  Briefcase,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  CreditCard,
-  DollarSign,
-  Landmark,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Star,
-  Twitter,
-  User,
-  X,
-} from 'lucide-react';
-import type { Address, BankAccount, ContactInfo, Employment } from '#src/webapp/types/person';
-import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
+// oxlint-disable id-length
+// oxlint-disable max-statements
+import { Briefcase, Edit2, Landmark, Mail, MapPin, Plus, Trash2, User, X } from 'lucide-react';
+import { useState } from 'react';
+import { AddressCard } from './AddressCard';
+import { AddressFormModal } from './AddressFormModal.tsx';
+import { BankAccountCard } from './BankAccountCard';
+import { BankAccountFormModal } from './BankAccountFormModal.tsx';
+import { ContactFormModal } from './ContactFormModal.tsx';
+import { ContactInfoCard } from './ContactInfoCard';
+import { EmploymentCard } from './EmploymentCard';
+import { EmploymentFormModal } from './EmploymentFormModal.tsx';
+import { PersonEditModal } from './PersonEditModal.tsx';
 
 interface PersonDetailPanelProps {
   personId: string;
@@ -26,8 +28,38 @@ interface PersonDetailPanelProps {
 }
 
 export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps) => {
-  const { person, addresses, contacts, employments, bankAccounts, isLoading } =
-    usePersonDetail(personId);
+  const {
+    person,
+    addresses,
+    contacts,
+    employments,
+    bankAccounts,
+    isLoading,
+    updatePerson,
+    deletePerson,
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    addContact,
+    updateContact,
+    deleteContact,
+    addBankAccount,
+    updateBankAccount,
+    deleteBankAccount,
+    addEmployment,
+    updateEmployment,
+    deleteEmployment,
+  } = usePersonDetail(personId);
+
+  const [editingPerson, setEditingPerson] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [addingAddress, setAddingAddress] = useState(false);
+  const [editingContact, setEditingContact] = useState<ContactInfo | null>(null);
+  const [addingContact, setAddingContact] = useState(false);
+  const [editingBankAccount, setEditingBankAccount] = useState<BankAccount | null>(null);
+  const [addingBankAccount, setAddingBankAccount] = useState(false);
+  const [editingEmployment, setEditingEmployment] = useState<Employment | null>(null);
+  const [addingEmployment, setAddingEmployment] = useState(false);
 
   if (isLoading) {
     return (
@@ -41,50 +73,247 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
     return null;
   }
 
+  const handleDeletePerson = () => {
+    if (confirm('Are you sure you want to delete this person? This cannot be undone.')) {
+      deletePerson();
+      onClose();
+    }
+  };
+
   return (
-    <div className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/10">
-        <div className="flex items-center gap-3">
-          <User className="h-6 w-6 text-cyan-400" />
-          <div>
-            <h2 className="text-xl font-semibold text-white">
-              {person.firstName} {person.lastName}
-            </h2>
-            <p className="text-sm text-white/60">ID: {person.id}</p>
+    <>
+      <div className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden max-h-[calc(100vh-300px)] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/10 shrink-0">
+          <div className="flex items-center gap-3">
+            <User className="h-6 w-6 text-cyan-400" />
+            <div>
+              <h2 className="text-xl font-semibold text-white">
+                {person.firstName} {person.lastName}
+              </h2>
+              <p className="text-sm text-white/60">ID: {person.id}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditingPerson(true)}
+              className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              title="Edit person"
+            >
+              <Edit2 className="h-5 w-5" />
+            </button>
+            <button
+              onClick={handleDeletePerson}
+              className="p-2 rounded-lg hover:bg-red-500/20 text-white/70 hover:text-red-300 transition-colors"
+              title="Delete person"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-        >
-          <X className="h-5 w-5" />
-        </button>
+
+        {/* Content Grid - Scrollable */}
+        <div className="p-4 grid gap-4 md:grid-cols-2 overflow-y-auto flex-1">
+          {/* Addresses */}
+          <DetailSection
+            title="Addresses"
+            icon={MapPin}
+            count={addresses.length}
+            onAdd={() => setAddingAddress(true)}
+          >
+            {addresses.length === 0 ? (
+              <p className="text-sm text-white/50 italic">No addresses</p>
+            ) : (
+              addresses.map((addressItem) => (
+                <AddressCard
+                  key={addressItem.id}
+                  address={addressItem}
+                  onUpdate={(id, updates) => updateAddress(id, updates)}
+                  onDelete={(id) => deleteAddress(id)}
+                  onEdit={(address) => setEditingAddress(address)}
+                />
+              ))
+            )}
+          </DetailSection>
+
+          {/* Contacts */}
+          <DetailSection
+            title="Contact Info"
+            icon={Mail}
+            count={contacts.length}
+            onAdd={() => setAddingContact(true)}
+          >
+            {contacts.length === 0 ? (
+              <p className="text-sm text-white/50 italic">No contacts</p>
+            ) : (
+              contacts.map((contactItem) => (
+                <ContactInfoCard
+                  key={contactItem.id}
+                  contact={contactItem}
+                  onUpdate={(id, updates) => updateContact(id, updates)}
+                  onDelete={(id) => deleteContact(id)}
+                  onEdit={(contact) => setEditingContact(contact)}
+                />
+              ))
+            )}
+          </DetailSection>
+
+          {/* Employment */}
+          <DetailSection
+            title="Employment"
+            icon={Briefcase}
+            count={employments.length}
+            onAdd={() => setAddingEmployment(true)}
+          >
+            {employments.length === 0 ? (
+              <p className="text-sm text-white/50 italic">No employment records</p>
+            ) : (
+              employments.map((employmentItem) => (
+                <EmploymentCard
+                  key={employmentItem.id}
+                  employment={employmentItem}
+                  onUpdate={(id, updates) => updateEmployment(id, updates)}
+                  onDelete={(id) => deleteEmployment(id)}
+                  onEdit={(employment) => setEditingEmployment(employment)}
+                />
+              ))
+            )}
+          </DetailSection>
+
+          {/* Bank Accounts */}
+          <DetailSection
+            title="Bank Accounts"
+            icon={Landmark}
+            count={bankAccounts.length}
+            onAdd={() => setAddingBankAccount(true)}
+          >
+            {bankAccounts.length === 0 ? (
+              <p className="text-sm text-white/50 italic">No bank accounts</p>
+            ) : (
+              bankAccounts.map((accountItem) => (
+                <BankAccountCard
+                  key={accountItem.id}
+                  bankAccount={accountItem}
+                  onUpdate={(id, updates) => updateBankAccount(id, updates)}
+                  onDelete={(id) => deleteBankAccount(id)}
+                  onEdit={(bankAccount) => setEditingBankAccount(bankAccount)}
+                />
+              ))
+            )}
+          </DetailSection>
+        </div>
       </div>
 
-      {/* Content Grid */}
-      <div className="p-4 grid gap-4 md:grid-cols-2">
-        {/* Addresses */}
-        <DetailSection title="Addresses" icon={MapPin} count={addresses.length}>
-          <AddressList addresses={addresses} />
-        </DetailSection>
+      {/* Modals */}
+      {editingPerson && (
+        <PersonEditModal
+          person={person}
+          onSave={(updates: Partial<Person>) => {
+            updatePerson(updates);
+            setEditingPerson(false);
+          }}
+          onCancel={() => setEditingPerson(false)}
+        />
+      )}
 
-        {/* Contacts */}
-        <DetailSection title="Contact Info" icon={Mail} count={contacts.length}>
-          <ContactList contacts={contacts} />
-        </DetailSection>
+      {addingAddress && (
+        <AddressFormModal
+          personId={personId}
+          onSave={(address: Omit<Address, 'id'>) => {
+            addAddress(address);
+            setAddingAddress(false);
+          }}
+          onCancel={() => setAddingAddress(false)}
+        />
+      )}
 
-        {/* Employment */}
-        <DetailSection title="Employment" icon={Briefcase} count={employments.length}>
-          <EmploymentList employments={employments} />
-        </DetailSection>
+      {editingAddress && (
+        <AddressFormModal
+          personId={personId}
+          address={editingAddress}
+          onSave={(address: Omit<Address, 'id'>) => {
+            updateAddress(editingAddress.id, address);
+            setEditingAddress(null);
+          }}
+          onCancel={() => setEditingAddress(null)}
+        />
+      )}
 
-        {/* Bank Accounts */}
-        <DetailSection title="Bank Accounts" icon={Landmark} count={bankAccounts.length}>
-          <BankAccountList accounts={bankAccounts} />
-        </DetailSection>
-      </div>
-    </div>
+      {addingContact && (
+        <ContactFormModal
+          personId={personId}
+          onSave={(contact: Omit<ContactInfo, 'id'>) => {
+            addContact(contact);
+            setAddingContact(false);
+          }}
+          onCancel={() => setAddingContact(false)}
+        />
+      )}
+
+      {editingContact && (
+        <ContactFormModal
+          personId={personId}
+          contact={editingContact}
+          onSave={(contact: Omit<ContactInfo, 'id'>) => {
+            updateContact(editingContact.id, contact);
+            setEditingContact(null);
+          }}
+          onCancel={() => setEditingContact(null)}
+        />
+      )}
+
+      {addingBankAccount && (
+        <BankAccountFormModal
+          personId={personId}
+          onSave={(account: Omit<BankAccount, 'id'>) => {
+            addBankAccount(account);
+            setAddingBankAccount(false);
+          }}
+          onCancel={() => setAddingBankAccount(false)}
+        />
+      )}
+
+      {editingBankAccount && (
+        <BankAccountFormModal
+          personId={personId}
+          account={editingBankAccount}
+          onSave={(account: Omit<BankAccount, 'id'>) => {
+            updateBankAccount(editingBankAccount.id, account);
+            setEditingBankAccount(null);
+          }}
+          onCancel={() => setEditingBankAccount(null)}
+        />
+      )}
+
+      {addingEmployment && (
+        <EmploymentFormModal
+          personId={personId}
+          onSave={(employment: Omit<Employment, 'id'>) => {
+            addEmployment(employment);
+            setAddingEmployment(false);
+          }}
+          onCancel={() => setAddingEmployment(false)}
+        />
+      )}
+
+      {editingEmployment && (
+        <EmploymentFormModal
+          personId={personId}
+          employment={editingEmployment}
+          onSave={(employment: Omit<Employment, 'id'>) => {
+            updateEmployment(editingEmployment.id, employment);
+            setEditingEmployment(null);
+          }}
+          onCancel={() => setEditingEmployment(null)}
+        />
+      )}
+    </>
   );
 };
 
@@ -95,202 +324,29 @@ interface DetailSectionProps {
   icon: React.ComponentType<{ className?: string }>;
   count: number;
   children: React.ReactNode;
+  onAdd?: () => void;
 }
 
-const DetailSection = ({ title, icon: Icon, count, children }: DetailSectionProps) => (
-  <div className="rounded-lg border border-white/20 bg-white/5 overflow-hidden">
-    <div className="flex items-center gap-2 p-3 border-b border-white/10 bg-white/5">
+const DetailSection = ({ title, icon: Icon, count, children, onAdd }: DetailSectionProps) => (
+  <div className="rounded-lg border border-white/20 bg-white/5 overflow-hidden flex flex-col">
+    <div className="flex items-center gap-2 p-3 border-b border-white/10 bg-white/5 shrink-0">
       <Icon className="h-4 w-4 text-cyan-400" />
       <h3 className="font-medium text-white">{title}</h3>
       <span className="ml-auto text-xs text-white/50 bg-white/10 px-2 py-0.5 rounded-full">
         {count}
       </span>
-    </div>
-    <div className="p-3 space-y-2 max-h-48 overflow-y-auto">{children}</div>
-  </div>
-);
-
-const EmptyState = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-sm text-white/50 italic">{children}</p>
-);
-
-// List wrappers to avoid ternaries
-const AddressList = ({ addresses }: { addresses: Address[] }) => {
-  if (addresses.length === 0) {
-    return <EmptyState>No addresses</EmptyState>;
-  }
-  return (
-    <>
-      {addresses.map((address) => (
-        <AddressItem key={address.id} address={address} />
-      ))}
-    </>
-  );
-};
-
-const ContactList = ({ contacts }: { contacts: ContactInfo[] }) => {
-  if (contacts.length === 0) {
-    return <EmptyState>No contacts</EmptyState>;
-  }
-  return (
-    <>
-      {contacts.map((contact) => (
-        <ContactItem key={contact.id} contact={contact} />
-      ))}
-    </>
-  );
-};
-
-const EmploymentList = ({ employments }: { employments: Employment[] }) => {
-  if (employments.length === 0) {
-    return <EmptyState>No employment records</EmptyState>;
-  }
-  return (
-    <>
-      {employments.map((emp) => (
-        <EmploymentItem key={emp.id} employment={emp} />
-      ))}
-    </>
-  );
-};
-
-const BankAccountList = ({ accounts }: { accounts: BankAccount[] }) => {
-  if (accounts.length === 0) {
-    return <EmptyState>No bank accounts</EmptyState>;
-  }
-  return (
-    <>
-      {accounts.map((account) => (
-        <BankAccountItem key={account.id} account={account} />
-      ))}
-    </>
-  );
-};
-
-const AddressItem = ({ address }: { address: Address }) => (
-  <div className="p-2 rounded bg-white/5 text-sm">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="text-xs bg-cyan-600/30 text-cyan-300 px-1.5 py-0.5 rounded capitalize">
-        {address.type}
-      </span>
-      {address.isPrimary && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
-    </div>
-    <p className="text-white/90">{address.street}</p>
-    <p className="text-white/70">
-      {address.city}, {address.state} {address.postalCode}
-    </p>
-    <p className="text-white/60">{address.country}</p>
-  </div>
-);
-
-const getContactIcon = (type: string) => {
-  switch (type) {
-    case 'email':
-      return Mail;
-    case 'phone':
-    case 'mobile':
-      return Phone;
-    case 'linkedin':
-      return Linkedin;
-    case 'twitter':
-      return Twitter;
-    default:
-      return Mail;
-  }
-};
-
-const ContactItem = ({ contact }: { contact: ContactInfo }) => {
-  const Icon = getContactIcon(contact.type);
-  return (
-    <div className="p-2 rounded bg-white/5 text-sm flex items-start gap-2">
-      <Icon className="h-4 w-4 mt-0.5 text-white/60" />
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xs bg-cyan-600/30 text-cyan-300 px-1.5 py-0.5 rounded capitalize">
-            {contact.type}
-          </span>
-          {contact.isPrimary && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
-          {contact.isVerified && <CheckCircle2 className="h-3 w-3 text-green-400" />}
-        </div>
-        <p className="text-white/90 mt-1">{contact.value}</p>
-      </div>
-    </div>
-  );
-};
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-  });
-
-const formatSalary = (salary?: number, currency?: string) => {
-  if (!salary) {
-    return null;
-  }
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency ?? 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(salary);
-};
-
-const getEndDateDisplay = (endDate?: string | null) => {
-  if (endDate) {
-    return formatDate(endDate);
-  }
-  return 'Present';
-};
-
-const EmploymentItem = ({ employment }: { employment: Employment }) => (
-  <div className="p-2 rounded bg-white/5 text-sm">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="font-medium text-white/90">{employment.position}</span>
-      {employment.isCurrent && (
-        <span className="text-xs bg-green-600/30 text-green-300 px-1.5 py-0.5 rounded">
-          Current
-        </span>
+      {onAdd && (
+        <button
+          onClick={onAdd}
+          className="ml-1 p-1 rounded hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+          title={`Add ${title.toLowerCase()}`}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
       )}
     </div>
-    <div className="flex items-center gap-2 text-white/70">
-      <Building2 className="h-3.5 w-3.5" />
-      <span>{employment.companyName}</span>
-      {employment.department && (
-        <>
-          <span>•</span>
-          <span>{employment.department}</span>
-        </>
-      )}
-    </div>
-    <div className="flex items-center gap-2 text-white/60 mt-1">
-      <Calendar className="h-3.5 w-3.5" />
-      <span>
-        {formatDate(employment.startDate)} - {getEndDateDisplay(employment.endDate)}
-      </span>
-    </div>
-    {employment.salary && (
-      <div className="flex items-center gap-2 text-white/60 mt-1">
-        <DollarSign className="h-3.5 w-3.5" />
-        <span>{formatSalary(employment.salary, employment.currency)}</span>
-      </div>
-    )}
+    <div className="p-3 space-y-2 overflow-y-auto flex-1">{children}</div>
   </div>
 );
 
-const BankAccountItem = ({ account }: { account: BankAccount }) => (
-  <div className="p-2 rounded bg-white/5 text-sm">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="font-medium text-white/90">{account.bankName}</span>
-      {account.isPrimary && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
-    </div>
-    <div className="flex items-center gap-2 text-white/70">
-      <CreditCard className="h-3.5 w-3.5" />
-      <span className="capitalize">{account.accountType}</span>
-      <span>•</span>
-      <span>****{account.accountNumberLast4}</span>
-    </div>
-    {account.iban && <p className="text-xs text-white/50 mt-1">IBAN: {account.iban}</p>}
-    {account.bic && <p className="text-xs text-white/50">BIC: {account.bic}</p>}
-  </div>
-);
+// Removed unused helper components and utilities

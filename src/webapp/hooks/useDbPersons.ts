@@ -1,17 +1,10 @@
-// oxlint-disable no-magic-numbers
-// oxlint-disable func-style
-import { useLiveQuery } from '@tanstack/react-db';
-import { useDebouncedValue } from '@tanstack/react-pacer';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   Address,
   BankAccount,
   ContactInfo,
   Employment,
   Person,
-  PersonSummary,
 } from '#src/webapp/types/person';
-// import { getPrimaryEmail, getPrimaryCity, getCurrentEmployer } from '#src/webapp/data/fake-persons';
 import {
   createAddressesCollection,
   createBankAccountsCollection,
@@ -19,13 +12,10 @@ import {
   createEmploymentsCollection,
   personsCollection,
 } from '#src/webapp/db-collections/persons';
-import {
-  addMultipleToIndex,
-  createPersonSearchIndex,
-  type PersonSearchIndex,
-  type PersonSearchResult,
-  searchPersonsSimple,
-} from '#src/webapp/integrations/orama/personSearch';
+// oxlint-disable no-magic-numbers
+// oxlint-disable func-style
+import { useLiveQuery } from '@tanstack/react-db';
+import { useCallback, useMemo } from 'react';
 
 // =============================================================================
 // Persons List Hook
@@ -60,111 +50,6 @@ export function usePersons() {
     addPerson,
     updatePerson,
     deletePerson,
-  };
-}
-
-// =============================================================================
-// Person Search Hook (with Orama)
-// =============================================================================
-
-interface UsePersonSearchOptions {
-  debounceMs?: number;
-  minSearchLength?: number;
-  searchLimit?: number;
-  tolerance?: number;
-}
-
-/**
- * Hook for searching persons with Orama fuzzy search
- */
-export function usePersonSearch(options?: UsePersonSearchOptions) {
-  const { debounceMs = 200, minSearchLength = 2, searchLimit = 50, tolerance = 1 } = options ?? {};
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState<PersonSearchResult[]>([]);
-  const [searchIndex, setSearchIndex] = useState<PersonSearchIndex | null>(null);
-  const [isIndexBuilding, setIsIndexBuilding] = useState(false);
-  const lastDataHashRef = useRef<string>('');
-
-  // Get persons from collection
-  const { persons, isLoading: isPersonsLoading } = usePersons();
-
-  // Debounce search term using TanStack Pacer
-  const [debouncedTerm] = useDebouncedValue(searchTerm, { wait: debounceMs });
-
-  // Build/rebuild search index when persons change
-  useEffect(() => {
-    async function buildIndex() {
-      if (persons.length === 0) return;
-
-      // Create hash to detect changes
-      const dataHash = persons
-        .map((p) => p.id)
-        .sort()
-        .join(',');
-      if (dataHash === lastDataHashRef.current && searchIndex) return;
-
-      setIsIndexBuilding(true);
-
-      try {
-        const index = await createPersonSearchIndex();
-
-        // Convert persons to search summaries
-        // Note: In a real app, you'd want to join with addresses/contacts/employments
-        // For now, we just use the basic person data
-        const summaries: PersonSummary[] = persons.map((p) => ({
-          id: p.id,
-          firstName: p.firstName,
-          lastName: p.lastName,
-          email: undefined, // Would need to fetch from contacts
-          city: undefined, // Would need to fetch from addresses
-          companyName: undefined, // Would need to fetch from employments
-        }));
-
-        await addMultipleToIndex(index, summaries);
-
-        setSearchIndex(index);
-        lastDataHashRef.current = dataHash;
-      } finally {
-        setIsIndexBuilding(false);
-      }
-    }
-
-    buildIndex();
-  }, [persons, searchIndex]);
-
-  // Perform search when debounced term changes
-  useEffect(() => {
-    async function performSearch() {
-      if (!searchIndex) {
-        setResults([]);
-        return;
-      }
-
-      if (debouncedTerm.length < minSearchLength) {
-        setResults([]);
-        return;
-      }
-
-      const searchResults = await searchPersonsSimple(searchIndex, debouncedTerm, {
-        limit: searchLimit,
-        tolerance,
-      });
-
-      setResults(searchResults);
-    }
-
-    performSearch();
-  }, [debouncedTerm, searchIndex, minSearchLength, searchLimit, tolerance]);
-
-  return {
-    searchTerm,
-    setSearchTerm,
-    results,
-    isLoading: isPersonsLoading,
-    isIndexBuilding,
-    isReady: !!searchIndex && !isIndexBuilding,
-    personCount: persons.length,
   };
 }
 

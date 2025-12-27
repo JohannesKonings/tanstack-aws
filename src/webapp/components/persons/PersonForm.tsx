@@ -1,26 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import type { Person } from '#src/webapp/types/person';
 import { Button } from '#src/webapp/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '#src/webapp/components/ui/form';
-import { Input } from '#src/webapp/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '#src/webapp/components/ui/select';
-import { GenderEnum } from '#src/webapp/types/person';
+import { GenderEnum, type Person } from '#src/webapp/types/person';
+// oxlint-disable no-magic-numbers
+// oxlint-disable no-ternary
+import { useForm } from '@tanstack/react-form';
+import { z } from 'zod';
 
 const PersonFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(100),
@@ -39,8 +22,7 @@ interface PersonFormProps {
 }
 
 export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormProps) => {
-  const form = useForm<PersonFormValues>({
-    resolver: zodResolver(PersonFormSchema),
+  const formApi = useForm({
     defaultValues: {
       firstName: person?.firstName ?? '',
       lastName: person?.lastName ?? '',
@@ -48,102 +30,157 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
         ? new Date(person.dateOfBirth).toISOString().split('T')[0]
         : '',
       gender: person?.gender,
+    } satisfies PersonFormValues,
+    validators: {
+      onChange: (({ value }: { value: PersonFormValues }) => {
+        const result = PersonFormSchema.safeParse(value);
+        if (!result.success) {
+          return result.error;
+        }
+        return undefined;
+      }) as any,
+    },
+    onSubmit: ({ value }: { value: PersonFormValues }) => {
+      onSave({
+        ...value,
+        dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth).toISOString() : undefined,
+      });
     },
   });
-
-  const handleSubmit = (values: PersonFormValues) => {
-    // Convert date to ISO string if provided
-    const formattedValues = {
-      ...values,
-      dateOfBirth: values.dateOfBirth ? new Date(values.dateOfBirth).toISOString() : undefined,
-    };
-    onSave(formattedValues);
-  };
+  const FormField = formApi.Field;
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="dateOfBirth"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date of Birth</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormDescription>Optional. Your date of birth.</FormDescription>
-              <FormMessage />
-            </FormItem>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        formApi.handleSubmit();
+      }}
+      className="space-y-6"
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField name="firstName">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">First Name</label>
+              <input
+                placeholder="John"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
           )}
-        />
+        </FormField>
 
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                  <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>Optional. How you identify.</FormDescription>
-              <FormMessage />
-            </FormItem>
+        <FormField name="lastName">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">Last Name</label>
+              <input
+                placeholder="Doe"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
           )}
-        />
+        </FormField>
+      </div>
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Saving...' : person ? 'Update Person' : 'Create Person'}
+      <FormField name="dateOfBirth">
+        {(field: any) => (
+          <div>
+            <label className="block text-sm font-medium mb-1">Date of Birth</label>
+            <input
+              type="date"
+              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
+              onBlur={field.handleBlur}
+            />
+            <p className="text-xs text-white/60 mt-1">Optional. Your date of birth.</p>
+            {(() => {
+              const [firstError] = field.state.meta.errors;
+              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+            })()}
+          </div>
+        )}
+      </FormField>
+
+      <FormField name="gender">
+        {(field: any) => (
+          <div>
+            <label className="block text-sm font-medium mb-1">Gender</label>
+            <style>{`
+              select option {
+                background-color: #1f2937;
+                color: white;
+              }
+              select option:checked {
+                background-color: #3b82f6;
+                color: white;
+              }
+            `}</style>
+            <select
+              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+              value={field.state.value ?? ''}
+              onChange={(event) => field.handleChange(event.target.value || undefined)}
+              onBlur={field.handleBlur}
+              style={{
+                colorScheme: 'dark',
+              }}
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+            <p className="text-xs text-white/60 mt-1">Optional. How you identify.</p>
+            {(() => {
+              const [firstError] = field.state.meta.errors;
+              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+            })()}
+          </div>
+        )}
+      </FormField>
+
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isLoading}>
+          {(() => {
+            if (isLoading) {
+              return 'Saving...';
+            }
+            if (person) {
+              return 'Update Person';
+            }
+            return 'Create Person';
+          })()}
+        </Button>
+        {onCancel && (
+          <Button
+            type="button"
+            onClick={onCancel}
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
+          >
+            Cancel
           </Button>
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
-        </div>
-      </form>
-    </Form>
+        )}
+      </div>
+    </form>
   );
 };

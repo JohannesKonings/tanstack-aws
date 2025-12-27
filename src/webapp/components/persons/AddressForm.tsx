@@ -1,27 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import type { Address } from '#src/webapp/types/person';
 import { Button } from '#src/webapp/components/ui/button';
-import { Checkbox } from '#src/webapp/components/ui/checkbox';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '#src/webapp/components/ui/form';
-import { Input } from '#src/webapp/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '#src/webapp/components/ui/select';
-import { AddressTypeEnum } from '#src/webapp/types/person';
+import { type Address, AddressTypeEnum } from '#src/webapp/types/person';
+import { useForm } from '@tanstack/react-form';
+// oxlint-disable no-magic-numbers
+// oxlint-disable no-ternary
+import { z } from 'zod';
 
 const AddressFormSchema = z.object({
   type: AddressTypeEnum,
@@ -43,8 +25,7 @@ interface AddressFormProps {
 }
 
 export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFormProps) => {
-  const form = useForm<AddressFormValues>({
-    resolver: zodResolver(AddressFormSchema),
+  const formApi = useForm({
     defaultValues: {
       type: address?.type ?? 'home',
       street: address?.street ?? '',
@@ -54,136 +35,201 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
       country: address?.country ?? 'USA',
       isPrimary: address?.isPrimary ?? false,
     },
+    validators: {
+      onChange: (({ value }: { value: AddressFormValues }) => {
+        const result = AddressFormSchema.safeParse(value);
+        if (!result.success) {
+          return result.error;
+        }
+        return undefined;
+      }) as any,
+    },
+    onSubmit: ({ value }: { value: AddressFormValues }) => {
+      onSave(value);
+    },
   });
+  const FormField = formApi.Field;
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select address type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="home">Home</SelectItem>
-                  <SelectItem value="work">Work</SelectItem>
-                  <SelectItem value="billing">Billing</SelectItem>
-                  <SelectItem value="shipping">Shipping</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        formApi.handleSubmit();
+      }}
+      className="space-y-4"
+    >
+      <FormField name="type">
+        {(field: any) => (
+          <div>
+            <label className="block text-sm font-medium mb-1">Address Type</label>
+            <select
+              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
+              onBlur={field.handleBlur}
+            >
+              <option value="home">Home</option>
+              <option value="work">Work</option>
+              <option value="billing">Billing</option>
+              <option value="shipping">Shipping</option>
+            </select>
+            {(() => {
+              const [firstError] = field.state.meta.errors;
+              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+            })()}
+          </div>
+        )}
+      </FormField>
+
+      <FormField name="street">
+        {(field: any) => (
+          <div>
+            <label className="block text-sm font-medium mb-1">Street Address</label>
+            <input
+              placeholder="123 Main St"
+              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+              value={field.state.value}
+              onChange={(event) => field.handleChange(event.target.value)}
+              onBlur={field.handleBlur}
+            />
+            {(() => {
+              const [firstError] = field.state.meta.errors;
+              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+            })()}
+          </div>
+        )}
+      </FormField>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField name="city">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">City</label>
+              <input
+                placeholder="New York"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
           )}
-        />
+        </FormField>
 
-        <FormField
-          control={form.control}
-          name="street"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Street Address</FormLabel>
-              <FormControl>
-                <Input placeholder="123 Main St" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <FormField name="state">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">State/Province</label>
+              <input
+                placeholder="NY"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
           )}
-        />
+        </FormField>
+      </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
-                <FormControl>
-                  <Input placeholder="New York" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>State/Province</FormLabel>
-                <FormControl>
-                  <Input placeholder="NY" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="postalCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Postal Code</FormLabel>
-                <FormControl>
-                  <Input placeholder="10001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <Input placeholder="USA" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="isPrimary"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Primary Address</FormLabel>
-                <FormDescription>This is your main address.</FormDescription>
-              </div>
-            </FormItem>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField name="postalCode">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">Postal Code</label>
+              <input
+                placeholder="10001"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
           )}
-        />
+        </FormField>
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Saving...' : address ? 'Update Address' : 'Add Address'}
-          </Button>
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+        <FormField name="country">
+          {(field: any) => (
+            <div>
+              <label className="block text-sm font-medium mb-1">Country</label>
+              <input
+                placeholder="USA"
+                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+              />
+              {(() => {
+                const [firstError] = field.state.meta.errors;
+                return firstError ? (
+                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                ) : null;
+              })()}
+            </div>
+          )}
+        </FormField>
+      </div>
+
+      <FormField name="isPrimary">
+        {(field: any) => (
+          <div className="flex flex-row items-center gap-2 rounded-md border p-4">
+            <input
+              type="checkbox"
+              checked={field.state.value}
+              onChange={(event) => field.handleChange(event.target.checked)}
+              onBlur={field.handleBlur}
+            />
+            <div className="space-y-1 leading-none">
+              <span className="text-sm font-medium">Primary Address</span>
+              <span className="block text-xs text-white/60">This is your main address.</span>
+            </div>
+          </div>
+        )}
+      </FormField>
+
+      <div className="flex gap-2">
+        {(() => {
+          let submitLabel = 'Add Address';
+          if (address) {
+            submitLabel = 'Update Address';
+          }
+          if (isLoading) {
+            submitLabel = 'Saving...';
+          }
+          return (
+            <Button type="submit" disabled={isLoading}>
+              {submitLabel}
             </Button>
-          )}
-        </div>
-      </form>
-    </Form>
+          );
+        })()}
+        {onCancel && (
+          <Button
+            type="button"
+            onClick={onCancel}
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
+          >
+            Cancel
+          </Button>
+        )}
+      </div>
+    </form>
   );
 };

@@ -1,11 +1,11 @@
+import { CreatePersonModal } from '#src/webapp/components/persons/CreatePersonModal';
+import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
+import { PersonsTable, type PersonTableRow } from '#src/webapp/components/persons/PersonsTable';
+import { Button } from '#src/webapp/components/ui/button';
+import { usePersons } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
-import type { PersonSearchResult } from '#src/webapp/integrations/orama/personSearch';
-import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
-import { PersonSearchInput } from '#src/webapp/components/persons/PersonSearchInput';
-import { PersonsTable, type PersonTableRow } from '#src/webapp/components/persons/PersonsTable';
-import { usePersons } from '#src/webapp/hooks/useDbPersons';
 
 export const Route = createFileRoute('/demo/db-person')({
   ssr: false,
@@ -15,34 +15,17 @@ export const Route = createFileRoute('/demo/db-person')({
 function DbPersons() {
   const [mounted, setMounted] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
-  const [searchResult, setSearchResult] = useState<PersonSearchResult | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { persons, isLoading } = usePersons();
+  const { persons, isLoading, addPerson } = usePersons();
 
   // Ensure client-side only rendering to avoid hydration issues
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Convert persons to table rows with address data from search results
+  // Convert persons to table rows
   const tableData: PersonTableRow[] = useMemo(() => {
-    // If there's a search result, filter to just that person with full data
-    if (searchResult) {
-      const foundPerson = persons.find((person) => person.id === searchResult.id);
-      if (foundPerson) {
-        return [
-          {
-            id: String(foundPerson.id),
-            firstName: String(foundPerson.firstName),
-            lastName: String(foundPerson.lastName),
-            gender: foundPerson.gender,
-            dateOfBirth: foundPerson.dateOfBirth,
-          },
-        ];
-      }
-    }
-
-    // Otherwise show all persons
     const maxDisplay = 100;
     const startIndex = 0;
     return persons.slice(startIndex, maxDisplay).map((person) => ({
@@ -52,19 +35,10 @@ function DbPersons() {
       gender: person.gender,
       dateOfBirth: person.dateOfBirth,
     }));
-  }, [persons, searchResult]);
-
-  const handleResultSelect = (result: PersonSearchResult) => {
-    setSearchResult(result);
-    setSelectedPersonId(result.document.id);
-  };
+  }, [persons]);
 
   const handleRowSelect = (person: PersonTableRow) => {
     setSelectedPersonId(person.id);
-  };
-
-  const handleClearSearch = () => {
-    setSearchResult(null);
   };
 
   const handleCloseDetail = () => {
@@ -105,23 +79,14 @@ function DbPersons() {
       }}
     >
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
-        <p className="mt-1 text-white/70">Search and manage persons with cross-entity search</p>
-      </div>
-
-      {/* Search */}
-      <div className="mb-6">
-        <PersonSearchInput onResultSelect={handleResultSelect} />
-        {searchResult && (
-          <button
-            type="button"
-            onClick={handleClearSearch}
-            className="mt-2 text-sm text-cyan-400 hover:underline"
-          >
-            Clear search filter
-          </button>
-        )}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
+          <p className="mt-1 text-white/70">Browse and manage persons with multi-entity support</p>
+        </div>
+        <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+          Create Person
+        </Button>
       </div>
 
       {/* Main Content - Table and Detail Panel */}
@@ -143,6 +108,24 @@ function DbPersons() {
           </div>
         )}
       </div>
+      {showCreateModal && (
+        <CreatePersonModal
+          onCancel={() => setShowCreateModal(false)}
+          onSave={(values) => {
+            const now = new Date().toISOString();
+            addPerson({
+              id: crypto.randomUUID(),
+              firstName: values.firstName,
+              lastName: values.lastName,
+              dateOfBirth: values.dateOfBirth ?? '',
+              gender: values.gender ?? 'other',
+              createdAt: now,
+              updatedAt: now,
+            } as any);
+            setShowCreateModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

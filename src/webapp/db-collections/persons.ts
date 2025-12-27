@@ -1,6 +1,3 @@
-import { queryCollectionOptions } from '@tanstack/query-db-collection';
-import { createCollection } from '@tanstack/react-db';
-import { createServerFn } from '@tanstack/react-start';
 import * as electrodbClient from '#src/webapp/integrations/electrodb/personsClient';
 import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
 import {
@@ -15,6 +12,9 @@ import {
   type Person,
   PersonSchema,
 } from '#src/webapp/types/person';
+import { queryCollectionOptions } from '@tanstack/query-db-collection';
+import { createCollection } from '@tanstack/react-db';
+import { createServerFn } from '@tanstack/react-start';
 
 // =============================================================================
 // Server Functions
@@ -25,13 +25,6 @@ import {
  */
 export const fetchPersons = createServerFn({ method: 'GET' }).handler(async () =>
   electrodbClient.getAllPersons(),
-);
-
-/**
- * Get all entities for Orama search (complete, no pagination)
- */
-export const fetchAllEntitiesForOrama = createServerFn({ method: 'GET' }).handler(async () =>
-  electrodbClient.getAllEntitiesComplete(),
 );
 
 /**
