@@ -5,7 +5,8 @@ import { Construct } from 'constructs';
 import path from 'node:path';
 
 type WebappServerProps = {
-  tableName: string;
+  tableNameTodos: string;
+  tableNamePersons: string;
 };
 export class WebappServer extends Construct {
   readonly webappServer: Function;
@@ -13,7 +14,7 @@ export class WebappServer extends Construct {
   constructor(scope: Construct, id: string, props: WebappServerProps) {
     super(scope, id);
 
-    const { tableName } = props;
+    const { tableNameTodos, tableNamePersons } = props;
 
     this.webappServer = new Function(this, 'WebappServer', {
       code: Code.fromAsset(
@@ -26,7 +27,8 @@ export class WebappServer extends Construct {
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(60),
       environment: {
-        DDB_TODOS_TABLE_NAME: tableName,
+        DDB_TODOS_TABLE_NAME: tableNameTodos,
+        DDB_PERSONS_TABLE_NAME: tableNamePersons,
       },
     });
     Tags.of(this.webappServer).add('IsWebAppServer', 'true');

@@ -1,3 +1,4 @@
+// oxlint-disable no-magic-numbers
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import fs from 'node:fs';
@@ -38,7 +39,7 @@ const getTodos = createServerFn({
 }).handler(async () => await readTodos());
 
 const addTodo = createServerFn({ method: 'POST' })
-  .inputValidator((d: string) => d)
+  .inputValidator((data: string) => data)
   .handler(async ({ data }) => {
     const todos = await readTodos();
     todos.push({ id: todos.length + 1, name: data });

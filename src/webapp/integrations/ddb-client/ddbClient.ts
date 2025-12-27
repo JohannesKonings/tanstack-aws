@@ -6,7 +6,7 @@ import {
   QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { type Todo, todoSchema, type TodoUpdate } from '@/webapp/types/todo';
+import { type Todo, todoSchema, type TodoUpdate } from '#src/webapp/types/todo.ts';
 
 const TODOS_PK = 'TODO';
 const TODOS_TABLE_ENV = 'DDB_TODOS_TABLE_NAME';
@@ -30,7 +30,7 @@ export const getDdbDocClient = (): DynamoDBDocumentClient => {
   return ddbDocSingleton;
 };
 
-export const requireEnvVar = (name: string): string => {
+const requireEnvVar = (name: string): string => {
   const value = process.env[name];
   if (!value) {
     throw new Error(`Missing env var: ${name}`);
@@ -39,7 +39,7 @@ export const requireEnvVar = (name: string): string => {
   return value;
 };
 
-export const getTodosTableName = (): string => requireEnvVar(TODOS_TABLE_ENV);
+const getTodosTableName = (): string => requireEnvVar(TODOS_TABLE_ENV);
 
 const todoSortKey = (id: number): string => `TODO#${id}`;
 
@@ -65,7 +65,7 @@ const chunkItems = <Item>(items: Item[], chunkSize: number): Item[][] => {
   return out;
 };
 
-export type TodosDdbClient = {
+type TodosDdbClient = {
   getTodos: () => Promise<Todo[]>;
   putTodo: (todo: Todo) => Promise<Todo>;
   updateTodos: (updates: TodoUpdate[]) => Promise<void>;

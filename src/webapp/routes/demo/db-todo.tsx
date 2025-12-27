@@ -2,7 +2,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useTodo, useTodos } from '@/webapp/hooks/useDbTodos';
+import { useTodo, useTodos } from '#src/webapp/hooks/useDbTodos';
 
 export const Route = createFileRoute('/demo/db-todo')({
   ssr: false,

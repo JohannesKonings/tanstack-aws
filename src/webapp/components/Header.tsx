@@ -12,6 +12,7 @@ import {
   SquareFunction,
   StickyNote,
   Store,
+  Users,
   X,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -243,6 +244,18 @@ export default function Header() {
           >
             <Database size={20} />
             <span className="font-medium">DB Todo</span>
+          </Link>
+          <Link
+            to="/demo/db-person"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <Users size={20} />
+            <span className="font-medium">DB Persons</span>
           </Link>
 
           {/* Demo Links End */}

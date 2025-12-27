@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/webapp/router.tsx",
+    "src/webapp/routes/**/*.{ts,tsx}",
+    "bin/app.ts",
+    "lib/**/*.ts",
+    "scripts/**/*.ts"
+  ],
+  "project": [
+    "src/webapp/**/*.{ts,tsx}",
+    "bin/**/*.ts",
+    "lib/**/*.ts",
+    "scripts/**/*.ts"
+  ],
+  "paths": {
+    "#src/*": ["./src/*"]
+  },
+  "ignore": [
+    "src/webapp/routeTree.gen.ts"
+  ],
+  "vite": {
+    "config": ["vite.config.ts"]
+  },
+  "vitest": true,
+  "typescript": {
+    "config": ["tsconfig.json"]
+  }
+}

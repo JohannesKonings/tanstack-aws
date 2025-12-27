@@ -5,7 +5,7 @@ import { DefaultChatTransport } from 'ai';
 import { Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
-import GuitarRecommendation from '@/webapp/components/example-GuitarRecommendation';
+import GuitarRecommendation from '#src/webapp/components/example-GuitarRecommendation';
 import './tanchat.css';
 
 function InitalLayout({ children }: { children: React.ReactNode }) {

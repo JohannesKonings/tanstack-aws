@@ -1,6 +1,6 @@
 import { useLiveQuery } from '@tanstack/react-db';
 // oxlint-disable func-style
-import { todosCollection } from '@/webapp/db-collections/todos';
+import { todosCollection } from '#src/webapp/db-collections/todos';
 import type { Todo } from '../types/todo';
 
 export function useTodo() {

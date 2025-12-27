@@ -2,7 +2,7 @@
 import { bedrock } from '@ai-sdk/amazon-bedrock';
 import { createFileRoute } from '@tanstack/react-router';
 import { convertToModelMessages, stepCountIs, streamText } from 'ai';
-import getTools from '@/webapp/utils/demo.tools';
+import getTools from '#src/webapp/utils/demo.tools';
 
 const SYSTEM_PROMPT = `You are a helpful assistant for a store that sells guitars.
 
@@ -33,6 +33,7 @@ export const Route = createFileRoute('/demo/api/tanchat')({
 
           return result.toUIMessageStreamResponse();
         } catch (error) {
+          // oxlint-disable-next-line no-console
           console.error('Chat API error:', error);
           return new Response(JSON.stringify({ error: 'Failed to process chat request' }), {
             status: 500,

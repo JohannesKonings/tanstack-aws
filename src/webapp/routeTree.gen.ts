@@ -15,6 +15,7 @@ import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-qu
 import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
+import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
 import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
@@ -57,6 +58,11 @@ const DemoStoreRoute = DemoStoreRouteImport.update({
 const DemoDbTodoRoute = DemoDbTodoRouteImport.update({
   id: '/demo/db-todo',
   path: '/demo/db-todo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonRoute = DemoDbPersonRouteImport.update({
+  id: '/demo/db-person',
+  path: '/demo/db-person',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
@@ -127,6 +133,7 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
@@ -257,6 +269,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DemoDbPersonRoute: typeof DemoDbPersonRoute
   DemoDbTodoRoute: typeof DemoDbTodoRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanchatRoute: typeof DemoTanchatRoute
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/db-todo'
       fullPath: '/demo/db-todo'
       preLoaderRoute: typeof DemoDbTodoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-person': {
+      id: '/demo/db-person'
+      path: '/demo/db-person'
+      fullPath: '/demo/db-person'
+      preLoaderRoute: typeof DemoDbPersonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/example/guitars/': {
@@ -417,6 +437,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemoDbPersonRoute: DemoDbPersonRoute,
   DemoDbTodoRoute: DemoDbTodoRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanchatRoute: DemoTanchatRoute,

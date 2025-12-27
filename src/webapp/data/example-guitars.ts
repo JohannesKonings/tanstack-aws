@@ -1,5 +1,5 @@
 // oxlint-disable sort-keys
-export interface Guitar {
+interface Guitar {
   id: number;
   name: string;
   image: string;

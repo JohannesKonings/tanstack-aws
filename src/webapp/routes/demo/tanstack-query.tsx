@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { type Todo, todoSchema } from '@/webapp/types/todo';
+import { type Todo, todoSchema } from '#src/webapp/types/todo';
 
 export const Route = createFileRoute('/demo/tanstack-query')({
   component: TanStackQueryDemo,
