@@ -174,12 +174,3 @@ export const zodToElectroDBAttributes = <TShape extends ZodRawShape>(
 
   return attributes;
 };
-
-/**
- * Helper to extract enum values from a Zod enum schema
- * Useful for ElectroDB enum validation
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getEnumValues = (enumSchema: ZodType): readonly string[] =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (enumSchema as any)._zod?.def?.entries ?? (enumSchema as any)._zod?.values ?? [];

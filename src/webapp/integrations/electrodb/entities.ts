@@ -150,7 +150,7 @@ export const EmploymentEntity = new Entity(
 // Persons Service - Collection Queries
 // =============================================================================
 
-const PersonsService = new Service(
+new Service(
   {
     person: PersonEntity,
     address: AddressEntity,
@@ -160,20 +160,3 @@ const PersonsService = new Service(
   },
   getEntityConfig(),
 );
-
-// =============================================================================
-// Type Exports
-// =============================================================================
-
-type PersonEntityType = typeof PersonEntity;
-type AddressEntityType = typeof AddressEntity;
-type BankAccountEntityType = typeof BankAccountEntity;
-type ContactInfoEntityType = typeof ContactInfoEntity;
-type EmploymentEntityType = typeof EmploymentEntity;
-
-// ElectroDB inferred types
-type PersonItem = ReturnType<typeof PersonEntity.parse>;
-type AddressItem = ReturnType<typeof AddressEntity.parse>;
-type BankAccountItem = ReturnType<typeof BankAccountEntity.parse>;
-type ContactInfoItem = ReturnType<typeof ContactInfoEntity.parse>;
-type EmploymentItem = ReturnType<typeof EmploymentEntity.parse>;

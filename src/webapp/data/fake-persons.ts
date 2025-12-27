@@ -1,5 +1,3 @@
-// oxlint-disable func-style
-import { faker } from '@faker-js/faker';
 import type {
   AccountType,
   Address,
@@ -12,6 +10,9 @@ import type {
   Person,
   PersonWithRelations,
 } from '#src/webapp/types/person.ts';
+// oxlint-disable max-statements
+// oxlint-disable func-style
+import { faker } from '@faker-js/faker';
 
 // =============================================================================
 // Seed for reproducible data
@@ -80,10 +81,7 @@ function generateAddress(personId: string, overrides?: Partial<Address>): Addres
 /**
  * Generate a fake bank account for a person
  */
-function generateBankAccount(
-  personId: string,
-  overrides?: Partial<BankAccount>,
-): BankAccount {
+function generateBankAccount(personId: string, overrides?: Partial<BankAccount>): BankAccount {
   const accountTypes: AccountType[] = ['checking', 'savings', 'investment'];
 
   return {
@@ -244,68 +242,9 @@ export function generatePersons(
   initFaker(); // Reset seed for reproducibility
   const persons: PersonWithRelations[] = [];
 
-  for (let i = 0; i < count; i++) {
+  for (let index = 0; index < count; index++) {
     persons.push(generatePersonWithRelations(options));
   }
 
   return persons;
-}
-
-/**
- * Generate persons in batches (for memory efficiency with large datasets)
- */
-async function* generatePersonsBatched(
-  totalCount: number,
-  batchSize: number = 100,
-  options?: GeneratePersonOptions,
-): AsyncGenerator<PersonWithRelations[], void, unknown> {
-  initFaker(); // Reset seed for reproducibility
-
-  let generated = 0;
-  while (generated < totalCount) {
-    const currentBatchSize = Math.min(batchSize, totalCount - generated);
-    const batch: PersonWithRelations[] = [];
-
-    for (let i = 0; i < currentBatchSize; i++) {
-      batch.push(generatePersonWithRelations(options));
-    }
-
-    yield batch;
-    generated += currentBatchSize;
-  }
-}
-
-// =============================================================================
-// Utility Functions
-// =============================================================================
-
-/**
- * Get primary email from contacts
- */
-function getPrimaryEmail(contacts: ContactInfo[]): string | undefined {
-  const primary = contacts.find((c) => c.type === 'email' && c.isPrimary);
-  return primary?.value ?? contacts.find((c) => c.type === 'email')?.value;
-}
-
-/**
- * Get primary address city
- */
-function getPrimaryCity(addresses: Address[]): string | undefined {
-  const primary = addresses.find((a) => a.isPrimary);
-  return primary?.city ?? addresses[0]?.city;
-}
-
-/**
- * Get current employer
- */
-function getCurrentEmployer(employments: Employment[]): string | undefined {
-  const current = employments.find((e) => e.isCurrent);
-  return current?.companyName;
-}
-
-/**
- * Get full name
- */
-function getFullName(person: Person): string {
-  return `${person.firstName} ${person.lastName}`;
 }
