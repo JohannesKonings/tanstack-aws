@@ -251,30 +251,6 @@ export function generatePersons(
   return persons;
 }
 
-/**
- * Generate persons in batches (for memory efficiency with large datasets)
- */
-async function* generatePersonsBatched(
-  totalCount: number,
-  batchSize: number = 100,
-  options?: GeneratePersonOptions,
-): AsyncGenerator<PersonWithRelations[], void, unknown> {
-  initFaker(); // Reset seed for reproducibility
-
-  let generated = 0;
-  while (generated < totalCount) {
-    const currentBatchSize = Math.min(batchSize, totalCount - generated);
-    const batch: PersonWithRelations[] = [];
-
-    for (let i = 0; i < currentBatchSize; i++) {
-      batch.push(generatePersonWithRelations(options));
-    }
-
-    yield batch;
-    generated += currentBatchSize;
-  }
-}
-
 // =============================================================================
 // Utility Functions
 // =============================================================================
