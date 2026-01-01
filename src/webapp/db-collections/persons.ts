@@ -204,7 +204,7 @@ export const addressesCollection = createCollection(
     onDelete: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) => {
-          const address = mutation.modified as Address;
+          const address = mutation.original as Address;
           return deleteAddressFn({
             data: { personId: address.personId, addressId: mutation.key as string },
           });
@@ -240,7 +240,7 @@ export const bankAccountsCollection = createCollection(
     onDelete: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) => {
-          const account = mutation.modified as BankAccount;
+          const account = mutation.original as BankAccount;
           return deleteBankAccountFn({
             data: { personId: account.personId, bankId: mutation.key as string },
           });
@@ -276,7 +276,7 @@ export const contactsCollection = createCollection(
     onDelete: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) => {
-          const contact = mutation.modified as ContactInfo;
+          const contact = mutation.original as ContactInfo;
           return deleteContactFn({
             data: { personId: contact.personId, contactId: mutation.key as string },
           });
@@ -312,7 +312,7 @@ export const employmentsCollection = createCollection(
     onDelete: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) => {
-          const employment = mutation.modified as Employment;
+          const employment = mutation.original as Employment;
           return deleteEmploymentFn({
             data: { personId: employment.personId, employmentId: mutation.key as string },
           });
