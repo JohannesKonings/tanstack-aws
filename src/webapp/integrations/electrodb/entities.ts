@@ -75,6 +75,12 @@ export const AddressEntity = new Entity(
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
       },
+      // GSI1: Query all addresses
+      allAddresses: {
+        index: 'GSI1',
+        pk: { field: 'gsi1pk', composite: [], template: 'ADDRESSES' },
+        sk: { field: 'gsi1sk', composite: ['personId', 'id'] },
+      },
     },
   },
   getEntityConfig(),
@@ -96,6 +102,12 @@ export const BankAccountEntity = new Entity(
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
+      },
+      // GSI1: Query all bank accounts
+      allBankAccounts: {
+        index: 'GSI1',
+        pk: { field: 'gsi1pk', composite: [], template: 'BANKACCOUNTS' },
+        sk: { field: 'gsi1sk', composite: ['personId', 'id'] },
       },
     },
   },
@@ -119,6 +131,12 @@ export const ContactInfoEntity = new Entity(
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
       },
+      // GSI1: Query all contacts
+      allContacts: {
+        index: 'GSI1',
+        pk: { field: 'gsi1pk', composite: [], template: 'CONTACTS' },
+        sk: { field: 'gsi1sk', composite: ['personId', 'id'] },
+      },
     },
   },
   getEntityConfig(),
@@ -140,6 +158,12 @@ export const EmploymentEntity = new Entity(
       primary: {
         pk: { field: 'pk', composite: ['personId'] },
         sk: { field: 'sk', composite: ['id'] },
+      },
+      // GSI1: Query all employments
+      allEmployments: {
+        index: 'GSI1',
+        pk: { field: 'gsi1pk', composite: [], template: 'EMPLOYMENTS' },
+        sk: { field: 'gsi1sk', composite: ['personId', 'id'] },
       },
     },
   },

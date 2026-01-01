@@ -12,3 +12,5 @@ count.txt
 .vinxi
 todos.json
 cdk.out
+
+cdk.context.json

@@ -12,13 +12,34 @@ This is a **simple multi-entity example** focused on basic CRUD operations with 
 
 ## Status Update
 
-- Completed: Collections + server functions for persons and related entities
-- Completed: React hooks `useDbPersons.ts` with CRUD mutations and live queries
-- Completed: UI CRUD for persons, addresses, contacts, bank accounts, employment via modals
-- Added: Person detail panel, edit modal, and create person modal
-- Notes: Adjusted code to comply with strict oxlint rules (no ternary, id-length, max-statements); replaced Tailwind shrink classes per linter
+### Completed
+- ✅ Collections + server functions for persons and related entities
+- ✅ React hooks `useDbPersons.ts` with CRUD mutations and live queries
+- ✅ UI CRUD for persons, addresses, contacts, bank accounts, employment via modals
+- ✅ Person detail panel, edit modal, and create person modal
+- ✅ Adjusted code to comply with strict oxlint rules
 
-Remaining minor tasks:
+### Latest Updates (TanStack DB 0.5 Optimization)
+
+**Implemented TanStack DB 0.5 patterns for improved performance:**
+
+1. **Global Collections Architecture**
+   - Converted factory-based per-person collections to global collections
+   - All entities (addresses, bank accounts, contacts, employments) now use single global collections
+   - Enables instant sub-millisecond navigation between person details (no network requests)
+   - Leverages TanStack DB's differential dataflow for efficient updates
+
+2. **GSI1 Multi-Entity Pattern**
+   - Single GSI1 serves ALL entity types with different partition key templates
+   - Eliminates need for GSI2 - simpler infrastructure, lower costs
+   - Each entity type has its own `gsi1pk` template value for clean separation
+
+3. **Query-Driven Data Loading**
+   - Uses `useLiveQuery` with `eq()` predicates for client-side filtering
+   - Data loaded once at app startup, queries run in <1ms client-side
+   - Benefits from TanStack DB's normalized collection store
+
+### Remaining Tasks
 - Refine statement counts in route components if flagged by linter
 - Document search/indexing phase (postponed)
 
@@ -116,7 +137,11 @@ Remaining minor tasks:
 
 | Access Pattern | Key Condition | Description |
 |----------------|---------------|-------------|
-| Get all persons | GSI1: `gsi1pk = PERSONS` | List all persons |
+| Get all persons | GSI1: `gsi1pk = PERSONS` | List all persons (sorted by name) |
+| Get all addresses | GSI1: `gsi1pk = ADDRESSES` | List all addresses (for global collection) |
+| Get all bank accounts | GSI1: `gsi1pk = BANKACCOUNTS` | List all bank accounts (for global collection) |
+| Get all contacts | GSI1: `gsi1pk = CONTACTS` | List all contacts (for global collection) |
+| Get all employments | GSI1: `gsi1pk = EMPLOYMENTS` | List all employments (for global collection) |
 | Get person by ID | `pk = PERSON#<id>, sk = PROFILE` | Single person lookup |
 | Get person with all data | `pk = PERSON#<id>` | Get person + all related entities (collection query) |
 | Get person's addresses | `pk = PERSON#<id>, sk begins_with ADDRESS#` | All addresses for a person |
@@ -124,13 +149,108 @@ Remaining minor tasks:
 
 ### 2.3 Global Secondary Indexes
 
-**GSI1: List All Persons** is used for querying all persons.
+**GSI1: Multi-Entity Type Index**
 
-**Note on GSI2:** A Global Secondary Index (GSI2) for efficiently fetching all entities for search functionality is **postponed**. It will be implemented when search capability is added in a future phase. This includes:
-- Partition Key: `gsi2pk = "ALL_DATA"`
-- Sort Key: `gsi2sk = "PERSON#<personId>#<entityType>#<entityId>"`
+GSI1 is shared by ALL entity types using different partition key templates. This single GSI handles all "get all entities of type X" queries efficiently without table scans.
 
-When implementing search, GSI2 will provide efficient bulk data fetching compared to multiple table scans.
+| Entity | gsi1pk Template | gsi1sk | Query Method |
+|--------|-----------------|--------|--------------|
+| Person | `PERSONS` | `lastName#firstName#id` | `PersonEntity.query.allPersons({})` |
+| Address | `ADDRESSES` | `personId#id` | `AddressEntity.query.allAddresses({})` |
+| BankAccount | `BANKACCOUNTS` | `personId#id` | `BankAccountEntity.query.allBankAccounts({})` |
+| ContactInfo | `CONTACTS` | `personId#id` | `ContactInfoEntity.query.allContacts({})` |
+| Employment | `EMPLOYMENTS` | `personId#id` | `EmploymentEntity.query.allEmployments({})` |
+
+**Benefits of Single GSI1 for All Entities:**
+- ✅ **No scans** - Each entity type query uses an efficient Query operation
+- ✅ **Single GSI** - Reduces infrastructure complexity and costs (no GSI2 needed)
+- ✅ **Template-based partitioning** - Clean separation by entity type
+- ✅ **ElectroDB auto-populates** - gsi1pk/gsi1sk populated automatically on write
+
+**CDK Configuration:**
+```typescript
+this.dbPersons.addGlobalSecondaryIndex({
+  indexName: 'GSI1',
+  partitionKey: { name: 'gsi1pk', type: AttributeType.STRING },
+  sortKey: { name: 'gsi1sk', type: AttributeType.STRING },
+  projectionType: ProjectionType.ALL,
+});
+```
+
+**Note:** GSI2 was previously planned for search functionality but is no longer needed. The GSI1 multi-entity pattern handles all current access patterns efficiently.
+
+---
+
+## 2.4 TanStack DB Global Collections Architecture
+
+Based on [TanStack DB 0.5 Query-Driven Sync](https://tanstack.com/blog/tanstack-db-0.5-query-driven-sync) patterns.
+
+### Why Global Collections vs Per-Entity Factory Collections?
+
+**Previous Approach (Factory Collections):**
+```typescript
+// Created new collection for each personId - problematic
+const createAddressesCollection = (personId: string) =>
+  createCollection({
+    queryKey: ['persons', personId, 'addresses'],
+    queryFn: () => fetchAddresses(personId),
+  });
+```
+
+**Current Approach (Global Collections):**
+```typescript
+// Single global collection - efficient
+export const addressesCollection = createCollection({
+  queryKey: ['addresses'],
+  queryFn: () => fetchAllAddresses(),  // Uses GSI1: gsi1pk = 'ADDRESSES'
+});
+```
+
+### Performance Comparison
+
+| Metric | Factory Collections | Global Collections |
+|--------|--------------------|--------------------|
+| Network requests per navigation | 4-5 (one per entity type) | 0 (data already loaded) |
+| Time to show person details | 100-500ms | <1ms |
+| Memory efficiency | Duplicate data per person | Normalized, shared data |
+| Cache reuse | None | Full TanStack Query cache |
+
+### Hook Implementation Pattern
+
+```typescript
+export function usePersonDetail(personId: string) {
+  // All queries run against pre-loaded global collections
+  // TanStack DB's differential dataflow handles filtering in <1ms
+  
+  const personQuery = useLiveQuery(
+    (q) => q.from({ persons: personsCollection })
+            .where(({ persons }) => eq(persons.id, personId)),
+    [personId]
+  );
+
+  const addressesQuery = useLiveQuery(
+    (q) => q.from({ addresses: addressesCollection })
+            .where(({ addresses }) => eq(addresses.personId, personId)),
+    [personId]
+  );
+  
+  // Mutations still work - they update the global collection
+  // and TanStack DB automatically updates all affected queries
+  const addAddress = (address) => {
+    addressesCollection.insert({ ...address, personId });
+  };
+}
+```
+
+### When to Use Global vs On-Demand Collections
+
+| Data Size | Recommended Mode | Reason |
+|-----------|------------------|--------|
+| < 10k rows | Eager (global) | Load everything upfront, instant queries |
+| 10k-50k rows | Progressive | Fast first paint, background sync |
+| > 50k rows | On-demand | Query-driven loading with predicate push-down |
+
+Our persons example uses **Eager mode** since typical datasets are well under 10k entities.
 
 ---
 

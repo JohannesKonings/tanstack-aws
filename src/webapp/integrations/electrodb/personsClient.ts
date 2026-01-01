@@ -56,11 +56,27 @@ export const createPerson = async (person: Person): Promise<Person> => {
 
 /**
  * Update a person
+ * Uses put with merged data to ensure GSI1 composite keys are properly formatted
  */
 export const updatePerson = async (personId: string, updates: Partial<Person>): Promise<Person> => {
-  const result = await PersonEntity.patch({ id: personId })
-    .set(updates)
-    .go({ response: 'all_new' });
+  // First, get the current person to merge with updates
+  const current = await PersonEntity.get({ id: personId }).go();
+  if (!current.data) {
+    throw new Error(`Person with id ${personId} not found`);
+  }
+
+  // Merge current data with updates and use put to replace the item
+  const updatedPerson = {
+    id: personId,
+    firstName: updates.firstName ?? current.data.firstName,
+    lastName: updates.lastName ?? current.data.lastName,
+    dateOfBirth: updates.dateOfBirth ?? current.data.dateOfBirth,
+    gender: updates.gender ?? current.data.gender,
+    createdAt: current.data.createdAt,
+    updatedAt: updates.updatedAt ?? new Date().toISOString(),
+  };
+
+  const result = await PersonEntity.put(updatedPerson).go();
   return result.data as Person;
 };
 
@@ -90,8 +106,12 @@ export const deletePerson = async (personId: string): Promise<void> => {
 // Address Operations
 // =============================================================================
 
-export const getAddressesByPersonId = async (personId: string): Promise<Address[]> => {
-  const result = await AddressEntity.query.primary({ personId }).go();
+/**
+ * Get all addresses using GSI1 (allAddresses)
+ * Uses partition key template 'ADDRESSES' for efficient querying
+ */
+export const getAllAddresses = async (): Promise<Address[]> => {
+  const result = await AddressEntity.query.allAddresses({}).go();
   return result.data as Address[];
 };
 
@@ -113,8 +133,11 @@ export const deleteAddress = async (personId: string, addressId: string): Promis
 // BankAccount Operations
 // =============================================================================
 
-export const getBankAccountsByPersonId = async (personId: string): Promise<BankAccount[]> => {
-  const result = await BankAccountEntity.query.primary({ personId }).go();
+/**
+ * Get all bank accounts using GSI1 (allBankAccounts)
+ */
+export const getAllBankAccounts = async (): Promise<BankAccount[]> => {
+  const result = await BankAccountEntity.query.allBankAccounts({}).go();
   return result.data as BankAccount[];
 };
 
@@ -136,8 +159,11 @@ export const deleteBankAccount = async (personId: string, bankAccountId: string)
 // ContactInfo Operations
 // =============================================================================
 
-export const getContactsByPersonId = async (personId: string): Promise<ContactInfo[]> => {
-  const result = await ContactInfoEntity.query.primary({ personId }).go();
+/**
+ * Get all contacts using GSI1 (allContacts)
+ */
+export const getAllContacts = async (): Promise<ContactInfo[]> => {
+  const result = await ContactInfoEntity.query.allContacts({}).go();
   return result.data as ContactInfo[];
 };
 
@@ -165,8 +191,11 @@ const normalizeEmployment = (employment: Employment) => ({
   endDate: employment.endDate ?? undefined,
 });
 
-export const getEmploymentsByPersonId = async (personId: string): Promise<Employment[]> => {
-  const result = await EmploymentEntity.query.primary({ personId }).go();
+/**
+ * Get all employments using GSI1 (allEmployments)
+ */
+export const getAllEmployments = async (): Promise<Employment[]> => {
+  const result = await EmploymentEntity.query.allEmployments({}).go();
   return result.data as Employment[];
 };
 

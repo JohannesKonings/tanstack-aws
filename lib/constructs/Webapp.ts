@@ -1,3 +1,4 @@
+// oxlint-disable max-statements
 import { Construct } from 'constructs';
 import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
