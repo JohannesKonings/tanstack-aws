@@ -21,11 +21,13 @@ import { eq, useLiveQuery } from '@tanstack/react-db';
 // =============================================================================
 
 /**
- * Hook to prefetch all person-related entity collections.
- * Call this after persons are loaded to ensure entity data is available
- * immediately when a user selects a person.
+ * Prefetches all per-person entity collections (addresses, bank accounts, contacts, and employments).
  *
- * This loads addresses, bank accounts, contacts, and employments in parallel.
+ * Starts background loading of those collections and exposes simple readiness flags.
+ *
+ * @returns An object with:
+ * - `isLoading` - `true` if any entity collection is currently loading, `false` otherwise.
+ * - `isReady` - `true` when none of the entity collections are loading, `false` otherwise.
  */
 export function usePrefetchPersonEntities() {
   // Trigger loading of all entity collections
@@ -53,8 +55,19 @@ export function usePrefetchPersonEntities() {
 // =============================================================================
 
 /**
- * Hook for accessing and mutating the persons collection.
- * Also prefetches entity data for instant person detail loading.
+ * Provides access to the persons collection, mutation helpers, and prefetching status for related entities.
+ *
+ * Returns the current list of persons and helpers to add, update, and delete persons while triggering
+ * background prefetches of related entity collections (addresses, bank accounts, contacts, employments).
+ *
+ * @returns An object containing:
+ * - `persons` — The array of persons (empty array if none).
+ * - `isLoading` — `true` if the persons query is loading, `false` otherwise.
+ * - `isError` — `true` if the persons query encountered an error, `false` otherwise.
+ * - `isEntitiesReady` — `true` when related entity collections have finished prefetching, `false` otherwise.
+ * - `addPerson(person)` — Inserts a new `Person` into the collection.
+ * - `updatePerson(id, changes)` — Applies `changes` to the person with `id` and updates its `updatedAt` timestamp.
+ * - `deletePerson(id)` — Removes the person with `id` from the collection.
  */
 export function usePersons() {
   // Live query for all persons
@@ -96,7 +109,13 @@ export function usePersons() {
 // =============================================================================
 
 /**
- * Creates mutation functions for address operations
+ * Produce mutation helpers scoped to a specific person for managing their addresses.
+ *
+ * @param personId - The id of the person to associate new addresses with and to scope updates/deletes.
+ * @returns An object with three functions:
+ *  - `addAddress(address)` creates and inserts a new Address tied to `personId` (generates a new `id`).
+ *  - `updateAddress(addressId, changes)` applies `changes` to the Address identified by `addressId`.
+ *  - `deleteAddress(addressId)` removes the Address identified by `addressId`.
  */
 function createAddressMutations(personId: string) {
   const addAddress = (address: Omit<Address, 'id' | 'personId'>) => {
@@ -122,7 +141,13 @@ function createAddressMutations(personId: string) {
 }
 
 /**
- * Creates mutation functions for bank account operations
+ * Create add/update/delete mutation functions for bank accounts scoped to a specific person.
+ *
+ * @param personId - The person ID to associate with newly created bank accounts
+ * @returns An object with:
+ *  - `addBankAccount(account)`: inserts a new bank account for `personId` (generates `id`).
+ *  - `updateBankAccount(accountId, changes)`: applies `changes` to the bank account with `accountId`.
+ *  - `deleteBankAccount(accountId)`: deletes the bank account with `accountId`.
  */
 function createBankAccountMutations(personId: string) {
   const addBankAccount = (account: Omit<BankAccount, 'id' | 'personId'>) => {
@@ -148,7 +173,13 @@ function createBankAccountMutations(personId: string) {
 }
 
 /**
- * Creates mutation functions for contact operations
+ * Create add/update/delete mutation functions bound to a specific person for contact records.
+ *
+ * @param personId - The ID of the person to associate with contacts created by the returned mutations.
+ * @returns An object with:
+ *  - `addContact`: creates and inserts a new `ContactInfo` (generates `id`, sets `personId`).
+ *  - `updateContact`: updates an existing contact by `id` with the provided partial changes.
+ *  - `deleteContact`: deletes an existing contact by `id`.
  */
 function createContactMutations(personId: string) {
   const addContact = (contact: Omit<ContactInfo, 'id' | 'personId'>) => {
@@ -174,7 +205,13 @@ function createContactMutations(personId: string) {
 }
 
 /**
- * Creates mutation functions for employment operations
+ * Returns mutation functions for managing employment records associated with a given person.
+ *
+ * @param personId - The person ID to which the returned mutations will apply
+ * @returns An object with:
+ *  - `addEmployment(employment)`: creates and inserts a new `Employment` associated with `personId`
+ *  - `updateEmployment(employmentId, changes)`: updates the specified `Employment` with `changes`
+ *  - `deleteEmployment(employmentId)`: deletes the specified `Employment`
  */
 function createEmploymentMutations(personId: string) {
   const addEmployment = (employment: Omit<Employment, 'id' | 'personId'>) => {
