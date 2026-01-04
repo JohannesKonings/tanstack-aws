@@ -1,6 +1,12 @@
+// oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Duration } from 'aws-cdk-lib';
+import {
+  Certificate,
+  CertificateValidation,
+  DnsValidatedCertificate,
+} from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   CachePolicy,
@@ -20,6 +26,9 @@ import {
   S3BucketOrigin,
 } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { type IFunctionUrl, Version } from 'aws-cdk-lib/aws-lambda';
+import { HostedZone } from 'aws-cdk-lib/aws-route53';
+import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 import { SSMParameterReader } from './SSMParameterReader.ts';
 
@@ -31,6 +40,7 @@ import { SSMParameterReader } from './SSMParameterReader.ts';
 // const domainName = '*.cloudfront.net';
 
 type DistributionProps = {
+  appStage: string;
   webappServerFunctionUrl: IFunctionUrl;
   webappServerApi: RestApi;
   assetsBucket: Bucket;
@@ -42,7 +52,39 @@ export class WebappDistribution extends Construct {
   constructor(scope: Construct, id: string, props: DistributionProps) {
     super(scope, id);
 
-    const { webappServerFunctionUrl, webappServerApi, assetsBucket, originBehaviorKind } = props;
+    const { appStage, webappServerFunctionUrl, webappServerApi, assetsBucket, originBehaviorKind } =
+      props;
+
+    const domainName = 'tanstack-aws-examples.com';
+    const isProdStage = appStage === 'prod';
+    // const isProdStage = appStage === 'main';
+
+    // Set up domain configuration for main stage
+    let domainConfig: { domainNames: string[]; certificate: Certificate } | undefined;
+    if (isProdStage) {
+      const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+        domainName,
+      });
+
+      // const certificate = new Certificate(this, 'Certificate', {
+      //   domainName,
+      //   validation: CertificateValidation.fromDns(hostedZone),
+      // });
+
+      const certificate = new DnsValidatedCertificate(this, 'Cert', {
+        domainName: domainName,
+        hostedZone,
+        transparencyLoggingEnabled: true,
+        cleanupRoute53Records: true,
+        // For CloudFront the certificate must places in us-east-1
+        region: 'us-east-1',
+      });
+
+      domainConfig = {
+        domainNames: [domainName],
+        certificate,
+      };
+    }
 
     // const versionArnReader = new SSMParameterReader(this, 'LambdaEdgeVersionArn', {
     //   parameterName: '/lambda-edge/sigv4-signer/version-arn',
@@ -139,14 +181,32 @@ export class WebappDistribution extends Construct {
 
     this.distribution = new Distribution(this, 'Distribution', {
       additionalBehaviors: {
+        '/ads.txt': staticAssetBehavior,
         '/assets/*': staticAssetBehavior,
         '/favicon.ico': staticAssetBehavior,
         '/images/*': staticAssetBehavior,
-        '/site.webmanifest': staticAssetBehavior,
+        // '/manifest.json': staticAssetBehavior,
+        // '/robots.txt': staticAssetBehavior,
+        // '/site.webmanifest': staticAssetBehavior,
       },
       comment: originBehaviorKind,
       defaultBehavior,
-      priceClass: PriceClass.PRICE_CLASS_100,
+      ...(domainConfig && {
+        domainNames: domainConfig.domainNames,
+        certificate: domainConfig.certificate,
+      }),
     });
+
+    // Create Route53 A record for main stage
+    if (isProdStage && domainConfig) {
+      const hostedZone = HostedZone.fromLookup(this, 'HostedZoneForRecord', {
+        domainName,
+      });
+
+      new ARecord(this, 'AliasRecord', {
+        zone: hostedZone,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      });
+    }
   }
 }

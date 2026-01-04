@@ -9,8 +9,12 @@ import { WebappDistribution } from './WebappDistribution.ts';
 import { WebappFunctionUrl } from './WebappFunctionUrl.ts';
 import { WebappServer } from './WebappServer.ts';
 
+type WebappProps = {
+  appStage: string;
+};
+
 export class Webapp extends Construct {
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: WebappProps) {
     super(scope, id);
 
     const databaseTodos = new DatabaseTodos(this, 'DatabaseTodos');
@@ -47,6 +51,7 @@ export class Webapp extends Construct {
     // });
 
     const distributionApiGw = new WebappDistribution(this, 'WebappDistributionApiGw', {
+      appStage: props.appStage,
       assetsBucket: assetsBucket.assetsBucket,
       originBehaviorKind: 'apiGw',
       webappServerApi: webappApi.webappApi,
