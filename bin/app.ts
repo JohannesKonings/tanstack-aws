@@ -15,6 +15,7 @@ const appStage = process.env.APP_STAGE || 'dev';
 console.log(`Deploying to stage: ${appStage} in region: ${workloadRegion}`);
 
 new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
+  appStage,
   env: { account: workloadAccount, region: workloadRegion },
 });
 
