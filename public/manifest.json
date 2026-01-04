@@ -1,6 +1,7 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "TanStack AWS",
+  "name": "TanStack AWS Examples - Deployed with AWS CDK",
+  "description": "TanStack AWS Examples showcasing TanStack Router, Query, and Start deployed to AWS using CDK. Examples with serverless architecture, DynamoDB, CloudFront, and Lambda.",
   "icons": [
     {
       "src": "images/favicon.ico",
@@ -10,16 +11,24 @@
     {
       "src": "images/logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "images/logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff",
+  "categories": ["developer tools", "education", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "orientation": "any",
+  "prefer_related_applications": false
 }

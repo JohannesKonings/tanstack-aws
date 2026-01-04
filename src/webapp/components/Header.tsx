@@ -4,6 +4,7 @@ import {
   ChevronDown,
   ChevronRight,
   Database,
+  Github,
   Guitar,
   Home,
   Menu,
@@ -24,19 +25,34 @@ export default function Header() {
 
   return (
     <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
+      <header className="p-4 flex items-center justify-between bg-gray-800 text-white shadow-lg">
+        <div className="flex items-center">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="ml-4 text-xl font-semibold">
+            <Link to="/">
+              <img
+                src="/images/tanstack-word-logo-white.svg"
+                alt="TanStack Logo"
+                className="h-10"
+              />
+            </Link>
+          </h1>
+        </div>
+        <a
+          href="https://github.com/JohannesKonings/tanstack-aws"
+          target="_blank"
+          rel="noopener noreferrer"
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
+          aria-label="View on GitHub"
         >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img src="/images/tanstack-word-logo-white.svg" alt="TanStack Logo" className="h-10" />
-          </Link>
-        </h1>
+          <Github size={24} />
+        </a>
       </header>
 
       <aside
