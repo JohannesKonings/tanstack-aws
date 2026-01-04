@@ -30,11 +30,6 @@ const structuredData = {
   name: siteTitle,
   description: siteDescription,
   url: siteUrl,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${siteUrl}/search?q={search_term_string}`,
-    'query-input': 'required name=search_term_string',
-  },
   publisher: {
     '@type': 'Organization',
     name: 'TanStack AWS Examples',
@@ -55,7 +50,7 @@ const structuredData = {
       'TanStack AWS Examples - Examples of TanStack applications deployed to AWS using CDK infrastructure as code',
     programmingLanguage: ['TypeScript', 'JavaScript'],
     runtimePlatform: ['Node.js', 'AWS Lambda'],
-    codeRepository: 'https://github.com/tanstack-aws-examples',
+    codeRepository: 'https://github.com/JohannesKonings/tanstack-aws',
   },
 };
 

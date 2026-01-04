@@ -7,8 +7,9 @@
   },
   "scripts": {
     "webapp:dev": "vite dev --port 3000",
-    "webapp:build": "vite build",
+    "webapp:build": "node scripts/generate-robots-txt.ts && vite build",
     "webapp:serve": "node .output/server/index.mjs",
+    "generate:robots": "node scripts/generate-robots-txt.ts",
     "test": "vitest run",
     "lint": "oxlint . --type-aware",
     "lint:fix": "pnpm lint --fix",
