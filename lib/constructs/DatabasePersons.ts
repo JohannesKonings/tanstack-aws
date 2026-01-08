@@ -1,4 +1,10 @@
-import { AttributeType, BillingMode, ProjectionType, Table } from 'aws-cdk-lib/aws-dynamodb';
+import {
+  AttributeType,
+  BillingMode,
+  ProjectionType,
+  StreamViewType,
+  Table,
+} from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
 export class DatabasePersons extends Construct {
@@ -10,6 +16,8 @@ export class DatabasePersons extends Construct {
       partitionKey: { name: 'pk', type: AttributeType.STRING },
       sortKey: { name: 'sk', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
+      // Enable streams for real-time SSE sync
+      stream: StreamViewType.NEW_AND_OLD_IMAGES,
     });
 
     // GSI1: For listing all entities by type

@@ -2,6 +2,8 @@
 import { Construct } from 'constructs';
 import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
+import { EventsTable } from './EventsTable.ts';
+import { StreamToEventsProcessor } from './StreamToEventsProcessor.ts';
 import { WebappApi } from './WebappApi.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
 import { WebappAssetsDeployment } from './WebappAssetsDeployment.ts';
@@ -20,13 +22,25 @@ export class Webapp extends Construct {
     const databaseTodos = new DatabaseTodos(this, 'DatabaseTodos');
     const databasePersons = new DatabasePersons(this, 'DatabasePersons');
 
+    // SSE Real-time Sync Infrastructure
+    // Events table stores change events from DynamoDB Streams for SSE clients
+    const eventsTable = new EventsTable(this, 'EventsTable');
+
+    // Stream processor writes Persons table changes to Events table
+    new StreamToEventsProcessor(this, 'StreamToEventsProcessor', {
+      personsTable: databasePersons.dbPersons,
+      eventsTable: eventsTable.table,
+    });
+
     const webappServer = new WebappServer(this, 'WebappServer', {
       tableNameTodos: databaseTodos.dbTodos.tableName,
       tableNamePersons: databasePersons.dbPersons.tableName,
+      tableNameEvents: eventsTable.table.tableName,
     });
 
     databaseTodos.dbTodos.grantReadWriteData(webappServer.webappServer);
     databasePersons.dbPersons.grantReadWriteData(webappServer.webappServer);
+    eventsTable.table.grantReadData(webappServer.webappServer);
 
     const webappServerFunctionUrl = new WebappFunctionUrl(this, 'WebappServerFunctionUrl', {
       webappServer: webappServer.webappServer,

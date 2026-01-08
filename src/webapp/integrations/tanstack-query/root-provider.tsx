@@ -1,20 +1,15 @@
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
+import { TRPCProvider } from '#src/webapp/integrations/trpc/react';
 import { QueryClient } from '@tanstack/react-query';
 // oxlint-disable func-style
 import { createTRPCClient, httpBatchStreamLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
-import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
-import { TRPCProvider } from '#src/webapp/integrations/trpc/react';
 
 function getUrl() {
-  const base = (() => {
-    if (typeof window !== 'undefined') {
-      return '';
-    }
-    // oxlint-disable-next-line no-magic-numbers
-    return `http://localhost:${process.env.PORT ?? 3000}`;
-  })();
-  return `${base}/api/trpc`;
+  // Always use relative URL for consistency between SSR and client
+  // TanStack Start will handle the request properly in both contexts
+  return '/api/trpc';
 }
 
 const trpcClient = createTRPCClient<TRPCRouter>({

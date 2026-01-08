@@ -16,6 +16,8 @@ import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
 import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
+import { Route as ApiPersonsStreamRouteImport } from './routes/api/persons-stream'
+import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
 import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
@@ -25,6 +27,8 @@ import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
+import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
+import { Route as ApiSseEventsRouteImport } from './routes/api.sse.events'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -63,6 +67,16 @@ const DemoDbTodoRoute = DemoDbTodoRouteImport.update({
 const DemoDbPersonRoute = DemoDbPersonRouteImport.update({
   id: '/demo/db-person',
   path: '/demo/db-person',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPersonsStreamRoute = ApiPersonsStreamRouteImport.update({
+  id: '/api/persons-stream',
+  path: '/api/persons-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsRoute = ApiEventsRouteImport.update({
+  id: '/api/events',
+  path: '/api/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
@@ -110,6 +124,16 @@ const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   path: '/api/trpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSseStreamRoute = ApiSseStreamRouteImport.update({
+  id: '/api/sse/stream',
+  path: '/api/sse/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSseEventsRoute = ApiSseEventsRouteImport.update({
+  id: '/api/sse/events',
+  path: '/api/sse/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -133,12 +157,16 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/api/sse/events': typeof ApiSseEventsRoute
+  '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -155,12 +183,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/api/sse/events': typeof ApiSseEventsRoute
+  '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -178,12 +210,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/api/sse/events': typeof ApiSseEventsRoute
+  '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -202,12 +238,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/events'
+    | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/api/sse/events'
+    | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
@@ -224,12 +264,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/events'
+    | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/api/sse/events'
+    | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
@@ -246,12 +290,16 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api/events'
+    | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
     | '/demo/store'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/api/sse/events'
+    | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
@@ -269,12 +317,16 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiEventsRoute: typeof ApiEventsRoute
+  ApiPersonsStreamRoute: typeof ApiPersonsStreamRoute
   DemoDbPersonRoute: typeof DemoDbPersonRoute
   DemoDbTodoRoute: typeof DemoDbTodoRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanchatRoute: typeof DemoTanchatRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
+  ApiSseEventsRoute: typeof ApiSseEventsRoute
+  ApiSseStreamRoute: typeof ApiSseStreamRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
   DemoApiDdbTodosRoute: typeof DemoApiDdbTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -341,6 +393,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDbPersonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/persons-stream': {
+      id: '/api/persons-stream'
+      path: '/api/persons-stream'
+      fullPath: '/api/persons-stream'
+      preLoaderRoute: typeof ApiPersonsStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events': {
+      id: '/api/events'
+      path: '/api/events'
+      fullPath: '/api/events'
+      preLoaderRoute: typeof ApiEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/example/guitars/': {
       id: '/example/guitars/'
       path: '/example/guitars'
@@ -404,6 +470,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTrpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sse/stream': {
+      id: '/api/sse/stream'
+      path: '/api/sse/stream'
+      fullPath: '/api/sse/stream'
+      preLoaderRoute: typeof ApiSseStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sse/events': {
+      id: '/api/sse/events'
+      path: '/api/sse/events'
+      fullPath: '/api/sse/events'
+      preLoaderRoute: typeof ApiSseEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -437,12 +517,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiEventsRoute: ApiEventsRoute,
+  ApiPersonsStreamRoute: ApiPersonsStreamRoute,
   DemoDbPersonRoute: DemoDbPersonRoute,
   DemoDbTodoRoute: DemoDbTodoRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanchatRoute: DemoTanchatRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoTrpcTodoRoute: DemoTrpcTodoRoute,
+  ApiSseEventsRoute: ApiSseEventsRoute,
+  ApiSseStreamRoute: ApiSseStreamRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
   DemoApiDdbTodosRoute: DemoApiDdbTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

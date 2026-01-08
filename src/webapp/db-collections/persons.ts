@@ -1,5 +1,6 @@
 import * as electrodbClient from '#src/webapp/integrations/electrodb/personsClient';
 import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
+import { isFromSse } from '#src/webapp/hooks/useSseSync';
 import {
   type Address,
   AddressSchema,
@@ -149,6 +150,9 @@ export const personsCollection = createCollection(
     queryClient: getContext().queryClient,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           createPersonFn({ data: mutation.modified as Person }),
@@ -156,6 +160,9 @@ export const personsCollection = createCollection(
       );
     },
     onUpdate: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           updatePersonFn({
@@ -168,6 +175,9 @@ export const personsCollection = createCollection(
       );
     },
     onDelete: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) => deletePersonFn({ data: mutation.key as string })),
       );
@@ -195,6 +205,9 @@ export const addressesCollection = createCollection(
       );
     },
     onUpdate: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           updateAddressFn({ data: mutation.modified as Address }),
@@ -202,6 +215,9 @@ export const addressesCollection = createCollection(
       );
     },
     onDelete: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) => {
           const address = mutation.original as Address;
@@ -224,6 +240,9 @@ export const bankAccountsCollection = createCollection(
     queryClient: getContext().queryClient,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           createBankAccountFn({ data: mutation.modified as BankAccount }),
@@ -231,6 +250,9 @@ export const bankAccountsCollection = createCollection(
       );
     },
     onUpdate: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           updateBankAccountFn({ data: mutation.modified as BankAccount }),
@@ -238,6 +260,9 @@ export const bankAccountsCollection = createCollection(
       );
     },
     onDelete: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) => {
           const account = mutation.original as BankAccount;
@@ -260,6 +285,9 @@ export const contactsCollection = createCollection(
     queryClient: getContext().queryClient,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           createContactFn({ data: mutation.modified as ContactInfo }),
@@ -267,6 +295,9 @@ export const contactsCollection = createCollection(
       );
     },
     onUpdate: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           updateContactFn({ data: mutation.modified as ContactInfo }),
@@ -274,6 +305,9 @@ export const contactsCollection = createCollection(
       );
     },
     onDelete: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) => {
           const contact = mutation.original as ContactInfo;
@@ -296,6 +330,9 @@ export const employmentsCollection = createCollection(
     queryClient: getContext().queryClient,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           createEmploymentFn({ data: mutation.modified as Employment }),
@@ -303,6 +340,9 @@ export const employmentsCollection = createCollection(
       );
     },
     onUpdate: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) =>
           updateEmploymentFn({ data: mutation.modified as Employment }),
@@ -310,6 +350,9 @@ export const employmentsCollection = createCollection(
       );
     },
     onDelete: async ({ transaction }) => {
+      if (isFromSse()) {
+        return; // Skip server write for SSE updates
+      }
       await Promise.all(
         transaction.mutations.map((mutation) => {
           const employment = mutation.original as Employment;

@@ -2,11 +2,12 @@
 import { CreatePersonModal } from '#src/webapp/components/persons/CreatePersonModal';
 import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
 import { PersonsTable, type PersonTableRow } from '#src/webapp/components/persons/PersonsTable';
+import { SyncStatus } from '#src/webapp/components/SyncStatus';
 import { Button } from '#src/webapp/components/ui/button';
 import { usePersons } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const Route = createFileRoute('/demo/db-person')({
   ssr: false,
@@ -18,6 +19,22 @@ function DbPersons() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { persons, isLoading, addPerson } = usePersons();
+
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const eventSource = new EventSource('/api/events');
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setTime(data.time);
+      // persons.
+    };
+    // Handle errors silently - EventSource will auto-reconnect
+    eventSource.onerror = () => {
+      // EventSource automatically reconnects, no action needed
+      // This prevents the error from showing in console
+    };
+    return () => eventSource.close();
+  }, []);
 
   // Convert persons to table rows (React Compiler handles memoization)
   const startDisplay = 0;
@@ -53,16 +70,34 @@ function DbPersons() {
           'radial-gradient(50% 50% at 80% 20%, #1a4d3e 0%, #0d7377 60%, #0a2e36 100%)',
       }}
     >
+      <div className="mb-4 text-sm text-gray-300">Server Time from SSE: {time}</div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
-          <p className="mt-1 text-white/70">Browse and manage persons with multi-entity support</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
+            <p className="mt-1 text-white/70">
+              Browse and manage persons with multi-entity support
+            </p>
+          </div>
+          <SyncStatus className="bg-gray-800/50" />
         </div>
         <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
           Create Person
         </Button>
       </div>
+
+      {/* <h1>Typed Readable Stream</h1>
+      <div id="streamed-results">
+        <button onClick={() => getTypedReadableStreamResponse()}>
+          Get 10 random numbers (ReadableStream)
+        </button>
+        <button onClick={() => getResponseFromTheAsyncGenerator()}>
+          Get 10 random numbers (Async Generator Function)
+        </button>
+        <pre>{readableStreamMessages}</pre>
+        <pre>{asyncGeneratorFuncMessages}</pre>
+      </div> */}
 
       {/* Main Content - Table and Detail Panel */}
       <div className="flex gap-6">
