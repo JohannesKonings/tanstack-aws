@@ -1,7 +1,8 @@
 // oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import { Duration } from 'aws-cdk-lib';
+import * as cloudfrontMixins from '@aws-cdk/mixins-preview/aws-cloudfront/mixins';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   Certificate,
   CertificateValidation,
@@ -13,6 +14,7 @@ import {
   Distribution,
   HeadersFrameOption,
   HeadersReferrerPolicy,
+  HttpVersion,
   LambdaEdgeEventType,
   OriginRequestPolicy,
   PriceClass,
@@ -26,11 +28,12 @@ import {
   S3BucketOrigin,
 } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { type IFunctionUrl, Version } from 'aws-cdk-lib/aws-lambda';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import '@aws-cdk/mixins-preview/with';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
-import { SSMParameterReader } from './SSMParameterReader.ts';
 
 // const cspAllowedSources = [
 //   'https://login.microsoftonline.com',
@@ -141,6 +144,9 @@ export class WebappDistribution extends Construct {
     const defaultBehavior = {
       allowedMethods: AllowedMethods.ALLOW_ALL,
       cachePolicy: CachePolicy.CACHING_DISABLED,
+      // Disable compression to enable streaming responses (SSE, async generators)
+      // CloudFront buffers the entire response when compression is enabled
+      compress: false,
       origin: new RestApiOrigin(webappServerApi),
       originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
       responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
@@ -195,6 +201,7 @@ export class WebappDistribution extends Construct {
         domainNames: domainConfig.domainNames,
         certificate: domainConfig.certificate,
       }),
+      httpVersion: HttpVersion.HTTP3,
     });
 
     // Create Route53 A record for main stage

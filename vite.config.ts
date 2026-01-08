@@ -8,7 +8,9 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig({
   plugins: [
-    devtools(),
+    devtools({
+      removeDevtoolsOnBuild: false,
+    }),
     nitro({
       awsLambda: { streaming: true },
       alias: {

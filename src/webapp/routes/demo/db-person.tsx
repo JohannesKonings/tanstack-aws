@@ -2,6 +2,7 @@
 import { CreatePersonModal } from '#src/webapp/components/persons/CreatePersonModal';
 import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
 import { PersonsTable, type PersonTableRow } from '#src/webapp/components/persons/PersonsTable';
+import { SyncStatus } from '#src/webapp/components/SyncStatus';
 import { Button } from '#src/webapp/components/ui/button';
 import { usePersons } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable func-style
@@ -55,9 +56,14 @@ function DbPersons() {
     >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
-          <p className="mt-1 text-white/70">Browse and manage persons with multi-entity support</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
+            <p className="mt-1 text-white/70">
+              Browse and manage persons with multi-entity support
+            </p>
+          </div>
+          <SyncStatus className="bg-gray-800/50" />
         </div>
         <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
           Create Person
