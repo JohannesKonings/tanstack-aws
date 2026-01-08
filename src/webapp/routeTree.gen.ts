@@ -17,7 +17,6 @@ import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
 import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
 import { Route as ApiPersonsStreamRouteImport } from './routes/api/persons-stream'
-import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
 import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
@@ -72,11 +71,6 @@ const DemoDbPersonRoute = DemoDbPersonRouteImport.update({
 const ApiPersonsStreamRoute = ApiPersonsStreamRouteImport.update({
   id: '/api/persons-stream',
   path: '/api/persons-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiEventsRoute = ApiEventsRouteImport.update({
-  id: '/api/events',
-  path: '/api/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
@@ -157,7 +151,6 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/events': typeof ApiEventsRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -183,7 +176,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/events': typeof ApiEventsRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -210,7 +202,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/events': typeof ApiEventsRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -238,7 +229,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/api/events'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -264,7 +254,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/api/events'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -290,7 +279,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/api/events'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -317,7 +305,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiEventsRoute: typeof ApiEventsRoute
   ApiPersonsStreamRoute: typeof ApiPersonsStreamRoute
   DemoDbPersonRoute: typeof DemoDbPersonRoute
   DemoDbTodoRoute: typeof DemoDbTodoRoute
@@ -398,13 +385,6 @@ declare module '@tanstack/react-router' {
       path: '/api/persons-stream'
       fullPath: '/api/persons-stream'
       preLoaderRoute: typeof ApiPersonsStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/events': {
-      id: '/api/events'
-      path: '/api/events'
-      fullPath: '/api/events'
-      preLoaderRoute: typeof ApiEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/example/guitars/': {
@@ -517,7 +497,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiEventsRoute: ApiEventsRoute,
   ApiPersonsStreamRoute: ApiPersonsStreamRoute,
   DemoDbPersonRoute: DemoDbPersonRoute,
   DemoDbTodoRoute: DemoDbTodoRoute,

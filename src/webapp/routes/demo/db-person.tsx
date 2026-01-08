@@ -20,22 +20,6 @@ function DbPersons() {
 
   const { persons, isLoading, addPerson } = usePersons();
 
-  const [time, setTime] = useState('');
-  useEffect(() => {
-    const eventSource = new EventSource('/api/events');
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setTime(data.time);
-      // persons.
-    };
-    // Handle errors silently - EventSource will auto-reconnect
-    eventSource.onerror = () => {
-      // EventSource automatically reconnects, no action needed
-      // This prevents the error from showing in console
-    };
-    return () => eventSource.close();
-  }, []);
-
   // Convert persons to table rows (React Compiler handles memoization)
   const startDisplay = 0;
   const maxDisplay = 100;
@@ -70,7 +54,6 @@ function DbPersons() {
           'radial-gradient(50% 50% at 80% 20%, #1a4d3e 0%, #0d7377 60%, #0a2e36 100%)',
       }}
     >
-      <div className="mb-4 text-sm text-gray-300">Server Time from SSE: {time}</div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
