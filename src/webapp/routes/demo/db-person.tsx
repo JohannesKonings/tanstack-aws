@@ -7,7 +7,7 @@ import { Button } from '#src/webapp/components/ui/button';
 import { usePersons } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/demo/db-person')({
   ssr: false,
@@ -69,18 +69,6 @@ function DbPersons() {
           Create Person
         </Button>
       </div>
-
-      {/* <h1>Typed Readable Stream</h1>
-      <div id="streamed-results">
-        <button onClick={() => getTypedReadableStreamResponse()}>
-          Get 10 random numbers (ReadableStream)
-        </button>
-        <button onClick={() => getResponseFromTheAsyncGenerator()}>
-          Get 10 random numbers (Async Generator Function)
-        </button>
-        <pre>{readableStreamMessages}</pre>
-        <pre>{asyncGeneratorFuncMessages}</pre>
-      </div> */}
 
       {/* Main Content - Table and Detail Panel */}
       <div className="flex gap-6">
