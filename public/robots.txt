@@ -5,6 +5,9 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
+# Sitemap
+Sitemap: https://tanstack-aws-examples.com/sitemap.xml
+
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 
