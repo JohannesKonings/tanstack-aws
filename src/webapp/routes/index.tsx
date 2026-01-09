@@ -1,3 +1,4 @@
+// oxlint-disable jsx-max-depth
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
 import {
@@ -163,7 +164,10 @@ function App() {
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
                   TanStack Start AWS Serverless
                 </p>
-                <p className="text-sm text-gray-400">Initial serverless deployment setup</p>
+                <p className="text-sm text-gray-400">
+                  Deploy TanStack Start to AWS with Lambda, CloudFront, and S3 using CDK
+                  infrastructure
+                </p>
               </div>
               <span className="text-xs text-gray-500">Nov 2025</span>
             </a>
@@ -176,9 +180,11 @@ function App() {
               <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
-                  TanStack Start AWS DB Simple
+                  TanStack DB with DynamoDb - Todo List
                 </p>
-                <p className="text-sm text-gray-400">Simple DynamoDB integration</p>
+                <p className="text-sm text-gray-400">
+                  Build a basic todo app with DynamoDB, server functions, and type-safe API routes
+                </p>
               </div>
               <span className="text-xs text-gray-500">Dec 2025</span>
             </a>
@@ -191,11 +197,31 @@ function App() {
               <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
-                  TanStack Start AWS DB Multiple Entities
+                  TanStack DB with DynamoDb - Multiple Entities
                 </p>
-                <p className="text-sm text-gray-400">ElectroDB with multiple entity types</p>
+                <p className="text-sm text-gray-400">
+                  Advanced DynamoDB patterns with ElectroDB for managing complex entity
+                  relationships
+                </p>
               </div>
               <span className="text-xs text-gray-500">Dec 2025</span>
+            </a>
+            <a
+              href="https://johanneskonings.dev/blog/2026-01-08-tanstack-start-aws-db-multiple-entities-sse/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition-all group"
+            >
+              <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
+                  TanStack DB with DynamoDb - Multiple Entities SSE
+                </p>
+                <p className="text-sm text-gray-400">
+                  Real-time data synchronization with Server-Sent Events and DynamoDB Streams
+                </p>
+              </div>
+              <span className="text-xs text-gray-500">Jan 2026</span>
             </a>
           </div>
         </div>
