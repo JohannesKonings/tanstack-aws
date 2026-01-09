@@ -8,7 +8,7 @@ Provisioning of AWS resources is handled using [AWS CDK](https://aws.amazon.com/
 * https://johanneskonings.dev/blog/2025-11-30-tanstack-start-aws-serverless/
 * https://johanneskonings.dev/blog/2025-12-20-tanstack-start-aws-db-simple/
 * https://johanneskonings.dev/blog/2025-12-27-tanstack-start-aws-db-multiple-entities/
-* https://johanneskonings.dev/blog/2025-12-27-tanstack-start-aws-db-multiple-entities-sse/
+* https://johanneskonings.dev/blog/2026-01-08-tanstack-start-aws-db-multiple-entities-sse/
 
 # Examples
 
