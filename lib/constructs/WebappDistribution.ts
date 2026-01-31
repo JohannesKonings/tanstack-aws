@@ -1,37 +1,23 @@
 // oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import * as cloudfrontMixins from '@aws-cdk/mixins-preview/aws-cloudfront/mixins';
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   Certificate,
-  CertificateValidation,
   DnsValidatedCertificate,
 } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   CachePolicy,
   Distribution,
-  HeadersFrameOption,
-  HeadersReferrerPolicy,
   HttpVersion,
-  LambdaEdgeEventType,
   OriginRequestPolicy,
-  PriceClass,
   ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import {
-  FunctionUrlOrigin,
-  HttpOrigin,
-  RestApiOrigin,
-  S3BucketOrigin,
-} from 'aws-cdk-lib/aws-cloudfront-origins';
-import { type IFunctionUrl, Version } from 'aws-cdk-lib/aws-lambda';
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { RestApiOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import '@aws-cdk/mixins-preview/with';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 
@@ -55,8 +41,7 @@ export class WebappDistribution extends Construct {
   constructor(scope: Construct, id: string, props: DistributionProps) {
     super(scope, id);
 
-    const { appStage, webappServerFunctionUrl, webappServerApi, assetsBucket, originBehaviorKind } =
-      props;
+    const { appStage, webappServerApi, assetsBucket, originBehaviorKind } = props;
 
     const domainName = 'tanstack-aws-examples.com';
     const isProdStage = appStage === 'prod';
