@@ -277,14 +277,15 @@ export class BedrockTextAdapter extends BaseTextAdapter<
         if (event.contentBlockStart?.start?.toolUse) {
           const tu = event.contentBlockStart.start.toolUse;
           const idx = event.contentBlockStart.contentBlockIndex ?? 0;
+          const toolCallId = tu.toolUseId ?? this.generateId();
           toolCallIds.set(idx, {
-            id: tu.toolUseId ?? this.generateId(),
+            id: toolCallId,
             name: tu.name ?? '',
           });
           toolArgsAccum[idx] = '';
           yield {
             type: 'TOOL_CALL_START',
-            toolCallId: tu.toolUseId ?? '',
+            toolCallId,
             toolName: tu.name ?? '',
             model,
             timestamp,

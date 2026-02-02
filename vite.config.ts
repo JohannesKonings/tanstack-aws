@@ -11,10 +11,10 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-const config = defineConfig(({ command, ssr }) => {
+const config = defineConfig(({ command, isSsrBuild }) => {
   // Nitro/build pulls in @tanstack/ai-devtools-core (Solid.js) whose server build
   // lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
-  const useAiDevtoolsStub = ssr === true || command === 'build';
+  const useAiDevtoolsStub = isSsrBuild === true || command === 'build';
   return {
     resolve: {
       alias:

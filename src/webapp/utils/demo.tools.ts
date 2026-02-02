@@ -11,7 +11,14 @@ const getGuitarsOutputSchema = {
 
 const recommendGuitarInputSchema = {
   type: 'object' as const,
-  properties: { id: { type: 'string' as const, description: 'The id of the guitar to recommend' } },
+  properties: {
+    id: {
+      oneOf: [
+        { type: 'string' as const, description: 'The id of the guitar to recommend' },
+        { type: 'number' as const, description: 'The id of the guitar to recommend' },
+      ],
+    },
+  },
   required: ['id'] as string[],
 };
 const recommendGuitarOutputSchema = {
@@ -21,16 +28,13 @@ const recommendGuitarOutputSchema = {
 };
 
 interface RecommendGuitarInput {
-  id: string;
+  id: string | number;
 }
 
 function isRecommendGuitarInput(args: unknown): args is RecommendGuitarInput {
-  return (
-    typeof args === 'object' &&
-    args !== null &&
-    'id' in args &&
-    typeof (args as RecommendGuitarInput).id === 'string'
-  );
+  if (typeof args !== 'object' || args === null || !('id' in args)) return false;
+  const id = (args as RecommendGuitarInput).id;
+  return typeof id === 'string' || typeof id === 'number';
 }
 
 const getGuitarsDef = toolDefinition({
@@ -53,9 +57,9 @@ export const getGuitars = getGuitarsDef.server(async () => {
 
 export const recommendGuitar = recommendGuitarDef.server(async (args: unknown) => {
   if (!isRecommendGuitarInput(args)) {
-    throw new Error('Invalid args: expected { id: string }');
+    throw new Error('Invalid args: expected { id: string | number }');
   }
-  return { id: args.id };
+  return { id: String(args.id) };
 });
 
 export default async function getTools() {

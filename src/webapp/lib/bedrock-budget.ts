@@ -16,10 +16,10 @@ export { DAILY_LIMIT_USD };
 export const TANCHAT_MODEL_ID = 'us.amazon.nova-pro-v1:0';
 
 /** Nova Pro: $ per 1M tokens (approximate; override via env) */
-const PRICE_INPUT_PER_1M =
-  Number(process.env.BEDROCK_NOVA_INPUT_PRICE_PER_1M) || 3.5;
-const PRICE_OUTPUT_PER_1M =
-  Number(process.env.BEDROCK_NOVA_OUTPUT_PRICE_PER_1M) || 8;
+const _inputPrice = Number(process.env.BEDROCK_NOVA_INPUT_PRICE_PER_1M);
+const PRICE_INPUT_PER_1M = Number.isNaN(_inputPrice) ? 3.5 : _inputPrice;
+const _outputPrice = Number(process.env.BEDROCK_NOVA_OUTPUT_PRICE_PER_1M);
+const PRICE_OUTPUT_PER_1M = Number.isNaN(_outputPrice) ? 8 : _outputPrice;
 
 export type BedrockBudgetResult = {
   overBudget: boolean;

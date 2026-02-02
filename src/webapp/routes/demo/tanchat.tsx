@@ -345,6 +345,7 @@ function ChatPage() {
         loading: false,
         error: data.error,
       };
+      if (!mountedRef.current) return;
       setBudget(next);
     } catch (err) {
       clearTimeout(timeoutId);
