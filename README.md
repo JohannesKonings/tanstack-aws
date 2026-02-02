@@ -1,6 +1,6 @@
 # TanStack AWS Examples
 
-This repository contains examples demonstrating how to use [TanStack libraries](https://tanstack.com/) (Start, Router, DB) in combination with AWS services for building serverless web applications.
+This repository contains examples demonstrating how to use [TanStack libraries](https://tanstack.com/) (Start, Router, DB, AI) in combination with AWS services for building serverless web applications.
 Provisioning of AWS resources is handled using [AWS CDK](https://aws.amazon.com/cdk/).
 
 # Further Reading
@@ -9,6 +9,7 @@ Provisioning of AWS resources is handled using [AWS CDK](https://aws.amazon.com/
 * https://johanneskonings.dev/blog/2025-12-20-tanstack-start-aws-db-simple/
 * https://johanneskonings.dev/blog/2025-12-27-tanstack-start-aws-db-multiple-entities/
 * https://johanneskonings.dev/blog/2026-01-08-tanstack-start-aws-db-multiple-entities-sse/
+* https://johanneskonings.dev/blog/2026-02-02-tanstack-ai-bedrock-simple/
 
 # Examples
 
@@ -22,7 +23,7 @@ Deploys a TanStack Start application on AWS using a serverless architecture with
 - **CloudFront** - CDN for global distribution
 - **S3** - Static assets (JS, CSS, images)
 
-![architecture](./docs/architechture.drawio.svg)
+![architecture](./docs/architecture.drawio.svg)
 
 ## TanStack DB
 
@@ -40,3 +41,16 @@ Demonstrates TanStack DB as a client-first database synced to DynamoDB on AWS.
 - GSI for listing all persons
 
 ![architecture tanstack db](./docs/tanstack-db-architecture.drawio.svg)
+
+## TanStack AI
+
+Chat UI powered by TanStack AI with Amazon Bedrock (streaming, tools, optional daily budget).
+
+**Stack:**
+- **TanStack AI** - `useChat`, `fetchServerSentEvents` for streaming chat
+- **TanStack Start** - Server route `/demo/api/tanchat` with `chat()` and SSE response
+- **Bedrock adapter** - Custom ConverseStream adapter for AWS Bedrock
+- **Tools** - Server-side tools (e.g. getGuitars, recommendGuitar) with agent loop
+- **Budget** - Optional daily spend check via Bedrock Budget API
+
+The same Lambda and API Gateway serve SSR, DB sync (SSE), and AI chat.
