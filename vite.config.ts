@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
@@ -6,7 +8,29 @@ import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 
-const config = defineConfig({
+const dirname =
+  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+const config = defineConfig(({ command, isSsrBuild }) => {
+  // Nitro/build pulls in @tanstack/ai-devtools-core (Solid.js) whose server build
+  // lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
+  const useAiDevtoolsStub = isSsrBuild === true || command === 'build';
+  return {
+    resolve: {
+      alias:
+        useAiDevtoolsStub
+          ? [
+              {
+                find: '@tanstack/react-ai-devtools',
+                replacement: path.resolve(dirname, 'src/webapp/lib/ai-devtools-stub.ts'),
+              },
+              {
+                find: '@tanstack/react-router-devtools',
+                replacement: path.resolve(dirname, 'src/webapp/lib/router-devtools-stub.tsx'),
+              },
+            ]
+          : [],
+    },
   plugins: [
     devtools({
       removeDevtoolsOnBuild: false,
@@ -15,9 +39,6 @@ const config = defineConfig({
       awsLambda: { streaming: true },
       alias: {
         'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
-      },
-      externals: {
-        inline: ['mnemonist'],
       },
       preset: 'aws-lambda',
     }),
@@ -35,6 +56,7 @@ const config = defineConfig({
       },
     }),
   ],
+  };
 });
 
 export default config;

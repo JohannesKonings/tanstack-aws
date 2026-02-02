@@ -7,11 +7,12 @@ import { z } from 'zod';
 
 const ContactTypeEnum = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
 
+// No .default() so input/output types match for TanStack Form validators (StandardSchema)
 const ContactFormSchema = z.object({
   type: ContactTypeEnum,
   value: z.string().min(1, 'Value is required').max(200),
-  isPrimary: z.boolean().default(false),
-  isVerified: z.boolean().default(false),
+  isPrimary: z.boolean(),
+  isVerified: z.boolean(),
 });
 
 type ContactFormValues = z.infer<typeof ContactFormSchema>;
@@ -24,7 +25,7 @@ interface ContactFormProps {
 }
 
 export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFormProps) => {
-  const formApi = useForm<ContactFormValues>({
+  const formApi = useForm({
     defaultValues: {
       type: contact?.type ?? 'email',
       value: contact?.value ?? '',
@@ -47,7 +48,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
       className="space-y-4"
     >
       <FormField name="type">
-        {(field: any) => (
+        {(field) => (
           <div>
             <label className="block text-sm font-medium mb-1">Type</label>
             <select
@@ -71,7 +72,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
       </FormField>
 
       <FormField name="value">
-        {(field: any) => (
+        {(field) => (
           <div>
             <label className="block text-sm font-medium mb-1">Value</label>
             <input
@@ -91,7 +92,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
 
       <div className="grid grid-cols-2 gap-4">
         <FormField name="isPrimary">
-          {(field: any) => (
+          {(field) => (
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -105,7 +106,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
         </FormField>
 
         <FormField name="isVerified">
-          {(field: any) => (
+          {(field) => (
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"

@@ -25,6 +25,7 @@ import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
+import { Route as DemoApiBedrockBudgetRouteImport } from './routes/demo/api.bedrock-budget'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
 import { Route as ApiSseEventsRouteImport } from './routes/api.sse.events'
@@ -113,6 +114,11 @@ const DemoApiDdbTodosRoute = DemoApiDdbTodosRouteImport.update({
   path: '/demo/api/ddb-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoApiBedrockBudgetRoute = DemoApiBedrockBudgetRouteImport.update({
+  id: '/demo/api/bedrock-budget',
+  path: '/demo/api/bedrock-budget',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
@@ -168,11 +175,11 @@ export interface FileRoutesByFullPath {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
-  '/example/guitars': typeof ExampleGuitarsIndexRoute
+  '/example/guitars/': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
+    | '/demo/api/bedrock-budget'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
@@ -246,11 +256,11 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
-    | '/example/guitars'
+    | '/example/guitars/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/demo/start/ssr/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
+    | '/demo/api/bedrock-budget'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
+    | '/demo/api/bedrock-budget'
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   ApiSseEventsRoute: typeof ApiSseEventsRoute
   ApiSseStreamRoute: typeof ApiSseStreamRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
+  DemoApiBedrockBudgetRoute: typeof DemoApiBedrockBudgetRoute
   DemoApiDdbTodosRoute: typeof DemoApiDdbTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTanchatRoute: typeof DemoApiTanchatRoute
@@ -390,7 +403,7 @@ declare module '@tanstack/react-router' {
     '/example/guitars/': {
       id: '/example/guitars/'
       path: '/example/guitars'
-      fullPath: '/example/guitars'
+      fullPath: '/example/guitars/'
       preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiDdbTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/api/bedrock-budget': {
+      id: '/demo/api/bedrock-budget'
+      path: '/demo/api/bedrock-budget'
+      fullPath: '/demo/api/bedrock-budget'
+      preLoaderRoute: typeof DemoApiBedrockBudgetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -467,7 +487,7 @@ declare module '@tanstack/react-router' {
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
+      fullPath: '/demo/start/ssr/'
       preLoaderRoute: typeof DemoStartSsrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -507,6 +527,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSseEventsRoute: ApiSseEventsRoute,
   ApiSseStreamRoute: ApiSseStreamRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
+  DemoApiBedrockBudgetRoute: DemoApiBedrockBudgetRoute,
   DemoApiDdbTodosRoute: DemoApiDdbTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTanchatRoute: DemoApiTanchatRoute,

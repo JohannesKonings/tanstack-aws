@@ -1,8 +1,7 @@
-import type { UIMessage } from 'ai';
-import { useChat } from '@ai-sdk/react';
+import type { UIMessage } from '@tanstack/ai';
+import { useChat, fetchServerSentEvents } from '@tanstack/ai-react';
 import { useStore } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
-import { DefaultChatTransport } from 'ai';
 import { ChevronRight, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
@@ -38,10 +37,10 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
               : 'bg-transparent'
           }`}
         >
-          {parts.map((part) => {
+          {parts.map((part, index) => {
             if (part.type === 'text') {
               return (
-                <div className="flex items-start gap-2 px-4">
+                <div key={index} className="flex items-start gap-2 px-4">
                   {role === 'assistant' ? (
                     <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center text-xs font-medium text-white flex-shrink-0">
                       AI
@@ -52,22 +51,24 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
                     </div>
                   )}
                   <div className="flex-1 min-w-0 text-white prose dark:prose-invert max-w-none prose-sm">
-                    <Streamdown>{part.text}</Streamdown>
+                    <Streamdown>{part.content}</Streamdown>
                   </div>
                 </div>
               );
             }
             if (
-              part.type === 'tool-recommendGuitar' &&
-              part.state === 'output-available' &&
-              (part.output as { id: string })?.id
+              part.type === 'tool-call' &&
+              part.name === 'recommendGuitar' &&
+              part.output != null &&
+              (part.output as { id?: string })?.id
             ) {
               return (
-                <div key={id} className="max-w-[80%] mx-auto">
-                  <GuitarRecommendation id={(part.output as { id: string })?.id} />
+                <div key={index} className="max-w-[80%] mx-auto">
+                  <GuitarRecommendation id={(part.output as { id: string }).id} />
                 </div>
               );
             }
+            return null;
           })}
         </div>
       ))}
@@ -78,9 +79,7 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
 export default function AIAssistant() {
   const isOpen = useStore(showAIAssistant);
   const { messages, sendMessage } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/demo/api/tanchat',
-    }),
+    connection: fetchServerSentEvents('/demo/api/tanchat'),
   });
   const [input, setInput] = useState('');
 
@@ -117,8 +116,10 @@ export default function AIAssistant() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                sendMessage({ text: input });
-                setInput('');
+                if (input.trim()) {
+                  sendMessage(input.trim());
+                  setInput('');
+                }
               }}
             >
               <div className="relative">
@@ -137,15 +138,17 @@ export default function AIAssistant() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      sendMessage({ text: input });
-                      setInput('');
+                      if (input.trim()) {
+                        sendMessage(input.trim());
+                        setInput('');
+                      }
                     }
                   }}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 transition-colors focus:outline-none"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
                 >
                   <Send className="w-4 h-4" />
                 </button>

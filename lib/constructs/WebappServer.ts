@@ -46,5 +46,13 @@ export class WebappServer extends Construct {
         resources: ['*'],
       }),
     );
+
+    this.webappServer.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['cloudwatch:GetMetricStatistics', 'cloudwatch:ListMetrics'],
+        effect: Effect.ALLOW,
+        resources: ['*'],
+      }),
+    );
   }
 }

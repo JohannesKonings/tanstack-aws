@@ -221,7 +221,7 @@ export default function Header() {
             }}
           >
             <MessagesSquare size={20} />
-            <span className="font-medium">Chat</span>
+            <span className="font-medium">Chat (TanStack AI with Amazon Bedrock)</span>
           </Link>
 
           <Link
