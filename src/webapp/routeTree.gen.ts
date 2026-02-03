@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SsoPublicRouteImport } from './routes/sso/public'
+import { Route as SsoInternalRouteImport } from './routes/sso/internal'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
@@ -29,6 +31,7 @@ import { Route as DemoApiBedrockBudgetRouteImport } from './routes/demo/api.bedr
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
 import { Route as ApiSseEventsRouteImport } from './routes/api.sse.events'
+import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -37,6 +40,16 @@ import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ss
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SsoPublicRoute = SsoPublicRouteImport.update({
+  id: '/sso/public',
+  path: '/sso/public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SsoInternalRoute = SsoInternalRouteImport.update({
+  id: '/sso/internal',
+  path: '/sso/internal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTrpcTodoRoute = DemoTrpcTodoRouteImport.update({
@@ -134,6 +147,11 @@ const ApiSseEventsRoute = ApiSseEventsRouteImport.update({
   path: '/api/sse/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -164,6 +182,9 @@ export interface FileRoutesByFullPath {
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/sso/internal': typeof SsoInternalRoute
+  '/sso/public': typeof SsoPublicRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -190,6 +211,9 @@ export interface FileRoutesByTo {
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/sso/internal': typeof SsoInternalRoute
+  '/sso/public': typeof SsoPublicRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -217,6 +241,9 @@ export interface FileRoutesById {
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
+  '/sso/internal': typeof SsoInternalRoute
+  '/sso/public': typeof SsoPublicRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/sse/events': typeof ApiSseEventsRoute
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -245,6 +272,9 @@ export interface FileRouteTypes {
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/sso/internal'
+    | '/sso/public'
+    | '/api/auth/$'
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
@@ -271,6 +301,9 @@ export interface FileRouteTypes {
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/sso/internal'
+    | '/sso/public'
+    | '/api/auth/$'
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
@@ -297,6 +330,9 @@ export interface FileRouteTypes {
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
+    | '/sso/internal'
+    | '/sso/public'
+    | '/api/auth/$'
     | '/api/sse/events'
     | '/api/sse/stream'
     | '/api/trpc/$'
@@ -324,6 +360,9 @@ export interface RootRouteChildren {
   DemoTanchatRoute: typeof DemoTanchatRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
+  SsoInternalRoute: typeof SsoInternalRoute
+  SsoPublicRoute: typeof SsoPublicRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiSseEventsRoute: typeof ApiSseEventsRoute
   ApiSseStreamRoute: typeof ApiSseStreamRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
@@ -349,6 +388,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sso/public': {
+      id: '/sso/public'
+      path: '/sso/public'
+      fullPath: '/sso/public'
+      preLoaderRoute: typeof SsoPublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sso/internal': {
+      id: '/sso/internal'
+      path: '/sso/internal'
+      fullPath: '/sso/internal'
+      preLoaderRoute: typeof SsoInternalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/trpc-todo': {
@@ -484,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSseEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -524,6 +584,9 @@ const rootRouteChildren: RootRouteChildren = {
   DemoTanchatRoute: DemoTanchatRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoTrpcTodoRoute: DemoTrpcTodoRoute,
+  SsoInternalRoute: SsoInternalRoute,
+  SsoPublicRoute: SsoPublicRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiSseEventsRoute: ApiSseEventsRoute,
   ApiSseStreamRoute: ApiSseStreamRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,

@@ -7,6 +7,7 @@ import {
   Github,
   Guitar,
   Home,
+  LogIn,
   Menu,
   MessagesSquare,
   Network,
@@ -273,6 +274,35 @@ export default function Header() {
             <Users size={20} />
             <span className="font-medium">DB Persons</span>
           </Link>
+
+          {/* SSO section */}
+          <div className="mt-4 pt-4 border-t border-gray-700">
+            <h3 className="px-3 mb-2 text-sm font-semibold text-gray-400">SSO</h3>
+            <Link
+              to="/sso/public"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+              activeProps={{
+                className:
+                  'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+              }}
+            >
+              <Github size={20} />
+              <span className="font-medium">Public (GitHub)</span>
+            </Link>
+            <Link
+              to="/sso/internal"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+              activeProps={{
+                className:
+                  'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+              }}
+            >
+              <LogIn size={20} />
+              <span className="font-medium">Internal (Entra ID)</span>
+            </Link>
+          </div>
 
           {/* Demo Links End */}
         </nav>
