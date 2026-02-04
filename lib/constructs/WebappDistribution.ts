@@ -15,7 +15,6 @@ import {
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { RestApiOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -30,10 +29,8 @@ import { Construct } from 'constructs';
 
 type DistributionProps = {
   appStage: string;
-  webappServerFunctionUrl: IFunctionUrl;
   webappServerApi: RestApi;
   assetsBucket: Bucket;
-  originBehaviorKind: 'apiGw' | 'functionUrl';
 };
 export class WebappDistribution extends Construct {
   public readonly distribution: Distribution;
@@ -41,7 +38,7 @@ export class WebappDistribution extends Construct {
   constructor(scope: Construct, id: string, props: DistributionProps) {
     super(scope, id);
 
-    const { appStage, webappServerApi, assetsBucket, originBehaviorKind } = props;
+    const { appStage, webappServerApi, assetsBucket } = props;
 
     const domainName = 'tanstack-aws-examples.com';
     const isProdStage = appStage === 'prod';
@@ -122,10 +119,6 @@ export class WebappDistribution extends Construct {
     //   },
     // });
 
-    if (originBehaviorKind !== 'apiGw' && originBehaviorKind !== 'functionUrl') {
-      throw new Error(`Invalid originBehaviorKind: ${originBehaviorKind}`);
-    }
-
     const defaultBehavior = {
       allowedMethods: AllowedMethods.ALLOW_ALL,
       cachePolicy: CachePolicy.CACHING_DISABLED,
@@ -137,32 +130,7 @@ export class WebappDistribution extends Construct {
       responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
-    // const defaultBehavior =
-    //   // oxlint-disable-next-line no-ternary
-    //   originBehaviorKind === 'apiGw'
-    //     ? {
-    //         allowedMethods: AllowedMethods.ALLOW_ALL,
-    //         cachePolicy: CachePolicy.CACHING_DISABLED,
-    //         origin: new RestApiOrigin(webappServerApi),
-    //         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-    //         responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
-    //         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    //       }
-    //     : {
-    //         allowedMethods: AllowedMethods.ALLOW_ALL,
-    //         cachePolicy: CachePolicy.CACHING_DISABLED,
-    //         edgeLambdas: [
-    //           {
-    //             eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
-    //             functionVersion: sigv4SignerEdgeFunction,
-    //             includeBody: true,
-    //           },
-    //         ],
-    //         origin: FunctionUrlOrigin.withOriginAccessControl(webappServerFunctionUrl),
-    //         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-    //         responseHeadersPolicy,
-    //         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    //       };
+
 
     const staticAssetBehavior = {
       cachePolicy: CachePolicy.CACHING_OPTIMIZED,
@@ -180,7 +148,7 @@ export class WebappDistribution extends Construct {
         // '/robots.txt': staticAssetBehavior,
         // '/site.webmanifest': staticAssetBehavior,
       },
-      comment: originBehaviorKind,
+      comment: 'WebappDistributionApiGw',
       defaultBehavior,
       ...(domainConfig && {
         domainNames: domainConfig.domainNames,

@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { customSession } from 'better-auth/plugins';
+import { customSession, jwt } from 'better-auth/plugins';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
 
 const secret = process.env.BETTER_AUTH_SECRET ?? 'dev-secret-min-32-chars-long-for-local';
@@ -35,7 +35,7 @@ export const authPublic = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
     },
   },
-  plugins: [tanstackStartCookies()],
+  plugins: [jwt(), tanstackStartCookies()],
 });
 
 /** Internal SSO: Microsoft Entra ID only. Used for /sso/internal. */
@@ -82,6 +82,23 @@ export const authInternal = betterAuth({
         }
       }
       return { user, session, roles };
+    }),
+    jwt({
+      jwt: {
+        definePayload: ({ user }) => {
+          const u = user as { roles?: string };
+          let roles: string[] = [];
+          if (typeof u.roles === 'string') {
+            try {
+              const parsed = JSON.parse(u.roles) as unknown;
+              roles = Array.isArray(parsed) ? (parsed as string[]) : [];
+            } catch {
+              roles = [];
+            }
+          }
+          return { ...user, roles };
+        },
+      },
     }),
     tanstackStartCookies(),
   ],

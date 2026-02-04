@@ -36,6 +36,8 @@ import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.i
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as ApiSsoPublicValueRouteImport } from './routes/api.sso.public.value'
+import { Route as ApiSsoInternalValueRouteImport } from './routes/api.sso.internal.value'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -172,6 +174,16 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSsoPublicValueRoute = ApiSsoPublicValueRouteImport.update({
+  id: '/api/sso/public/value',
+  path: '/api/sso/public/value',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSsoInternalValueRoute = ApiSsoInternalValueRouteImport.update({
+  id: '/api/sso/internal/value',
+  path: '/api/sso/internal/value',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -197,6 +209,8 @@ export interface FileRoutesByFullPath {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
+  '/api/sso/internal/value': typeof ApiSsoInternalValueRoute
+  '/api/sso/public/value': typeof ApiSsoPublicValueRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -226,6 +240,8 @@ export interface FileRoutesByTo {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/example/guitars': typeof ExampleGuitarsIndexRoute
+  '/api/sso/internal/value': typeof ApiSsoInternalValueRoute
+  '/api/sso/public/value': typeof ApiSsoPublicValueRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -256,6 +272,8 @@ export interface FileRoutesById {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
+  '/api/sso/internal/value': typeof ApiSsoInternalValueRoute
+  '/api/sso/public/value': typeof ApiSsoPublicValueRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -287,6 +305,8 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
     | '/example/guitars/'
+    | '/api/sso/internal/value'
+    | '/api/sso/public/value'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -316,6 +336,8 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
     | '/example/guitars'
+    | '/api/sso/internal/value'
+    | '/api/sso/public/value'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -345,6 +367,8 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
     | '/example/guitars/'
+    | '/api/sso/internal/value'
+    | '/api/sso/public/value'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -375,6 +399,8 @@ export interface RootRouteChildren {
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
   ExampleGuitarsGuitarIdRoute: typeof ExampleGuitarsGuitarIdRoute
   ExampleGuitarsIndexRoute: typeof ExampleGuitarsIndexRoute
+  ApiSsoInternalValueRoute: typeof ApiSsoInternalValueRoute
+  ApiSsoPublicValueRoute: typeof ApiSsoPublicValueRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -572,6 +598,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sso/public/value': {
+      id: '/api/sso/public/value'
+      path: '/api/sso/public/value'
+      fullPath: '/api/sso/public/value'
+      preLoaderRoute: typeof ApiSsoPublicValueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sso/internal/value': {
+      id: '/api/sso/internal/value'
+      path: '/api/sso/internal/value'
+      fullPath: '/api/sso/internal/value'
+      preLoaderRoute: typeof ApiSsoInternalValueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -599,6 +639,8 @@ const rootRouteChildren: RootRouteChildren = {
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
   ExampleGuitarsGuitarIdRoute: ExampleGuitarsGuitarIdRoute,
   ExampleGuitarsIndexRoute: ExampleGuitarsIndexRoute,
+  ApiSsoInternalValueRoute: ApiSsoInternalValueRoute,
+  ApiSsoPublicValueRoute: ApiSsoPublicValueRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
