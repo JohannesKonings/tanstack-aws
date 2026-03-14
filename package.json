@@ -28,6 +28,7 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "cdk": "cdk",
+    "cdk:account": "cdk --app \"tsx accountSetup/bin/app.ts\"",
     "seed:persons": "node scripts/seed-persons.ts",
     "compile": "tsc"
   },
