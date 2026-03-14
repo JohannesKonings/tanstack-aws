@@ -28,6 +28,7 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "cdk": "cdk",
+    "cdk:account": "cdk --app \"tsx accountSetup/bin/app.ts\"",
     "seed:persons": "node scripts/seed-persons.ts",
     "compile": "tsc"
   },
@@ -100,5 +101,6 @@
     "typescript": "5.9.3",
     "vite": "8.0.0-beta.11",
     "vitest": "^4.0.18"
-  }
+  },
+  "packageManager": "pnpm@10.32.1"
 }
