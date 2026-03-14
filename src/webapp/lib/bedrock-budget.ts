@@ -4,7 +4,6 @@ import {
   type Dimension,
 } from '@aws-sdk/client-cloudwatch';
 import { createServerFn } from '@tanstack/react-start';
-
 import { DAILY_LIMIT_USD } from './bedrock-budget-config';
 
 const BEDROCK_NAMESPACE = 'AWS/Bedrock';
@@ -73,18 +72,13 @@ async function getBedrockTokenUsageToday(
     ),
   ]);
 
-  const inputTokens =
-    inputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
-  const outputTokens =
-    outputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
+  const inputTokens = inputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
+  const outputTokens = outputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
 
   return { inputTokens, outputTokens };
 }
 
-function estimateCostUsd(
-  inputTokens: number,
-  outputTokens: number,
-): number {
+function estimateCostUsd(inputTokens: number, outputTokens: number): number {
   return (
     (inputTokens / 1_000_000) * PRICE_INPUT_PER_1M +
     (outputTokens / 1_000_000) * PRICE_OUTPUT_PER_1M
@@ -102,10 +96,7 @@ export async function getBedrockBudgetStatus(
   const client = new CloudWatchClient({
     region: region ?? process.env.AWS_REGION ?? 'us-east-1',
   });
-  const { inputTokens, outputTokens } = await getBedrockTokenUsageToday(
-    client,
-    modelId,
-  );
+  const { inputTokens, outputTokens } = await getBedrockTokenUsageToday(client, modelId);
   const estimatedCost = estimateCostUsd(inputTokens, outputTokens);
   const overBudget = estimatedCost >= DAILY_LIMIT_USD;
   return {

@@ -5,26 +5,19 @@
   "imports": {
     "#src/*": "./src/*"
   },
-  "pnpm": {
-    "minimumReleaseAgeExclude": [
-      "@tanstack/ai",
-      "@tanstack/ai-client",
-      "@tanstack/ai-react",
-      "@tanstack/react-ai-devtools"
-    ]
-  },
   "scripts": {
-    "webapp:dev": "vite dev --port 3000",
-    "webapp:build": "node scripts/generate-robots-txt.ts && vite build",
+    "webapp:dev": "vp dev",
+    "webapp:build": "node scripts/generate-robots-txt.ts && vp build",
     "webapp:serve": "node .output/server/index.mjs",
     "generate:robots": "node scripts/generate-robots-txt.ts",
-    "test": "vitest run",
+    "test": "vp test",
     "test:bedrock": "tsx scripts/test-bedrock-chat.ts",
     "test:bedrock-budget": "tsx scripts/test-bedrock-budget.ts",
-    "lint": "oxlint . --type-aware",
-    "lint:fix": "pnpm lint --fix",
-    "format": "oxfmt . -c .oxfmtrc.json",
-    "format:check": "pnpm format --check",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt",
+    "format:check": "vp fmt --check",
+    "check": "vp check",
     "knip": "knip",
     "knip:fix": "knip --fix",
     "cdk": "cdk",
@@ -41,6 +34,9 @@
     "@faker-js/faker": "^10.2.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/ai": "^0.3.0",
+    "@tanstack/ai-client": "^0.3.0",
+    "@tanstack/ai-react": "^0.3.0",
     "@tanstack/query-db-collection": "^1.0.21",
     "@tanstack/react-db": "0.1.68",
     "@tanstack/react-devtools": "^0.9.3",
@@ -56,9 +52,6 @@
     "@tanstack/store": "^0.8.0",
     "@trpc/client": "^11.9.0",
     "@trpc/server": "^11.9.0",
-    "@tanstack/ai": "^0.3.0",
-    "@tanstack/ai-client": "^0.3.0",
-    "@tanstack/ai-react": "^0.3.0",
     "@trpc/tanstack-react-query": "^11.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -79,7 +72,6 @@
   },
   "devDependencies": {
     "@aws-cdk/mixins-preview": "2.236.0-alpha.0",
-    "esbuild": "^0.27.0",
     "@tanstack/devtools-event-client": "^0.4.0",
     "@tanstack/devtools-vite": "^0.4.1",
     "@tanstack/react-ai-devtools": "^0.2.2",
@@ -92,15 +84,21 @@
     "aws-cdk-lib": "2.236.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "constructs": "^10.4.5",
+    "esbuild": "^0.27.0",
     "jsdom": "^27.4.0",
     "knip": "5.82.1",
-    "oxfmt": "0.27.0",
-    "oxlint": "1.42.0",
-    "oxlint-tsgolint": "^0.11.3",
     "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "vite": "8.0.0-beta.11",
-    "vitest": "^4.0.18"
+    "vite-plus": "^0.1.11"
   },
-  "packageManager": "pnpm@10.32.1"
+  "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "minimumReleaseAgeExclude": [
+      "@tanstack/ai",
+      "@tanstack/ai-client",
+      "@tanstack/ai-react",
+      "@tanstack/react-ai-devtools"
+    ]
+  }
 }

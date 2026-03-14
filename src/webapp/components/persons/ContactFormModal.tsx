@@ -1,5 +1,5 @@
-import type { ContactInfo } from '#src/webapp/types/person';
 import { X } from 'lucide-react';
+import type { ContactInfo } from '#src/webapp/types/person';
 import { ContactForm } from './ContactForm';
 
 interface ContactFormModalProps {

@@ -1,10 +1,6 @@
 // oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
-import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import {
-  Certificate,
-  DnsValidatedCertificate,
-} from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   CachePolicy,
@@ -19,6 +15,7 @@ import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 // const cspAllowedSources = [

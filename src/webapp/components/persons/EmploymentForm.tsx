@@ -1,9 +1,9 @@
-import type { Employment } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
+import { Button } from '#src/webapp/components/ui/button';
+import type { Employment } from '#src/webapp/types/person';
 
 const EmploymentFormSchema = z.object({
   companyName: z.string().min(1, 'Company name is required').max(100),

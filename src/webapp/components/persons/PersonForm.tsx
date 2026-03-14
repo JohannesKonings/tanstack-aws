@@ -1,9 +1,9 @@
-import { Button } from '#src/webapp/components/ui/button';
-import { GenderEnum, type Person } from '#src/webapp/types/person';
 // oxlint-disable no-magic-numbers
 // oxlint-disable no-ternary
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
+import { Button } from '#src/webapp/components/ui/button';
+import { GenderEnum, type Person } from '#src/webapp/types/person';
 
 const PersonFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(100),

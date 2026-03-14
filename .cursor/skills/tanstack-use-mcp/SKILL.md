@@ -30,13 +30,13 @@ Apply this skill whenever the task involves TanStack in any form:
 
 ## Tool reference
 
-| Tool | Use for |
-|------|--------|
-| tanstack_search_docs | Search docs (query; optional library, framework, limit) |
-| tanstack_doc | Fetch a doc page (library, path; optional version) |
-| tanstack_list_libraries | List libraries (optional group) |
-| tanstack_ecosystem | Ecosystem partners (optional category, library) |
+| Tool                      | Use for                                                         |
+| ------------------------- | --------------------------------------------------------------- |
+| tanstack_search_docs      | Search docs (query; optional library, framework, limit)         |
+| tanstack_doc              | Fetch a doc page (library, path; optional version)              |
+| tanstack_list_libraries   | List libraries (optional group)                                 |
+| tanstack_ecosystem        | Ecosystem partners (optional category, library)                 |
 | createTanStackApplication | Create new app (framework, projectName, cwd, addOns, targetDir) |
-| listTanStackAddOns | List add-ons for app creation |
+| listTanStackAddOns        | List add-ons for app creation                                   |
 
 Always call the MCP before implementing or answering TanStack-related requests.

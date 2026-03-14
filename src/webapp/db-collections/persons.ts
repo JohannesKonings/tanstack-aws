@@ -1,6 +1,9 @@
+import { queryCollectionOptions } from '@tanstack/query-db-collection';
+import { createCollection } from '@tanstack/react-db';
+import { createServerFn } from '@tanstack/react-start';
+import { isFromSse } from '#src/webapp/hooks/useSseSync';
 import * as electrodbClient from '#src/webapp/integrations/electrodb/personsClient';
 import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
-import { isFromSse } from '#src/webapp/hooks/useSseSync';
 import {
   type Address,
   AddressSchema,
@@ -13,9 +16,6 @@ import {
   type Person,
   PersonSchema,
 } from '#src/webapp/types/person';
-import { queryCollectionOptions } from '@tanstack/query-db-collection';
-import { createCollection } from '@tanstack/react-db';
-import { createServerFn } from '@tanstack/react-start';
 
 // =============================================================================
 // Server Functions

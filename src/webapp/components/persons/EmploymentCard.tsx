@@ -1,8 +1,8 @@
-import type { Employment } from '#src/webapp/types/person';
-import { Badge } from '#src/webapp/components/ui/badge';
-import { Button } from '#src/webapp/components/ui/button';
 import { Briefcase, Building2, Calendar, DollarSign, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '#src/webapp/components/ui/badge';
+import { Button } from '#src/webapp/components/ui/button';
+import type { Employment } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
 // oxlint-disable no-ternary

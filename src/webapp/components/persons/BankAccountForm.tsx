@@ -1,9 +1,9 @@
-import type { BankAccount } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 // oxlint-disable no-magic-numbers
 // oxlint-disable no-ternary
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
+import { Button } from '#src/webapp/components/ui/button';
+import type { BankAccount } from '#src/webapp/types/person';
 
 const AccountTypeEnum = z.enum(['checking', 'savings', 'investment']);
 

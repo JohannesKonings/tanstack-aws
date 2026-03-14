@@ -4,13 +4,6 @@
  * Uses ElectroDB entities for type-safe DynamoDB operations.
  */
 
-import type {
-  Address,
-  BankAccount,
-  ContactInfo,
-  Employment,
-  Person,
-} from '#src/webapp/types/person.ts';
 import {
   AddressEntity,
   BankAccountEntity,
@@ -18,6 +11,13 @@ import {
   EmploymentEntity,
   PersonEntity,
 } from '#src/webapp/integrations/electrodb/entities.ts';
+import type {
+  Address,
+  BankAccount,
+  ContactInfo,
+  Employment,
+  Person,
+} from '#src/webapp/types/person.ts';
 
 // =============================================================================
 // Types for All Data Response

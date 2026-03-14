@@ -40,9 +40,13 @@ async function runConverse() {
   const message = response.output?.message;
   const content = message?.content ?? [];
   const textBlocks = content.filter(
-    (block): block is { text: string } => 'text' in block && typeof (block as { text?: string }).text === 'string',
+    (block): block is { text: string } =>
+      'text' in block && typeof (block as { text?: string }).text === 'string',
   );
-  const replyText = textBlocks.map((b) => b.text).join('').trim();
+  const replyText = textBlocks
+    .map((b) => b.text)
+    .join('')
+    .trim();
 
   console.log('  stopReason:', response.stopReason);
   console.log('  usage:', response.usage);

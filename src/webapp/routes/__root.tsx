@@ -1,11 +1,11 @@
-import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
-// oxlint-disable func-style
-import type { QueryClient } from '@tanstack/react-query';
-import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { aiDevtoolsPlugin } from '@tanstack/react-ai-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
+// oxlint-disable func-style
+import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 import Header from '../components/Header';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import StoreDevtools from '../lib/demo-store-devtools';
