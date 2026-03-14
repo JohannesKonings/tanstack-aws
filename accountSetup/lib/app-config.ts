@@ -44,12 +44,21 @@ export const githubActionsOidcConfig = {
   allowedRepositorySub: 'repo:JohannesKonings/tanstack-aws:*',
 } as const;
 export type GitHubActionsOidcConfig = typeof githubActionsOidcConfig;
-type AccountSetupEnvSource = Partial<Record<keyof AccountSetupEnv, string | undefined>>;
+type AccountSetupEnvFallbackSource = 'CDK_DEFAULT_ACCOUNT' | 'CDK_DEFAULT_REGION' | 'AWS_DEFAULT_REGION';
+type AccountSetupEnvSource = Partial<
+  Record<keyof AccountSetupEnv | AccountSetupEnvFallbackSource, string | undefined>
+>;
 
 export function resolveAccountSetupEnv(
   env: AccountSetupEnvSource = process.env as AccountSetupEnvSource,
 ): AccountSetupEnv {
-  const parsedEnv = accountSetupEnvSchema.safeParse(env);
+  const envWithFallbacks = {
+    AWS_ACCOUNT_ID: env.AWS_ACCOUNT_ID ?? env.CDK_DEFAULT_ACCOUNT,
+    AWS_REGION:
+      env.AWS_REGION ?? env.CDK_DEFAULT_REGION ?? env.AWS_DEFAULT_REGION,
+  };
+
+  const parsedEnv = accountSetupEnvSchema.safeParse(envWithFallbacks);
 
   if (!parsedEnv.success) {
     throw new Error(parsedEnv.error.issues[0]?.message ?? 'Invalid environment');

@@ -101,5 +101,6 @@
     "typescript": "5.9.3",
     "vite": "8.0.0-beta.11",
     "vitest": "^4.0.18"
-  }
+  },
+  "packageManager": "pnpm@10.32.1"
 }

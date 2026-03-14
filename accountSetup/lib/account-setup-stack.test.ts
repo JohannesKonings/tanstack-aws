@@ -25,6 +25,30 @@ describe('resolveAccountSetupEnv', () => {
     ).toThrow('Missing required environment variable: AWS_ACCOUNT_ID');
   });
 
+  it('falls back to CDK defaults when AWS env vars are missing', () => {
+    expect(
+      resolveAccountSetupEnv({
+        CDK_DEFAULT_ACCOUNT: '123456789012',
+        CDK_DEFAULT_REGION: 'us-east-2',
+      }),
+    ).toEqual({
+      AWS_ACCOUNT_ID: '123456789012',
+      AWS_REGION: 'us-east-2',
+    });
+  });
+
+  it('falls back to AWS_DEFAULT_REGION when AWS_REGION is missing', () => {
+    expect(
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '123456789012',
+        AWS_DEFAULT_REGION: 'us-east-2',
+      }),
+    ).toEqual({
+      AWS_ACCOUNT_ID: '123456789012',
+      AWS_REGION: 'us-east-2',
+    });
+  });
+
   it('throws when AWS_REGION is missing', () => {
     expect(() =>
       resolveAccountSetupEnv({
