@@ -23,13 +23,13 @@ export class WebappServer extends Construct {
         path.join(path.dirname(new URL(import.meta.url).pathname), '../../.output/server'),
       ),
       reservedConcurrentExecutions: 100,
-      // functionName: PhysicalName.GENERATE_IF_NEEDED,
+      // FunctionName: PhysicalName.GENERATE_IF_NEEDED,
       handler: 'index.handler',
       memorySize: 2048,
       runtime: Runtime.NODEJS_24_X,
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(TIMEOUT_IN_SECONDS),
-      // timeout: Duration.seconds(60),
+      // Timeout: Duration.seconds(60),
       environment: {
         DDB_TODOS_TABLE_NAME: tableNameTodos,
         DDB_PERSONS_TABLE_NAME: tableNamePersons,

@@ -1,7 +1,7 @@
 import {
   CloudWatchClient,
-  GetMetricStatisticsCommand,
   type Dimension,
+  GetMetricStatisticsCommand,
 } from '@aws-sdk/client-cloudwatch';
 import { createServerFn } from '@tanstack/react-start';
 import { DAILY_LIMIT_USD } from './bedrock-budget-config';

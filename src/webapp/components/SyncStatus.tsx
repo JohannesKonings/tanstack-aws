@@ -40,9 +40,9 @@ export const SyncStatus = ({
   className = '',
 }: SyncStatusProps): React.ReactElement => {
   const { isConnected, lastSyncTime, reconnect } = useSseSync();
-  // const isConnected = false;
-  // const lastSyncTime = null;
-  // const reconnect = () => {};
+  // Const isConnected = false;
+  // Const lastSyncTime = null;
+  // Const reconnect = () => {};
 
   return (
     <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${className}`}>

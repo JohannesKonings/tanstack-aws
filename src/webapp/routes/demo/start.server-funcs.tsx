@@ -5,7 +5,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { useCallback, useState } from 'react';
 
 /*
-const loggingMiddleware = createMiddleware().server(
+Const loggingMiddleware = createMiddleware().server(
   async ({ next, request }) => {
     console.log("Request:", request.url);
     return next();

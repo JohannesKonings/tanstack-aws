@@ -12,8 +12,8 @@
 
 import {
   CloudWatchClient,
-  GetMetricStatisticsCommand,
   type Dimension,
+  GetMetricStatisticsCommand,
 } from '@aws-sdk/client-cloudwatch';
 
 const BEDROCK_NAMESPACE = 'AWS/Bedrock';

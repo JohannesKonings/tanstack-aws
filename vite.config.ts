@@ -6,7 +6,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
-import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +24,7 @@ const devtoolsStubAliases = [
 const aiDevtoolsStubPlugin = {
   config(_config: unknown, { command, isSsrBuild }: { command: string; isSsrBuild?: boolean }) {
     // Nitro/build pulls in @tanstack/ai-devtools-core (Solid.js) whose server build
-    // lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
+    // Lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
     const useAiDevtoolsStub = isSsrBuild === true || command === 'build';
 
     if (!useAiDevtoolsStub) {
@@ -54,8 +53,8 @@ const config = defineConfig({
   lint: {
     categories: {
       correctness: 'error',
-      perf: 'warn',
-      style: 'warn',
+      perf: 'off',
+      style: 'off',
     },
     ignorePatterns: ['src/webapp/routeTree.gen.ts'],
     plugins: ['react'],
@@ -76,10 +75,14 @@ const config = defineConfig({
     },
     options: {
       typeAware: true,
+      typeCheck: true,
     },
   },
   server: {
     port: 3000,
+  },
+  resolve: {
+    tsconfigPaths: true,
   },
   test: {
     include: ['accountSetup/**/*.test.ts'],
@@ -95,10 +98,6 @@ const config = defineConfig({
         'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
       },
       preset: 'aws-lambda',
-    }),
-    // This is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
     tanstackStart({

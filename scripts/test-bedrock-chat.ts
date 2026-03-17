@@ -68,7 +68,7 @@ async function runConverseStream() {
   console.log('  stream:');
 
   const response = await client.send(command);
-  const stream = response.stream;
+  const { stream } = response;
   if (!stream) {
     throw new Error('No stream in Bedrock ConverseStream response');
   }
@@ -85,7 +85,7 @@ async function runConverseStream() {
       }
     }
     if (event.metadata?.usage) {
-      usage = event.metadata.usage;
+      ({ usage } = event.metadata);
     }
   }
 

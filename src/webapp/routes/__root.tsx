@@ -13,10 +13,8 @@ import appCss from '../styles.css?url';
 
 interface MyRouterContext {
   queryClient: QueryClient;
-
   trpc: TRPCOptionsProxy<TRPCRouter>;
 }
-
 const siteTitle = 'TanStack AWS Examples - Deployed with AWS CDK';
 const siteDescription =
   'Explore TanStack AWS Examples showcasing TanStack Router, Query, and Start deployed to AWS using CDK. Examples featuring serverless architecture, DynamoDB, CloudFront, Lambda, and infrastructure as code.';
@@ -37,12 +35,30 @@ const structuredData = {
     url: siteUrl,
   },
   about: [
-    { '@type': 'Thing', name: 'TanStack Router' },
-    { '@type': 'Thing', name: 'TanStack Query' },
-    { '@type': 'Thing', name: 'TanStack Start' },
-    { '@type': 'Thing', name: 'AWS CDK Deployment' },
-    { '@type': 'Thing', name: 'Infrastructure as Code' },
-    { '@type': 'Thing', name: 'Serverless Architecture' },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Router',
+    },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Query',
+    },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Start',
+    },
+    {
+      '@type': 'Thing',
+      name: 'AWS CDK Deployment',
+    },
+    {
+      '@type': 'Thing',
+      name: 'Infrastructure as Code',
+    },
+    {
+      '@type': 'Thing',
+      name: 'Serverless Architecture',
+    },
   ],
   mainEntity: {
     '@type': 'SoftwareSourceCode',
@@ -54,7 +70,6 @@ const structuredData = {
     codeRepository: 'https://github.com/JohannesKonings/tanstack-aws',
   },
 };
-
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -181,7 +196,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   notFoundComponent: () => <p>Not Found</p>,
   shellComponent: RootDocument,
 });
-
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">

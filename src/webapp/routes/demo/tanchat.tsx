@@ -1,5 +1,5 @@
 import type { StreamChunk, UIMessage } from '@tanstack/ai';
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-react';
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -32,7 +32,7 @@ function TextWithInlineImages({ content }: { content: string }) {
       type: 'image',
       src: match[1] ?? match[0].replace(/^\*{0,2}Image:\*{0,2}\s*/i, '').trim(),
     });
-    lastIndex = re.lastIndex;
+    ({ lastIndex } = re);
   }
   if (lastIndex < content.length) {
     parts.push({ type: 'text', value: content.slice(lastIndex) });
@@ -161,10 +161,10 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
                           );
                         }
                       } catch {
-                        // ignore invalid JSON
+                        // Ignore invalid JSON
                       }
                     }
-                    // getGuitars: don't render tool result as cards; images show inline in the AI's text list via TextWithInlineImages
+                    // GetGuitars: don't render tool result as cards; images show inline in the AI's text list via TextWithInlineImages
                   }
                   return null;
                 })}
@@ -200,7 +200,9 @@ function RunLogPanel({
       : null;
   const showPanel =
     hasEntries || usedLabel != null || budgetError != null || budgetLoading === true;
-  if (!showPanel) return null;
+  if (!showPanel) {
+    return null;
+  }
   return (
     <div className="border-t border-orange-500/10 bg-gray-900/60">
       <button
@@ -295,11 +297,12 @@ function ChatPage() {
   });
 
   const mountedRef = useRef(true);
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       mountedRef.current = false;
-    };
-  }, []);
+    },
+    [],
+  );
 
   const fetchBudget = useCallback(async () => {
     const BUDGET_TIMEOUT_MS = 20_000;
@@ -335,11 +338,15 @@ function ChatPage() {
         loading: false,
         error: data.error,
       };
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        return;
+      }
       setBudget(next);
     } catch (err) {
       clearTimeout(timeoutId);
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        return;
+      }
       const message =
         err instanceof Error
           ? err.name === 'AbortError'
@@ -369,7 +376,9 @@ function ChatPage() {
         ]);
       } else if (chunk.type === 'RUN_FINISHED') {
         setRunLog((prev) => {
-          if (prev.length === 0) return prev;
+          if (prev.length === 0) {
+            return prev;
+          }
           const last = prev[prev.length - 1]!;
           return [
             ...prev.slice(0, -1),

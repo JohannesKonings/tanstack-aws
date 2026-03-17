@@ -5,10 +5,10 @@
 
 import {
   BedrockRuntimeClient,
-  ConverseCommand,
-  ConverseStreamCommand,
   type ContentBlock,
+  ConverseCommand,
   type ConverseCommandInput,
+  ConverseStreamCommand,
   type ConverseStreamCommandInput,
   type ConverseStreamOutput,
   type Message,
@@ -29,8 +29,12 @@ interface BedrockCredentialIdentity {
 type BedrockCredentialsProvider = () => Promise<BedrockCredentialIdentity>;
 
 function getTextFromContent(content: string | null | Array<ContentPart>): string {
-  if (content == null) return '';
-  if (typeof content === 'string') return content;
+  if (content == null) {
+    return '';
+  }
+  if (typeof content === 'string') {
+    return content;
+  }
   return content
     .filter((p): p is ContentPart & { type: 'text' } => p.type === 'text')
     .map((p) => p.content)
@@ -81,7 +85,7 @@ function modelMessagesToBedrockMessages(messages: Array<ModelMessage>): Message[
       const toolResultById = new Map<string, ToolResultBlock>();
       while (i < messages.length && messages[i]?.role === 'tool') {
         const toolMsg = messages[i]!;
-        const toolCallId = toolMsg.toolCallId;
+        const { toolCallId } = toolMsg;
         if (toolCallId) {
           const text =
             typeof toolMsg.content === 'string' ? toolMsg.content : JSON.stringify(toolMsg.content);
@@ -151,7 +155,9 @@ function toolsToBedrockToolConfig(tools: Array<Tool<any, any, any>> | undefined)
       }>;
     }
   | undefined {
-  if (!tools?.length) return undefined;
+  if (!tools?.length) {
+    return undefined;
+  }
   return {
     tools: tools.map((t) => ({
       toolSpec: {
@@ -202,20 +208,26 @@ export class BedrockTextAdapter extends BaseTextAdapter<
     const toolConfig = toolsToBedrockToolConfig(tools);
 
     const inferenceConfig: Record<string, number> = {};
-    if (temperature != null) inferenceConfig.temperature = temperature;
-    if (topP != null) inferenceConfig.topP = topP;
-    if (maxTokens != null) inferenceConfig.maxTokens = maxTokens;
+    if (temperature != null) {
+      inferenceConfig.temperature = temperature;
+    }
+    if (topP != null) {
+      inferenceConfig.topP = topP;
+    }
+    if (maxTokens != null) {
+      inferenceConfig.maxTokens = maxTokens;
+    }
 
     const timestamp = Date.now();
     const runId = this.generateId();
-    let messageId = this.generateId();
+    const messageId = this.generateId();
     let hasEmittedRunStarted = false;
     let hasEmittedTextMessageStart = false;
     let hasEmittedRunFinished = false;
     let pendingRunFinished: { stopReason: string; finishReason: 'stop' | 'tool_calls' } | null =
       null;
     const toolCallIds = new Map<number, { id: string; name: string }>();
-    let toolArgsAccum: Record<number, string> = {};
+    const toolArgsAccum: Record<number, string> = {};
 
     const streamInput = {
       modelId: model,
@@ -453,7 +465,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
 
         for (const block of content) {
           if (block && 'text' in block && typeof (block as { text?: string }).text === 'string') {
-            const text = (block as { text: string }).text;
+            const { text } = block as { text: string };
             if (text) {
               if (!hasEmittedTextMessageStart) {
                 hasEmittedTextMessageStart = true;

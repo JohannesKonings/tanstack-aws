@@ -29,7 +29,7 @@ export class WebappAssetsDeployment extends Construct {
       memoryLimit: 2048,
       sources: [Source.asset(sourcePath)],
     });
-    // if asset bucket in cdk bootstrap is encrypted with a custom Key, allolw to decrypt
+    // If asset bucket in cdk bootstrap is encrypted with a custom Key, allolw to decrypt
     const cdkBootstrapKey = Key.fromLookup(this, 'CdkBootstrapKey', {
       aliasName: 'alias/cdk-bootstrap-key',
     });
