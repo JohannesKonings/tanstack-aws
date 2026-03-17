@@ -1,10 +1,6 @@
-import type {
-  Address,
-  BankAccount,
-  ContactInfo,
-  Employment,
-  Person,
-} from '#src/webapp/types/person';
+// oxlint-disable no-magic-numbers
+// oxlint-disable func-style
+import { eq, useLiveQuery } from '@tanstack/react-db';
 import {
   addressesCollection,
   bankAccountsCollection,
@@ -12,9 +8,13 @@ import {
   employmentsCollection,
   personsCollection,
 } from '#src/webapp/db-collections/persons';
-// oxlint-disable no-magic-numbers
-// oxlint-disable func-style
-import { eq, useLiveQuery } from '@tanstack/react-db';
+import type {
+  Address,
+  BankAccount,
+  ContactInfo,
+  Employment,
+  Person,
+} from '#src/webapp/types/person';
 
 // =============================================================================
 // Prefetch Person Entities Hook

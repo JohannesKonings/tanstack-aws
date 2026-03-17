@@ -1,11 +1,11 @@
-import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
-// oxlint-disable func-style
-import type { QueryClient } from '@tanstack/react-query';
-import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { aiDevtoolsPlugin } from '@tanstack/react-ai-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
+// oxlint-disable func-style
+import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 import Header from '../components/Header';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import StoreDevtools from '../lib/demo-store-devtools';
@@ -13,10 +13,8 @@ import appCss from '../styles.css?url';
 
 interface MyRouterContext {
   queryClient: QueryClient;
-
   trpc: TRPCOptionsProxy<TRPCRouter>;
 }
-
 const siteTitle = 'TanStack AWS Examples - Deployed with AWS CDK';
 const siteDescription =
   'Explore TanStack AWS Examples showcasing TanStack Router, Query, and Start deployed to AWS using CDK. Examples featuring serverless architecture, DynamoDB, CloudFront, Lambda, and infrastructure as code.';
@@ -37,12 +35,30 @@ const structuredData = {
     url: siteUrl,
   },
   about: [
-    { '@type': 'Thing', name: 'TanStack Router' },
-    { '@type': 'Thing', name: 'TanStack Query' },
-    { '@type': 'Thing', name: 'TanStack Start' },
-    { '@type': 'Thing', name: 'AWS CDK Deployment' },
-    { '@type': 'Thing', name: 'Infrastructure as Code' },
-    { '@type': 'Thing', name: 'Serverless Architecture' },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Router',
+    },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Query',
+    },
+    {
+      '@type': 'Thing',
+      name: 'TanStack Start',
+    },
+    {
+      '@type': 'Thing',
+      name: 'AWS CDK Deployment',
+    },
+    {
+      '@type': 'Thing',
+      name: 'Infrastructure as Code',
+    },
+    {
+      '@type': 'Thing',
+      name: 'Serverless Architecture',
+    },
   ],
   mainEntity: {
     '@type': 'SoftwareSourceCode',
@@ -54,7 +70,6 @@ const structuredData = {
     codeRepository: 'https://github.com/JohannesKonings/tanstack-aws',
   },
 };
-
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -181,7 +196,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   notFoundComponent: () => <p>Not Found</p>,
   shellComponent: RootDocument,
 });
-
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">

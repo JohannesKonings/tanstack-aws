@@ -1,10 +1,6 @@
 // oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
-import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import {
-  Certificate,
-  DnsValidatedCertificate,
-} from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   CachePolicy,
@@ -19,14 +15,15 @@ import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-// const cspAllowedSources = [
+// Const cspAllowedSources = [
 //   'https://login.microsoftonline.com',
 //   'https://graph.microsoft.com', // to fetch user profile photo
 // ];
 
-// const domainName = '*.cloudfront.net';
+// Const domainName = '*.cloudfront.net';
 
 type DistributionProps = {
   appStage: string;
@@ -45,7 +42,7 @@ export class WebappDistribution extends Construct {
 
     const domainName = 'tanstack-aws-examples.com';
     const isProdStage = appStage === 'prod';
-    // const isProdStage = appStage === 'main';
+    // Const isProdStage = appStage === 'main';
 
     // Set up domain configuration for main stage
     let domainConfig: { domainNames: string[]; certificate: Certificate } | undefined;
@@ -54,9 +51,9 @@ export class WebappDistribution extends Construct {
         domainName,
       });
 
-      // const certificate = new Certificate(this, 'Certificate', {
-      //   domainName,
-      //   validation: CertificateValidation.fromDns(hostedZone),
+      // Const certificate = new Certificate(this, 'Certificate', {
+      //   DomainName,
+      //   Validation: CertificateValidation.fromDns(hostedZone),
       // });
 
       const certificate = new DnsValidatedCertificate(this, 'Cert', {
@@ -74,51 +71,51 @@ export class WebappDistribution extends Construct {
       };
     }
 
-    // const versionArnReader = new SSMParameterReader(this, 'LambdaEdgeVersionArn', {
-    //   parameterName: '/lambda-edge/sigv4-signer/version-arn',
-    //   region: 'us-east-1', // Always us-east-1 for Lambda@Edge
+    // Const versionArnReader = new SSMParameterReader(this, 'LambdaEdgeVersionArn', {
+    //   ParameterName: '/lambda-edge/sigv4-signer/version-arn',
+    //   Region: 'us-east-1', // Always us-east-1 for Lambda@Edge
     // });
 
-    // const versionArn = versionArnReader.getParameterValue();
-    // const sigv4SignerEdgeFunction = Version.fromVersionArn(
-    //   this,
+    // Const versionArn = versionArnReader.getParameterValue();
+    // Const sigv4SignerEdgeFunction = Version.fromVersionArn(
+    //   This,
     //   'SigV4SignerEdgeFunction',
-    //   versionArn,
+    //   VersionArn,
     // );
 
     const s3BucketOrigin = S3BucketOrigin.withOriginAccessControl(assetsBucket);
 
     // @see https://securityheaders.com
     // @see https://observatory.mozilla.org
-    // const responseHeadersPolicy = new ResponseHeadersPolicy(this, 'ResponseHeaderPolicy', {
-    //   customHeadersBehavior: {
-    //     customHeaders: [
+    // Const responseHeadersPolicy = new ResponseHeadersPolicy(this, 'ResponseHeaderPolicy', {
+    //   CustomHeadersBehavior: {
+    //     CustomHeaders: [
     //       {
-    //         header: 'Permissions-Policy',
-    //         override: true,
-    //         value: 'geolocation=(self), microphone=(), camera=(), fullscreen=(self), payment=()',
+    //         Header: 'Permissions-Policy',
+    //         Override: true,
+    //         Value: 'geolocation=(self), microphone=(), camera=(), fullscreen=(self), payment=()',
     //       },
     //     ],
     //   },
-    //   securityHeadersBehavior: {
-    //     contentSecurityPolicy: {
-    //       contentSecurityPolicy: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ${cspAllowedSources.join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: blob:https://${domainName}/; font-src 'self'; connect-src 'self' ${cspAllowedSources.join(' ')}; frame-src 'self';`,
-    //       override: true,
+    //   SecurityHeadersBehavior: {
+    //     ContentSecurityPolicy: {
+    //       ContentSecurityPolicy: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ${cspAllowedSources.join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: blob:https://${domainName}/; font-src 'self'; connect-src 'self' ${cspAllowedSources.join(' ')}; frame-src 'self';`,
+    //       Override: true,
     //     },
-    //     contentTypeOptions: { override: true },
-    //     frameOptions: { frameOption: HeadersFrameOption.DENY, override: true },
-    //     referrerPolicy: {
-    //       override: true,
-    //       referrerPolicy: HeadersReferrerPolicy.NO_REFERRER,
+    //     ContentTypeOptions: { override: true },
+    //     FrameOptions: { frameOption: HeadersFrameOption.DENY, override: true },
+    //     ReferrerPolicy: {
+    //       Override: true,
+    //       ReferrerPolicy: HeadersReferrerPolicy.NO_REFERRER,
     //     },
-    //     strictTransportSecurity: {
+    //     StrictTransportSecurity: {
     //       // oxlint-disable-next-line no-magic-numbers
-    //       accessControlMaxAge: Duration.days(200),
-    //       includeSubdomains: true,
-    //       override: true,
-    //       preload: true,
+    //       AccessControlMaxAge: Duration.days(200),
+    //       IncludeSubdomains: true,
+    //       Override: true,
+    //       Preload: true,
     //     },
-    //     xssProtection: { modeBlock: true, override: true, protection: true },
+    //     XssProtection: { modeBlock: true, override: true, protection: true },
     //   },
     // });
 
@@ -137,31 +134,31 @@ export class WebappDistribution extends Construct {
       responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
-    // const defaultBehavior =
+    // Const defaultBehavior =
     //   // oxlint-disable-next-line no-ternary
-    //   originBehaviorKind === 'apiGw'
+    //   OriginBehaviorKind === 'apiGw'
     //     ? {
-    //         allowedMethods: AllowedMethods.ALLOW_ALL,
-    //         cachePolicy: CachePolicy.CACHING_DISABLED,
-    //         origin: new RestApiOrigin(webappServerApi),
-    //         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-    //         responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
-    //         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    //         AllowedMethods: AllowedMethods.ALLOW_ALL,
+    //         CachePolicy: CachePolicy.CACHING_DISABLED,
+    //         Origin: new RestApiOrigin(webappServerApi),
+    //         OriginRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+    //         ResponseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
+    //         ViewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     //       }
     //     : {
-    //         allowedMethods: AllowedMethods.ALLOW_ALL,
-    //         cachePolicy: CachePolicy.CACHING_DISABLED,
-    //         edgeLambdas: [
+    //         AllowedMethods: AllowedMethods.ALLOW_ALL,
+    //         CachePolicy: CachePolicy.CACHING_DISABLED,
+    //         EdgeLambdas: [
     //           {
-    //             eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
-    //             functionVersion: sigv4SignerEdgeFunction,
-    //             includeBody: true,
+    //             EventType: LambdaEdgeEventType.ORIGIN_REQUEST,
+    //             FunctionVersion: sigv4SignerEdgeFunction,
+    //             IncludeBody: true,
     //           },
     //         ],
-    //         origin: FunctionUrlOrigin.withOriginAccessControl(webappServerFunctionUrl),
-    //         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-    //         responseHeadersPolicy,
-    //         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    //         Origin: FunctionUrlOrigin.withOriginAccessControl(webappServerFunctionUrl),
+    //         OriginRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+    //         ResponseHeadersPolicy,
+    //         ViewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     //       };
 
     const staticAssetBehavior = {

@@ -1,10 +1,10 @@
+import { Aws } from 'aws-cdk-lib';
 import {
   OpenIdConnectProvider,
   PolicyStatement,
   Role,
   WebIdentityPrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { Aws } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import type { GitHubActionsOidcConfig } from '../app-config.ts';
 const BOOTSTRAP_QUALIFIER = 'hnb659fds';
@@ -38,28 +38,21 @@ export class GitHubActionsOidcSetup extends Construct {
 
     this.deployRole = new Role(this, 'DeployRole', {
       roleName: 'GitHubActionsCdkDeployRole',
-      description:
-        `Allows GitHub Actions from ${props.config.allowedRepository} to deploy CDK stacks.`,
-      assumedBy: new WebIdentityPrincipal(
-        this.oidcProvider.openIdConnectProviderArn,
-        {
-          StringEquals: {
-            'token.actions.githubusercontent.com:aud': props.config.oidcAudience,
-          },
-          StringLike: {
-            'token.actions.githubusercontent.com:sub':
-              props.config.allowedRepositorySub,
-          },
+      description: `Allows GitHub Actions from ${props.config.allowedRepository} to deploy CDK stacks.`,
+      assumedBy: new WebIdentityPrincipal(this.oidcProvider.openIdConnectProviderArn, {
+        StringEquals: {
+          'token.actions.githubusercontent.com:aud': props.config.oidcAudience,
         },
-      ),
+        StringLike: {
+          'token.actions.githubusercontent.com:sub': props.config.allowedRepositorySub,
+        },
+      }),
     });
 
     this.deployRole.addToPolicy(
       new PolicyStatement({
         actions: ['sts:AssumeRole'],
-        resources: BOOTSTRAP_ROLE_NAMES.map((roleName) =>
-          getBootstrapRoleArn(roleName),
-        ),
+        resources: BOOTSTRAP_ROLE_NAMES.map((roleName) => getBootstrapRoleArn(roleName)),
       }),
     );
   }

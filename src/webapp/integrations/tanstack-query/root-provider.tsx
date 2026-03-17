@@ -1,10 +1,10 @@
-import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
-import { TRPCProvider } from '#src/webapp/integrations/trpc/react';
 import { QueryClient } from '@tanstack/react-query';
 // oxlint-disable func-style
 import { createTRPCClient, httpBatchStreamLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
+import { TRPCProvider } from '#src/webapp/integrations/trpc/react';
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 
 function getUrl() {
   // Always use relative URL for consistency between SSR and client

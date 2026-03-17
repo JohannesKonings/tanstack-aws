@@ -5,33 +5,90 @@ import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
-import { defineConfig } from 'vite';
-import viteTsConfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vite-plus';
 
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-const config = defineConfig(({ command, isSsrBuild }) => {
-  // Nitro/build pulls in @tanstack/ai-devtools-core (Solid.js) whose server build
-  // lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
-  const useAiDevtoolsStub = isSsrBuild === true || command === 'build';
-  return {
-    resolve: {
-      alias:
-        useAiDevtoolsStub
-          ? [
-              {
-                find: '@tanstack/react-ai-devtools',
-                replacement: path.resolve(dirname, 'src/webapp/lib/ai-devtools-stub.ts'),
-              },
-              {
-                find: '@tanstack/react-router-devtools',
-                replacement: path.resolve(dirname, 'src/webapp/lib/router-devtools-stub.tsx'),
-              },
-            ]
-          : [],
+const devtoolsStubAliases = [
+  {
+    find: '@tanstack/react-ai-devtools',
+    replacement: path.resolve(dirname, 'src/webapp/lib/ai-devtools-stub.ts'),
+  },
+  {
+    find: '@tanstack/react-router-devtools',
+    replacement: path.resolve(dirname, 'src/webapp/lib/router-devtools-stub.tsx'),
+  },
+] as const;
+
+const aiDevtoolsStubPlugin = {
+  config(_config: unknown, { command, isSsrBuild }: { command: string; isSsrBuild?: boolean }) {
+    // Nitro/build pulls in @tanstack/ai-devtools-core (Solid.js) whose server build
+    // Lacks setStyleProperty. Use stub for SSR and for production build (Nitro phase).
+    const useAiDevtoolsStub = isSsrBuild === true || command === 'build';
+
+    if (!useAiDevtoolsStub) {
+      return undefined;
+    }
+
+    return {
+      resolve: {
+        alias: devtoolsStubAliases,
+      },
+    };
+  },
+  name: 'ai-devtools-stub-alias',
+};
+
+const config = defineConfig({
+  fmt: {
+    ignorePatterns: ['src/webapp/routeTree.gen.ts'],
+    singleQuote: true,
+    sortImports: {
+      ignoreCase: true,
+      newlinesBetween: false,
+      order: 'asc',
     },
+  },
+  lint: {
+    categories: {
+      correctness: 'error',
+      perf: 'off',
+      style: 'off',
+    },
+    ignorePatterns: ['src/webapp/routeTree.gen.ts'],
+    plugins: ['react'],
+    rules: {
+      'no-console': 'error',
+      'sort-imports': [
+        'error',
+        {
+          ignoreDeclarationSort: true,
+          ignoreMemberSort: false,
+          ignoreCase: true,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: true,
+        },
+      ],
+      'sort-keys': 'off',
+      'typescript/no-floating-promises': 'error',
+    },
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+  },
+  server: {
+    port: 3000,
+  },
+  resolve: {
+    tsconfigPaths: true,
+  },
+  test: {
+    include: ['accountSetup/**/*.test.ts'],
+  },
   plugins: [
+    aiDevtoolsStubPlugin,
     devtools({
       removeDevtoolsOnBuild: false,
     }),
@@ -41,10 +98,6 @@ const config = defineConfig(({ command, isSsrBuild }) => {
         'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
       },
       preset: 'aws-lambda',
-    }),
-    // This is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
     tanstackStart({
@@ -56,7 +109,6 @@ const config = defineConfig(({ command, isSsrBuild }) => {
       },
     }),
   ],
-  };
 });
 
 export default config;

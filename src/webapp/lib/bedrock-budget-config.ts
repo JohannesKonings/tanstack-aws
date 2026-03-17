@@ -4,4 +4,4 @@
  */
 
 /** Daily budget limit in USD ($2.00). */
-export const DAILY_LIMIT_USD = 2
+export const DAILY_LIMIT_USD = 2;

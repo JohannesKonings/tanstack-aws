@@ -35,9 +35,7 @@ function DevtoolPanel() {
     fullName: fullName.state,
   }));
 
-  useEffect(() => {
-    return sdec.on('state', (e) => setState(e.payload));
-  }, []);
+  useEffect(() => sdec.on('state', (e) => setState(e.payload)), []);
 
   return (
     <div className="p-4 grid gap-4 grid-cols-[1fr_10fr]">

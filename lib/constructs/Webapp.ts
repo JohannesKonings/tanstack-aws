@@ -52,16 +52,16 @@ export class Webapp extends Construct {
 
     const assetsBucket = new WebappAssetsBucket(this, 'WebappAssetsBucket');
 
-    // const distributionFunctionUrl = new WebappDistribution(this, 'WebappDistributionFunctionUrl', {
-    //   assetsBucket: assetsBucket.assetsBucket,
-    //   originBehaviorKind: 'functionUrl',
-    //   webappServerApi: webappApi.webappApi,
-    //   webappServerFunctionUrl: webappServerFunctionUrl.webappServerFunctionUrl,
+    // Const distributionFunctionUrl = new WebappDistribution(this, 'WebappDistributionFunctionUrl', {
+    //   AssetsBucket: assetsBucket.assetsBucket,
+    //   OriginBehaviorKind: 'functionUrl',
+    //   WebappServerApi: webappApi.webappApi,
+    //   WebappServerFunctionUrl: webappServerFunctionUrl.webappServerFunctionUrl,
     // });
 
-    // new WebappAssetsDeployment(this, 'WebappAssetsDeploymentFunctionUrl', {
-    //   assetsBucket: assetsBucket.assetsBucket,
-    //   distribution: distributionFunctionUrl.distribution,
+    // New WebappAssetsDeployment(this, 'WebappAssetsDeploymentFunctionUrl', {
+    //   AssetsBucket: assetsBucket.assetsBucket,
+    //   Distribution: distributionFunctionUrl.distribution,
     // });
 
     const distributionApiGw = new WebappDistribution(this, 'WebappDistributionApiGw', {

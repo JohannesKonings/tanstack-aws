@@ -1,7 +1,7 @@
-import type { Address } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 import { MapPin, Pencil, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '#src/webapp/components/ui/button';
+import type { Address } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
 interface AddressCardProps {

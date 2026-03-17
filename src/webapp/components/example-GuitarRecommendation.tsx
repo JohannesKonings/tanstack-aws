@@ -4,7 +4,7 @@ import { showAIAssistant } from './example-AIAssistant';
 
 export default function GuitarRecommendation({ id }: { id: string }) {
   const navigate = useNavigate();
-  const guitar = guitars.find((guitar) => guitar.id === +id);
+  const guitar = guitars.find((guitar) => guitar.id === Number(id));
   if (!guitar) {
     return null;
   }

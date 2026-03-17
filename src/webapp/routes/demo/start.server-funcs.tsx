@@ -1,11 +1,11 @@
+import fs from 'node:fs';
 // oxlint-disable no-magic-numbers
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import fs from 'node:fs';
 import { useCallback, useState } from 'react';
 
 /*
-const loggingMiddleware = createMiddleware().server(
+Const loggingMiddleware = createMiddleware().server(
   async ({ next, request }) => {
     console.log("Request:", request.url);
     return next();

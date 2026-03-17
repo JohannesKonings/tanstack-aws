@@ -1,0 +1,37 @@
+name: PR VP Check
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vp-check:
+    name: vp check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: 'lts/*'
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Run vp check
+        run: vp check
+
+      - name: Run vp test
+        run: vp test
+
+      - name: Run vp build
+        run: vp build
