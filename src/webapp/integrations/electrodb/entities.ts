@@ -1,3 +1,4 @@
+import { Entity, type EntityConfiguration, Service } from 'electrodb';
 import { getDdbDocClient } from '#src/webapp/integrations/ddb-client/ddbClient.ts';
 import { zodToElectroDBAttributes } from '#src/webapp/integrations/electrodb/zod-to-electrodb.ts';
 import {
@@ -7,7 +8,6 @@ import {
   EmploymentSchema,
   PersonSchema,
 } from '#src/webapp/types/person.ts';
-import { Entity, type EntityConfiguration, Service } from 'electrodb';
 
 // =============================================================================
 // Table Configuration

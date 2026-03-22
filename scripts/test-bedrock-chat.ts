@@ -40,9 +40,13 @@ async function runConverse() {
   const message = response.output?.message;
   const content = message?.content ?? [];
   const textBlocks = content.filter(
-    (block): block is { text: string } => 'text' in block && typeof (block as { text?: string }).text === 'string',
+    (block): block is { text: string } =>
+      'text' in block && typeof (block as { text?: string }).text === 'string',
   );
-  const replyText = textBlocks.map((b) => b.text).join('').trim();
+  const replyText = textBlocks
+    .map((b) => b.text)
+    .join('')
+    .trim();
 
   console.log('  stopReason:', response.stopReason);
   console.log('  usage:', response.usage);
@@ -64,7 +68,7 @@ async function runConverseStream() {
   console.log('  stream:');
 
   const response = await client.send(command);
-  const stream = response.stream;
+  const { stream } = response;
   if (!stream) {
     throw new Error('No stream in Bedrock ConverseStream response');
   }
@@ -81,7 +85,7 @@ async function runConverseStream() {
       }
     }
     if (event.metadata?.usage) {
-      usage = event.metadata.usage;
+      ({ usage } = event.metadata);
     }
   }
 

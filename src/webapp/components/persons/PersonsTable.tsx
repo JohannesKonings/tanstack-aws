@@ -1,11 +1,11 @@
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
 import {
+  type SortingState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
 import { ChevronDown, ChevronUp } from 'lucide-react';

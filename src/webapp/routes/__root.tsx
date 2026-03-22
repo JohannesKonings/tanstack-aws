@@ -3,7 +3,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 // oxlint-disable func-style
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
-import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
+import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';

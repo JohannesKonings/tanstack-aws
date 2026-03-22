@@ -5,40 +5,45 @@
 
 import {
   BedrockRuntimeClient,
-  ConverseCommand,
-  ConverseStreamCommand,
   type ContentBlock,
+  ConverseCommand,
   type ConverseCommandInput,
+  ConverseStreamCommand,
   type ConverseStreamCommandInput,
   type ConverseStreamOutput,
   type Message,
   type ToolResultBlock,
   type ToolUseBlock,
 } from '@aws-sdk/client-bedrock-runtime';
-import { BaseTextAdapter } from '@tanstack/ai/adapters';
 import type {
   ContentPart,
+  JSONSchema,
   ModelMessage,
   StreamChunk,
   TextOptions,
   Tool,
 } from '@tanstack/ai';
-import type { JSONSchema } from '@tanstack/ai';
-import type { StructuredOutputOptions, StructuredOutputResult } from '@tanstack/ai/adapters';
+import {
+  BaseTextAdapter,
+  type StructuredOutputOptions,
+  type StructuredOutputResult,
+} from '@tanstack/ai/adapters';
 
 /** Inline type compatible with AWS SDK credential resolution (no @smithy/types dependency). */
 interface BedrockCredentialIdentity {
-  accessKeyId?: string;
-  secretAccessKey?: string;
+  accessKeyId: string;
+  secretAccessKey: string;
   sessionToken?: string;
 }
 type BedrockCredentialsProvider = () => Promise<BedrockCredentialIdentity>;
 
-function getTextFromContent(
-  content: string | null | Array<ContentPart>,
-): string {
-  if (content == null) return '';
-  if (typeof content === 'string') return content;
+function getTextFromContent(content: string | null | Array<ContentPart>): string {
+  if (content == null) {
+    return '';
+  }
+  if (typeof content === 'string') {
+    return content;
+  }
   return content
     .filter((p): p is ContentPart & { type: 'text' } => p.type === 'text')
     .map((p) => p.content)
@@ -77,11 +82,9 @@ function modelMessagesToBedrockMessages(messages: Array<ModelMessage>): Message[
 
     if (msg.role === 'tool' && msg.toolCallId) {
       const prev = out[out.length - 1];
-      const prevContent: ContentBlock[] =
-        prev?.role === 'assistant' ? prev.content ?? [] : [];
+      const prevContent: ContentBlock[] = prev?.role === 'assistant' ? (prev.content ?? []) : [];
       const prevToolUseBlocks = prevContent.filter(
-        (b): b is ContentBlock & { toolUse: ToolUseBlock } =>
-          'toolUse' in b && b.toolUse != null,
+        (b): b is ContentBlock & { toolUse: ToolUseBlock } => 'toolUse' in b && b.toolUse != null,
       );
       const prevToolUseCount = prevToolUseBlocks.length;
       const prevToolUseIds = prevToolUseBlocks
@@ -91,12 +94,10 @@ function modelMessagesToBedrockMessages(messages: Array<ModelMessage>): Message[
       const toolResultById = new Map<string, ToolResultBlock>();
       while (i < messages.length && messages[i]?.role === 'tool') {
         const toolMsg = messages[i]!;
-        const toolCallId = toolMsg.toolCallId;
+        const { toolCallId } = toolMsg;
         if (toolCallId) {
           const text =
-            typeof toolMsg.content === 'string'
-              ? toolMsg.content
-              : JSON.stringify(toolMsg.content);
+            typeof toolMsg.content === 'string' ? toolMsg.content : JSON.stringify(toolMsg.content);
           toolResultById.set(toolCallId, {
             toolUseId: toolCallId,
             content: [{ text }],
@@ -140,9 +141,7 @@ function modelMessagesToBedrockMessages(messages: Array<ModelMessage>): Message[
                     return { value: argsRaw };
                   }
                 })()
-              : (typeof argsRaw === 'object' && argsRaw !== null
-                  ? argsRaw
-                  : {}) as object;
+              : ((typeof argsRaw === 'object' && argsRaw !== null ? argsRaw : {}) as object);
           blocks.push(toolUseBlock(tc.id, tc.function.name, inputObj));
         }
       } else if (text) {
@@ -158,10 +157,16 @@ function modelMessagesToBedrockMessages(messages: Array<ModelMessage>): Message[
   return out;
 }
 
-function toolsToBedrockToolConfig(
-  tools: Array<Tool<any, any, any>> | undefined,
-): { tools: Array<{ toolSpec: { name: string; description: string; inputSchema: { json: object } } }> } | undefined {
-  if (!tools?.length) return undefined;
+function toolsToBedrockToolConfig(tools: Array<Tool<any, any, any>> | undefined):
+  | {
+      tools: Array<{
+        toolSpec: { name: string; description: string; inputSchema: { json: object } };
+      }>;
+    }
+  | undefined {
+  if (!tools?.length) {
+    return undefined;
+  }
   return {
     tools: tools.map((t) => ({
       toolSpec: {
@@ -199,44 +204,39 @@ export class BedrockTextAdapter extends BaseTextAdapter<
     });
   }
 
-  async *chatStream(
-    options: TextOptions<Record<string, unknown>>,
-  ): AsyncIterable<StreamChunk> {
-    const {
-      model,
-      messages,
-      tools,
-      systemPrompts,
-      temperature,
-      topP,
-      maxTokens,
-      request,
-    } = options;
+  async *chatStream(options: TextOptions<Record<string, unknown>>): AsyncIterable<StreamChunk> {
+    const { model, messages, tools, systemPrompts, temperature, topP, maxTokens, request } =
+      options;
 
     const bedrockMessages = modelMessagesToBedrockMessages(messages);
     const systemBlock =
-      systemPrompts?.length &&
-      systemPrompts.some((s) => s.trim().length > 0)
+      systemPrompts?.length && systemPrompts.some((s) => s.trim().length > 0)
         ? [{ text: systemPrompts.join('\n\n') }]
         : undefined;
 
     const toolConfig = toolsToBedrockToolConfig(tools);
 
     const inferenceConfig: Record<string, number> = {};
-    if (temperature != null) inferenceConfig.temperature = temperature;
-    if (topP != null) inferenceConfig.topP = topP;
-    if (maxTokens != null) inferenceConfig.maxTokens = maxTokens;
+    if (temperature != null) {
+      inferenceConfig.temperature = temperature;
+    }
+    if (topP != null) {
+      inferenceConfig.topP = topP;
+    }
+    if (maxTokens != null) {
+      inferenceConfig.maxTokens = maxTokens;
+    }
 
     const timestamp = Date.now();
     const runId = this.generateId();
-    let messageId = this.generateId();
+    const messageId = this.generateId();
     let hasEmittedRunStarted = false;
     let hasEmittedTextMessageStart = false;
     let hasEmittedRunFinished = false;
     let pendingRunFinished: { stopReason: string; finishReason: 'stop' | 'tool_calls' } | null =
       null;
     const toolCallIds = new Map<number, { id: string; name: string }>();
-    let toolArgsAccum: Record<number, string> = {};
+    const toolArgsAccum: Record<number, string> = {};
 
     const streamInput = {
       modelId: model,
@@ -364,11 +364,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           }
           const stopReason = event.messageStop.stopReason ?? 'stop';
           const finishReason =
-            stopReason === 'tool_use'
-              ? 'tool_calls'
-              : stopReason === 'end_turn'
-                ? 'stop'
-                : 'stop';
+            stopReason === 'tool_use' ? 'tool_calls' : stopReason === 'end_turn' ? 'stop' : 'stop';
           pendingRunFinished = { stopReason, finishReason };
         }
 
@@ -454,7 +450,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           usage: undefined,
         };
       }
-    } catch (streamErr) {
+    } catch {
       // Fallback: use non-streaming ConverseCommand (same API as test-bedrock-chat.ts).
       // ConverseStream requires bedrock:InvokeModelWithResponseStream; Converse only needs bedrock:InvokeModel.
       try {
@@ -478,7 +474,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
 
         for (const block of content) {
           if (block && 'text' in block && typeof (block as { text?: string }).text === 'string') {
-            const text = (block as { text: string }).text;
+            const { text } = block as { text: string };
             if (text) {
               if (!hasEmittedTextMessageStart) {
                 hasEmittedTextMessageStart = true;
@@ -500,7 +496,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             }
           }
           if (block && 'toolUse' in block && (block as { toolUse?: unknown }).toolUse) {
-            const tu = (block as { toolUse: { toolUseId: string; name: string; input?: unknown } }).toolUse;
+            const tu = (block as { toolUse: { toolUseId: string; name: string; input?: unknown } })
+              .toolUse;
             const toolCallId = tu.toolUseId ?? this.generateId();
             const toolName = tu.name ?? '';
             const inputObj = tu.input ?? {};
@@ -525,7 +522,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               toolName,
               model,
               timestamp,
-              input: typeof inputObj === 'object' && inputObj !== null ? inputObj : { value: inputObj },
+              input:
+                typeof inputObj === 'object' && inputObj !== null ? inputObj : { value: inputObj },
             };
           }
         }
@@ -581,9 +579,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
   }
 }
 
-export function bedrockText(
-  model: string,
-  config?: BedrockTextAdapterConfig,
-): BedrockTextAdapter {
+export function bedrockText(model: string, config?: BedrockTextAdapterConfig): BedrockTextAdapter {
   return new BedrockTextAdapter(config ?? {}, model);
 }

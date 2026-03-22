@@ -7,13 +7,9 @@ export class AccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(
-      this,
-      'GitHubActionsOidcSetup',
-      {
-        config: githubActionsOidcConfig,
-      },
-    );
+    const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(this, 'GitHubActionsOidcSetup', {
+      config: githubActionsOidcConfig,
+    });
 
     new cdk.CfnOutput(this, 'GitHubActionsDeployRoleArn', {
       value: gitHubActionsOidcSetup.deployRole.roleArn,

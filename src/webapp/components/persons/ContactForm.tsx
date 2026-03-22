@@ -1,9 +1,9 @@
-import type { ContactInfo } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 // oxlint-disable no-magic-numbers
 // oxlint-disable no-ternary
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
+import { Button } from '#src/webapp/components/ui/button';
+import type { ContactInfo } from '#src/webapp/types/person';
 
 const ContactTypeEnum = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
 
@@ -54,7 +54,12 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             <select
               className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
+              onChange={(event) => {
+                const next = ContactTypeEnum.safeParse(event.target.value);
+                if (next.success) {
+                  field.handleChange(next.data);
+                }
+              }}
               onBlur={field.handleBlur}
             >
               <option value="email">Email</option>
@@ -65,7 +70,13 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             </select>
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              const message =
+                typeof firstError === 'string'
+                  ? firstError
+                  : firstError && typeof firstError === 'object' && 'message' in firstError
+                    ? String((firstError as { message?: unknown }).message ?? '')
+                    : '';
+              return message ? <p className="text-xs text-red-400 mt-1">{message}</p> : null;
             })()}
           </div>
         )}
@@ -84,7 +95,13 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              const message =
+                typeof firstError === 'string'
+                  ? firstError
+                  : firstError && typeof firstError === 'object' && 'message' in firstError
+                    ? String((firstError as { message?: unknown }).message ?? '')
+                    : '';
+              return message ? <p className="text-xs text-red-400 mt-1">{message}</p> : null;
             })()}
           </div>
         )}

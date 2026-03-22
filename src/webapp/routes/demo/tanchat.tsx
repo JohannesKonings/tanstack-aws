@@ -1,5 +1,5 @@
 import type { StreamChunk, UIMessage } from '@tanstack/ai';
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-react';
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -32,7 +32,7 @@ function TextWithInlineImages({ content }: { content: string }) {
       type: 'image',
       src: match[1] ?? match[0].replace(/^\*{0,2}Image:\*{0,2}\s*/i, '').trim(),
     });
-    lastIndex = re.lastIndex;
+    ({ lastIndex } = re);
   }
   if (lastIndex < content.length) {
     parts.push({ type: 'text', value: content.slice(lastIndex) });
@@ -63,7 +63,8 @@ function InitalLayout({ children }: { children: React.ReactNode }) {
     <div className="flex-1 flex items-center justify-center px-4">
       <div className="text-center max-w-3xl mx-auto w-full">
         <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-red-600 text-transparent bg-clip-text uppercase">
-          <span className="text-white">TanStack</span> Chat <span className="text-gray-400 text-4xl font-normal normal-case">with Bedrock</span>
+          <span className="text-white">TanStack</span> Chat{' '}
+          <span className="text-gray-400 text-4xl font-normal normal-case">with Bedrock</span>
         </h1>
         <p className="text-gray-400 mb-6 w-2/3 mx-auto text-lg">
           You can ask me about anything, I might or might not have a good answer, but you can still
@@ -160,10 +161,10 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
                           );
                         }
                       } catch {
-                        // ignore invalid JSON
+                        // Ignore invalid JSON
                       }
                     }
-                    // getGuitars: don't render tool result as cards; images show inline in the AI's text list via TextWithInlineImages
+                    // GetGuitars: don't render tool result as cards; images show inline in the AI's text list via TextWithInlineImages
                   }
                   return null;
                 })}
@@ -198,11 +199,10 @@ function RunLogPanel({
       ? `Used today: $${Number(usedTodayUsd).toFixed(2)} / $${Number(limitUsd).toFixed(2)}`
       : null;
   const showPanel =
-    hasEntries ||
-    usedLabel != null ||
-    budgetError != null ||
-    budgetLoading === true;
-  if (!showPanel) return null;
+    hasEntries || usedLabel != null || budgetError != null || budgetLoading === true;
+  if (!showPanel) {
+    return null;
+  }
   return (
     <div className="border-t border-orange-500/10 bg-gray-900/60">
       <button
@@ -218,9 +218,7 @@ function RunLogPanel({
         )}
         <span>Run log</span>
         <span className="text-gray-500">({entries.length})</span>
-        {budgetLoading && (
-          <span className="ml-2 text-gray-500">Checking budget...</span>
-        )}
+        {budgetLoading && <span className="ml-2 text-gray-500">Checking budget...</span>}
         {usedLabel != null && !budgetLoading && (
           <span className="ml-2 text-amber-500/90">{usedLabel}</span>
         )}
@@ -230,9 +228,7 @@ function RunLogPanel({
       </button>
       {open && (
         <div className="max-h-48 overflow-y-auto px-4 pb-3">
-          {budgetLoading && (
-            <p className="mb-2 text-xs text-gray-500">Checking budget...</p>
-          )}
+          {budgetLoading && <p className="mb-2 text-xs text-gray-500">Checking budget...</p>}
           {usedLabel != null && !budgetLoading && (
             <p className="mb-2 text-xs text-amber-500/90">{usedLabel}</p>
           )}
@@ -264,20 +260,15 @@ function RunLogPanel({
               >
                 <div className="text-gray-400">
                   <span className="text-orange-500/90">{entry.model}</span>
-                  <span className="ml-2">
-                    {new Date(entry.timestamp).toLocaleTimeString()}
-                  </span>
+                  <span className="ml-2">{new Date(entry.timestamp).toLocaleTimeString()}</span>
                   {entry.finishReason != null && (
-                    <span className="ml-2 text-gray-500">
-                      finish: {entry.finishReason}
-                    </span>
+                    <span className="ml-2 text-gray-500">finish: {entry.finishReason}</span>
                   )}
                 </div>
                 {entry.usage != null && (
                   <div className="mt-1 text-gray-500">
-                    input: {entry.usage.promptTokens} · output:{' '}
-                    {entry.usage.completionTokens} · total:{' '}
-                    {entry.usage.totalTokens}
+                    input: {entry.usage.promptTokens} · output: {entry.usage.completionTokens} ·
+                    total: {entry.usage.totalTokens}
                   </div>
                 )}
               </li>
@@ -306,20 +297,18 @@ function ChatPage() {
   });
 
   const mountedRef = useRef(true);
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       mountedRef.current = false;
-    };
-  }, []);
+    },
+    [],
+  );
 
   const fetchBudget = useCallback(async () => {
     const BUDGET_TIMEOUT_MS = 20_000;
     setBudget((prev) => ({ ...prev, loading: true, error: undefined }));
     const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      BUDGET_TIMEOUT_MS,
-    );
+    const timeoutId = setTimeout(() => controller.abort(), BUDGET_TIMEOUT_MS);
 
     try {
       const res = await fetch('/demo/api/bedrock-budget', {
@@ -328,7 +317,11 @@ function ChatPage() {
       });
       clearTimeout(timeoutId);
       if (!res.ok) {
-        throw new Error(res.status === 0 ? 'Budget request timed out (20s)' : `Budget request failed: ${res.status}`);
+        throw new Error(
+          res.status === 0
+            ? 'Budget request timed out (20s)'
+            : `Budget request failed: ${res.status}`,
+        );
       }
       const data = (await res.json()) as {
         overBudget?: boolean;
@@ -345,11 +338,15 @@ function ChatPage() {
         loading: false,
         error: data.error,
       };
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        return;
+      }
       setBudget(next);
     } catch (err) {
       clearTimeout(timeoutId);
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        return;
+      }
       const message =
         err instanceof Error
           ? err.name === 'AbortError'
@@ -370,28 +367,33 @@ function ChatPage() {
     void fetchBudget();
   }, [fetchBudget]);
 
-  const onChunk = useCallback((chunk: StreamChunk) => {
-    if (chunk.type === 'RUN_STARTED') {
-      setRunLog((prev) => [
-        ...prev,
-        { model: chunk.model ?? 'unknown', timestamp: chunk.timestamp },
-      ]);
-    } else if (chunk.type === 'RUN_FINISHED') {
-      setRunLog((prev) => {
-        if (prev.length === 0) return prev;
-        const last = prev[prev.length - 1]!;
-        return [
-          ...prev.slice(0, -1),
-          {
-            ...last,
-            finishReason: chunk.finishReason ?? undefined,
-            usage: chunk.usage,
-          },
-        ];
-      });
-      void fetchBudget();
-    }
-  }, [fetchBudget]);
+  const onChunk = useCallback(
+    (chunk: StreamChunk) => {
+      if (chunk.type === 'RUN_STARTED') {
+        setRunLog((prev) => [
+          ...prev,
+          { model: chunk.model ?? 'unknown', timestamp: chunk.timestamp },
+        ]);
+      } else if (chunk.type === 'RUN_FINISHED') {
+        setRunLog((prev) => {
+          if (prev.length === 0) {
+            return prev;
+          }
+          const last = prev[prev.length - 1]!;
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              finishReason: chunk.finishReason ?? undefined,
+              usage: chunk.usage,
+            },
+          ];
+        });
+        void fetchBudget();
+      }
+    },
+    [fetchBudget],
+  );
 
   const { messages, sendMessage, isLoading, error } = useChat({
     connection: fetchServerSentEvents('/demo/api/tanchat'),
@@ -415,9 +417,7 @@ function ChatPage() {
           </div>
         )}
         <Messages messages={messages} />
-        {isLoading && (
-          <div className="px-4 py-2 text-gray-400 text-sm">Thinking...</div>
-        )}
+        {isLoading && <div className="px-4 py-2 text-gray-400 text-sm">Thinking...</div>}
 
         <Layout>
           <form
@@ -430,18 +430,12 @@ function ChatPage() {
             }}
           >
             <div className="relative max-w-xl mx-auto">
-              {budget.loading && (
-                <p className="mb-1 text-xs text-gray-500">
-                  Checking budget...
-                </p>
-              )}
+              {budget.loading && <p className="mb-1 text-xs text-gray-500">Checking budget...</p>}
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
-                  budget.overBudget
-                    ? 'Budget is empty for the day'
-                    : 'Type something clever...'
+                  budget.overBudget ? 'Budget is empty for the day' : 'Type something clever...'
                 }
                 disabled={budget.overBudget}
                 className="w-full rounded-lg border border-orange-500/20 bg-gray-800/50 pl-4 pr-12 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent resize-none overflow-hidden shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"

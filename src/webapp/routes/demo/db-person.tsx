@@ -1,13 +1,13 @@
-// oxlint-disable max-statements
-import { CreatePersonModal } from '#src/webapp/components/persons/CreatePersonModal';
-import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
-import { PersonsTable, type PersonTableRow } from '#src/webapp/components/persons/PersonsTable';
-import { SyncStatus } from '#src/webapp/components/SyncStatus';
-import { Button } from '#src/webapp/components/ui/button';
-import { usePersons } from '#src/webapp/hooks/useDbPersons';
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+// oxlint-disable max-statements
+import { CreatePersonModal } from '#src/webapp/components/persons/CreatePersonModal';
+import { PersonDetailPanel } from '#src/webapp/components/persons/PersonDetailPanel';
+import { type PersonTableRow, PersonsTable } from '#src/webapp/components/persons/PersonsTable';
+import { SyncStatus } from '#src/webapp/components/SyncStatus';
+import { Button } from '#src/webapp/components/ui/button';
+import { usePersons } from '#src/webapp/hooks/useDbPersons';
 
 export const Route = createFileRoute('/demo/db-person')({
   ssr: false,

@@ -1,8 +1,8 @@
 import {
-  createStore,
   Store,
   type ReadonlyStore as TanStackReadonlyStore,
   type Store as TanStackStoreType,
+  createStore,
 } from '@tanstack/store';
 
 type PersonState = {

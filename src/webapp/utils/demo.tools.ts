@@ -32,8 +32,10 @@ interface RecommendGuitarInput {
 }
 
 function isRecommendGuitarInput(args: unknown): args is RecommendGuitarInput {
-  if (typeof args !== 'object' || args === null || !('id' in args)) return false;
-  const id = (args as RecommendGuitarInput).id;
+  if (typeof args !== 'object' || args === null || !('id' in args)) {
+    return false;
+  }
+  const { id } = args as RecommendGuitarInput;
   return typeof id === 'string' || typeof id === 'number';
 }
 
@@ -51,9 +53,7 @@ const recommendGuitarDef = toolDefinition({
   outputSchema: recommendGuitarOutputSchema,
 });
 
-export const getGuitars = getGuitarsDef.server(async () => {
-  return Promise.resolve(guitars);
-});
+export const getGuitars = getGuitarsDef.server(async () => Promise.resolve(guitars));
 
 export const recommendGuitar = recommendGuitarDef.server(async (args: unknown) => {
   if (!isRecommendGuitarInput(args)) {

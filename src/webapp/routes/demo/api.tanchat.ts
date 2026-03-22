@@ -1,12 +1,14 @@
-import type { ModelMessage, UIMessage } from '@tanstack/ai';
-import { chat, convertMessagesToModelMessages, toServerSentEventsResponse } from '@tanstack/ai';
-import { maxIterations } from '@tanstack/ai';
+import {
+  chat,
+  convertMessagesToModelMessages,
+  maxIterations,
+  type ModelMessage,
+  toServerSentEventsResponse,
+  type UIMessage,
+} from '@tanstack/ai';
 import { createFileRoute } from '@tanstack/react-router';
 import { bedrockText } from '#src/webapp/integrations/bedrock-adapter';
-import {
-  getBedrockBudgetStatus,
-  TANCHAT_MODEL_ID,
-} from '#src/webapp/lib/bedrock-budget';
+import { TANCHAT_MODEL_ID, getBedrockBudgetStatus } from '#src/webapp/lib/bedrock-budget';
 import getTools from '#src/webapp/utils/demo.tools';
 
 const SYSTEM_PROMPT = `You are a helpful assistant for a store that sells guitars.

@@ -1,8 +1,8 @@
 import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vitest';
-import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
+import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
 
 describe('resolveAccountSetupEnv', () => {
   it('uses AWS account and region from environment variables', () => {
@@ -101,8 +101,7 @@ describe('AccountSetupStack', () => {
             Effect: 'Allow',
             Condition: {
               StringEquals: {
-                'token.actions.githubusercontent.com:aud':
-                  githubActionsOidcConfig.oidcAudience,
+                'token.actions.githubusercontent.com:aud': githubActionsOidcConfig.oidcAudience,
               },
               StringLike: {
                 'token.actions.githubusercontent.com:sub':

@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@tanstack/react-start';
+import { TANCHAT_MODEL_ID, getBedrockBudgetStatus } from '#src/webapp/lib/bedrock-budget';
 import { DAILY_LIMIT_USD } from '#src/webapp/lib/bedrock-budget-config';
-import {
-  getBedrockBudgetStatus,
-  TANCHAT_MODEL_ID,
-} from '#src/webapp/lib/bedrock-budget';
 
 const BUDGET_REQUEST_TIMEOUT_MS = 15_000;
 

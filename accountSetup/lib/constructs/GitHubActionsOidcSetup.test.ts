@@ -7,13 +7,9 @@ import { GitHubActionsOidcSetup } from './GitHubActionsOidcSetup.ts';
 describe('GitHubActionsOidcSetup', () => {
   it('creates the GitHub OIDC provider and a repo-scoped deploy role', () => {
     const stack = new Stack();
-    const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(
-      stack,
-      'GitHubActionsOidcSetup',
-      {
-        config: githubActionsOidcConfig,
-      },
-    );
+    const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(stack, 'GitHubActionsOidcSetup', {
+      config: githubActionsOidcConfig,
+    });
 
     const template = Template.fromStack(stack);
 
@@ -33,8 +29,7 @@ describe('GitHubActionsOidcSetup', () => {
             Effect: 'Allow',
             Condition: {
               StringEquals: {
-                'token.actions.githubusercontent.com:aud':
-                  githubActionsOidcConfig.oidcAudience,
+                'token.actions.githubusercontent.com:aud': githubActionsOidcConfig.oidcAudience,
               },
               StringLike: {
                 'token.actions.githubusercontent.com:sub':

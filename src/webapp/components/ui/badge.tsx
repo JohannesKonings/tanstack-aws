@@ -1,7 +1,7 @@
-import { cn } from '#src/webapp/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 // oxlint-disable react/jsx-props-no-spreading
 import * as React from 'react';
+import { cn } from '#src/webapp/lib/utils';
 
 const badgeVariants = cva(
   'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2',
@@ -32,4 +32,4 @@ const Badge = ({ className, variant, ...props }: BadgeProps) => (
   />
 );
 
-export { Badge,  };
+export { Badge };
