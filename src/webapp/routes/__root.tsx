@@ -145,10 +145,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content:
           'TanStack Router, TanStack Query, TanStack Start, TansStack DB, AWS, CDK Deployment, Serverless, TypeScript',
       },
-      {
-        name: 'google-adsense-account',
-        content: 'ca-pub-6554177261098317',
-      },
     ],
     links: [
       {
@@ -170,11 +166,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         defer: true,
         'data-website-id': '5fc7d7d9-ab60-4cd5-9edf-9908509e5705',
         'data-domains': 'tanstack-aws-examples.com',
-      },
-      {
-        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6554177261098317',
-        async: true,
-        crossOrigin: 'anonymous',
       },
     ],
   }),
