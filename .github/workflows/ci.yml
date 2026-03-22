@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vp_check:
+    name: vp-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: '22'
+          cache: true
+
+      - name: Install
+        run: vp install
+
+      - name: Check (format, lint, types)
+        run: vp check
+
+      - name: Lint (type-aware)
+        run: vp lint --type-aware
+
+      - name: Typecheck (tsc)
+        run: vp exec tsc --noEmit
+
+      - name: Test
+        run: vp test

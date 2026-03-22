@@ -4,27 +4,29 @@
     "perf": "warn",
     "style": "warn"
   },
-  "plugins": [
-    "react"
+  "plugins": ["react"],
+  "overrides": [
+    {
+      "files": ["scripts/**/*.{ts,tsx}"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
   ],
   "rules": {
     "no-console": "error",
-    "sort-imports": [
-      "error",
-      {
-        "ignoreDeclarationSort": true,
-        "ignoreMemberSort": false,
-        "ignoreCase": true,
-        "memberSyntaxSortOrder": [
-          "none",
-          "all",
-          "multiple",
-          "single"
-        ],
-        "allowSeparatedGroups": true
-      }
-    ],
+    "func-style": "off",
+    "id-length": "off",
+    "init-declarations": "off",
+    "max-statements": "off",
+    "no-continue": "off",
+    "no-nested-ternary": "off",
+    "no-magic-numbers": "off",
+    "no-ternary": "off",
+    "sort-imports": "off",
     "sort-keys": "off",
+    "react/jsx-max-depth": "off",
+    "react/jsx-props-no-spreading": "off",
     "typescript/no-floating-promises": "error"
   }
 }
