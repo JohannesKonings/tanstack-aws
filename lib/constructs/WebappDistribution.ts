@@ -175,7 +175,6 @@ export class WebappDistribution extends Construct {
 
     this.distribution = new Distribution(this, 'Distribution', {
       additionalBehaviors: {
-        '/ads.txt': staticAssetBehavior,
         '/assets/*': staticAssetBehavior,
         '/favicon.ico': staticAssetBehavior,
         '/images/*': staticAssetBehavior,
