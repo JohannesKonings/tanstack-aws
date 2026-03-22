@@ -111,7 +111,7 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 
 ### Dev environment caveats
 
-- **Node.js 24.14.0** is required (see `.node-version`). The `vp` CLI must be installed globally: `npm install -g vite-plus`.
+- **Node.js 24.14.0** is required (see `.node-version`). The `vp` CLI must be installed via the official installer: `curl -fsSL https://vite.plus | bash` (see https://viteplus.dev/guide/).
 - **Dev server**: `vp dev --port 3000`. Many demo pages (Store, Guitars, Start server functions with in-memory data) work without AWS credentials. DB-backed pages (Todos DynamoDB, Persons) require DynamoDB, and AI chat requires Bedrock.
 - **pnpm build script warning**: `pnpm approve-builds` warning for esbuild can be safely ignored — esbuild pre-built binaries work without running its install script.
 - **Test suite**: `vp test` runs 2 test files (9 tests total, CDK constructs). A "hanging-process" warning appears after tests pass — this is benign and does not affect results.
