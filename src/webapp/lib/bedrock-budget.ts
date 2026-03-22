@@ -8,9 +8,6 @@ import { DAILY_LIMIT_USD } from './bedrock-budget-config';
 
 const BEDROCK_NAMESPACE = 'AWS/Bedrock';
 
-/** Re-export for UI; backend config lives in bedrock-budget-config.ts. */
-export { DAILY_LIMIT_USD };
-
 /** Model ID used by tanchat; same as in api.tanchat and api.bedrock-budget. */
 export const TANCHAT_MODEL_ID = 'us.amazon.nova-pro-v1:0';
 

@@ -6,11 +6,24 @@ import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
 
+const isTestMode =
+  process.env.NODE_ENV === 'test' ||
+  process.env.VITEST === 'true' ||
+  process.env.VITEST === '1' ||
+  process.env.VITEST_WORKER_ID != null;
+
 const config = defineConfig({
   build: {
     // Pin the Vite 8 modern-browser baseline explicitly so future Vite upgrades
     // do not silently change the app's browser support policy.
     target: ['chrome111', 'edge111', 'firefox114', 'safari16.4'],
+  },
+  test: {
+    server: {
+      deps: {
+        inline: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+      },
+    },
   },
   lint: {
     ignorePatterns: [
@@ -79,30 +92,32 @@ const config = defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  plugins: [
-    devtools({
-      removeDevtoolsOnBuild: true,
-    }),
-    nitro({
-      awsLambda: { streaming: true },
-      // Alias: {
-      //   'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
-      // },
-      preset: 'aws-lambda',
-    }),
-    tailwindcss(),
-    tanstackStart({
-      srcDirectory: 'src/webapp',
-      importProtection: {
-        // Always error, even in dev
-        behavior: 'error',
-      },
-    }),
-    viteReact(),
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-  ],
+  plugins: isTestMode
+    ? []
+    : [
+        devtools({
+          removeDevtoolsOnBuild: true,
+        }),
+        nitro({
+          awsLambda: { streaming: true },
+          // Alias: {
+          //   'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
+          // },
+          preset: 'aws-lambda',
+        }),
+        tailwindcss(),
+        tanstackStart({
+          srcDirectory: 'src/webapp',
+          importProtection: {
+            // Always error, even in dev
+            behavior: 'error',
+          },
+        }),
+        viteReact(),
+        babel({
+          presets: [reactCompilerPreset()],
+        }),
+      ],
 });
 
 export default config;

@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import GuitarRecommendation from '#src/webapp/components/example-GuitarRecommendation';
-import { DAILY_LIMIT_USD } from '#src/webapp/lib/bedrock-budget';
+import { DAILY_LIMIT_USD } from '#src/webapp/lib/bedrock-budget-config';
 import './tanchat.css';
 
 type RunLogEntry = {
