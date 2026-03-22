@@ -7,6 +7,11 @@ import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
 
 const config = defineConfig({
+  build: {
+    // Pin the Vite 8 modern-browser baseline explicitly so future Vite upgrades
+    // do not silently change the app's browser support policy.
+    target: ['chrome111', 'edge111', 'firefox114', 'safari16.4'],
+  },
   lint: {
     ignorePatterns: [
       'dist/**',
