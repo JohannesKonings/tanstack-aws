@@ -20,7 +20,7 @@ const appLifecycle = resolveStageLifecycle(appStage);
 // oxlint-disable-next-line no-console
 console.log(`Deploying to stage: ${appStage} in region: ${workloadRegion}`);
 
-const stack = new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
+new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
   appStage,
   env: { account: workloadAccount, region: workloadRegion },
 });

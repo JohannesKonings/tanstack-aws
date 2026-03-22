@@ -17,7 +17,8 @@ const sanitizeStage = (value: string): string =>
 const ensureStartsWithLetter = (value: string): string =>
   /^[a-z]/.test(value) ? value : `s-${value}`;
 
-const shorten = (value: string, maxLength: number): string => value.slice(0, Math.max(1, maxLength));
+const shorten = (value: string, maxLength: number): string =>
+  value.slice(0, Math.max(1, maxLength));
 
 export const isPermanentStageName = (stageName: string): boolean =>
   PERMANENT_STAGE_NAMES.includes(stageName as (typeof PERMANENT_STAGE_NAMES)[number]);
@@ -45,7 +46,9 @@ export const resolveStageName = (
   const baseStage = sanitizeStage(rawStageName ?? '') || sanitizedFallbackStage;
 
   const needsEphemeralPrefix = lifecycle === 'ephemeral' && isPermanentStageName(baseStage);
-  const prefixedStage = needsEphemeralPrefix ? `${sanitizeStage(ephemeralPrefix)}-${baseStage}` : baseStage;
+  const prefixedStage = needsEphemeralPrefix
+    ? `${sanitizeStage(ephemeralPrefix)}-${baseStage}`
+    : baseStage;
 
   return ensureStartsWithLetter(shorten(prefixedStage, maxLength));
 };

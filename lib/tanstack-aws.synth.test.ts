@@ -55,7 +55,9 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
       expect(bucket.UpdateReplacePolicy).toBe('Delete');
     }
 
-    const bucketPolicies = resources.filter((resource) => resource.Type === 'AWS::S3::BucketPolicy');
+    const bucketPolicies = resources.filter(
+      (resource) => resource.Type === 'AWS::S3::BucketPolicy',
+    );
     expect(bucketPolicies.length).toBeGreaterThan(0);
     for (const bucketPolicy of bucketPolicies) {
       expect(bucketPolicy.DeletionPolicy).toBe('Delete');
@@ -73,7 +75,9 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
       expect(bucket.UpdateReplacePolicy).toBe('Retain');
     }
 
-    const bucketPolicies = resources.filter((resource) => resource.Type === 'AWS::S3::BucketPolicy');
+    const bucketPolicies = resources.filter(
+      (resource) => resource.Type === 'AWS::S3::BucketPolicy',
+    );
     expect(bucketPolicies.length).toBeGreaterThan(0);
     for (const bucketPolicy of bucketPolicies) {
       expect(bucketPolicy.DeletionPolicy).toBeUndefined();
