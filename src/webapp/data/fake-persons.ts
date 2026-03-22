@@ -1,3 +1,6 @@
+// oxlint-disable max-statements
+// oxlint-disable func-style
+import { faker } from '@faker-js/faker';
 import type {
   AccountType,
   Address,
@@ -10,9 +13,6 @@ import type {
   Person,
   PersonWithRelations,
 } from '#src/webapp/types/person.ts';
-// oxlint-disable max-statements
-// oxlint-disable func-style
-import { faker } from '@faker-js/faker';
 
 // =============================================================================
 // Seed for reproducible data

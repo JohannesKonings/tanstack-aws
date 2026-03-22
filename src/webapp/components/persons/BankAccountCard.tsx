@@ -1,7 +1,7 @@
-import type { BankAccount } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 import { CreditCard, Landmark, Pencil, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '#src/webapp/components/ui/button';
+import type { BankAccount } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
 interface BankAccountCardProps {

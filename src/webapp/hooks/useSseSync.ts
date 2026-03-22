@@ -1,3 +1,11 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  addressesCollection,
+  bankAccountsCollection,
+  contactsCollection,
+  employmentsCollection,
+  personsCollection,
+} from '#src/webapp/db-collections/persons';
 // oxlint-disable no-ternary
 import type {
   Address,
@@ -6,14 +14,6 @@ import type {
   Employment,
   Person,
 } from '#src/webapp/types/person';
-import {
-  addressesCollection,
-  bankAccountsCollection,
-  contactsCollection,
-  employmentsCollection,
-  personsCollection,
-} from '#src/webapp/db-collections/persons';
-import { useCallback, useEffect, useRef, useState } from 'react';
 
 // =============================================================================
 // Constants

@@ -1,7 +1,7 @@
-import type { ContactInfo } from '#src/webapp/types/person';
-import { Button } from '#src/webapp/components/ui/button';
 import { CheckCircle2, Linkedin, Mail, Pencil, Phone, Star, Trash2, Twitter } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '#src/webapp/components/ui/button';
+import type { ContactInfo } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
 interface ContactInfoCardProps {

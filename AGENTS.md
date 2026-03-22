@@ -29,7 +29,7 @@ skills:
 - task: "instrumenting custom devtools events and typed event clients"
   load: "node_modules/@tanstack/devtools-event-client/skills/devtools-event-client/SKILL.md"
 - task: "working with Nitro server runtime and deployment behavior"
-  load: "node_modules/nitro/skills/nitro/SKILL.md"
+load: "node_modules/nitro/skills/nitro/SKILL.md"
 <!-- intent-skills:end -->
 
 <!--VITE PLUS START-->

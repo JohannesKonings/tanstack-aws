@@ -1,6 +1,6 @@
-import { useSseSync } from '#src/webapp/hooks/useSseSync';
 // oxlint-disable no-ternary
 import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { useSseSync } from '#src/webapp/hooks/useSseSync';
 
 // =============================================================================
 // Types

@@ -1,9 +1,9 @@
-import { Button } from '#src/webapp/components/ui/button';
-import { type Address, AddressTypeEnum } from '#src/webapp/types/person';
 import { useForm } from '@tanstack/react-form';
 // oxlint-disable no-magic-numbers
 // oxlint-disable no-ternary
 import { z } from 'zod';
+import { Button } from '#src/webapp/components/ui/button';
+import { type Address, AddressTypeEnum } from '#src/webapp/types/person';
 
 const AddressFormSchema = z.object({
   type: AddressTypeEnum,

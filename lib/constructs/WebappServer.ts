@@ -1,8 +1,8 @@
+import path from 'node:path';
 import { Duration, Tags } from 'aws-cdk-lib';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Code, Function, Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import path from 'node:path';
 import { TIMEOUT_IN_SECONDS } from './type.ts';
 
 type WebappServerProps = {

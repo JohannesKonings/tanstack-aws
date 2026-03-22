@@ -1,5 +1,5 @@
-import type { BankAccount } from '#src/webapp/types/person';
 import { X } from 'lucide-react';
+import type { BankAccount } from '#src/webapp/types/person';
 import { BankAccountForm } from './BankAccountForm.tsx';
 
 interface BankAccountFormModalProps {
