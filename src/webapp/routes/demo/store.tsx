@@ -7,31 +7,47 @@ export const Route = createFileRoute('/demo/store')({
 });
 
 function FirstName() {
-  const firstName = useStore(store, (state) => state.firstName);
+  const firstName = useStore(
+    store,
+    (state: { firstName: string; lastName: string }) => state.firstName,
+  );
   return (
     <input
       type="text"
       value={firstName}
-      onChange={(e) => store.setState((state) => ({ ...state, firstName: e.target.value }))}
+      onChange={(e) =>
+        store.setState((state: { firstName: string; lastName: string }) => ({
+          ...state,
+          firstName: e.target.value,
+        }))
+      }
       className="bg-white/10 rounded-lg px-4 py-2 outline-none border border-white/20 hover:border-white/40 focus:border-white/60 transition-colors duration-200 placeholder-white/40"
     />
   );
 }
 
 function LastName() {
-  const lastName = useStore(store, (state) => state.lastName);
+  const lastName = useStore(
+    store,
+    (state: { firstName: string; lastName: string }) => state.lastName,
+  );
   return (
     <input
       type="text"
       value={lastName}
-      onChange={(e) => store.setState((state) => ({ ...state, lastName: e.target.value }))}
+      onChange={(e) =>
+        store.setState((state: { firstName: string; lastName: string }) => ({
+          ...state,
+          lastName: e.target.value,
+        }))
+      }
       className="bg-white/10 rounded-lg px-4 py-2 outline-none border border-white/20 hover:border-white/40 focus:border-white/60 transition-colors duration-200 placeholder-white/40"
     />
   );
 }
 
 function FullName() {
-  const fName = useStore(fullName);
+  const fName = useStore(fullName, (state: string) => state);
   return <div className="bg-white/10 rounded-lg px-4 py-2 outline-none ">{fName}</div>;
 }
 
