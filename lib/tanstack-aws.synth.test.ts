@@ -1,6 +1,6 @@
+import { spawnSync } from 'node:child_process';
 import { App, Mixins, RemovalPolicies } from 'aws-cdk-lib';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
-import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../test/cdk-snapshot.ts';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
@@ -20,7 +20,19 @@ function emitDebugLog(
   data: Record<string, unknown>,
 ) {
   // #region agent log
-  fetch('http://127.0.0.1:7480/ingest/0e26e187-bdfa-4d4d-a1f4-89b326299185',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d62998'},body:JSON.stringify({sessionId:'d62998',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
+  fetch('http://127.0.0.1:7480/ingest/0e26e187-bdfa-4d4d-a1f4-89b326299185', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd62998' },
+    body: JSON.stringify({
+      sessionId: 'd62998',
+      runId,
+      hypothesisId,
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
   // #endregion
 }
 
@@ -50,19 +62,31 @@ function emitBundlingProbe(runId: 'pre-fix' | 'post-fix') {
   const esbuildViaPnpm = probeCommand('pnpm', ['exec', '--', 'esbuild', '--version']);
   const esbuildViaVp = probeCommand('vp', ['exec', '--', 'esbuild', '--version']);
 
-  emitDebugLog(runId, 'H1', 'lib/tanstack-aws.synth.test.ts:emitBundlingProbe', 'pnpm/esbuild probe results', {
-    pnpmStatus: pnpmVersion.status,
-    pnpmErrorCode: pnpmVersion.errorCode,
-    esbuildViaPnpmStatus: esbuildViaPnpm.status,
-    esbuildViaPnpmErrorCode: esbuildViaPnpm.errorCode,
-    esbuildViaVpStatus: esbuildViaVp.status,
-    esbuildViaVpErrorCode: esbuildViaVp.errorCode,
-  });
-  emitDebugLog(runId, 'H2', 'lib/tanstack-aws.synth.test.ts:emitBundlingProbe', 'pnpm/esbuild stderr probe', {
-    pnpmStderr: pnpmVersion.stderr,
-    esbuildViaPnpmStderr: esbuildViaPnpm.stderr,
-    esbuildViaVpStderr: esbuildViaVp.stderr,
-  });
+  emitDebugLog(
+    runId,
+    'H1',
+    'lib/tanstack-aws.synth.test.ts:emitBundlingProbe',
+    'pnpm/esbuild probe results',
+    {
+      pnpmStatus: pnpmVersion.status,
+      pnpmErrorCode: pnpmVersion.errorCode,
+      esbuildViaPnpmStatus: esbuildViaPnpm.status,
+      esbuildViaPnpmErrorCode: esbuildViaPnpm.errorCode,
+      esbuildViaVpStatus: esbuildViaVp.status,
+      esbuildViaVpErrorCode: esbuildViaVp.errorCode,
+    },
+  );
+  emitDebugLog(
+    runId,
+    'H2',
+    'lib/tanstack-aws.synth.test.ts:emitBundlingProbe',
+    'pnpm/esbuild stderr probe',
+    {
+      pnpmStderr: pnpmVersion.stderr,
+      esbuildViaPnpmStderr: esbuildViaPnpm.stderr,
+      esbuildViaVpStderr: esbuildViaVp.stderr,
+    },
+  );
 }
 
 const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] => {
