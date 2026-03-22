@@ -1,13 +1,13 @@
-import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
+import { AiDevtoolsPanel } from '@tanstack/react-ai-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
 // oxlint-disable func-style
 import type { QueryClient } from '@tanstack/react-query';
-import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
-import { aiDevtoolsPlugin } from '@tanstack/react-ai-devtools';
-import { TanStackDevtools } from '@tanstack/react-devtools';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 import Header from '../components/Header';
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import StoreDevtools from '../lib/demo-store-devtools';
 import appCss from '../styles.css?url';
 
@@ -195,17 +195,20 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           config={{
             position: 'bottom-right',
           }}
-          eventBusConfig={{
-            connectToServerBus: true,
-          }}
           plugins={[
             {
               name: 'Tanstack Router',
               render: <TanStackRouterDevtoolsPanel />,
             },
-            TanStackQueryDevtools,
+            {
+              name: 'Tanstack Query',
+              render: <ReactQueryDevtoolsPanel />,
+            },
             StoreDevtools,
-            aiDevtoolsPlugin(),
+            {
+              name: 'AI Devtools',
+              render: <AiDevtoolsPanel />,
+            },
           ]}
         />
         <Scripts />

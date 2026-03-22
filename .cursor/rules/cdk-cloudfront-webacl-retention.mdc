@@ -1,0 +1,35 @@
+---
+description: Preserve CloudFront WebACL associations during CDK updates in protected stages.
+globs:
+  - lib/**/*.ts
+  - bin/**/*.ts
+  - cdk.json
+  - cdk.context.json
+alwaysApply: false
+---
+
+# CloudFront WebACL Retention
+
+When changing CDK infrastructure for CloudFront distributions, preserve the existing `webAclId` for protected stages (`prod` and `main`) instead of hardcoding a value in construct props.
+
+- Resolve the current distribution WebACL from existing distribution state at deploy time.
+- Reuse that resolved value when updating the distribution configuration.
+- For `prod`/`main`, treat the existing console-managed WebACL as required external state.
+- For `prod`/`main`, always set `DistributionConfig.WebACLId` from the resolved value path.
+- Never synthesize protected-stage updates that omit `DistributionConfig.WebACLId`.
+- Use fail-fast behavior if lookup cannot provide a non-empty value.
+- Never use `AWS::NoValue` fallback for protected-stage `DistributionConfig.WebACLId`.
+- Keep behavior unchanged for non-protected stages.
+
+## Why
+
+This prevents accidental WebACL detachment during CloudFront updates. For pricing-plan protected distributions, safety takes priority over convenience: deployment must fail fast if the existing console-managed WebACL cannot be resolved.
+
+## Known Failure Mode To Avoid
+
+For protected stages, fallback logic that uses `AWS::NoValue` for `DistributionConfig.WebACLId` is unsafe and must not be used.
+
+- If lookup fails and `AWS::NoValue` is emitted, CloudFormation omits `WebACLId` from the update payload.
+- Omitting `WebACLId` is interpreted as an attempt to remove/replace the current WebACL association.
+- CloudFront pricing-plan protected distributions reject that update path with:
+  `"You can't remove or replace the web ACL for your distribution..."`.

@@ -1,5 +1,5 @@
 import type { UIMessage } from '@tanstack/ai';
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-react';
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { useStore } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
 import { ChevronRight, Send, X } from 'lucide-react';
@@ -77,7 +77,7 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
 }
 
 export default function AIAssistant() {
-  const isOpen = useStore(showAIAssistant);
+  const isOpen = useStore(showAIAssistant, (state: boolean) => state);
   const { messages, sendMessage } = useChat({
     connection: fetchServerSentEvents('/demo/api/tanchat'),
   });

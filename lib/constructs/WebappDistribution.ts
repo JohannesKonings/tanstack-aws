@@ -1,13 +1,11 @@
 // oxlint-disable max-statements
+import { Stack } from 'aws-cdk-lib';
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
-import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import {
-  Certificate,
-  DnsValidatedCertificate,
-} from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   CachePolicy,
+  CfnDistribution,
   Distribution,
   HttpVersion,
   OriginRequestPolicy,
@@ -16,9 +14,14 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { RestApiOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
-import { HostedZone } from 'aws-cdk-lib/aws-route53';
-import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
+import {
+  AwsCustomResource,
+  AwsCustomResourcePolicy,
+  PhysicalResourceId,
+} from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 
 // const cspAllowedSources = [
@@ -44,12 +47,12 @@ export class WebappDistribution extends Construct {
     const { appStage, webappServerApi, assetsBucket, originBehaviorKind } = props;
 
     const domainName = 'tanstack-aws-examples.com';
-    const isProdStage = appStage === 'prod';
-    // const isProdStage = appStage === 'main';
+    const isProd = appStage === 'prod';
+    const hasCloudFrontFreePlane = appStage === 'prod' || appStage === 'main';
 
-    // Set up domain configuration for main stage
+    // Set up domain configuration for prod stage.
     let domainConfig: { domainNames: string[]; certificate: Certificate } | undefined;
-    if (isProdStage) {
+    if (isProd) {
       const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
         domainName,
       });
@@ -189,8 +192,72 @@ export class WebappDistribution extends Construct {
       httpVersion: HttpVersion.HTTP3,
     });
 
-    // Create Route53 A record for main stage
-    if (isProdStage && domainConfig) {
+    if (hasCloudFrontFreePlane) {
+      const cfnDistribution = this.distribution.node.defaultChild as CfnDistribution;
+      const distributionLogicalId = Stack.of(this).getLogicalId(cfnDistribution);
+
+      // Preserve the existing WebACL association in protected stages so updates
+      // do not accidentally detach the pricing-plan-required WAF.
+      const existingDistributionIdLookup = new AwsCustomResource(
+        this,
+        'ExistingDistributionIdLookup',
+        {
+          onUpdate: {
+            service: 'CloudFormation',
+            action: 'describeStackResource',
+            parameters: {
+              StackName: Stack.of(this).stackName,
+              LogicalResourceId: distributionLogicalId,
+            },
+            // Keep custom resource response small and return only the
+            // distribution id needed by the next lookup.
+            outputPaths: ['StackResourceDetail.PhysicalResourceId'],
+            physicalResourceId: PhysicalResourceId.of(
+              `existing-distribution-id-${distributionLogicalId}-${Date.now().toString()}`,
+            ),
+          },
+          policy: AwsCustomResourcePolicy.fromSdkCalls({
+            resources: AwsCustomResourcePolicy.ANY_RESOURCE,
+          }),
+        },
+      );
+
+      const existingWebAclLookup = new AwsCustomResource(this, 'ExistingDistributionWebAclLookup', {
+        onUpdate: {
+          service: 'CloudFront',
+          action: 'getDistribution',
+          parameters: {
+            Id: existingDistributionIdLookup.getResponseField(
+              'StackResourceDetail.PhysicalResourceId',
+            ),
+          },
+          // Avoid "Response object is too long" by returning only WebACLId.
+          outputPaths: ['Distribution.DistributionConfig.WebACLId'],
+          physicalResourceId: PhysicalResourceId.of(
+            `existing-distribution-webacl-${distributionLogicalId}-${Date.now().toString()}`,
+          ),
+        },
+        policy: AwsCustomResourcePolicy.fromSdkCalls({
+          resources: AwsCustomResourcePolicy.ANY_RESOURCE,
+        }),
+      });
+
+      const resolvedProtectedStageWebAclId = existingWebAclLookup.getResponseField(
+        'Distribution.DistributionConfig.WebACLId',
+      );
+
+      // For pricing-plan protected stages (main/prod), the WebACL is managed externally
+      // from the AWS Console and must be preserved on every CDK update.
+      // Fail fast when lookup cannot resolve the current value: never synthesize
+      // protected-stage updates that omit DistributionConfig.WebACLId.
+      cfnDistribution.addPropertyOverride(
+        'DistributionConfig.WebACLId',
+        resolvedProtectedStageWebAclId,
+      );
+    }
+
+    // Create Route53 A record for prod stage.
+    if (isProd && domainConfig) {
       const hostedZone = HostedZone.fromLookup(this, 'HostedZoneForRecord', {
         domainName,
       });
