@@ -1,0 +1,39 @@
+name: Deploy Main Stack
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-main:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Resolve stage name
+        id: resolve-stage
+        env:
+          STAGE_SOURCE: ${{ github.ref_name }}
+        run: |
+          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle permanent)"
+          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy main stack
+        env:
+          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
+        run: vp run cdk -- deploy "TanstackAwsStack-${APP_STAGE}" --require-approval never

@@ -174,6 +174,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
+      cdk-nag:
+        specifier: ^2.37.55
+        version: 2.37.55(aws-cdk-lib@2.243.0(constructs@10.5.1))(constructs@10.5.1)
       constructs:
         specifier: ^10.5.1
         version: 10.5.1
@@ -2640,6 +2643,12 @@ packages:
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
+
+  cdk-nag@2.37.55:
+    resolution: {integrity: sha512-xcAkygwbph3pp7N0UEzJBmXUH/MIsluV7DYJSeZ/V3yCr0Y0QaRGO298WyD6mi4K+Rmnpl+EJoWUxcOblOqLKA==}
+    peerDependencies:
+      aws-cdk-lib: ^2.176.0
+      constructs: ^10.0.5
 
   chai@6.2.2:
     resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
@@ -6866,6 +6875,11 @@ snapshots:
   caniuse-lite@1.0.30001780: {}
 
   ccount@2.0.1: {}
+
+  cdk-nag@2.37.55(aws-cdk-lib@2.243.0(constructs@10.5.1))(constructs@10.5.1):
+    dependencies:
+      aws-cdk-lib: 2.243.0(constructs@10.5.1)
+      constructs: 10.5.1
 
   chai@6.2.2: {}
 

@@ -1,3 +1,5 @@
 {
-  "recommendations": ["oxc.oxc-vscode"]
+  "recommendations": [
+    "oxc.oxc-vscode"
+  ]
 }
