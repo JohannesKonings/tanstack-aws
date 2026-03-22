@@ -72,6 +72,20 @@ const config = defineConfig({
       order: 'asc',
     },
   },
+  test: {
+    environment: 'node',
+    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/.git/**',
+      '.output/**',
+      '.nitro/**',
+      '.tanstack/**',
+      '.vinxi/**',
+      'cdk.out/**',
+      'dist/**',
+    ],
+  },
   staged: { '*': 'vp check --fix' },
   resolve: {
     tsconfigPaths: true,
