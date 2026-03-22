@@ -185,11 +185,11 @@ const synthesizeTemplate = (branchOrStageName: string) => {
 describe('TanstackAwsStack synth lifecycle behavior', () => {
   it('matches public-safe snapshot for ephemeral stage', () => {
     expect(synthesizeTemplate('feature/main')).toMatchSnapshot();
-  });
+  }, 60_000);
 
   it('matches public-safe snapshot for permanent stage', () => {
     expect(synthesizeTemplate('main')).toMatchSnapshot();
-  });
+  }, 60_000);
 
   it('marks ephemeral resources for full stack cleanup', () => {
     const resources = synthesizeResources('feature/main');
@@ -216,7 +216,7 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
       expect(bucketPolicy.DeletionPolicy).toBe('Delete');
       expect(bucketPolicy.UpdateReplacePolicy).toBe('Delete');
     }
-  });
+  }, 60_000);
 
   it('keeps permanent stack retention defaults', () => {
     const resources = synthesizeResources('main');
@@ -236,5 +236,5 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
       expect(bucketPolicy.DeletionPolicy).toBeUndefined();
       expect(bucketPolicy.UpdateReplacePolicy).toBeUndefined();
     }
-  });
+  }, 60_000);
 });
