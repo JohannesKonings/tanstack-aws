@@ -1,5 +1,5 @@
-import type { Employment } from '#src/webapp/types/person';
 import { X } from 'lucide-react';
+import type { Employment } from '#src/webapp/types/person';
 import { EmploymentForm } from './EmploymentForm.tsx';
 
 interface EmploymentFormModalProps {

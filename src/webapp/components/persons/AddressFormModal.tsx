@@ -1,5 +1,5 @@
-import type { Address } from '#src/webapp/types/person';
 import { X } from 'lucide-react';
+import type { Address } from '#src/webapp/types/person';
 import { AddressForm } from './AddressForm';
 
 interface AddressFormModalProps {

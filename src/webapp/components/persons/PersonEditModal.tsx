@@ -1,5 +1,5 @@
-import type { Person } from '#src/webapp/types/person';
 import { X } from 'lucide-react';
+import type { Person } from '#src/webapp/types/person';
 import { PersonForm } from './PersonForm';
 
 interface PersonEditModalProps {

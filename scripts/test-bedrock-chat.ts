@@ -4,10 +4,10 @@
  * (us.amazon.nova-pro-v1:0) with a chat prompt like "list all guitars" to verify
  * the request to Bedrock. Runs both Converse (non-streaming) and ConverseStream.
  *
- * Usage: pnpm test:bedrock
- *        pnpm exec tsx scripts/test-bedrock-chat.ts
- *        pnpm exec tsx scripts/test-bedrock-chat.ts --stream  # streaming only
- *        pnpm exec tsx scripts/test-bedrock-chat.ts --converse # non-streaming only
+ * Usage: vp run test:bedrock
+ *        vp exec tsx scripts/test-bedrock-chat.ts
+ *        vp exec tsx scripts/test-bedrock-chat.ts --stream  # streaming only
+ *        vp exec tsx scripts/test-bedrock-chat.ts --converse # non-streaming only
  * Requires: AWS credentials and network access.
  */
 
@@ -40,9 +40,13 @@ async function runConverse() {
   const message = response.output?.message;
   const content = message?.content ?? [];
   const textBlocks = content.filter(
-    (block): block is { text: string } => 'text' in block && typeof (block as { text?: string }).text === 'string',
+    (block): block is { text: string } =>
+      'text' in block && typeof (block as { text?: string }).text === 'string',
   );
-  const replyText = textBlocks.map((b) => b.text).join('').trim();
+  const replyText = textBlocks
+    .map((b) => b.text)
+    .join('')
+    .trim();
 
   console.log('  stopReason:', response.stopReason);
   console.log('  usage:', response.usage);

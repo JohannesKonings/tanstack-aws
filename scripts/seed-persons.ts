@@ -8,12 +8,11 @@
  * Uses ElectroDB client and faker data generators.
  *
  * Usage:
- *   pnpm seed:persons
- *   pnpm seed:persons 100     # Seed 100 persons
- *   pnpm seed:persons --clear # Clear existing data first
+ *   vp run seed:persons
+ *   vp run seed:persons -- 100     # Seed 100 persons
+ *   vp run seed:persons -- --clear # Clear existing data first
  */
 
-import type { ContactInfo, Employment, PersonWithRelations } from '#src/webapp/types/person.ts';
 import { generatePersons, initFaker } from '#src/webapp/data/fake-persons.ts';
 import {
   createAddress,
@@ -24,6 +23,7 @@ import {
   deletePerson,
   getAllPersons,
 } from '#src/webapp/integrations/electrodb/personsClient.ts';
+import type { ContactInfo, Employment, PersonWithRelations } from '#src/webapp/types/person.ts';
 
 // =============================================================================
 // Configuration

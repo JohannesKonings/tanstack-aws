@@ -1,4 +1,3 @@
-import type { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
 // oxlint-disable id-length
@@ -7,6 +6,7 @@ import type { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import type { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
 import { ulid } from 'ulid';
 
 // =============================================================================

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { App } from 'aws-cdk-lib';
-import { resolveAccountSetupEnv } from '../lib/app-config.ts';
 import { AccountSetupStack } from '../lib/account-setup-stack.ts';
+import { resolveAccountSetupEnv } from '../lib/app-config.ts';
 
 const app = new App();
 const accountSetupEnv = resolveAccountSetupEnv();

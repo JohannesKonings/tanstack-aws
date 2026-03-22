@@ -1,3 +1,10 @@
+// oxlint-disable no-ternary
+// oxlint-disable no-magic-numbers
+// oxlint-disable id-length
+// oxlint-disable max-statements
+import { Briefcase, Edit2, Landmark, Mail, MapPin, Plus, Trash2, User, X } from 'lucide-react';
+import { useState } from 'react';
+import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
 import type {
   Address,
   BankAccount,
@@ -5,13 +12,6 @@ import type {
   Employment,
   Person,
 } from '#src/webapp/types/person';
-import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
-// oxlint-disable no-ternary
-// oxlint-disable no-magic-numbers
-// oxlint-disable id-length
-// oxlint-disable max-statements
-import { Briefcase, Edit2, Landmark, Mail, MapPin, Plus, Trash2, User, X } from 'lucide-react';
-import { useState } from 'react';
 import { AddressCard } from './AddressCard';
 import { AddressFormModal } from './AddressFormModal.tsx';
 import { BankAccountCard } from './BankAccountCard';

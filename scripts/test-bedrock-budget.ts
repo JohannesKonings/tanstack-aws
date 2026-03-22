@@ -4,16 +4,16 @@
  * for InputTokenCount and OutputTokenCount (namespace AWS/Bedrock, ModelId dimension)
  * for the whole current UTC day (midnight to midnight). Verifies the request in isolation.
  *
- * Usage: pnpm test:bedrock-budget
- *        pnpm exec tsx scripts/test-bedrock-budget.ts
+ * Usage: vp run test:bedrock-budget
+ *        vp exec tsx scripts/test-bedrock-budget.ts
  *
  * Requires: AWS credentials (same as app) and network access.
  */
 
 import {
   CloudWatchClient,
-  GetMetricStatisticsCommand,
   type Dimension,
+  GetMetricStatisticsCommand,
 } from '@aws-sdk/client-cloudwatch';
 
 const BEDROCK_NAMESPACE = 'AWS/Bedrock';
@@ -62,10 +62,7 @@ async function main() {
   console.log('  Response label:', inputResult.Label);
   console.log('  Datapoints count:', inputResult.Datapoints?.length ?? 0);
   if (inputResult.Datapoints?.length) {
-    const sum = inputResult.Datapoints.reduce(
-      (acc, dp) => acc + (dp.Sum ?? 0),
-      0,
-    );
+    const sum = inputResult.Datapoints.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0);
     console.log('  Sum (input tokens):', sum);
   }
   console.log('');
@@ -85,18 +82,13 @@ async function main() {
   console.log('  Response label:', outputResult.Label);
   console.log('  Datapoints count:', outputResult.Datapoints?.length ?? 0);
   if (outputResult.Datapoints?.length) {
-    const sum = outputResult.Datapoints.reduce(
-      (acc, dp) => acc + (dp.Sum ?? 0),
-      0,
-    );
+    const sum = outputResult.Datapoints.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0);
     console.log('  Sum (output tokens):', sum);
   }
   console.log('');
 
-  const inputTokens =
-    inputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
-  const outputTokens =
-    outputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
+  const inputTokens = inputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
+  const outputTokens = outputResult.Datapoints?.reduce((acc, dp) => acc + (dp.Sum ?? 0), 0) ?? 0;
 
   console.log('--- Summary ---');
   console.log('  inputTokens:', inputTokens);
