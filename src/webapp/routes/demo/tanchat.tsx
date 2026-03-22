@@ -1,5 +1,5 @@
 import type { StreamChunk, UIMessage } from '@tanstack/ai';
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-react';
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';

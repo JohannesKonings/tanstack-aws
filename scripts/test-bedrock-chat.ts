@@ -4,10 +4,10 @@
  * (us.amazon.nova-pro-v1:0) with a chat prompt like "list all guitars" to verify
  * the request to Bedrock. Runs both Converse (non-streaming) and ConverseStream.
  *
- * Usage: pnpm test:bedrock
- *        pnpm exec tsx scripts/test-bedrock-chat.ts
- *        pnpm exec tsx scripts/test-bedrock-chat.ts --stream  # streaming only
- *        pnpm exec tsx scripts/test-bedrock-chat.ts --converse # non-streaming only
+ * Usage: vp run test:bedrock
+ *        vp exec tsx scripts/test-bedrock-chat.ts
+ *        vp exec tsx scripts/test-bedrock-chat.ts --stream  # streaming only
+ *        vp exec tsx scripts/test-bedrock-chat.ts --converse # non-streaming only
  * Requires: AWS credentials and network access.
  */
 

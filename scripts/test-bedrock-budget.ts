@@ -4,16 +4,16 @@
  * for InputTokenCount and OutputTokenCount (namespace AWS/Bedrock, ModelId dimension)
  * for the whole current UTC day (midnight to midnight). Verifies the request in isolation.
  *
- * Usage: pnpm test:bedrock-budget
- *        pnpm exec tsx scripts/test-bedrock-budget.ts
+ * Usage: vp run test:bedrock-budget
+ *        vp exec tsx scripts/test-bedrock-budget.ts
  *
  * Requires: AWS credentials (same as app) and network access.
  */
 
 import {
   CloudWatchClient,
-  GetMetricStatisticsCommand,
   type Dimension,
+  GetMetricStatisticsCommand,
 } from '@aws-sdk/client-cloudwatch';
 
 const BEDROCK_NAMESPACE = 'AWS/Bedrock';

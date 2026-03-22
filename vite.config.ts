@@ -7,6 +7,69 @@ import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
 
 const config = defineConfig({
+  lint: {
+    ignorePatterns: [
+      'dist/**',
+      '.output/**',
+      '.nitro/**',
+      '.tanstack/**',
+      '.vinxi/**',
+      'cdk.out/**',
+      'src/webapp/routeTree.gen.ts',
+    ],
+    categories: {
+      correctness: 'error',
+      perf: 'warn',
+      style: 'off',
+    },
+    options: {
+      typeAware: true,
+    },
+    plugins: ['react'],
+    rules: {
+      'capitalized-comments': 'off',
+      'func-style': 'off',
+      'id-length': 'off',
+      'init-declarations': 'off',
+      'max-statements': 'off',
+      'no-console': 'off',
+      'no-magic-numbers': 'off',
+      'no-ternary': 'off',
+      'prefer-destructuring': 'off',
+      'react/jsx-max-depth': 'off',
+      'react/jsx-props-no-spreading': 'off',
+      'react/no-array-index-key': 'off',
+      'sort-imports': [
+        'error',
+        {
+          ignoreDeclarationSort: true,
+          ignoreMemberSort: false,
+          ignoreCase: true,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: true,
+        },
+      ],
+      'sort-keys': 'off',
+      'typescript/no-floating-promises': 'error',
+    },
+  },
+  fmt: {
+    ignorePatterns: [
+      '.output/**',
+      '.nitro/**',
+      '.tanstack/**',
+      '.vinxi/**',
+      'cdk.out/**',
+      'docs/PLAN-DB-PERSONS.md',
+      'src/webapp/routeTree.gen.ts',
+    ],
+    singleQuote: true,
+    experimentalSortImports: {
+      ignoreCase: true,
+      newlinesBetween: false,
+      order: 'asc',
+    },
+  },
   staged: { '*': 'vp check --fix' },
   resolve: {
     tsconfigPaths: true,

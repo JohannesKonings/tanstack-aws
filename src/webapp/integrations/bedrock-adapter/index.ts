@@ -5,10 +5,10 @@
 
 import {
   BedrockRuntimeClient,
-  ConverseCommand,
-  ConverseStreamCommand,
   type ContentBlock,
+  ConverseCommand,
   type ConverseCommandInput,
+  ConverseStreamCommand,
   type ConverseStreamCommandInput,
   type ConverseStreamOutput,
   type Message,
@@ -454,7 +454,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           usage: undefined,
         };
       }
-    } catch (streamErr) {
+    } catch {
       // Fallback: use non-streaming ConverseCommand (same API as test-bedrock-chat.ts).
       // ConverseStream requires bedrock:InvokeModelWithResponseStream; Converse only needs bedrock:InvokeModel.
       try {
