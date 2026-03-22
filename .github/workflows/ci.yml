@@ -1,11 +1,11 @@
 name: CI
 
 on:
-  push:
   pull_request:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   validate:
@@ -28,7 +28,22 @@ jobs:
         run: vp check
 
       - name: Run tests
-        run: vp test
+        run: mkdir -p test-results && vp test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+
+      - name: Publish test report
+        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
+        uses: dorny/test-reporter@v2
+        with:
+          name: Vitest
+          path: test-results/vitest.junit.xml
+          reporter: java-junit
+
+      - name: Upload test results artifact
+        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-junit-report
+          path: test-results/vitest.junit.xml
 
       - name: Build application
         run: vp build

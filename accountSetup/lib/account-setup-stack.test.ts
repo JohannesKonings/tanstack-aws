@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
 

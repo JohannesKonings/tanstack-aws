@@ -1,6 +1,6 @@
 import { App, Mixins, RemovalPolicies } from 'aws-cdk-lib';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
 import { TanstackAwsStack } from './tanstack-aws.ts';
 

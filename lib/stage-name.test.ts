@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
 
 describe('resolveStageName', () => {
