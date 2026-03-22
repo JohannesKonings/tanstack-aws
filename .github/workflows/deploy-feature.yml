@@ -1,13 +1,14 @@
 name: Deploy Feature Stack
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - prod
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 jobs:
   deploy-feature:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch != 'main' && github.event.workflow_run.head_branch != 'prod' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@v1
@@ -29,7 +32,7 @@ jobs:
       - name: Resolve stage name
         id: resolve-stage
         env:
-          STAGE_SOURCE: ${{ github.ref_name }}
+          STAGE_SOURCE: ${{ github.event.workflow_run.head_branch }}
         run: |
           STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"

@@ -1,6 +1,7 @@
 import { Stack } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
+import { snapshotSafeTemplate } from '../../../test/cdk-snapshot.ts';
 import { githubActionsOidcConfig } from '../app-config.ts';
 import { GitHubActionsOidcSetup } from './GitHubActionsOidcSetup.ts';
 
@@ -61,5 +62,6 @@ describe('GitHubActionsOidcSetup', () => {
     expect(resourcesJson).toContain('cdk-hnb659fds-lookup-role-');
     expect(resourcesJson).toContain('cdk-hnb659fds-cfn-exec-role-');
     expect(resourcesJson).not.toContain('AdministratorAccess');
+    expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 });
