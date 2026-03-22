@@ -27,7 +27,8 @@ Keep stage normalization and lifecycle behavior centralized so deploy, destroy, 
 - Treat `main` and `prod` as permanent stages; all other stages are ephemeral.
 - If a branch normalizes to a reserved permanent name, prefix it (for example `feature-main`) so it remains ephemeral.
 - In `bin/app.ts`, classify lifecycle and instantiate the stack before applying ephemeral cleanup policies.
-- For ephemeral stacks, apply cleanup at stack scope with `RemovalPolicies.of(stack).destroy()` and `Mixins.of(stack).apply(new BucketAutoDeleteObjects())`.
+- For ephemeral stages, apply cleanup at app scope with `RemovalPolicies.of(app).destroy()` and `Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects())`.
+- This mirrors `bin/app.ts`, where lifecycle is classified and cleanup mixins are applied at the app level.
 - Keep stacks (for example `lib/tanstack-aws.ts`) focused on resource definition and avoid lifecycle-control props like `appLifecycle`.
 - Destroy workflows must be idempotent: treat "stack does not exist" as successful cleanup.
 - Cleanup can run for PRs merged into `main`; fork PR cleanup should safely no-op when no matching feature stack exists.

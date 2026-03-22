@@ -14,6 +14,13 @@ describe('resolveStageName', () => {
     ).toBe('feature-this-name-is');
   });
 
+  it('keeps final stage name within maxLength after letter-prefix normalization', () => {
+    const stageName = resolveStageName('1-feature', { maxLength: 1 });
+
+    expect(stageName).toBe('s');
+    expect(stageName).toHaveLength(1);
+  });
+
   it('prefixes reserved names in ephemeral lifecycle', () => {
     expect(
       resolveStageName('main', {

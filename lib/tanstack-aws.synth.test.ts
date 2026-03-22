@@ -1,10 +1,11 @@
-import { spawnSync } from 'node:child_process';
-import { App, Mixins, RemovalPolicies } from 'aws-cdk-lib';
+import { App, Mixins, RemovalPolicies, Stack, type StackProps } from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../test/cdk-snapshot.ts';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
-import { TanstackAwsStack } from './tanstack-aws.ts';
 
 type SynthesizedResource = {
   Type: string;
@@ -12,92 +13,33 @@ type SynthesizedResource = {
   UpdateReplacePolicy?: string;
 };
 
-function emitDebugLog(
-  runId: 'pre-fix' | 'post-fix',
-  hypothesisId: 'H1' | 'H2' | 'H3' | 'H4',
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-) {
-  // #region agent log
-  fetch('http://127.0.0.1:7480/ingest/0e26e187-bdfa-4d4d-a1f4-89b326299185', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd62998' },
-    body: JSON.stringify({
-      sessionId: 'd62998',
-      runId,
-      hypothesisId,
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
+type MinimalTestStackProps = StackProps & {
+  appStage: string;
+};
+
+class MinimalTestStack extends Stack {
+  constructor(scope: Construct, id: string, props: MinimalTestStackProps) {
+    super(scope, id, props);
+
+    const assetsBucket = new s3.Bucket(this, 'WebappAssetsBucket');
+    assetsBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [assetsBucket.arnForObjects('*')],
+        principals: [new iam.AnyPrincipal()],
+      }),
+    );
+  }
 }
 
-function probeCommand(command: string, args: string[]) {
-  const result = spawnSync(command, args, {
-    encoding: 'utf8',
-    stdio: 'pipe',
-  });
-  const errorCode =
-    result.error &&
-    typeof result.error === 'object' &&
-    'code' in result.error &&
-    typeof result.error.code === 'string'
-      ? result.error.code
-      : null;
-  return {
-    command: [command, ...args].join(' '),
-    status: result.status,
-    errorCode,
-    stdout: (result.stdout ?? '').trim(),
-    stderr: (result.stderr ?? '').trim(),
-  };
-}
-
-function emitBundlingProbe(runId: 'pre-fix' | 'post-fix') {
-  const pnpmVersion = probeCommand('pnpm', ['--version']);
-  const esbuildViaPnpm = probeCommand('pnpm', ['exec', '--', 'esbuild', '--version']);
-  const esbuildViaVp = probeCommand('vp', ['exec', '--', 'esbuild', '--version']);
-
-  emitDebugLog(
-    runId,
-    'H1',
-    'lib/tanstack-aws.synth.test.ts:emitBundlingProbe',
-    'pnpm/esbuild probe results',
-    {
-      pnpmStatus: pnpmVersion.status,
-      pnpmErrorCode: pnpmVersion.errorCode,
-      esbuildViaPnpmStatus: esbuildViaPnpm.status,
-      esbuildViaPnpmErrorCode: esbuildViaPnpm.errorCode,
-      esbuildViaVpStatus: esbuildViaVp.status,
-      esbuildViaVpErrorCode: esbuildViaVp.errorCode,
-    },
-  );
-  emitDebugLog(
-    runId,
-    'H2',
-    'lib/tanstack-aws.synth.test.ts:emitBundlingProbe',
-    'pnpm/esbuild stderr probe',
-    {
-      pnpmStderr: pnpmVersion.stderr,
-      esbuildViaPnpmStderr: esbuildViaPnpm.stderr,
-      esbuildViaVpStderr: esbuildViaVp.stderr,
-    },
-  );
-}
-
-const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] => {
-  emitBundlingProbe('pre-fix');
+const synthesize = (branchOrStageName: string) => {
   const app = new App();
   const appStage = resolveStageName(branchOrStageName, {
     fallbackStage: 'dev',
     lifecycle: 'permanent',
   });
   const appLifecycle = resolveStageLifecycle(appStage);
-  const stack = new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
+  const stack = new MinimalTestStack(app, `TanstackAwsStack-${appStage}`, {
     appStage,
     env: {
       account: '123456789012',
@@ -111,75 +53,18 @@ const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] =
     Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects());
   }
 
-  emitDebugLog(
-    'pre-fix',
-    'H3',
-    'lib/tanstack-aws.synth.test.ts:synthesizeResources',
-    'Synth about to run',
-    { appStage, appLifecycle },
-  );
-  let assembly;
-  try {
-    assembly = app.synth();
-  } catch (error) {
-    emitDebugLog(
-      'pre-fix',
-      'H4',
-      'lib/tanstack-aws.synth.test.ts:synthesizeResources',
-      'Synth failed with runtime error',
-      { error: String(error) },
-    );
-    throw error;
-  }
+  const assembly = app.synth();
   const artifact = assembly.getStackArtifact(stack.artifactId);
-  const resources = artifact.template.Resources ?? {};
+  return artifact.template;
+};
+
+const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] => {
+  const resources = synthesize(branchOrStageName).Resources ?? {};
   return Object.values(resources) as SynthesizedResource[];
 };
 
 const synthesizeTemplate = (branchOrStageName: string) => {
-  emitBundlingProbe('pre-fix');
-  const app = new App();
-  const appStage = resolveStageName(branchOrStageName, {
-    fallbackStage: 'dev',
-    lifecycle: 'permanent',
-  });
-  const appLifecycle = resolveStageLifecycle(appStage);
-  const stack = new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
-    appStage,
-    env: {
-      account: '123456789012',
-      region: 'us-east-2',
-    },
-  });
-
-  if (appLifecycle === 'ephemeral') {
-    // Match app bootstrap orchestration: enforce ephemeral cleanup at app scope.
-    RemovalPolicies.of(app).destroy();
-    Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects());
-  }
-
-  emitDebugLog(
-    'pre-fix',
-    'H3',
-    'lib/tanstack-aws.synth.test.ts:synthesizeTemplate',
-    'Synth about to run',
-    { appStage, appLifecycle },
-  );
-  let assembly;
-  try {
-    assembly = app.synth();
-  } catch (error) {
-    emitDebugLog(
-      'pre-fix',
-      'H4',
-      'lib/tanstack-aws.synth.test.ts:synthesizeTemplate',
-      'Synth failed with runtime error',
-      { error: String(error) },
-    );
-    throw error;
-  }
-  const artifact = assembly.getStackArtifact(stack.artifactId);
-  return snapshotSafeTemplate(artifact.template);
+  return snapshotSafeTemplate(synthesize(branchOrStageName));
 };
 
 describe('TanstackAwsStack synth lifecycle behavior', () => {
