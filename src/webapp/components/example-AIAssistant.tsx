@@ -1,13 +1,10 @@
 import type { UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
-import { useStore } from '@tanstack/react-store';
-import { Store } from '@tanstack/store';
-import { ChevronRight, Send, X } from 'lucide-react';
+import { Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
+import { showAIAssistant } from './ai-assistant-store';
 import GuitarRecommendation from './example-GuitarRecommendation';
-
-export const showAIAssistant = new Store(false);
 
 function Messages({ messages }: { messages: Array<UIMessage> }) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -76,87 +73,70 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
   );
 }
 
-export default function AIAssistant() {
-  const isOpen = useStore(showAIAssistant, (state: boolean) => state);
+export default function AIAssistantPanel() {
   const { messages, sendMessage } = useChat({
     connection: fetchServerSentEvents('/demo/api/tanchat'),
   });
   const [input, setInput] = useState('');
 
   return (
-    <div className="relative z-50">
-      <button
-        onClick={() => showAIAssistant.setState((state) => !state)}
-        className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 text-white hover:opacity-90 transition-opacity"
-      >
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center text-xs font-medium">
-            AI
-          </div>
-          <span className="font-medium">AI Assistant</span>
-        </div>
-        <ChevronRight className="w-4 h-4" />
-      </button>
+    <div className="absolute bottom-0 left-full ml-2 w-[700px] h-[600px] bg-gray-900 rounded-lg shadow-xl border border-orange-500/20 flex flex-col">
+      <div className="flex items-center justify-between p-3 border-b border-orange-500/20">
+        <h3 className="font-semibold text-white">AI Assistant</h3>
+        <button
+          onClick={() => showAIAssistant.setState(() => false)}
+          className="text-gray-400 hover:text-white transition-colors"
+          aria-label="Close AI assistant"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
 
-      {isOpen && (
-        <div className="absolute bottom-0 left-full ml-2 w-[700px] h-[600px] bg-gray-900 rounded-lg shadow-xl border border-orange-500/20 flex flex-col">
-          <div className="flex items-center justify-between p-3 border-b border-orange-500/20">
-            <h3 className="font-semibold text-white">AI Assistant</h3>
-            <button
-              onClick={() => showAIAssistant.setState((state) => !state)}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+      <Messages messages={messages} />
 
-          <Messages messages={messages} />
-
-          <div className="p-3 border-t border-orange-500/20">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (input.trim()) {
-                  sendMessage(input.trim());
-                  setInput('');
+      <div className="p-3 border-t border-orange-500/20">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (input.trim()) {
+              sendMessage(input.trim());
+              setInput('');
+            }
+          }}
+        >
+          <div className="relative">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="w-full rounded-lg border border-orange-500/20 bg-gray-800/50 pl-3 pr-10 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent resize-none overflow-hidden"
+              rows={1}
+              style={{ minHeight: '36px', maxHeight: '120px' }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim()) {
+                    sendMessage(input.trim());
+                    setInput('');
+                  }
                 }
               }}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
             >
-              <div className="relative">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
-                  className="w-full rounded-lg border border-orange-500/20 bg-gray-800/50 pl-3 pr-10 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent resize-none overflow-hidden"
-                  rows={1}
-                  style={{ minHeight: '36px', maxHeight: '120px' }}
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = Math.min(target.scrollHeight, 120) + 'px';
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      if (input.trim()) {
-                        sendMessage(input.trim());
-                        setInput('');
-                      }
-                    }
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
+              <Send className="w-4 h-4" />
+            </button>
           </div>
-        </div>
-      )}
+        </form>
+      </div>
     </div>
   );
 }
