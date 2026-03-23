@@ -1,0 +1,75 @@
+name: Destroy Feature Stack On Merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+concurrency:
+  group: destroy-feature-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  destroy-feature:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Resolve stage name
+        id: resolve-stage
+        env:
+          STAGE_SOURCE: ${{ github.event.pull_request.head.ref }}
+        run: |
+          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
+          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-2' }}
+
+      - name: Destroy ephemeral stack
+        env:
+          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
+        run: |
+          STACK_NAME="TanstackAwsStack-${APP_STAGE}"
+          echo "Destroying stack: ${STACK_NAME}"
+
+          set +e
+          DESTROY_OUTPUT="$(vp run cdk -- destroy "${STACK_NAME}" --force 2>&1)"
+          DESTROY_EXIT_CODE=$?
+          set -e
+
+          echo "${DESTROY_OUTPUT}"
+
+          if [ "${DESTROY_EXIT_CODE}" -eq 0 ]; then
+            exit 0
+          fi
+
+          case "${DESTROY_OUTPUT}" in
+            *"No stacks match the name"*|*"does not exist"*)
+              echo "Stack already missing, continuing: ${STACK_NAME}"
+              exit 0
+              ;;
+          esac
+
+          echo "Failed to destroy stack: ${STACK_NAME}"
+          exit "${DESTROY_EXIT_CODE}"

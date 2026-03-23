@@ -1,0 +1,39 @@
+---
+description: CDK stage lifecycle and deploy workflow invariants.
+globs:
+  - .github/workflows/*.yml
+  - bin/**/*.ts
+  - lib/**/*.ts
+  - scripts/**/*.ts
+  - cdk.json
+  - cdk.context.json
+alwaysApply: false
+---
+
+# CDK Stage Lifecycle Contract
+
+Keep stage normalization and lifecycle behavior centralized so deploy, destroy, and promotion flows are deterministic.
+
+- Normalize stage names through `lib/stage-name.ts`.
+- Resolve workflow stage values through `scripts/resolve-stage.ts`; do not duplicate slug logic in workflow YAML.
+- Workflow stage resolution contract:
+  - Pass source ref/input explicitly with `--stage "<value>"`.
+  - Write normalized output from `scripts/resolve-stage.ts` to workflow output, then set `APP_STAGE` from that output for CDK commands.
+  - Source mapping:
+    - `deploy-feature.yml`: `github.ref_name` + `--lifecycle ephemeral`
+    - `deploy-main.yml`: `github.ref_name` + `--lifecycle permanent`
+    - `deploy-prod.yml`: `github.event.inputs.stage` + `--lifecycle permanent`
+    - `destroy-feature-on-merge.yml`: `github.event.pull_request.head.ref` + `--lifecycle ephemeral`
+- Treat `main` and `prod` as permanent stages; all other stages are ephemeral.
+- If a branch normalizes to a reserved permanent name, prefix it (for example `feature-main`) so it remains ephemeral.
+- In `bin/app.ts`, classify lifecycle and instantiate the stack before applying ephemeral cleanup policies.
+- For ephemeral stages, apply cleanup at app scope with `RemovalPolicies.of(app).destroy()` and `Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects())`.
+- This mirrors `bin/app.ts`, where lifecycle is classified and cleanup mixins are applied at the app level.
+- Keep stacks (for example `lib/tanstack-aws.ts`) focused on resource definition and avoid lifecycle-control props like `appLifecycle`.
+- Destroy workflows must be idempotent: treat "stack does not exist" as successful cleanup.
+- Cleanup can run for PRs merged into `main`; fork PR cleanup should safely no-op when no matching feature stack exists.
+- Ephemeral cleanup has no resource-level exceptions: destroy all stack resources for ephemeral stages.
+
+## Why
+
+This prevents divergence between app bootstrap behavior, workflow stage resolution, and stack lifecycle policy.

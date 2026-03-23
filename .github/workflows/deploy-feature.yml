@@ -1,0 +1,43 @@
+name: Deploy Feature Stack
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+concurrency:
+  group: deploy-feature-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    uses: ./.github/workflows/_reusable-validate.yml
+    permissions:
+      contents: read
+      checks: write
+
+  deploy-feature:
+    needs: validate
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    uses: ./.github/workflows/_reusable-cdk-deploy.yml
+    with:
+      stage_source: ${{ github.event.pull_request.head.ref }}
+      lifecycle: ephemeral
+      aws_region: ${{ vars.AWS_REGION || 'us-east-2' }}
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+    permissions:
+      contents: read
+      id-token: write
+
+  skip-fork-deploy:
+    name: Skip deploy for fork PR
+    needs: validate
+    if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Explain fork behavior
+        run: echo "Skipping feature stack deploy for fork pull requests. Validation checks still run."

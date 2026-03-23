@@ -1,34 +1,19 @@
 name: CI
 
 on:
-  push:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
-permissions:
-  contents: read
+concurrency:
+  group: ci-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Run checks
-        run: vp check
-
-      - name: Run tests
-        run: vp test
-
-      - name: Build application
-        run: vp build
+    uses: ./.github/workflows/_reusable-validate.yml
+    permissions:
+      contents: read
+      checks: write

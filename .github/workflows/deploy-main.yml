@@ -1,0 +1,23 @@
+name: Deploy Main Stack
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy-main:
+    uses: ./.github/workflows/_reusable-cdk-deploy.yml
+    with:
+      stage_source: ${{ github.ref_name }}
+      lifecycle: permanent
+      aws_region: ${{ vars.AWS_REGION || 'us-east-2' }}
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+    permissions:
+      contents: read
+      id-token: write

@@ -10,6 +10,7 @@ const BATCH_WINDOW_SECONDS = 1;
 const BATCH_SIZE = 100;
 const RETRY_ATTEMPTS = 3;
 const MEMORY_SIZE_MB = 256;
+const FORCE_DOCKER_BUNDLING_IN_CI = process.env.CI === 'true';
 
 interface StreamToEventsProcessorProps {
   /** The Persons table with DynamoDB Streams enabled */
@@ -45,6 +46,7 @@ export class StreamToEventsProcessor extends Construct {
         minify: true,
         sourceMap: true,
         externalModules: ['@aws-sdk/*'],
+        forceDockerBundling: FORCE_DOCKER_BUNDLING_IN_CI,
       },
       reservedConcurrentExecutions: 10,
     });

@@ -6,6 +6,8 @@ import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
 
+const isVitest = Boolean(process.env.VITEST);
+
 const config = defineConfig({
   lint: {
     ignorePatterns: [
@@ -70,34 +72,50 @@ const config = defineConfig({
       order: 'asc',
     },
   },
+  test: {
+    environment: 'node',
+    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/.git/**',
+      '.output/**',
+      '.nitro/**',
+      '.tanstack/**',
+      '.vinxi/**',
+      'cdk.out/**',
+      'dist/**',
+    ],
+  },
   staged: { '*': 'vp check --fix' },
   resolve: {
     tsconfigPaths: true,
   },
-  plugins: [
-    devtools({
-      removeDevtoolsOnBuild: true,
-    }),
-    nitro({
-      awsLambda: { streaming: true },
-      // Alias: {
-      //   'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
-      // },
-      preset: 'aws-lambda',
-    }),
-    tailwindcss(),
-    tanstackStart({
-      srcDirectory: 'src/webapp',
-      importProtection: {
-        // Always error, even in dev
-        behavior: 'error',
-      },
-    }),
-    viteReact(),
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-  ],
+  plugins: isVitest
+    ? []
+    : [
+        devtools({
+          removeDevtoolsOnBuild: true,
+        }),
+        nitro({
+          awsLambda: { streaming: true },
+          // Alias: {
+          //   'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
+          // },
+          preset: 'aws-lambda',
+        }),
+        tailwindcss(),
+        tanstackStart({
+          srcDirectory: 'src/webapp',
+          importProtection: {
+            // Always error, even in dev
+            behavior: 'error',
+          },
+        }),
+        viteReact(),
+        babel({
+          presets: [reactCompilerPreset()],
+        }),
+      ],
 });
 
 export default config;

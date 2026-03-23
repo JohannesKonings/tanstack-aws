@@ -1,6 +1,5 @@
 {
   "oxc.configPath": "./vite.config.ts",
-  "oxc.fmt.experimental": true,
   "oxc.fmt.configPath": "./vite.config.ts",
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "[typescript]": {

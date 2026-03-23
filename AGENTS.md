@@ -1,6 +1,6 @@
 # AGENTS.md
 
-- keep the AGENTS.md up to date with the latest changes in the project
+- Keep this file concise and global. If guidance is file/domain-specific, put it in `.cursor/rules/*.mdc`.
 
 ## Cursor Cloud specific instructions
 
@@ -8,11 +8,16 @@
 
 TanStack AWS is a single TanStack Start (React SSR) application built with Vite + Nitro. It showcases TanStack libraries (Start, Router, DB, AI, Query, Store, Form, Table) with AWS services. There is no monorepo structure — one `package.json` at the root, pnpm as the package manager.
 
-## coding style
+## Global conventions
 
-### typescript
+- Use `vp` for package, build, lint, and test commands. Do not run `pnpm`, `npm`, or `yarn` directly.
+- TypeScript: do not use `any` or `as` casts to silence type errors unless unavoidable and justified.
+- Before completing substantial code changes, run `vp check` and `vp test`.
 
-- Do not use any or as casts to silence type errors, except as a last resort with clear justification.
+## Rules index
+
+- CDK lifecycle + workflow stage handling: `.cursor/rules/cdk-stage-lifecycle.mdc`
+- CloudFront/WAF retention behavior: `.cursor/rules/cdk-cloudfront-webacl-retention.mdc`
 
 <!-- intent-skills:start -->
 
@@ -37,7 +42,6 @@ load: "node_modules/nitro/skills/nitro/SKILL.md"
 # Using Vite+, the Unified Toolchain for the Web
 
 This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, but it invokes Vite through `vp dev` and `vp build`.
-Lint and format configuration is centralized in the root `vite.config.ts`; do not add standalone `.oxlintrc*` or `.oxfmtrc*` files.
 
 ## Vite+ Workflow
 
@@ -107,5 +111,5 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 ## Review Checklist for Agents
 
 - [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check`, `vp test`, and `vp build` to validate changes.
+- [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
