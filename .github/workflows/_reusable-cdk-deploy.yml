@@ -1,0 +1,65 @@
+name: Reusable CDK Deploy
+
+on:
+  workflow_call:
+    inputs:
+      stage_source:
+        required: true
+        type: string
+      lifecycle:
+        required: true
+        type: string
+      stack_prefix:
+        required: false
+        default: TanstackAwsStack
+        type: string
+    secrets:
+      aws_role_to_assume:
+        required: true
+    outputs:
+      stage:
+        description: Resolved stage name
+        value: ${{ jobs.deploy.outputs.stage }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      stage: ${{ steps.resolve-stage.outputs.stage }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Resolve stage name
+        id: resolve-stage
+        env:
+          STAGE_SOURCE: ${{ inputs.stage_source }}
+          STAGE_LIFECYCLE: ${{ inputs.lifecycle }}
+        run: |
+          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
+          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_role_to_assume }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Deploy stack
+        env:
+          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
+          STACK_PREFIX: ${{ inputs.stack_prefix }}
+        run: vp run cdk -- deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never

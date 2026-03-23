@@ -5,41 +5,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
 jobs:
   deploy-main:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/_reusable-cdk-deploy.yml
+    with:
+      stage_source: ${{ github.ref_name }}
+      lifecycle: permanent
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:
       contents: read
       id-token: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Resolve stage name
-        id: resolve-stage
-        env:
-          STAGE_SOURCE: ${{ github.ref_name }}
-        run: |
-          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle permanent)"
-          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
-
-      - name: Deploy main stack
-        env:
-          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
-        run: vp run cdk -- deploy "TanstackAwsStack-${APP_STAGE}" --require-approval never

@@ -1,49 +1,42 @@
 name: Deploy Feature Stack
 
 on:
-  workflow_run:
-    workflows: ['CI']
+  pull_request:
     types:
-      - completed
+      - opened
+      - synchronize
+      - reopened
+
+concurrency:
+  group: deploy-feature-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
+  validate:
+    uses: ./.github/workflows/_reusable-validate.yml
+    permissions:
+      contents: read
+      checks: write
+
   deploy-feature:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch != 'main' && github.event.workflow_run.head_branch != 'prod' }}
-    runs-on: ubuntu-latest
+    needs: validate
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    uses: ./.github/workflows/_reusable-cdk-deploy.yml
+    with:
+      stage_source: ${{ github.event.pull_request.head.ref }}
+      lifecycle: ephemeral
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:
       contents: read
       id-token: write
 
+  skip-fork-deploy:
+    name: Skip deploy for fork PR
+    needs: validate
+    if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Resolve stage name
-        id: resolve-stage
-        env:
-          STAGE_SOURCE: ${{ github.event.workflow_run.head_branch }}
-        run: |
-          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
-          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
-
-      - name: Deploy ephemeral stack
-        env:
-          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
-        run: vp run cdk -- deploy "TanstackAwsStack-${APP_STAGE}" --require-approval never
+      - name: Explain fork behavior
+        run: echo "Skipping feature stack deploy for fork pull requests. Validation checks still run."

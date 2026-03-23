@@ -2,48 +2,18 @@ name: CI
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
-permissions:
-  contents: read
-  checks: write
+concurrency:
+  group: ci-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Run checks
-        run: vp check
-
-      - name: Run tests
-        run: mkdir -p test-results && vp test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
-
-      - name: Publish test report
-        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
-        uses: dorny/test-reporter@v2
-        with:
-          name: Vitest
-          path: test-results/vitest.junit.xml
-          reporter: java-junit
-
-      - name: Upload test results artifact
-        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: vitest-junit-report
-          path: test-results/vitest.junit.xml
-
-      - name: Build application
-        run: vp build
+    uses: ./.github/workflows/_reusable-validate.yml
+    permissions:
+      contents: read
+      checks: write

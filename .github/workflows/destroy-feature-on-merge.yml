@@ -7,6 +7,10 @@ on:
     types:
       - closed
 
+concurrency:
+  group: destroy-feature-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   destroy-feature:
     if: ${{ github.event.pull_request.merged == true }}
@@ -17,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@v1
@@ -35,6 +39,12 @@ jobs:
         run: |
           STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
       - name: Destroy ephemeral stack
         env:

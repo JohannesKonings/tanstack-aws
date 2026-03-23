@@ -2,48 +2,26 @@ name: Deploy Prod Stack
 
 on:
   workflow_dispatch:
-    inputs:
-      stage:
-        description: Stage to deploy (defaults to prod)
-        required: false
-        default: prod
 
 jobs:
-  deploy-prod:
+  guard-main-ref:
     runs-on: ubuntu-latest
+    steps:
+      - name: Validate dispatch branch
+        if: ${{ github.ref_name != 'main' }}
+        run: |
+          echo "Production deployment must be manually dispatched from the main branch."
+          exit 1
+
+  deploy-prod:
+    needs: guard-main-ref
+    uses: ./.github/workflows/_reusable-cdk-deploy.yml
+    with:
+      stage_source: prod
+      lifecycle: permanent
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     environment: prod
     permissions:
       contents: read
       id-token: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Resolve stage name
-        id: resolve-stage
-        env:
-          STAGE_SOURCE: ${{ github.event.inputs.stage }}
-        run: |
-          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle permanent)"
-          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
-
-      - name: Deploy prod stack
-        env:
-          APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
-        run: vp run cdk -- deploy "TanstackAwsStack-${APP_STAGE}" --require-approval never
