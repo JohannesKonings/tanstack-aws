@@ -39,10 +39,12 @@ jobs:
 
       - name: Upload test results artifact
         if: always() && hashFiles('test-results/vitest.junit.xml') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vitest-junit-report
           path: test-results/vitest.junit.xml
+          retention-days: 7
+          if-no-files-found: error
 
       - name: Build application
         run: vp build

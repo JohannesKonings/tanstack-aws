@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: vp install
 
+      - name: Build
+        run: vp build
+
       - name: Resolve stage name
         id: resolve-stage
         env:
@@ -51,6 +54,11 @@ jobs:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
         run: |
           STACK_NAME="TanstackAwsStack-${APP_STAGE}"
+          if [ -d ".output/server" ] && [ -d ".output/public" ]; then
+            echo "Build artifacts found in .output/"
+          else
+            echo "Build artifacts are missing from .output/; destroy may fail during synth."
+          fi
           echo "Destroying stack: ${STACK_NAME}"
 
           set +e
