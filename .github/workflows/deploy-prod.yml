@@ -19,10 +19,10 @@ jobs:
     with:
       stage_source: prod
       lifecycle: permanent
+      github_environment: prod
       aws_region: ${{ vars.AWS_REGION || 'us-east-2' }}
     secrets:
       aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-    environment: prod
     permissions:
       contents: read
       id-token: write

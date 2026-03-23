@@ -17,6 +17,10 @@ on:
         required: false
         default: us-east-2
         type: string
+      github_environment:
+        required: false
+        default: ''
+        type: string
     secrets:
       aws_role_to_assume:
         required: true
@@ -28,6 +32,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.github_environment }}
     permissions:
       contents: read
       id-token: write
