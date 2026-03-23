@@ -49,7 +49,7 @@ jobs:
           STAGE_SOURCE: ${{ inputs.stage_source }}
           STAGE_LIFECYCLE: ${{ inputs.lifecycle }}
         run: |
-          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
+          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials

@@ -37,7 +37,7 @@ jobs:
         env:
           STAGE_SOURCE: ${{ github.event.pull_request.head.ref }}
         run: |
-          STAGE="$(vp exec tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
+          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials

@@ -33,6 +33,10 @@ class MinimalTestStack extends Stack {
 }
 
 const synthesize = (branchOrStageName: string) => {
+  return synthesizeArtifact(branchOrStageName).template;
+};
+
+const synthesizeArtifact = (branchOrStageName: string) => {
   const app = new App();
   const appStage = resolveStageName(branchOrStageName, {
     fallbackStage: 'dev',
@@ -54,13 +58,34 @@ const synthesize = (branchOrStageName: string) => {
   }
 
   const assembly = app.synth();
-  const artifact = assembly.getStackArtifact(stack.artifactId);
-  return artifact.template;
+  return assembly.getStackArtifact(stack.artifactId);
 };
 
 const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] => {
-  const resources = synthesize(branchOrStageName).Resources ?? {};
-  return Object.values(resources) as SynthesizedResource[];
+  const artifact = synthesizeArtifact(branchOrStageName);
+  const isSynthesizedResource = (value: unknown): value is SynthesizedResource => {
+    if (typeof value !== 'object' || value === null) {
+      return false;
+    }
+
+    const type = Reflect.get(value, 'Type');
+    const deletionPolicy = Reflect.get(value, 'DeletionPolicy');
+    const updateReplacePolicy = Reflect.get(value, 'UpdateReplacePolicy');
+
+    if (typeof type !== 'string') {
+      return false;
+    }
+    if (deletionPolicy !== undefined && typeof deletionPolicy !== 'string') {
+      return false;
+    }
+    if (updateReplacePolicy !== undefined && typeof updateReplacePolicy !== 'string') {
+      return false;
+    }
+
+    return true;
+  };
+
+  return Object.values(artifact.template.Resources ?? {}).filter(isSynthesizedResource);
 };
 
 const synthesizeTemplate = (branchOrStageName: string) => {
