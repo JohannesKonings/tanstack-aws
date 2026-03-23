@@ -15,9 +15,13 @@ const BOOTSTRAP_ROLE_NAMES = [
   'lookup-role',
   'cfn-exec-role',
 ] as const;
+const REGIONS = ['us-east-1', 'us-east-2'];
 
-function getBootstrapRoleArn(roleName: (typeof BOOTSTRAP_ROLE_NAMES)[number]) {
-  return `arn:${Aws.PARTITION}:iam::${Aws.ACCOUNT_ID}:role/cdk-${BOOTSTRAP_QUALIFIER}-${roleName}-${Aws.ACCOUNT_ID}-${Aws.REGION}`;
+function getBootstrapRoleArn(
+  roleName: (typeof BOOTSTRAP_ROLE_NAMES)[number],
+  region: (typeof REGIONS)[number],
+) {
+  return `arn:${Aws.PARTITION}:iam::${Aws.ACCOUNT_ID}:role/cdk-${BOOTSTRAP_QUALIFIER}-${roleName}-${Aws.ACCOUNT_ID}-${region}`;
 }
 
 type GitHubActionsOidcSetupProps = {
@@ -52,7 +56,15 @@ export class GitHubActionsOidcSetup extends Construct {
     this.deployRole.addToPolicy(
       new PolicyStatement({
         actions: ['sts:AssumeRole'],
-        resources: BOOTSTRAP_ROLE_NAMES.map((roleName) => getBootstrapRoleArn(roleName)),
+        resources: BOOTSTRAP_ROLE_NAMES.flatMap((roleName) =>
+          REGIONS.map((region) => getBootstrapRoleArn(roleName, region)),
+        ),
+      }),
+    );
+    this.deployRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['kms:ListAliases'],
+        resources: ['*'],
       }),
     );
   }

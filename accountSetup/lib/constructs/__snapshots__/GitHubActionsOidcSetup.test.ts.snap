@@ -130,10 +130,7 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
                       {
                         "Ref": "AWS::AccountId",
                       },
-                      "-",
-                      {
-                        "Ref": "AWS::Region",
-                      },
+                      "-us-east-1",
                     ],
                   ],
                 },
@@ -153,10 +150,7 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
                       {
                         "Ref": "AWS::AccountId",
                       },
-                      "-",
-                      {
-                        "Ref": "AWS::Region",
-                      },
+                      "-us-east-2",
                     ],
                   ],
                 },
@@ -176,10 +170,7 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
                       {
                         "Ref": "AWS::AccountId",
                       },
-                      "-",
-                      {
-                        "Ref": "AWS::Region",
-                      },
+                      "-us-east-1",
                     ],
                   ],
                 },
@@ -199,10 +190,7 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
                       {
                         "Ref": "AWS::AccountId",
                       },
-                      "-",
-                      {
-                        "Ref": "AWS::Region",
-                      },
+                      "-us-east-2",
                     ],
                   ],
                 },
@@ -222,14 +210,116 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
                       {
                         "Ref": "AWS::AccountId",
                       },
-                      "-",
+                      "-us-east-1",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
                       {
-                        "Ref": "AWS::Region",
+                        "Ref": "AWS::Partition",
                       },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/<cdk-bootstrap-role>-",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      "-us-east-2",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/<cdk-bootstrap-role>-",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      "-us-east-1",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/<cdk-bootstrap-role>-",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      "-us-east-2",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/<cdk-bootstrap-role>-",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      "-us-east-1",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/<cdk-bootstrap-role>-",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      "-us-east-2",
                     ],
                   ],
                 },
               ],
+            },
+            {
+              "Action": "kms:ListAliases",
+              "Effect": "Allow",
+              "Resource": "*",
             },
           ],
           "Version": "2012-10-17",
