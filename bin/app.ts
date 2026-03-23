@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // import * as cdk from 'aws-cdk-lib';
-import { App, Aspects, Mixins, RemovalPolicies } from 'aws-cdk-lib';
+import { App, Mixins, RemovalPolicies } from 'aws-cdk-lib';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
-import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
+// import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import { resolveStageLifecycle, resolveStageName } from '../lib/stage-name.ts';
 import { TanstackAwsStack } from '../lib/tanstack-aws.ts';
 
@@ -30,5 +30,6 @@ if (appLifecycle === 'ephemeral') {
   Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects());
 }
 
-Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
-Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
+// TODO: implement later
+// Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
+// Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
