@@ -71,6 +71,51 @@ export class WebappDistribution extends Construct {
         // For CloudFront the certificate must places in us-east-1
         region: 'us-east-1',
       });
+      NagSuppressions.addResourceSuppressions(
+        certificate,
+        [
+          {
+            id: 'AwsSolutions-L1',
+            reason:
+              'DnsValidatedCertificate requestor Lambda is framework-managed by aws-cdk-lib and updated through CDK upgrades.',
+          },
+          {
+            id: 'Serverless-LambdaDefaultMemorySize',
+            reason:
+              'Certificate requestor runs briefly during provisioning; framework default memory is sufficient.',
+          },
+          {
+            id: 'Serverless-LambdaDLQ',
+            reason:
+              'CloudFormation deployment events capture custom resource failures and retries for certificate provisioning.',
+          },
+          {
+            id: 'Serverless-LambdaLatestVersion',
+            reason:
+              'Certificate requestor runtime lifecycle is owned by aws-cdk-lib internals, not application code.',
+          },
+          {
+            id: 'Serverless-LambdaTracing',
+            reason:
+              'Certificate requestor executes only during deploy-time certificate orchestration; active tracing is optional.',
+          },
+          {
+            id: 'AwsSolutions-IAM4',
+            reason:
+              'Certificate requestor role uses AWSLambdaBasicExecutionRole as part of CDK-managed custom resource implementation.',
+            appliesTo: [
+              'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+            ],
+          },
+          {
+            id: 'AwsSolutions-IAM5',
+            reason:
+              'Certificate DNS validation provider requires wildcard-scoped permissions because Route53 and ACM operations are resolved dynamically.',
+            appliesTo: ['Resource::*'],
+          },
+        ],
+        true,
+      );
 
       domainConfig = {
         domainNames: [domainName],
