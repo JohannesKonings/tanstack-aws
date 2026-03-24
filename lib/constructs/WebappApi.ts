@@ -7,8 +7,9 @@ import {
   ResponseTransferMode,
 } from 'aws-cdk-lib/aws-apigateway';
 import { Function } from 'aws-cdk-lib/aws-lambda';
-import { LogGroup } from 'aws-cdk-lib/aws-logs';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib/core';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { TIMEOUT_IN_SECONDS } from './type.ts';
 
@@ -26,6 +27,7 @@ export class WebappApi extends Construct {
 
     const logGroupAccessLogs = new LogGroup(this, 'WebappApiLogGroup', {
       removalPolicy: RemovalPolicy.DESTROY,
+      retention: RetentionDays.ONE_MONTH,
     });
 
     this.webappApi = new LambdaRestApi(this, 'WebappApi', {
@@ -60,5 +62,40 @@ export class WebappApi extends Construct {
         timeout: Duration.seconds(TIMEOUT_IN_SECONDS),
       },
     });
+
+    NagSuppressions.addResourceSuppressions(
+      this.webappApi,
+      [
+        {
+          id: 'AwsSolutions-APIG2',
+          reason: 'API is a proxy; validation handled in Lambda backend.',
+        },
+        {
+          id: 'AwsSolutions-APIG3',
+          reason: 'WAF applied at CloudFront for prod/main; API Gateway behind CloudFront.',
+        },
+        {
+          id: 'AwsSolutions-APIG4',
+          reason: 'API fronted by CloudFront with IAM-signed requests; authorization at edge.',
+        },
+        {
+          id: 'AwsSolutions-COG4',
+          reason: 'API fronted by CloudFront with IAM; Cognito not used for this demo.',
+        },
+        {
+          id: 'AwsSolutions-IAM4',
+          reason: 'API Gateway CloudWatch role uses AWS managed policy per design.',
+          appliesTo: [
+            'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs',
+          ],
+        },
+        {
+          id: 'CdkNagValidationFailure',
+          reason:
+            'Serverless-APIGWStructuredLogging fails on intrinsic refs; API has structured logging configured.',
+        },
+      ],
+      true,
+    );
   }
 }

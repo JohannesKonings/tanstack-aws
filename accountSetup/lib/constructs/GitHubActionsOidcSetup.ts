@@ -5,6 +5,7 @@ import {
   Role,
   WebIdentityPrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import type { GitHubActionsOidcConfig } from '../app-config.ts';
 const BOOTSTRAP_QUALIFIER = 'hnb659fds';
@@ -66,6 +67,18 @@ export class GitHubActionsOidcSetup extends Construct {
         actions: ['kms:ListAliases'],
         resources: ['*'],
       }),
+    );
+
+    NagSuppressions.addResourceSuppressions(
+      this.deployRole,
+      [
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.',
+        },
+      ],
+      true,
     );
   }
 }

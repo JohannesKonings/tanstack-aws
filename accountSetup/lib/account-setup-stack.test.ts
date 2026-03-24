@@ -188,6 +188,17 @@ describe('WorkloadRegionAccountSetupStack', () => {
       Value: 'tanstackaws',
     });
 
+    const clusterSgEntry = Object.entries(template.findResources('AWS::EC2::SecurityGroup')).find(
+      ([, r]) =>
+        (r as { Properties?: { GroupDescription?: string } }).Properties?.GroupDescription ===
+        'Aurora cluster - Data API only, no direct connections',
+    );
+    expect(clusterSgEntry).toBeDefined();
+    expect(
+      (clusterSgEntry![1] as { Properties?: { SecurityGroupIngress?: unknown } }).Properties
+        ?.SecurityGroupIngress,
+    ).toBeUndefined();
+
     const templateJson = template.toJSON();
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraClusterArn');
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraSecretArn');

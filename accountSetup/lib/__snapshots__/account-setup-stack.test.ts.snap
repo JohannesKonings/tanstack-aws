@@ -93,6 +93,16 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRole65CF1EFE": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -122,6 +132,16 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRoleDefaultPolicyCED56BAA": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -470,6 +490,28 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
     "SharedAuroraPostgresServerlessV2ClusterAD3BDD49": {
       "DeletionPolicy": "Snapshot",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-RDS11",
+              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
+            },
+            {
+              "id": "AwsSolutions-RDS6",
+              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
+            },
+            {
+              "id": "AwsSolutions-RDS16",
+              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
+            },
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "BackupRetentionPeriod": 7,
         "CopyTagsToSnapshot": true,
@@ -507,7 +549,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "VpcSecurityGroupIds": [
           {
             "Fn::GetAtt": [
-              "SharedAuroraPostgresServerlessV2ClusterSecurityGroup8358AB90",
+              "SharedAuroraPostgresServerlessV2ClusterSecurityGroupE96170CF",
               "GroupId",
             ],
           },
@@ -517,6 +559,28 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "UpdateReplacePolicy": "Snapshot",
     },
     "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-RDS11",
+              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
+            },
+            {
+              "id": "AwsSolutions-RDS6",
+              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
+            },
+            {
+              "id": "AwsSolutions-RDS16",
+              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
+            },
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "SecretId": {
           "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb",
@@ -528,9 +592,9 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       },
       "Type": "AWS::SecretsManager::SecretTargetAttachment",
     },
-    "SharedAuroraPostgresServerlessV2ClusterSecurityGroup8358AB90": {
+    "SharedAuroraPostgresServerlessV2ClusterSecurityGroupE96170CF": {
       "Properties": {
-        "GroupDescription": "RDS security group",
+        "GroupDescription": "Aurora cluster - Data API only, no direct connections",
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -545,6 +609,28 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "Type": "AWS::EC2::SecurityGroup",
     },
     "SharedAuroraPostgresServerlessV2ClusterSubnetsFBE4330F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-RDS11",
+              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
+            },
+            {
+              "id": "AwsSolutions-RDS6",
+              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
+            },
+            {
+              "id": "AwsSolutions-RDS16",
+              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
+            },
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "DBSubnetGroupDescription": "Subnets for Cluster database",
         "SubnetIds": [
@@ -564,6 +650,28 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet1RouteTableAssociationE50448E1",
         "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet2RouteTableAssociation4CD012A8",
       ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-RDS11",
+              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
+            },
+            {
+              "id": "AwsSolutions-RDS6",
+              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
+            },
+            {
+              "id": "AwsSolutions-RDS16",
+              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
+            },
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "DBClusterIdentifier": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
@@ -577,6 +685,16 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "UpdateReplacePolicy": "Delete",
     },
     "SharedAuroraPostgresServerlessV2VpcCF03BE53": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-VPC7",
+              "reason": "VPC Flow Logs add cost; account-setup stack for shared Aurora.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "CidrBlock": "10.0.0.0/16",
         "EnableDnsHostnames": true,
@@ -703,6 +821,28 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
     "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb": {
       "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-RDS11",
+              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
+            },
+            {
+              "id": "AwsSolutions-RDS6",
+              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
+            },
+            {
+              "id": "AwsSolutions-RDS16",
+              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
+            },
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "Description": {
           "Fn::Join": [

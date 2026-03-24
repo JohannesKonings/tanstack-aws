@@ -25,6 +25,10 @@ const toProps = (event: CloudFormationCustomResourceEvent): SchemaResourceProps 
   if (!VALID_SCHEMA_NAME.test(schemaName)) {
     throw new Error(`Invalid Aurora schema name: ${schemaName}`);
   }
+  const reservedSchemaNames = new Set(['public', 'information_schema']);
+  if (reservedSchemaNames.has(schemaName.toLowerCase()) || /^pg_/i.test(schemaName)) {
+    throw new Error(`Refusing to manage reserved Aurora schema name: ${schemaName}`);
+  }
 
   return {
     clusterArn,

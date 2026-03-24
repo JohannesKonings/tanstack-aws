@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process';
-// import * as cdk from 'aws-cdk-lib';
-import { App, Mixins, RemovalPolicies, Tags } from 'aws-cdk-lib';
+import { App, Aspects, Mixins, RemovalPolicies, Tags } from 'aws-cdk-lib';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
-// import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
+import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
   APPLICATION_RESOURCE_SCOPE_TAG_VALUE,
   RESOURCE_SCOPE_TAG_KEY,
@@ -49,11 +48,10 @@ new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
   env: { account: workloadAccount, region: WORKLOAD_REGION },
 });
 
+Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
+Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
+
 if (appLifecycle === 'ephemeral') {
   RemovalPolicies.of(app).destroy();
   Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects());
 }
-
-// TODO: implement later
-// Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
-// Aspects.of(app).add(new ServerlessChecks({ verbose: true }));

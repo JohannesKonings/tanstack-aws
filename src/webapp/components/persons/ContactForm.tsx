@@ -7,6 +7,19 @@ import type { ContactInfo } from '#src/webapp/types/person';
 
 const ContactTypeEnum = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
 
+function isErrorWithMessage(err: unknown): err is { message: string } {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'message' in err &&
+    typeof (err as { message: unknown }).message === 'string'
+  );
+}
+
+function toErrorMessage(err: unknown): string {
+  return isErrorWithMessage(err) ? err.message : String(err);
+}
+
 // No .default() so input/output types match for TanStack Form validators (StandardSchema)
 const ContactFormSchema = z.object({
   type: ContactTypeEnum,
@@ -27,7 +40,10 @@ interface ContactFormProps {
 export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFormProps) => {
   const formApi = useForm({
     defaultValues: {
-      type: contact?.type ?? 'email',
+      type: (() => {
+        const result = ContactTypeEnum.safeParse(contact?.type);
+        return result.success ? result.data : 'email';
+      })(),
       value: contact?.value ?? '',
       isPrimary: contact?.isPrimary ?? false,
       isVerified: contact?.isVerified ?? false,
@@ -54,9 +70,12 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             <select
               className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
-              onChange={(event) =>
-                field.handleChange(event.target.value as ContactFormValues['type'])
-              }
+              onChange={(event) => {
+                const parsed = ContactTypeEnum.safeParse(event.target.value);
+                if (parsed.success) {
+                  field.handleChange(parsed.data);
+                }
+              }}
               onBlur={field.handleBlur}
             >
               <option value="email">Email</option>
@@ -67,11 +86,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             </select>
             {(() => {
               const [firstError] = field.state.meta.errors;
-              const msg =
-                firstError &&
-                (typeof firstError === 'string'
-                  ? firstError
-                  : ((firstError as { message?: string }).message ?? String(firstError)));
+              const msg = firstError ? toErrorMessage(firstError) : null;
               return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
             })()}
           </div>
@@ -91,11 +106,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              const msg =
-                firstError &&
-                (typeof firstError === 'string'
-                  ? firstError
-                  : ((firstError as { message?: string }).message ?? String(firstError)));
+              const msg = firstError ? toErrorMessage(firstError) : null;
               return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
             })()}
           </div>

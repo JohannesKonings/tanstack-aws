@@ -22,6 +22,7 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 // const cspAllowedSources = [
@@ -191,6 +192,26 @@ export class WebappDistribution extends Construct {
       httpVersion: HttpVersion.HTTP3,
     });
 
+    NagSuppressions.addResourceSuppressions(this.distribution, [
+      {
+        id: 'AwsSolutions-CFR1',
+        reason: 'Geo restrictions not required for demo.',
+      },
+      {
+        id: 'AwsSolutions-CFR2',
+        reason: 'main/prod use external WebACL; WAF applied at CloudFront level.',
+      },
+      {
+        id: 'AwsSolutions-CFR3',
+        reason: 'Access logging optional for demo; main/prod use external WAF.',
+      },
+      {
+        id: 'AwsSolutions-CFR4',
+        reason:
+          'Dev uses default CloudFront cert; prod uses ACM with TLS 1.2. Default cert cannot enforce minimum protocol.',
+      },
+    ]);
+
     if (hasCloudFrontFreePlane) {
       const cfnDistribution = this.distribution.node.defaultChild as CfnDistribution;
       const distributionLogicalId = Stack.of(this).getLogicalId(cfnDistribution);
@@ -220,6 +241,13 @@ export class WebappDistribution extends Construct {
           }),
         },
       );
+      NagSuppressions.addResourceSuppressions(existingDistributionIdLookup, [
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'AwsCustomResourcePolicy.ANY_RESOURCE is standard for custom resources calling arbitrary SDK APIs.',
+        },
+      ]);
 
       const existingWebAclLookup = new AwsCustomResource(this, 'ExistingDistributionWebAclLookup', {
         onUpdate: {
@@ -240,6 +268,13 @@ export class WebappDistribution extends Construct {
           resources: AwsCustomResourcePolicy.ANY_RESOURCE,
         }),
       });
+      NagSuppressions.addResourceSuppressions(existingWebAclLookup, [
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'AwsCustomResourcePolicy.ANY_RESOURCE is standard for custom resources calling arbitrary SDK APIs.',
+        },
+      ]);
 
       const resolvedProtectedStageWebAclId = existingWebAclLookup.getResponseField(
         'Distribution.DistributionConfig.WebACLId',

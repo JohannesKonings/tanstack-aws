@@ -5,6 +5,7 @@ import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Provider } from 'aws-cdk-lib/custom-resources';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 type AuroraSchemaLifecycleProps = {
@@ -50,6 +51,68 @@ export class AuroraSchemaLifecycle extends Construct {
     const provider = new Provider(this, 'Provider', {
       onEventHandler: handler,
     });
+
+    NagSuppressions.addResourceSuppressions(
+      handler,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason:
+            'Lambda uses AWS managed policies; replacing with custom policies adds operational overhead for marginal security gain.',
+        },
+        {
+          id: 'Serverless-LambdaDefaultMemorySize',
+          reason: 'Schema lifecycle runs briefly; 128MB sufficient.',
+        },
+        {
+          id: 'Serverless-LambdaDLQ',
+          reason: 'Custom resource; CDK handles provider retries.',
+        },
+        {
+          id: 'Serverless-LambdaTracing',
+          reason: 'Schema lifecycle runs infrequently; X-Ray optional.',
+        },
+      ],
+      true,
+    );
+    NagSuppressions.addResourceSuppressions(
+      provider,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason: 'CDK Provider uses AWS managed policies; cannot replace.',
+          appliesTo: [
+            'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+          ],
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'CDK Provider framework requires broad permissions for custom resource lifecycle.',
+        },
+        {
+          id: 'AwsSolutions-L1',
+          reason: 'CDK Provider runtime managed by framework.',
+        },
+        {
+          id: 'Serverless-LambdaDefaultMemorySize',
+          reason: 'CDK Provider framework default.',
+        },
+        {
+          id: 'Serverless-LambdaDLQ',
+          reason: 'CDK Provider; framework handles retries.',
+        },
+        {
+          id: 'Serverless-LambdaLatestVersion',
+          reason: 'CDK Provider runtime managed by framework.',
+        },
+        {
+          id: 'Serverless-LambdaTracing',
+          reason: 'CDK Provider; low invocation volume.',
+        },
+      ],
+      true,
+    );
 
     new CustomResource(this, 'Resource', {
       serviceToken: provider.serviceToken,

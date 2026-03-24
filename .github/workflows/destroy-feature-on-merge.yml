@@ -50,12 +50,14 @@ jobs:
           echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ steps.resolve-workload-region.outputs.workload_region }}
 
       - name: Destroy ephemeral stack
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
         run: |

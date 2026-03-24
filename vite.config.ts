@@ -4,7 +4,7 @@ import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
-import { defineConfig, type UserConfig } from 'vite-plus';
+import { defineConfig } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
 
@@ -114,6 +114,6 @@ const config = defineConfig({
           presets: [reactCompilerPreset()],
         }),
       ],
-}) as UserConfig;
+});
 
 export default config;

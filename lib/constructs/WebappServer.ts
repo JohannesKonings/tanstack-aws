@@ -3,6 +3,7 @@ import { Duration, Tags } from 'aws-cdk-lib';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Code, Function, Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { resolveAuroraSchemaName } from '../aurora-schema.ts';
 import { TIMEOUT_IN_SECONDS } from './type.ts';
@@ -89,6 +90,27 @@ export class WebappServer extends Construct {
         effect: Effect.ALLOW,
         resources: ['*'],
       }),
+    );
+
+    NagSuppressions.addResourceSuppressions(
+      this.webappServer,
+      [
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'Bedrock InvokeModel requires *; model ARNs are dynamic. CloudWatch ListMetrics/GetMetricStatistics require * per AWS API design. DynamoDB GSI uses table/index ARN patterns.',
+        },
+        {
+          id: 'AwsSolutions-IAM4',
+          reason:
+            'Lambda uses AWS managed policies; replacing with custom policies adds operational overhead for marginal security gain.',
+        },
+        {
+          id: 'Serverless-LambdaDLQ',
+          reason: 'DLQ adds cost and complexity; application has retry and error handling.',
+        },
+      ],
+      true,
     );
   }
 }

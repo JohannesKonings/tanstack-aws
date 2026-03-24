@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { App, Tags } from 'aws-cdk-lib';
+import { App, Aspects, Tags } from 'aws-cdk-lib';
+import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
   ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
   RESOURCE_SCOPE_TAG_KEY,
@@ -27,6 +28,5 @@ new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
   },
 });
 
-// TODO: implement later
-// Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
-// Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
+Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
+Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
