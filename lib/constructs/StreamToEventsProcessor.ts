@@ -82,10 +82,7 @@ export class StreamToEventsProcessor extends Construct {
           id: 'Serverless-LambdaDLQ',
           reason: 'DLQ adds cost; DynamoDB Streams has built-in retry and batch bisect.',
         },
-        {
-          id: 'Serverless-LambdaLatestVersion',
-          reason: 'NODEJS_22_X is supported; 24 adoption in progress.',
-        },
+
         {
           id: 'Serverless-LambdaTracing',
           reason: 'X-Ray optional for stream processor; cost vs value trade-off.',
