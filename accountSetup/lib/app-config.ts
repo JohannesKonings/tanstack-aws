@@ -3,7 +3,7 @@ import { z } from 'zod';
 const AWS_ACCOUNT_ID_PATTERN = /^\d{12}$/;
 const AWS_REGION_PATTERN = /^[a-z]{2}(?:-[a-z]+)+-\d$/;
 
-function requiredEnv(name: 'AWS_ACCOUNT_ID' | 'AWS_REGION') {
+function requiredEnv(name: 'AWS_ACCOUNT_ID') {
   return z.preprocess(
     (value) => value ?? '',
     z.string().trim().min(1, `Missing required environment variable: ${name}`),
@@ -17,11 +17,13 @@ export const accountSetupEnvSchema = z.object({
       .regex(AWS_ACCOUNT_ID_PATTERN, 'AWS_ACCOUNT_ID must be a 12-digit AWS account ID')
       .describe('12-digit AWS account ID, for example 123456789012'),
   ),
-  AWS_REGION: requiredEnv('AWS_REGION').pipe(
+  AWS_REGION: z.preprocess(
+    (value) => (value === undefined || value === null || value === '' ? undefined : value),
     z
       .string()
       .regex(AWS_REGION_PATTERN, 'AWS_REGION must look like an AWS region, for example us-east-2')
-      .describe('AWS region identifier, for example us-east-2 or eu-central-1'),
+      .describe('Optional AWS region identifier, for example us-east-2 or eu-central-1')
+      .optional(),
   ),
 });
 
@@ -46,7 +48,7 @@ export function resolveAccountSetupEnv(
 ): AccountSetupEnv {
   const envWithFallbacks = {
     AWS_ACCOUNT_ID: env.AWS_ACCOUNT_ID ?? env.CDK_DEFAULT_ACCOUNT,
-    AWS_REGION: env.AWS_REGION ?? env.CDK_DEFAULT_REGION ?? env.AWS_DEFAULT_REGION,
+    AWS_REGION: env.AWS_REGION ?? env.CDK_DEFAULT_REGION ?? env.AWS_DEFAULT_REGION ?? undefined,
   };
 
   const parsedEnv = accountSetupEnvSchema.safeParse(envWithFallbacks);

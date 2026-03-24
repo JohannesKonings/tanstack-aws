@@ -1,5 +1,9 @@
 // oxlint-disable max-statements
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { resolveAuroraSchemaName } from '../aurora-schema.ts';
+import { resolveStageLifecycle } from '../stage-name.ts';
+import { AuroraSchemaLifecycle } from './AuroraSchemaLifecycle.ts';
 import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
 import { EventsTable } from './EventsTable.ts';
@@ -32,7 +36,34 @@ export class Webapp extends Construct {
       eventsTable: eventsTable.table,
     });
 
+    const auroraClusterArn = ssm.StringParameter.valueForStringParameter(
+      this,
+      '/tanstack-aws/shared/aurora/cluster-arn',
+    );
+    const auroraSecretArn = ssm.StringParameter.valueForStringParameter(
+      this,
+      '/tanstack-aws/shared/aurora/secret-arn',
+    );
+    const auroraDatabaseName = ssm.StringParameter.valueForStringParameter(
+      this,
+      '/tanstack-aws/shared/aurora/database-name',
+    );
+    const auroraSchema = resolveAuroraSchemaName(props.appStage);
+    const appLifecycle = resolveStageLifecycle(props.appStage);
+
+    new AuroraSchemaLifecycle(this, 'AuroraSchemaLifecycle', {
+      clusterArn: auroraClusterArn,
+      databaseName: auroraDatabaseName,
+      deleteSchemaOnDelete: appLifecycle === 'ephemeral',
+      schemaName: auroraSchema,
+      secretArn: auroraSecretArn,
+    });
+
     const webappServer = new WebappServer(this, 'WebappServer', {
+      appStage: props.appStage,
+      auroraClusterArn,
+      auroraSecretArn,
+      auroraDatabaseName,
       tableNameTodos: databaseTodos.dbTodos.tableName,
       tableNamePersons: databasePersons.dbPersons.tableName,
       tableNameEvents: eventsTable.table.tableName,

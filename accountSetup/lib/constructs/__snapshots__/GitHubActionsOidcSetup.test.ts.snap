@@ -78,6 +78,16 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRole65CF1EFE": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -107,6 +117,16 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRoleDefaultPolicyCED56BAA": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "PolicyDocument": {
           "Statement": [

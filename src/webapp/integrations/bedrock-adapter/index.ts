@@ -5,6 +5,7 @@
 
 import {
   BedrockRuntimeClient,
+  type BedrockRuntimeClientConfig,
   type ContentBlock,
   ConverseCommand,
   type ConverseCommandInput,
@@ -183,10 +184,14 @@ export class BedrockTextAdapter extends BaseTextAdapter<
 
   constructor(config: BedrockTextAdapterConfig, model: string) {
     super({}, model);
-    this.client = new BedrockRuntimeClient({
-      region: config.region ?? process.env.AWS_REGION ?? 'us-east-1',
-      ...config,
-    });
+    const { region, credentials } = config;
+    const clientConfig: BedrockRuntimeClientConfig = {
+      region: region ?? process.env.AWS_REGION ?? 'us-east-1',
+      ...(credentials != null && {
+        credentials: credentials as BedrockRuntimeClientConfig['credentials'],
+      }),
+    };
+    this.client = new BedrockRuntimeClient(clientConfig);
   }
 
   async *chatStream(options: TextOptions<Record<string, unknown>>): AsyncIterable<StreamChunk> {

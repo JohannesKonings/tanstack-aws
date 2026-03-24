@@ -3,6 +3,7 @@ import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda';
 import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 const LAMBDA_TIMEOUT_SECONDS = 30;
@@ -35,7 +36,7 @@ export class StreamToEventsProcessor extends Construct {
 
     this.processor = new NodejsFunction(this, 'Processor', {
       entry: 'src/lambda/stream-to-events.ts',
-      runtime: Runtime.NODEJS_22_X,
+      runtime: Runtime.NODEJS_24_X,
       handler: 'handler',
       environment: {
         EVENTS_TABLE: props.eventsTable.tableName,
@@ -63,6 +64,35 @@ export class StreamToEventsProcessor extends Construct {
         retryAttempts: RETRY_ATTEMPTS,
         bisectBatchOnError: true, // Split batch on error for better fault tolerance
       }),
+    );
+
+    NagSuppressions.addResourceSuppressions(
+      this.processor,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason:
+            'Lambda uses AWS managed policies; replacing with custom policies adds operational overhead for marginal security gain.',
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason: 'DynamoDB stream and grants use table/index ARN patterns; scoping not practical.',
+        },
+        {
+          id: 'Serverless-LambdaDLQ',
+          reason: 'DLQ adds cost; DynamoDB Streams has built-in retry and batch bisect.',
+        },
+
+        {
+          id: 'Serverless-LambdaTracing',
+          reason: 'X-Ray optional for stream processor; cost vs value trade-off.',
+        },
+        {
+          id: 'Serverless-LambdaEventSourceMappingDestination',
+          reason: 'DynamoDB Streams has retry/bisect; DLQ adds operational overhead.',
+        },
+      ],
+      true,
     );
   }
 }

@@ -15,7 +15,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
     ],
@@ -26,6 +25,7 @@ const config = defineConfig({
     },
     options: {
       typeAware: true,
+      typeCheck: true,
     },
     plugins: ['react'],
     rules: {
@@ -60,7 +60,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'docs/PLAN-DB-PERSONS.md',
       'src/webapp/routeTree.gen.ts',
@@ -81,7 +80,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'dist/**',
     ],
