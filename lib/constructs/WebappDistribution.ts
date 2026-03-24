@@ -241,13 +241,18 @@ export class WebappDistribution extends Construct {
           }),
         },
       );
-      NagSuppressions.addResourceSuppressions(existingDistributionIdLookup, [
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'AwsCustomResourcePolicy.ANY_RESOURCE is standard for custom resources calling arbitrary SDK APIs.',
-        },
-      ]);
+      NagSuppressions.addResourceSuppressions(
+        existingDistributionIdLookup,
+        [
+          {
+            id: 'AwsSolutions-IAM5',
+            reason:
+              'CloudFormation describeStackResource cannot be resource-scoped because stack resource IDs are resolved dynamically at deploy.',
+            appliesTo: ['Resource::*'],
+          },
+        ],
+        true,
+      );
 
       const existingWebAclLookup = new AwsCustomResource(this, 'ExistingDistributionWebAclLookup', {
         onUpdate: {
@@ -268,13 +273,66 @@ export class WebappDistribution extends Construct {
           resources: AwsCustomResourcePolicy.ANY_RESOURCE,
         }),
       });
-      NagSuppressions.addResourceSuppressions(existingWebAclLookup, [
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'AwsCustomResourcePolicy.ANY_RESOURCE is standard for custom resources calling arbitrary SDK APIs.',
-        },
-      ]);
+      NagSuppressions.addResourceSuppressions(
+        existingWebAclLookup,
+        [
+          {
+            id: 'AwsSolutions-IAM5',
+            reason:
+              'CloudFront getDistribution must allow wildcard resources because target distribution ID is discovered dynamically at deploy.',
+            appliesTo: ['Resource::*'],
+          },
+        ],
+        true,
+      );
+
+      const protectedStageStackPath = `/${Stack.of(this).node.path}`;
+      const awsCustomResourceProviderId = `AWS${AwsCustomResource.PROVIDER_FUNCTION_UUID.replaceAll('-', '')}`;
+      NagSuppressions.addResourceSuppressionsByPath(
+        Stack.of(this),
+        `${protectedStageStackPath}/${awsCustomResourceProviderId}/Resource`,
+        [
+          {
+            id: 'AwsSolutions-L1',
+            reason:
+              'AwsCustomResource provider runtime is framework-managed by aws-cdk-lib and updated only through CDK upgrades.',
+          },
+          {
+            id: 'Serverless-LambdaDefaultMemorySize',
+            reason:
+              'Framework singleton provider handles lightweight SDK calls; default memory is acceptable for protected-stage lookups.',
+          },
+          {
+            id: 'Serverless-LambdaDLQ',
+            reason:
+              'CloudFormation tracks custom resource failures and retries; failed deployments surface in stack events.',
+          },
+          {
+            id: 'Serverless-LambdaLatestVersion',
+            reason:
+              'Provider runtime lifecycle is owned by aws-cdk-lib framework code, not this application construct.',
+          },
+          {
+            id: 'Serverless-LambdaTracing',
+            reason:
+              'Protected-stage lookup provider runs only during deployment; active tracing is not required for this control path.',
+          },
+        ],
+      );
+      NagSuppressions.addResourceSuppressionsByPath(
+        Stack.of(this),
+        `${protectedStageStackPath}/${awsCustomResourceProviderId}/ServiceRole/Resource`,
+        [
+          {
+            id: 'AwsSolutions-IAM4',
+            reason:
+              'AwsCustomResource framework provider attaches AWSLambdaBasicExecutionRole managed policy as part of CDK internals.',
+            appliesTo: [
+              'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+            ],
+          },
+        ],
+      );
 
       const resolvedProtectedStageWebAclId = existingWebAclLookup.getResponseField(
         'Distribution.DistributionConfig.WebACLId',
