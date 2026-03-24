@@ -13,10 +13,6 @@ on:
         required: false
         default: TanstackAwsStack
         type: string
-      aws_region:
-        required: false
-        default: us-east-2
-        type: string
       github_environment:
         required: false
         default: ''
@@ -64,11 +60,17 @@ jobs:
           STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve workload region
+        id: resolve-workload-region
+        run: |
+          WORKLOAD_REGION="$(node --import tsx scripts/resolve-workload-region.ts)"
+          echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.aws_role_to_assume }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ steps.resolve-workload-region.outputs.workload_region }}
 
       - name: Deploy stack
         env:

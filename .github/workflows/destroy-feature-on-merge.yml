@@ -43,11 +43,17 @@ jobs:
           STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve workload region
+        id: resolve-workload-region
+        run: |
+          WORKLOAD_REGION="$(node --import tsx scripts/resolve-workload-region.ts)"
+          echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-2' }}
+          aws-region: ${{ steps.resolve-workload-region.outputs.workload_region }}
 
       - name: Destroy ephemeral stack
         env:

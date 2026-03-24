@@ -4,7 +4,7 @@ import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
-import { defineConfig } from 'vite-plus';
+import { defineConfig, type UserConfig } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
 
@@ -15,7 +15,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
     ],
@@ -26,6 +25,7 @@ const config = defineConfig({
     },
     options: {
       typeAware: true,
+      typeCheck: true,
     },
     plugins: ['react'],
     rules: {
@@ -60,7 +60,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'docs/PLAN-DB-PERSONS.md',
       'src/webapp/routeTree.gen.ts',
@@ -81,7 +80,6 @@ const config = defineConfig({
       '.output/**',
       '.nitro/**',
       '.tanstack/**',
-      '.vinxi/**',
       'cdk.out/**',
       'dist/**',
     ],
@@ -116,6 +114,6 @@ const config = defineConfig({
           presets: [reactCompilerPreset()],
         }),
       ],
-});
+}) as UserConfig;
 
 export default config;

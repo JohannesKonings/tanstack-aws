@@ -25,7 +25,6 @@ jobs:
     with:
       stage_source: ${{ github.event.pull_request.head.ref }}
       lifecycle: ephemeral
-      aws_region: ${{ vars.AWS_REGION || 'us-east-2' }}
     secrets:
       aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:

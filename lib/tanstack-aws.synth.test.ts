@@ -1,10 +1,11 @@
-import { App, Mixins, RemovalPolicies, Stack, type StackProps } from 'aws-cdk-lib';
+import { App, Mixins, RemovalPolicies, Stack, type StackProps, Tags } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../test/cdk-snapshot.ts';
+import { APPLICATION_RESOURCE_SCOPE_TAG_VALUE, RESOURCE_SCOPE_TAG_KEY } from './resource-tags.ts';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
 
 type SynthesizedResource = {
@@ -20,6 +21,7 @@ type MinimalTestStackProps = StackProps & {
 class MinimalTestStack extends Stack {
   constructor(scope: Construct, id: string, props: MinimalTestStackProps) {
     super(scope, id, props);
+    Tags.of(this).add(RESOURCE_SCOPE_TAG_KEY, APPLICATION_RESOURCE_SCOPE_TAG_VALUE);
 
     const assetsBucket = new s3.Bucket(this, 'WebappAssetsBucket');
     assetsBucket.addToResourcePolicy(
@@ -147,4 +149,25 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
       expect(bucketPolicy.UpdateReplacePolicy).toBeUndefined();
     }
   }, 60_000);
+
+  it('applies mandatory application-wide resource tag', () => {
+    const template = synthesize('main');
+    const resources = Object.values(
+      (
+        template as {
+          Resources?: Record<string, { Type?: string; Properties?: { Tags?: unknown[] } }>;
+        }
+      ).Resources ?? {},
+    );
+
+    const bucket = resources.find((resource) => resource.Type === 'AWS::S3::Bucket');
+    expect(bucket?.Properties?.Tags).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          Key: RESOURCE_SCOPE_TAG_KEY,
+          Value: APPLICATION_RESOURCE_SCOPE_TAG_VALUE,
+        }),
+      ]),
+    );
+  });
 });

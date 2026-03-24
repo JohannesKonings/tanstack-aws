@@ -1,9 +1,14 @@
 import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
+import {
+  ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
+  RESOURCE_SCOPE_TAG_KEY,
+} from '../../lib/resource-tags.ts';
 import { snapshotSafeTemplate } from '../../test/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
+import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
 
 describe('resolveAccountSetupEnv', () => {
   it('uses AWS account and region from environment variables', () => {
@@ -51,11 +56,14 @@ describe('resolveAccountSetupEnv', () => {
   });
 
   it('throws when AWS_REGION is missing', () => {
-    expect(() =>
+    expect(
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
       }),
-    ).toThrow('Missing required environment variable: AWS_REGION');
+    ).toEqual({
+      AWS_ACCOUNT_ID: '123456789012',
+      AWS_REGION: undefined,
+    });
   });
 
   it('throws when AWS_ACCOUNT_ID is not a 12-digit account id', () => {
@@ -88,6 +96,9 @@ describe('AccountSetupStack', () => {
     });
 
     const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::EC2::VPC', 0);
+    template.resourceCountIs('AWS::RDS::DBCluster', 0);
+    template.resourceCountIs('AWS::RDS::DBInstance', 0);
 
     template.hasResourceProperties('Custom::AWSCDKOpenIdConnectProvider', {
       Url: githubActionsOidcConfig.oidcUrl,
@@ -95,6 +106,12 @@ describe('AccountSetupStack', () => {
     });
 
     template.hasResourceProperties('AWS::IAM::Role', {
+      Tags: Match.arrayWith([
+        Match.objectLike({
+          Key: RESOURCE_SCOPE_TAG_KEY,
+          Value: ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
+        }),
+      ]),
       AssumeRolePolicyDocument: {
         Statement: Match.arrayWith([
           Match.objectLike({
@@ -135,6 +152,62 @@ describe('AccountSetupStack', () => {
     expect(resourcesJson).not.toContain('AdministratorAccess');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsDeployRoleArn');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsOidcProviderArn');
+    expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
+  });
+});
+
+describe('WorkloadRegionAccountSetupStack', () => {
+  it('creates shared Aurora PostgreSQL Serverless v2 infrastructure with Data API enabled', () => {
+    const app = new App();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs('AWS::EC2::VPC', 1);
+    template.hasResourceProperties('AWS::RDS::DBCluster', {
+      Engine: 'aurora-postgresql',
+      EnableHttpEndpoint: true,
+      DeletionProtection: true,
+      BackupRetentionPeriod: 7,
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: 0.5,
+        MaxCapacity: 2,
+      },
+      DatabaseName: 'tanstackaws',
+      Tags: Match.arrayWith([
+        Match.objectLike({
+          Key: RESOURCE_SCOPE_TAG_KEY,
+          Value: ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
+        }),
+      ]),
+    });
+    template.hasResourceProperties('AWS::RDS::DBInstance', {
+      DBInstanceClass: 'db.serverless',
+      Engine: 'aurora-postgresql',
+    });
+    template.hasResourceProperties('AWS::SSM::Parameter', {
+      Name: '/tanstack-aws/shared/aurora/cluster-arn',
+      Type: 'String',
+    });
+    template.hasResourceProperties('AWS::SSM::Parameter', {
+      Name: '/tanstack-aws/shared/aurora/secret-arn',
+      Type: 'String',
+    });
+    template.hasResourceProperties('AWS::SSM::Parameter', {
+      Name: '/tanstack-aws/shared/aurora/database-name',
+      Type: 'String',
+      Value: 'tanstackaws',
+    });
+
+    const templateJson = template.toJSON();
+    expect(templateJson.Outputs).toHaveProperty('SharedAuroraClusterArn');
+    expect(templateJson.Outputs).toHaveProperty('SharedAuroraSecretArn');
+    expect(templateJson.Outputs).toHaveProperty('SharedAuroraDatabaseName');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 });

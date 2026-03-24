@@ -78,6 +78,10 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
         ],
       },
       "Type": "AWS::S3::Bucket",
@@ -218,6 +222,14 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
   "Resources": {
     "WebappAssetsBucket290E5168": {
       "DeletionPolicy": "Retain",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
     },

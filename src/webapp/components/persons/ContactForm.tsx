@@ -54,7 +54,9 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             <select
               className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
+              onChange={(event) =>
+                field.handleChange(event.target.value as ContactFormValues['type'])
+              }
               onBlur={field.handleBlur}
             >
               <option value="email">Email</option>
@@ -65,7 +67,12 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             </select>
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              const msg =
+                firstError &&
+                (typeof firstError === 'string'
+                  ? firstError
+                  : ((firstError as { message?: string }).message ?? String(firstError)));
+              return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
             })()}
           </div>
         )}
@@ -84,7 +91,12 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              const msg =
+                firstError &&
+                (typeof firstError === 'string'
+                  ? firstError
+                  : ((firstError as { message?: string }).message ?? String(firstError)));
+              return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
             })()}
           </div>
         )}
