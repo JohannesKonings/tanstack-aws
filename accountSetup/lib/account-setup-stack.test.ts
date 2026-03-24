@@ -1,10 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
-  RESOURCE_SCOPE_TAG_KEY,
-} from '../../lib/resource-tags.ts';
 import { snapshotSafeTemplate } from '../../test/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
@@ -106,12 +102,6 @@ describe('AccountSetupStack', () => {
     });
 
     template.hasResourceProperties('AWS::IAM::Role', {
-      Tags: Match.arrayWith([
-        Match.objectLike({
-          Key: RESOURCE_SCOPE_TAG_KEY,
-          Value: ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
-        }),
-      ]),
       AssumeRolePolicyDocument: {
         Statement: Match.arrayWith([
           Match.objectLike({
@@ -176,15 +166,9 @@ describe('WorkloadRegionAccountSetupStack', () => {
       BackupRetentionPeriod: 7,
       ServerlessV2ScalingConfiguration: {
         MinCapacity: 0.5,
-        MaxCapacity: 2,
+        MaxCapacity: 4,
       },
       DatabaseName: 'tanstackaws',
-      Tags: Match.arrayWith([
-        Match.objectLike({
-          Key: RESOURCE_SCOPE_TAG_KEY,
-          Value: ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
-        }),
-      ]),
     });
     template.hasResourceProperties('AWS::RDS::DBInstance', {
       DBInstanceClass: 'db.serverless',

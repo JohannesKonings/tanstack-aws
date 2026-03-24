@@ -118,12 +118,6 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
         },
         "Description": "Allows GitHub Actions from JohannesKonings/tanstack-aws to deploy CDK stacks.",
         "RoleName": "GitHubActionsCdkDeployRole",
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
-        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -447,9 +441,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     "SharedAuroraClusterArnParameterD7B51CC3": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/cluster-arn",
-        "Tags": {
-          "ResourceScope": "account-wide",
-        },
         "Type": "String",
         "Value": {
           "Fn::Join": [
@@ -472,9 +463,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     "SharedAuroraDatabaseNameParameter3F37762D": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/database-name",
-        "Tags": {
-          "ResourceScope": "account-wide",
-        },
         "Type": "String",
         "Value": "tanstackaws",
       },
@@ -512,16 +500,10 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "MasterUsername": "clusteradmin",
         "Port": 5432,
         "ServerlessV2ScalingConfiguration": {
-          "MaxCapacity": 2,
+          "MaxCapacity": 4,
           "MinCapacity": 0.5,
         },
         "StorageEncrypted": true,
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
-        ],
         "VpcSecurityGroupIds": [
           {
             "Fn::GetAtt": [
@@ -556,12 +538,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             "IpProtocol": "-1",
           },
         ],
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
-        ],
         "VpcId": {
           "Ref": "SharedAuroraPostgresServerlessV2VpcCF03BE53",
         },
@@ -577,12 +553,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           },
           {
             "Ref": "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet2Subnet2FE10DDF",
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
           },
         ],
       },
@@ -602,12 +572,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "Engine": "aurora-postgresql",
         "PromotionTier": 0,
         "PubliclyAccessible": false,
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
-        ],
       },
       "Type": "AWS::RDS::DBInstance",
       "UpdateReplacePolicy": "Delete",
@@ -623,10 +587,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             "Key": "Name",
             "Value": "WorkloadRegionAccountSetupStack/SharedAuroraPostgresServerlessV2/Vpc",
           },
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
         ],
       },
       "Type": "AWS::EC2::VPC",
@@ -637,10 +597,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           {
             "Key": "Name",
             "Value": "WorkloadRegionAccountSetupStack/SharedAuroraPostgresServerlessV2/Vpc/DatabaseSubnet1",
-          },
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
           },
         ],
         "VpcId": {
@@ -678,10 +634,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             "Key": "Name",
             "Value": "WorkloadRegionAccountSetupStack/SharedAuroraPostgresServerlessV2/Vpc/DatabaseSubnet1",
           },
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
         ],
         "VpcId": {
           "Ref": "SharedAuroraPostgresServerlessV2VpcCF03BE53",
@@ -695,10 +647,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           {
             "Key": "Name",
             "Value": "WorkloadRegionAccountSetupStack/SharedAuroraPostgresServerlessV2/Vpc/DatabaseSubnet2",
-          },
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
           },
         ],
         "VpcId": {
@@ -736,10 +684,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             "Key": "Name",
             "Value": "WorkloadRegionAccountSetupStack/SharedAuroraPostgresServerlessV2/Vpc/DatabaseSubnet2",
           },
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
         ],
         "VpcId": {
           "Ref": "SharedAuroraPostgresServerlessV2VpcCF03BE53",
@@ -750,9 +694,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     "SharedAuroraSecretArnParameter8AEC77FC": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/secret-arn",
-        "Tags": {
-          "ResourceScope": "account-wide",
-        },
         "Type": "String",
         "Value": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29",
@@ -780,12 +721,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           "PasswordLength": 30,
           "SecretStringTemplate": "{"username":"clusteradmin"}",
         },
-        "Tags": [
-          {
-            "Key": "ResourceScope",
-            "Value": "account-wide",
-          },
-        ],
       },
       "Type": "AWS::SecretsManager::Secret",
       "UpdateReplacePolicy": "Delete",
