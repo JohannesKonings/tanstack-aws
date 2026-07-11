@@ -10,14 +10,14 @@ import {
   ContactInfoEntity,
   EmploymentEntity,
   PersonEntity,
-} from '#src/webapp/integrations/electrodb/entities.ts';
+} from '#src/webapp/integrations/electrodb/entities';
 import type {
   Address,
   BankAccount,
   ContactInfo,
   Employment,
   Person,
-} from '#src/webapp/types/person.ts';
+} from '#src/webapp/types/person';
 
 // =============================================================================
 // Types for All Data Response

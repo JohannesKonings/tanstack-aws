@@ -1,4 +1,4 @@
-import type { StreamChunk, UIMessage } from '@tanstack/ai';
+import type { AGUIEvent, UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
 import { ChevronDown, ChevronRight, Send } from 'lucide-react';
@@ -361,11 +361,11 @@ function ChatPage() {
   }, [fetchBudget]);
 
   const onChunk = useCallback(
-    (chunk: StreamChunk) => {
+    (chunk: AGUIEvent) => {
       if (chunk.type === 'RUN_STARTED') {
         setRunLog((prev) => [
           ...prev,
-          { model: chunk.model ?? 'unknown', timestamp: chunk.timestamp },
+          { model: chunk.model ?? 'unknown', timestamp: chunk.timestamp ?? Date.now() },
         ]);
       } else if (chunk.type === 'RUN_FINISHED') {
         setRunLog((prev) => {

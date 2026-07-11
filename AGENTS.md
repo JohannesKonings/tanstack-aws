@@ -19,6 +19,26 @@ TanStack AWS is a single TanStack Start (React SSR) application built with Vite 
 - CDK lifecycle + workflow stage handling: `.cursor/rules/cdk-stage-lifecycle.mdc`
 - CloudFront/WAF retention behavior: `.cursor/rules/cdk-cloudfront-webacl-retention.mdc`
 
+## Agent skills
+
+Matt Pocock engineering skills live in `.agents/skills/`. Sync with `npx skills update -p` (or `vp dlx skills@latest update -p`). Restore from lockfile: `npx skills experimental_install`.
+
+- **Setup**: run `/setup-matt-pocock-skills` once after changing tracker or domain-doc layout.
+- **Code review**: prefer `/code-review` (standards + spec). Use `/review-security` only for security-focused review.
+- **Tests**: prefer `/tdd` for feature work; run `vp check` and `vp test` per global conventions below.
+
+### Issue tracker
+
+GitHub Issues on `JohannesKonings/tanstack-aws`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
+
 <!-- intent-skills:start -->
 
 # Skill mappings — when working in these areas, load the linked skill file into context.
@@ -34,7 +54,8 @@ skills:
 - task: "instrumenting custom devtools events and typed event clients"
   load: "node_modules/@tanstack/devtools-event-client/skills/devtools-event-client/SKILL.md"
 - task: "working with Nitro server runtime and deployment behavior"
-load: "node_modules/nitro/skills/nitro/SKILL.md"
+  load: "node_modules/nitro/skills/nitro/SKILL.md"
+
 <!-- intent-skills:end -->
 
 <!--VITE PLUS START-->
@@ -112,4 +133,5 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
+
 <!--VITE PLUS END-->

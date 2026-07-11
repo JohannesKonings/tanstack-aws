@@ -39,7 +39,7 @@ const getTodos = createServerFn({
 }).handler(async () => await readTodos());
 
 const addTodo = createServerFn({ method: 'POST' })
-  .inputValidator((data: string) => data)
+  .validator((data: string) => data)
   .handler(async ({ data }) => {
     const todos = await readTodos();
     todos.push({ id: todos.length + 1, name: data });

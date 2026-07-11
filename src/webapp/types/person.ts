@@ -48,7 +48,7 @@ export const AddressSchema = z.object({
   state: z.string().min(1).max(100),
   postalCode: z.string().min(1).max(20),
   country: z.string().min(1).max(100),
-  isPrimary: z.boolean().default(false),
+  isPrimary: z.boolean(),
 });
 
 export type Address = z.infer<typeof AddressSchema>;
@@ -64,7 +64,7 @@ export const BankAccountSchema = z.object({
   accountNumberLast4: z.string().length(4),
   iban: z.string().min(15).max(34).optional(),
   bic: z.string().min(8).max(11).optional(),
-  isPrimary: z.boolean().default(false),
+  isPrimary: z.boolean(),
 });
 
 export type BankAccount = z.infer<typeof BankAccountSchema>;
@@ -77,8 +77,8 @@ export const ContactInfoSchema = z.object({
   personId: z.uuid(),
   type: ContactTypeEnum,
   value: z.string().min(1).max(200),
-  isPrimary: z.boolean().default(false),
-  isVerified: z.boolean().default(false),
+  isPrimary: z.boolean(),
+  isVerified: z.boolean(),
 });
 
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;
@@ -94,9 +94,9 @@ export const EmploymentSchema = z.object({
   department: z.string().max(100).optional(),
   startDate: z.iso.datetime(),
   endDate: z.iso.datetime().nullable().optional(),
-  isCurrent: z.boolean().default(false),
+  isCurrent: z.boolean(),
   salary: z.number().positive().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: z.string().length(3),
 });
 
 export type Employment = z.infer<typeof EmploymentSchema>;

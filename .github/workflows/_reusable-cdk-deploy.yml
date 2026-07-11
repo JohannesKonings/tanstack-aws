@@ -43,10 +43,9 @@ jobs:
         uses: voidzero-dev/setup-vp@v1
         with:
           cache: true
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: vp install
+          node-version-file: package.json
+          run-install: |
+            - args: ['--frozen-lockfile']
 
       - name: Build
         run: vp build
@@ -76,4 +75,4 @@ jobs:
         env:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
           STACK_PREFIX: ${{ inputs.stack_prefix }}
-        run: vp run cdk -- deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
+        run: vp run cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
