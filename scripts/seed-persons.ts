@@ -13,7 +13,7 @@
  *   vp run seed:persons -- --clear # Clear existing data first
  */
 
-import { generatePersons, initFaker } from '#src/webapp/data/fake-persons.ts';
+import { generatePersons, initFaker } from '#src/webapp/data/fake-persons';
 import {
   createAddress,
   createBankAccount,
@@ -22,8 +22,8 @@ import {
   createPerson,
   deletePerson,
   getAllPersons,
-} from '#src/webapp/integrations/electrodb/personsClient.ts';
-import type { ContactInfo, Employment, PersonWithRelations } from '#src/webapp/types/person.ts';
+} from '#src/webapp/integrations/electrodb/personsClient';
+import type { ContactInfo, Employment, PersonWithRelations } from '#src/webapp/types/person';
 
 // =============================================================================
 // Configuration

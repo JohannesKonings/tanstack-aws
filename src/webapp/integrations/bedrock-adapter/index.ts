@@ -17,6 +17,7 @@ import {
   type ToolUseBlock,
 } from '@aws-sdk/client-bedrock-runtime';
 import type { ContentPart, ModelMessage, StreamChunk, TextOptions, Tool } from '@tanstack/ai';
+import { EventType } from '@tanstack/ai';
 import type { JSONSchema } from '@tanstack/ai';
 import { BaseTextAdapter } from '@tanstack/ai/adapters';
 import type { StructuredOutputOptions, StructuredOutputResult } from '@tanstack/ai/adapters';
@@ -195,8 +196,18 @@ export class BedrockTextAdapter extends BaseTextAdapter<
   }
 
   async *chatStream(options: TextOptions<Record<string, unknown>>): AsyncIterable<StreamChunk> {
-    const { model, messages, tools, systemPrompts, temperature, topP, maxTokens, request } =
-      options;
+    const {
+      model,
+      messages,
+      tools,
+      systemPrompts,
+      temperature,
+      topP,
+      maxTokens,
+      request,
+      threadId: optionsThreadId,
+      runId: optionsRunId,
+    } = options;
 
     const bedrockMessages = modelMessagesToBedrockMessages(messages);
     const systemBlock =
@@ -212,7 +223,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
     if (maxTokens != null) inferenceConfig.maxTokens = maxTokens;
 
     const timestamp = Date.now();
-    const runId = this.generateId();
+    const runId = optionsRunId ?? this.generateId();
+    const threadId = optionsThreadId ?? runId;
     let messageId = this.generateId();
     let hasEmittedRunStarted = false;
     let hasEmittedTextMessageStart = false;
@@ -239,10 +251,9 @@ export class BedrockTextAdapter extends BaseTextAdapter<
       const stream = response.stream as AsyncIterable<ConverseStreamOutput>;
       if (!stream) {
         yield {
-          type: 'RUN_ERROR',
-          runId,
+          type: EventType.RUN_ERROR,
+          message: 'No stream in Bedrock response',
           timestamp,
-          error: { message: 'No stream in Bedrock response' },
         };
         return;
       }
@@ -251,7 +262,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
         if (!hasEmittedRunStarted) {
           hasEmittedRunStarted = true;
           yield {
-            type: 'RUN_STARTED',
+            type: EventType.RUN_STARTED,
+            threadId,
             runId,
             model,
             timestamp,
@@ -268,9 +280,11 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           });
           toolArgsAccum[idx] = '';
           yield {
-            type: 'TOOL_CALL_START',
+            type: EventType.TOOL_CALL_START,
             toolCallId,
+            toolCallName: tu.name ?? '',
             toolName: tu.name ?? '',
+            parentMessageId: messageId,
             model,
             timestamp,
             index: idx,
@@ -283,7 +297,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             if (!hasEmittedTextMessageStart) {
               hasEmittedTextMessageStart = true;
               yield {
-                type: 'TEXT_MESSAGE_START',
+                type: EventType.TEXT_MESSAGE_START,
                 messageId,
                 model,
                 timestamp,
@@ -291,7 +305,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               };
             }
             yield {
-              type: 'TEXT_MESSAGE_CONTENT',
+              type: EventType.TEXT_MESSAGE_CONTENT,
               messageId,
               model,
               timestamp,
@@ -305,7 +319,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           const idx = event.contentBlockDelta.contentBlockIndex ?? 0;
           toolArgsAccum[idx] = (toolArgsAccum[idx] ?? '') + delta;
           yield {
-            type: 'TOOL_CALL_ARGS',
+            type: EventType.TOOL_CALL_ARGS,
             toolCallId: toolCallIds.get(idx)?.id ?? '',
             model,
             timestamp,
@@ -325,7 +339,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               input = { raw: argsStr };
             }
             yield {
-              type: 'TOOL_CALL_END',
+              type: EventType.TOOL_CALL_END,
               toolCallId: meta.id,
               toolName: meta.name,
               model,
@@ -340,7 +354,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
         if (event.messageStop) {
           if (hasEmittedTextMessageStart) {
             yield {
-              type: 'TEXT_MESSAGE_END',
+              type: EventType.TEXT_MESSAGE_END,
               messageId,
               model,
               timestamp,
@@ -365,7 +379,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           hasEmittedRunFinished = true;
           pendingRunFinished = null;
           yield {
-            type: 'RUN_FINISHED',
+            type: EventType.RUN_FINISHED,
+            threadId,
             runId,
             model,
             timestamp,
@@ -376,57 +391,46 @@ export class BedrockTextAdapter extends BaseTextAdapter<
 
         if (event.internalServerException) {
           yield {
-            type: 'RUN_ERROR',
-            runId,
+            type: EventType.RUN_ERROR,
+            message: event.internalServerException.message ?? 'Internal server error',
             model,
             timestamp,
-            error: {
-              message: event.internalServerException.message ?? 'Internal server error',
-            },
           };
         }
         if (event.modelStreamErrorException) {
           yield {
-            type: 'RUN_ERROR',
-            runId,
+            type: EventType.RUN_ERROR,
+            message:
+              event.modelStreamErrorException.originalMessage ??
+              event.modelStreamErrorException.message ??
+              'Model stream error',
             model,
             timestamp,
-            error: {
-              message:
-                event.modelStreamErrorException.originalMessage ??
-                event.modelStreamErrorException.message ??
-                'Model stream error',
-            },
           };
         }
         if (event.throttlingException) {
           yield {
-            type: 'RUN_ERROR',
-            runId,
+            type: EventType.RUN_ERROR,
+            message: event.throttlingException.message ?? 'Throttling',
+            code: 'throttling',
             model,
             timestamp,
-            error: {
-              message: event.throttlingException.message ?? 'Throttling',
-              code: 'throttling',
-            },
           };
         }
         if (event.validationException) {
           yield {
-            type: 'RUN_ERROR',
-            runId,
+            type: EventType.RUN_ERROR,
+            message: event.validationException.message ?? 'Validation error',
             model,
             timestamp,
-            error: {
-              message: event.validationException.message ?? 'Validation error',
-            },
           };
         }
       }
 
       if (pendingRunFinished && !hasEmittedRunFinished) {
         yield {
-          type: 'RUN_FINISHED',
+          type: EventType.RUN_FINISHED,
+          threadId,
           runId,
           model,
           timestamp,
@@ -449,7 +453,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
         if (!hasEmittedRunStarted) {
           hasEmittedRunStarted = true;
           yield {
-            type: 'RUN_STARTED',
+            type: EventType.RUN_STARTED,
+            threadId,
             runId,
             model,
             timestamp,
@@ -463,7 +468,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               if (!hasEmittedTextMessageStart) {
                 hasEmittedTextMessageStart = true;
                 yield {
-                  type: 'TEXT_MESSAGE_START',
+                  type: EventType.TEXT_MESSAGE_START,
                   messageId,
                   model,
                   timestamp,
@@ -471,7 +476,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
                 };
               }
               yield {
-                type: 'TEXT_MESSAGE_CONTENT',
+                type: EventType.TEXT_MESSAGE_CONTENT,
                 messageId,
                 model,
                 timestamp,
@@ -486,22 +491,24 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             const toolName = tu.name ?? '';
             const inputObj = tu.input ?? {};
             yield {
-              type: 'TOOL_CALL_START',
+              type: EventType.TOOL_CALL_START,
               toolCallId,
+              toolCallName: toolName,
               toolName,
+              parentMessageId: messageId,
               model,
               timestamp,
               index: 0,
             };
             yield {
-              type: 'TOOL_CALL_ARGS',
+              type: EventType.TOOL_CALL_ARGS,
               toolCallId,
               model,
               timestamp,
               delta: typeof inputObj === 'string' ? inputObj : JSON.stringify(inputObj),
             };
             yield {
-              type: 'TOOL_CALL_END',
+              type: EventType.TOOL_CALL_END,
               toolCallId,
               toolName,
               model,
@@ -514,7 +521,7 @@ export class BedrockTextAdapter extends BaseTextAdapter<
 
         if (hasEmittedTextMessageStart) {
           yield {
-            type: 'TEXT_MESSAGE_END',
+            type: EventType.TEXT_MESSAGE_END,
             messageId,
             model,
             timestamp,
@@ -534,7 +541,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               }
             : undefined;
         yield {
-          type: 'RUN_FINISHED',
+          type: EventType.RUN_FINISHED,
+          threadId,
           runId,
           model,
           timestamp,
@@ -542,13 +550,11 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           usage,
         };
       } catch (converseErr) {
-        const message = converseErr instanceof Error ? converseErr.message : String(converseErr);
         yield {
-          type: 'RUN_ERROR',
-          runId,
+          type: EventType.RUN_ERROR,
+          message: converseErr instanceof Error ? converseErr.message : String(converseErr),
           model,
           timestamp,
-          error: { message },
         };
       }
     }

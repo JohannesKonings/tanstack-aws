@@ -60,77 +60,77 @@ const fetchAllEmployments = createServerFn({ method: 'GET' }).handler(async () =
  * Create a new person
  */
 const createPersonFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: Person) => PersonSchema.parse(input))
+  .validator((input: Person) => PersonSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createPerson(data));
 
 /**
  * Update a person
  */
 const updatePersonFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { personId: string; updates: Partial<Person> }) => input)
+  .validator((input: { personId: string; updates: Partial<Person> }) => input)
   .handler(async ({ data }) => electrodbClient.updatePerson(data.personId, data.updates));
 
 /**
  * Delete a person
  */
 const deletePersonFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: string) => input)
+  .validator((input: string) => input)
   .handler(async ({ data: personId }) => electrodbClient.deletePerson(personId));
 
 // --- Address Server Functions ---
 
 const createAddressFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: Address) => AddressSchema.parse(input))
+  .validator((input: Address) => AddressSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createAddress(data));
 
 const updateAddressFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: Address) => AddressSchema.parse(input))
+  .validator((input: Address) => AddressSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateAddress(data));
 
 const deleteAddressFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { personId: string; addressId: string }) => input)
+  .validator((input: { personId: string; addressId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteAddress(data.personId, data.addressId));
 
 // --- BankAccount Server Functions ---
 
 const createBankAccountFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: BankAccount) => BankAccountSchema.parse(input))
+  .validator((input: BankAccount) => BankAccountSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createBankAccount(data));
 
 const updateBankAccountFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: BankAccount) => BankAccountSchema.parse(input))
+  .validator((input: BankAccount) => BankAccountSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateBankAccount(data));
 
 const deleteBankAccountFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { personId: string; bankId: string }) => input)
+  .validator((input: { personId: string; bankId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteBankAccount(data.personId, data.bankId));
 
 // --- ContactInfo Server Functions ---
 
 const createContactFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: ContactInfo) => ContactInfoSchema.parse(input))
+  .validator((input: ContactInfo) => ContactInfoSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createContact(data));
 
 const updateContactFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: ContactInfo) => ContactInfoSchema.parse(input))
+  .validator((input: ContactInfo) => ContactInfoSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateContact(data));
 
 const deleteContactFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { personId: string; contactId: string }) => input)
+  .validator((input: { personId: string; contactId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteContact(data.personId, data.contactId));
 
 // --- Employment Server Functions ---
 
 const createEmploymentFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: Employment) => EmploymentSchema.parse(input))
+  .validator((input: Employment) => EmploymentSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.createEmployment(data));
 
 const updateEmploymentFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: Employment) => EmploymentSchema.parse(input))
+  .validator((input: Employment) => EmploymentSchema.parse(input))
   .handler(async ({ data }) => electrodbClient.updateEmployment(data));
 
 const deleteEmploymentFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: { personId: string; employmentId: string }) => input)
+  .validator((input: { personId: string; employmentId: string }) => input)
   .handler(async ({ data }) => electrodbClient.deleteEmployment(data.personId, data.employmentId));
 
 // =============================================================================
@@ -144,10 +144,11 @@ const deleteEmploymentFn = createServerFn({ method: 'POST' })
  * Good for datasets < 10k rows.
  */
 export const personsCollection = createCollection(
-  queryCollectionOptions<Person>({
+  queryCollectionOptions({
     queryKey: ['persons'],
     queryFn: () => fetchPersons(),
     queryClient: getContext().queryClient,
+    schema: PersonSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       if (isFromSse()) {
@@ -192,10 +193,11 @@ export const personsCollection = createCollection(
  * Enables instant navigation between person details without network calls.
  */
 export const addressesCollection = createCollection(
-  queryCollectionOptions<Address>({
+  queryCollectionOptions({
     queryKey: ['addresses'],
     queryFn: () => fetchAllAddresses(),
     queryClient: getContext().queryClient,
+    schema: AddressSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       await Promise.all(
@@ -234,10 +236,11 @@ export const addressesCollection = createCollection(
  * Global Bank Accounts Collection
  */
 export const bankAccountsCollection = createCollection(
-  queryCollectionOptions<BankAccount>({
+  queryCollectionOptions({
     queryKey: ['bankAccounts'],
     queryFn: () => fetchAllBankAccounts(),
     queryClient: getContext().queryClient,
+    schema: BankAccountSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       if (isFromSse()) {
@@ -279,10 +282,11 @@ export const bankAccountsCollection = createCollection(
  * Global Contacts Collection
  */
 export const contactsCollection = createCollection(
-  queryCollectionOptions<ContactInfo>({
+  queryCollectionOptions({
     queryKey: ['contacts'],
     queryFn: () => fetchAllContacts(),
     queryClient: getContext().queryClient,
+    schema: ContactInfoSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       if (isFromSse()) {
@@ -324,10 +328,11 @@ export const contactsCollection = createCollection(
  * Global Employments Collection
  */
 export const employmentsCollection = createCollection(
-  queryCollectionOptions<Employment>({
+  queryCollectionOptions({
     queryKey: ['employments'],
     queryFn: () => fetchAllEmployments(),
     queryClient: getContext().queryClient,
+    schema: EmploymentSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       if (isFromSse()) {

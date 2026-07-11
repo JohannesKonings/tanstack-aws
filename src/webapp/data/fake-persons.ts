@@ -12,7 +12,7 @@ import type {
   Gender,
   Person,
   PersonWithRelations,
-} from '#src/webapp/types/person.ts';
+} from '#src/webapp/types/person';
 
 // =============================================================================
 // Seed for reproducible data

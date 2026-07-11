@@ -9,6 +9,15 @@ import { defineConfig } from 'vite-plus';
 const isVitest = Boolean(process.env.VITEST);
 
 const config = defineConfig({
+  experimental: {
+    bundledDev: true,
+  },
+  server: {
+    forwardConsole: {
+      unhandledErrors: true,
+      logLevels: ['error', 'warn'],
+    },
+  },
   lint: {
     ignorePatterns: [
       'dist/**',
@@ -85,9 +94,6 @@ const config = defineConfig({
     ],
   },
   staged: { '*': 'vp check --fix' },
-  resolve: {
-    tsconfigPaths: true,
-  },
   plugins: isVitest
     ? []
     : [

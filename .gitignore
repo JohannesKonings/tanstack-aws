@@ -14,5 +14,7 @@ count.txt
 .worktrees
 todos.json
 cdk.out
+.cdk.out*
+.oxc-inspector
 
 cdk.context.json

@@ -47,10 +47,11 @@ const api = {
 };
 
 export const todosCollection = createCollection(
-  queryCollectionOptions<Todo>({
+  queryCollectionOptions({
     queryKey: ['todos'],
     queryFn: () => api.fetchTodos(),
     queryClient: getContext().queryClient,
+    schema: todoSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       const newItems = transaction.mutations.map((mutation) => ({

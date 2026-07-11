@@ -109,7 +109,7 @@ function createAddressMutations(personId: string) {
   };
 
   const updateAddress = (addressId: string, changes: Partial<Address>) => {
-    addressesCollection.update(addressId, (draft: Address) => {
+    addressesCollection.update(addressId, (draft) => {
       Object.assign(draft, changes);
     });
   };
@@ -135,7 +135,7 @@ function createBankAccountMutations(personId: string) {
   };
 
   const updateBankAccount = (accountId: string, changes: Partial<BankAccount>) => {
-    bankAccountsCollection.update(accountId, (draft: BankAccount) => {
+    bankAccountsCollection.update(accountId, (draft) => {
       Object.assign(draft, changes);
     });
   };
@@ -161,7 +161,7 @@ function createContactMutations(personId: string) {
   };
 
   const updateContact = (contactId: string, changes: Partial<ContactInfo>) => {
-    contactsCollection.update(contactId, (draft: ContactInfo) => {
+    contactsCollection.update(contactId, (draft) => {
       Object.assign(draft, changes);
     });
   };
@@ -187,7 +187,7 @@ function createEmploymentMutations(personId: string) {
   };
 
   const updateEmployment = (employmentId: string, changes: Partial<Employment>) => {
-    employmentsCollection.update(employmentId, (draft: Employment) => {
+    employmentsCollection.update(employmentId, (draft) => {
       Object.assign(draft, changes);
     });
   };
