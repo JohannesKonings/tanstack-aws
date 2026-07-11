@@ -69,7 +69,7 @@ jobs:
           echo "Destroying stack: ${STACK_NAME}"
 
           set +e
-          DESTROY_OUTPUT="$(vp run cdk -- destroy "${STACK_NAME}" --force 2>&1)"
+          DESTROY_OUTPUT="$(vp run cdk destroy "${STACK_NAME}" --force 2>&1)"
           DESTROY_EXIT_CODE=$?
           set -e
 

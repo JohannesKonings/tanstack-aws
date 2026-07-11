@@ -75,4 +75,4 @@ jobs:
         env:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
           STACK_PREFIX: ${{ inputs.stack_prefix }}
-        run: vp run cdk -- deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
+        run: vp run cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
