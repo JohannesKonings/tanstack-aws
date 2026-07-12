@@ -1,7 +1,7 @@
 import { useLiveQuery } from '@tanstack/react-db';
 // oxlint-disable func-style
 import { todosCollection } from '#src/webapp/db-collections/todos';
-import type { Todo } from '../types/todo';
+import type { Todo } from '#src/webapp/types/todo-schema';
 
 export function useTodo() {
   const addTodo = async ({ name, status }: Omit<Todo, 'id'>) => {

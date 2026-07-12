@@ -72,9 +72,17 @@ const getInProcessBlocksApiMethods = async (): Promise<BlocksApiMethods> => {
   return apiHandler(createBlocksRequestContext());
 };
 
+const wrapRpcClient = (client: BlocksApiMethods): BlocksApiMethods => ({
+  listTodos: () => client.listTodos(),
+  createTodo: (todo) => client.createTodo(todo),
+  updateTodos: (updates) => client.updateTodos(updates),
+  deleteTodos: (ids) => client.deleteTodos(ids),
+});
+
 const getSidecarBlocksApiMethods = async (sidecarUrl: string): Promise<BlocksApiMethods> => {
   const { ApiNamespaceClient } = await import('@aws-blocks/blocks/client');
-  return ApiNamespaceClient<BlocksApiMethods>('api', { url: sidecarUrl });
+  const client = ApiNamespaceClient<BlocksApiMethods>('api', { url: sidecarUrl });
+  return wrapRpcClient(client);
 };
 
 const getBlocksApiMethods = async (): Promise<BlocksApiMethods> => {

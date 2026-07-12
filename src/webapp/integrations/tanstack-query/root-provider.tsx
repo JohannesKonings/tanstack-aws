@@ -21,7 +21,14 @@ const trpcClient = createTRPCClient<TRPCRouter>({
   ],
 });
 
-export function getContext() {
+type QueryContext = {
+  queryClient: QueryClient;
+  trpc: ReturnType<typeof createTRPCOptionsProxy<TRPCRouter>>;
+};
+
+let cachedContext: QueryContext | undefined;
+
+const createContext = (): QueryContext => {
   const queryClient = new QueryClient({
     defaultOptions: {
       dehydrate: { serializeData: superjson.serialize },
@@ -37,6 +44,15 @@ export function getContext() {
     queryClient,
     trpc: serverHelpers,
   };
+};
+
+export const resetQueryContextForTests = (): void => {
+  cachedContext = undefined;
+};
+
+export function getContext() {
+  cachedContext ??= createContext();
+  return cachedContext;
 }
 
 export function Provider({
