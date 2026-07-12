@@ -82,7 +82,7 @@ const config = defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts', 'src/webapp/**/*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',

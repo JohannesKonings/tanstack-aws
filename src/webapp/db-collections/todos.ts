@@ -3,8 +3,7 @@ import { createCollection } from '@tanstack/react-db';
 import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
 import { type Todo, todoSchema } from '../types/todo';
 
-// const todoApiPath = '/demo/api/tq-todos';
-const todoApiPath = '/demo/api/ddb-todos';
+const todoApiPath = '/demo/api/todos';
 const api = {
   async fetchTodos(): Promise<Todo[]> {
     const response = await fetch(todoApiPath);

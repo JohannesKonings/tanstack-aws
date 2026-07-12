@@ -1,6 +1,9 @@
 {
   "name": "tanstack-aws",
   "private": true,
+  "workspaces": [
+    "aws-blocks"
+  ],
   "type": "module",
   "imports": {
     "#src/webapp/components/*": "./src/webapp/components/*.tsx",
@@ -36,9 +39,16 @@
     "compile": "tsc",
     "intent:list": "intent list",
     "intent:list:json": "intent list --json",
-    "intent:install": "intent install"
+    "intent:install": "intent install",
+    "sandbox": "tsx aws-blocks/scripts/sandbox.ts",
+    "sandbox:destroy": "tsx -C cdk aws-blocks/scripts/sandbox-destroy.ts",
+    "sandbox:console": "tsx aws-blocks/scripts/console.ts",
+    "deploy": "tsx aws-blocks/scripts/deploy.ts",
+    "destroy": "tsx aws-blocks/scripts/destroy.ts",
+    "dev:server": "tsx watch aws-blocks/scripts/server.ts"
   },
   "dependencies": {
+    "@aws-blocks/blocks": "0.2.0",
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
     "@aws-sdk/client-cloudwatch": "3.1081.0",
     "@aws-sdk/client-dynamodb": "3.1081.0",

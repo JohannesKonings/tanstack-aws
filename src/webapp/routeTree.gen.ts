@@ -22,6 +22,7 @@ import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.gui
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
+import { Route as DemoApiTodosRouteImport } from './routes/demo/api.todos'
 import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
@@ -99,6 +100,11 @@ const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
   path: '/demo/api/tq-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoApiTodosRoute = DemoApiTodosRouteImport.update({
+  id: '/demo/api/todos',
+  path: '/demo/api/todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoApiTanchatRoute = DemoApiTanchatRouteImport.update({
   id: '/demo/api/tanchat',
   path: '/demo/api/tanchat',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
+  '/demo/api/todos': typeof DemoApiTodosRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
+  '/demo/api/todos': typeof DemoApiTodosRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
+  '/demo/api/todos': typeof DemoApiTodosRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
+    | '/demo/api/todos'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
+    | '/demo/api/todos'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
+    | '/demo/api/todos'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
@@ -331,6 +343,7 @@ export interface RootRouteChildren {
   DemoApiDdbTodosRoute: typeof DemoApiDdbTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTanchatRoute: typeof DemoApiTanchatRoute
+  DemoApiTodosRoute: typeof DemoApiTodosRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
@@ -435,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiTqTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/api/todos': {
+      id: '/demo/api/todos'
+      path: '/demo/api/todos'
+      fullPath: '/demo/api/todos'
+      preLoaderRoute: typeof DemoApiTodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/api/tanchat': {
       id: '/demo/api/tanchat'
       path: '/demo/api/tanchat'
@@ -531,6 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoApiDdbTodosRoute: DemoApiDdbTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTanchatRoute: DemoApiTanchatRoute,
+  DemoApiTodosRoute: DemoApiTodosRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
