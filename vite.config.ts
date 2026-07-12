@@ -127,6 +127,9 @@ const config = defineConfig({
           presets: [reactCompilerPreset()],
         }),
       ],
+  resolve: {
+    dedupe: ['zod'],
+  },
 });
 
 export default config;

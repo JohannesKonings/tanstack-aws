@@ -1,6 +1,6 @@
 import { queryCollectionOptions } from '@tanstack/query-db-collection';
 import { createCollection } from '@tanstack/react-db';
-import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
+import { getQueryClient } from '#src/webapp/integrations/tanstack-query/query-client';
 import { type Todo, todoSchema } from '#src/webapp/types/todo-schema';
 
 const todoApiPath = '/demo/api/todos';
@@ -53,7 +53,7 @@ export const todosCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['todos'],
     queryFn: () => api.fetchTodos(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: todoSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {

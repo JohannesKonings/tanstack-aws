@@ -12,6 +12,7 @@
     "#src/webapp/types/*": "./src/webapp/types/*.ts",
     "#src/webapp/data/*": "./src/webapp/data/*.ts",
     "#src/webapp/db-collections/*": "./src/webapp/db-collections/*.ts",
+    "#src/webapp/integrations/tanstack-query/query-client": "./src/webapp/integrations/tanstack-query/query-client.ts",
     "#src/webapp/integrations/tanstack-query/*": "./src/webapp/integrations/tanstack-query/*.tsx",
     "#src/webapp/integrations/bedrock-adapter": "./src/webapp/integrations/bedrock-adapter/index.ts",
     "#src/webapp/integrations/*": "./src/webapp/integrations/*.ts",
