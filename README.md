@@ -3,6 +3,10 @@
 This repository contains examples demonstrating how to use [TanStack libraries](https://tanstack.com/) (Start, Router, DB, AI) in combination with AWS services for building serverless web applications.
 Provisioning of AWS resources is handled using [AWS CDK](https://aws.amazon.com/cdk/).
 
+## Local dev (demo lane v1)
+
+Run `vp dev` and open `/demo/db-todo` to exercise the todos CRUD loop locally — no AWS account, credentials, or CDK deploy. See [docs/agents/demo-lane.md](docs/agents/demo-lane.md).
+
 # Further Reading
 
 - https://johanneskonings.dev/blog/2025-11-30-tanstack-start-aws-serverless/
