@@ -2,6 +2,35 @@
 
 exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapshot for ephemeral stage 1`] = `
 {
+  "Metadata": {
+    "AWS::Blocks::Platform": {
+      "version": "0.1.10",
+    },
+  },
+  "Outputs": {
+    "BlocksBackendAPIEndpoint5E945F11": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "BlocksBackendAPIB013D510",
+            },
+            ".execute-api.us-east-2.",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
   "Parameters": {
     "BootstrapVersion": {
       "Default": "/cdk-bootstrap/hnb659fds/version",
@@ -10,6 +39,1201 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
     },
   },
   "Resources": {
+    "BlocksBackendAPIANY1C212199": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "Type": "MOCK",
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIAccountE0EC9D2C": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendAPIB013D510",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPICloudWatchRole10B8C7D0",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIB013D510": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Name": "Blocks API",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPICloudWatchRole10B8C7D0": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIDeployment79BE6D217fb52bec34b70ed37fb66ce114f27df9": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendAPIproxyANYEEAD0985",
+        "BlocksBackendAPIproxyB4568384",
+        "BlocksBackendAPIANY1C212199",
+        "BlocksBackendAPIawsblocksproxyANY8CF1A014",
+        "BlocksBackendAPIawsblocksproxy1D1610A2",
+        "BlocksBackendAPIawsblocksapiOPTIONS4A5BAB2F",
+        "BlocksBackendAPIawsblocksapiPOST7F1AA977",
+        "BlocksBackendAPIawsblocksapi579FDB6E",
+        "BlocksBackendAPIawsblocks99BD099E",
+      ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIDeploymentStageprod138ADAE8": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendAPIAccountE0EC9D2C",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "BlocksBackendAPIDeployment79BE6D217fb52bec34b70ed37fb66ce114f27df9",
+        },
+        "MethodSettings": [
+          {
+            "CachingEnabled": false,
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+        "StageName": "prod",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocks99BD099E": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "aws-blocks",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapi579FDB6E": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "BlocksBackendAPIawsblocks99BD099E",
+        },
+        "PathPart": "api",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONS4A5BAB2F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksapi579FDB6E",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONSApiPermissionTanstackAwsStackfeaturemainBlocksBackendAPI03D06419OPTIONSawsblocksapi172FB5E4": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/OPTIONS/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONSApiPermissionTestTanstackAwsStackfeaturemainBlocksBackendAPI03D06419OPTIONSawsblocksapiFFF20009": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/OPTIONS/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiPOST7F1AA977": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksapi579FDB6E",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiPOSTApiPermissionTanstackAwsStackfeaturemainBlocksBackendAPI03D06419POSTawsblocksapiD7F95DA1": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/POST/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksapiPOSTApiPermissionTestTanstackAwsStackfeaturemainBlocksBackendAPI03D06419POSTawsblocksapi11B5CC7A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/POST/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksproxy1D1610A2": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "BlocksBackendAPIawsblocks99BD099E",
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksproxyANY8CF1A014": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksproxy1D1610A2",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksproxyANYApiPermissionTanstackAwsStackfeaturemainBlocksBackendAPI03D06419ANYawsblocksproxyAFB396CE": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/*/aws-blocks/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIawsblocksproxyANYApiPermissionTestTanstackAwsStackfeaturemainBlocksBackendAPI03D06419ANYawsblocksproxyF424C12C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/*/aws-blocks/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIproxyANYApiPermissionTanstackAwsStackfeaturemainBlocksBackendAPI03D06419ANYproxy307064CC": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIproxyANYApiPermissionTestTanstackAwsStackfeaturemainBlocksBackendAPI03D06419ANYproxyA7DC9D8B": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIproxyANYEEAD0985": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIproxyB4568384",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendAPIproxyB4568384": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigBucketAutoDeleteObjectsCustomResource9876DAA9": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendBlocksConfigBucketPolicyCD2442E1",
+      ],
+      "Properties": {
+        "BucketName": "<redacted-name>",
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigBucketF92D16B0": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1,
+              },
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+          {
+            "Key": "aws-cdk:cr-owned:b9a71a88",
+            "Value": "true",
+          },
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigBucketPolicyCD2442E1": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Bucket": {
+          "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendBlocksConfigBucketF92D16B0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BlocksBackendBlocksConfigBucketF92D16B0",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigDeploymentAwsCliLayer148C8CC1": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Content": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Description": "/opt/awscli/aws",
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigDeploymentCustomResourceC68EA53A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DestinationBucketName": {
+          "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+        },
+        "OutputObjectKeys": true,
+        "Prune": false,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+            "Arn",
+          ],
+        },
+        "SourceBucketNames": [
+          "<cdk-bootstrap-role>",
+        ],
+        "SourceMarkers": [
+          {
+            "<<marker:0xbaba:0>>": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"BB_RESOURCES_GROUP_URL":"https://",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ".console.aws.amazon.com/resource-groups/group/TanstackAwsStack-feature-main-BlocksBackend-resources?region=",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  "","BB_SETTINGS_GROUP_URL":"https://",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ".console.aws.amazon.com/resource-groups/group/TanstackAwsStack-feature-main-BlocksBackend-settings?region=",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+          },
+        ],
+        "SourceMarkersConfig": [
+          {},
+        ],
+        "SourceObjectKeys": [
+          "<hash>.zip",
+        ],
+        "WaitForDistributionInvalidation": true,
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendHandler7AC1C06C": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359",
+        "BlocksBackendHandlerServiceRoleB5E62E57",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BLOCKS_CONFIG_BUCKET": {
+              "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+            },
+            "BLOCKS_CONFIG_KEY": "blocks-config.json",
+            "BLOCKS_STACK_NAME": "TanstackAwsStack-feature-main-BlocksBackend",
+            "NODE_ENV": "production",
+          },
+        },
+        "Handler": "index.handler",
+        "MemorySize": 2048,
+        "Role": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandlerServiceRoleB5E62E57",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs24.x",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendHandlerServiceRoleB5E62E57": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "BlocksBackendBlocksConfigBucketF92D16B0",
+                        "Arn",
+                      ],
+                    },
+                    "/blocks-config.json",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359",
+        "Roles": [
+          {
+            "Ref": "BlocksBackendHandlerServiceRoleB5E62E57",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendStackResources2FBCAE2B": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Name": "TanstackAwsStack-feature-main-BlocksBackend-resources",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::CloudWatch::Dashboard",
+              "AWS::Cognito::UserPool",
+              "AWS::DynamoDB::Table",
+              "AWS::Logs::LogGroup",
+              "AWS::RDS::DBCluster",
+              "AWS::RDS::DBInstance",
+              "AWS::S3::Bucket",
+              "AWS::SQS::Queue",
+            ],
+            "StackIdentifier": {
+              "Ref": "AWS::StackId",
+            },
+          },
+          "Type": "CLOUDFORMATION_STACK_1_0",
+        },
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ResourceGroups::Group",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendStackSettings7EB35FFD": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Name": "TanstackAwsStack-feature-main-BlocksBackend-settings",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::SSM::Parameter",
+            ],
+            "TagFilters": [
+              {
+                "Key": "aws-blocks-stack",
+                "Values": [
+                  "TanstackAwsStack-feature-main",
+                ],
+              },
+            ],
+          },
+          "Type": "TAG_FILTERS_1_0",
+        },
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ResourceGroups::Group",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+          },
+        },
+        "Handler": "index.handler",
+        "Layers": [
+          {
+            "Ref": "BlocksBackendBlocksConfigDeploymentAwsCliLayer148C8CC1",
+          },
+        ],
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::<cdk-bootstrap-role>",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::<cdk-bootstrap-role>/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendBlocksConfigBucketF92D16B0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BlocksBackendBlocksConfigBucketF92D16B0",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "Roles": [
+          {
+            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -79,6 +1303,10 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
             "Value": "true",
           },
           {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
             "Key": "ResourceScope",
             "Value": "application-wide",
           },
@@ -112,27 +1340,6 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
         },
         "PolicyDocument": {
           "Statement": [
-            {
-              "Action": "s3:GetObject",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    {
-                      "Fn::GetAtt": [
-                        "WebappAssetsBucket290E5168",
-                        "Arn",
-                      ],
-                    },
-                    "/*",
-                  ],
-                ],
-              },
-            },
             {
               "Action": [
                 "s3:PutBucketPolicy",
@@ -171,6 +1378,27 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
                   ],
                 },
               ],
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "WebappAssetsBucket290E5168",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
@@ -212,6 +1440,35 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
 
 exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapshot for permanent stage 1`] = `
 {
+  "Metadata": {
+    "AWS::Blocks::Platform": {
+      "version": "0.1.10",
+    },
+  },
+  "Outputs": {
+    "BlocksBackendAPIEndpoint5E945F11": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "BlocksBackendAPIB013D510",
+            },
+            ".execute-api.us-east-2.",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
   "Parameters": {
     "BootstrapVersion": {
       "Default": "/cdk-bootstrap/hnb659fds/version",
@@ -220,10 +1477,1205 @@ exports[`TanstackAwsStack synth lifecycle behavior > matches public-safe snapsho
     },
   },
   "Resources": {
+    "BlocksBackendAPIANY1C212199": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "Type": "MOCK",
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "BlocksBackendAPIAccountE0EC9D2C": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "BlocksBackendAPIB013D510",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPICloudWatchRole10B8C7D0",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "BlocksBackendAPIB013D510": {
+      "Properties": {
+        "Name": "Blocks API",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "BlocksBackendAPICloudWatchRole10B8C7D0": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "BlocksBackendAPIDeployment79BE6D21bd8a21f7990cb752c5b6b9a61e801869": {
+      "DependsOn": [
+        "BlocksBackendAPIproxyANYEEAD0985",
+        "BlocksBackendAPIproxyB4568384",
+        "BlocksBackendAPIANY1C212199",
+        "BlocksBackendAPIawsblocksproxyANY8CF1A014",
+        "BlocksBackendAPIawsblocksproxy1D1610A2",
+        "BlocksBackendAPIawsblocksapiOPTIONS4A5BAB2F",
+        "BlocksBackendAPIawsblocksapiPOST7F1AA977",
+        "BlocksBackendAPIawsblocksapi579FDB6E",
+        "BlocksBackendAPIawsblocks99BD099E",
+      ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "BlocksBackendAPIDeploymentStageprod138ADAE8": {
+      "DependsOn": [
+        "BlocksBackendAPIAccountE0EC9D2C",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "BlocksBackendAPIDeployment79BE6D21bd8a21f7990cb752c5b6b9a61e801869",
+        },
+        "MethodSettings": [
+          {
+            "CachingEnabled": false,
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+        "StageName": "prod",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "BlocksBackendAPIawsblocks99BD099E": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "aws-blocks",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "BlocksBackendAPIawsblocksapi579FDB6E": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "BlocksBackendAPIawsblocks99BD099E",
+        },
+        "PathPart": "api",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONS4A5BAB2F": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksapi579FDB6E",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONSApiPermissionTanstackAwsStackmainBlocksBackendAPI13BCE120OPTIONSawsblocksapiEE96179C": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/OPTIONS/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIawsblocksapiOPTIONSApiPermissionTestTanstackAwsStackmainBlocksBackendAPI13BCE120OPTIONSawsblocksapi3DF150FB": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/OPTIONS/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIawsblocksapiPOST7F1AA977": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksapi579FDB6E",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "BlocksBackendAPIawsblocksapiPOSTApiPermissionTanstackAwsStackmainBlocksBackendAPI13BCE120POSTawsblocksapiA8D5A5A5": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/POST/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIawsblocksapiPOSTApiPermissionTestTanstackAwsStackmainBlocksBackendAPI13BCE120POSTawsblocksapi22C04B1B": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/POST/aws-blocks/api",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIawsblocksproxy1D1610A2": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "BlocksBackendAPIawsblocks99BD099E",
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "BlocksBackendAPIawsblocksproxyANY8CF1A014": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIawsblocksproxy1D1610A2",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "BlocksBackendAPIawsblocksproxyANYApiPermissionTanstackAwsStackmainBlocksBackendAPI13BCE120ANYawsblocksproxy5B765843": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/*/aws-blocks/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIawsblocksproxyANYApiPermissionTestTanstackAwsStackmainBlocksBackendAPI13BCE120ANYawsblocksproxyDFEC8180": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/*/aws-blocks/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIproxyANYApiPermissionTanstackAwsStackmainBlocksBackendAPI13BCE120ANYproxy953EE4B6": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/",
+              {
+                "Ref": "BlocksBackendAPIDeploymentStageprod138ADAE8",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIproxyANYApiPermissionTestTanstackAwsStackmainBlocksBackendAPI13BCE120ANYproxy8ACF4BDF": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandler7AC1C06C",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-2:<account-id>:",
+              {
+                "Ref": "BlocksBackendAPIB013D510",
+              },
+              "/test-invoke-stage/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BlocksBackendAPIproxyANYEEAD0985": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-2:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendHandler7AC1C06C",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "BlocksBackendAPIproxyB4568384",
+        },
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "BlocksBackendAPIproxyB4568384": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "BlocksBackendAPIB013D510",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "BlocksBackendAPIB013D510",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "BlocksBackendBlocksConfigBucketAutoDeleteObjectsCustomResource9876DAA9": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BlocksBackendBlocksConfigBucketPolicyCD2442E1",
+      ],
+      "Properties": {
+        "BucketName": "<redacted-name>",
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigBucketF92D16B0": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1,
+              },
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+          {
+            "Key": "aws-cdk:cr-owned:6de971c6",
+            "Value": "true",
+          },
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendBlocksConfigBucketPolicyCD2442E1": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendBlocksConfigBucketF92D16B0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BlocksBackendBlocksConfigBucketF92D16B0",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "BlocksBackendBlocksConfigDeploymentAwsCliLayer148C8CC1": {
+      "Properties": {
+        "Content": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Description": "/opt/awscli/aws",
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+    },
+    "BlocksBackendBlocksConfigDeploymentCustomResourceC68EA53A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DestinationBucketName": {
+          "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+        },
+        "OutputObjectKeys": true,
+        "Prune": false,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+            "Arn",
+          ],
+        },
+        "SourceBucketNames": [
+          "<cdk-bootstrap-role>",
+        ],
+        "SourceMarkers": [
+          {
+            "<<marker:0xbaba:0>>": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"BB_RESOURCES_GROUP_URL":"https://",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ".console.aws.amazon.com/resource-groups/group/TanstackAwsStack-main-BlocksBackend-resources?region=",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  "","BB_SETTINGS_GROUP_URL":"https://",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ".console.aws.amazon.com/resource-groups/group/TanstackAwsStack-main-BlocksBackend-settings?region=",
+                  {
+                    "Ref": "AWS::Region",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+          },
+        ],
+        "SourceMarkersConfig": [
+          {},
+        ],
+        "SourceObjectKeys": [
+          "<hash>.zip",
+        ],
+        "WaitForDistributionInvalidation": true,
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BlocksBackendHandler7AC1C06C": {
+      "DependsOn": [
+        "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359",
+        "BlocksBackendHandlerServiceRoleB5E62E57",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BLOCKS_CONFIG_BUCKET": {
+              "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+            },
+            "BLOCKS_CONFIG_KEY": "blocks-config.json",
+            "BLOCKS_STACK_NAME": "TanstackAwsStack-main-BlocksBackend",
+            "NODE_ENV": "production",
+          },
+        },
+        "Handler": "index.handler",
+        "MemorySize": 2048,
+        "Role": {
+          "Fn::GetAtt": [
+            "BlocksBackendHandlerServiceRoleB5E62E57",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs24.x",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "BlocksBackendHandlerServiceRoleB5E62E57": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "BlocksBackendBlocksConfigBucketF92D16B0",
+                        "Arn",
+                      ],
+                    },
+                    "/blocks-config.json",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BlocksBackendHandlerServiceRoleDefaultPolicy5B722359",
+        "Roles": [
+          {
+            "Ref": "BlocksBackendHandlerServiceRoleB5E62E57",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "BlocksBackendStackResources2FBCAE2B": {
+      "Properties": {
+        "Name": "TanstackAwsStack-main-BlocksBackend-resources",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::CloudWatch::Dashboard",
+              "AWS::Cognito::UserPool",
+              "AWS::DynamoDB::Table",
+              "AWS::Logs::LogGroup",
+              "AWS::RDS::DBCluster",
+              "AWS::RDS::DBInstance",
+              "AWS::S3::Bucket",
+              "AWS::SQS::Queue",
+            ],
+            "StackIdentifier": {
+              "Ref": "AWS::StackId",
+            },
+          },
+          "Type": "CLOUDFORMATION_STACK_1_0",
+        },
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ResourceGroups::Group",
+    },
+    "BlocksBackendStackSettings7EB35FFD": {
+      "Properties": {
+        "Name": "TanstackAwsStack-main-BlocksBackend-settings",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::SSM::Parameter",
+            ],
+            "TagFilters": [
+              {
+                "Key": "aws-blocks-stack",
+                "Values": [
+                  "TanstackAwsStack-main",
+                ],
+              },
+            ],
+          },
+          "Type": "TAG_FILTERS_1_0",
+        },
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::ResourceGroups::Group",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+      "DependsOn": [
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+          },
+        },
+        "Handler": "index.handler",
+        "Layers": [
+          {
+            "Ref": "BlocksBackendBlocksConfigDeploymentAwsCliLayer148C8CC1",
+          },
+        ],
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
+          {
+            "Key": "ResourceScope",
+            "Value": "application-wide",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::<cdk-bootstrap-role>",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::<cdk-bootstrap-role>/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BlocksBackendBlocksConfigBucketF92D16B0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BlocksBackendBlocksConfigBucketF92D16B0",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "Roles": [
+          {
+            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "BlocksBackendBlocksConfigBucketF92D16B0",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "WebappAssetsBucket290E5168": {
       "DeletionPolicy": "Retain",
       "Properties": {
         "Tags": [
+          {
+            "Key": "blocks:deployment-type",
+            "Value": "production",
+          },
           {
             "Key": "ResourceScope",
             "Value": "application-wide",

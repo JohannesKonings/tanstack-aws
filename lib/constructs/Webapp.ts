@@ -5,7 +5,6 @@ import { resolveAuroraSchemaName } from '../aurora-schema.ts';
 import { resolveStageLifecycle } from '../stage-name.ts';
 import { AuroraSchemaLifecycle } from './AuroraSchemaLifecycle.ts';
 import { DatabasePersons } from './DatabasePersons.ts';
-import { DatabaseTodos } from './DatabaseTodos.ts';
 import { EventsTable } from './EventsTable.ts';
 import { StreamToEventsProcessor } from './StreamToEventsProcessor.ts';
 import { WebappApi } from './WebappApi.ts';
@@ -17,13 +16,13 @@ import { WebappServer } from './WebappServer.ts';
 
 type WebappProps = {
   appStage: string;
+  blocksApiUrl: string;
 };
 
 export class Webapp extends Construct {
   constructor(scope: Construct, id: string, props: WebappProps) {
     super(scope, id);
 
-    const databaseTodos = new DatabaseTodos(this, 'DatabaseTodos');
     const databasePersons = new DatabasePersons(this, 'DatabasePersons');
 
     // SSE Real-time Sync Infrastructure
@@ -64,12 +63,11 @@ export class Webapp extends Construct {
       auroraClusterArn,
       auroraSecretArn,
       auroraDatabaseName,
-      tableNameTodos: databaseTodos.dbTodos.tableName,
+      blocksApiUrl: props.blocksApiUrl,
       tableNamePersons: databasePersons.dbPersons.tableName,
       tableNameEvents: eventsTable.table.tableName,
     });
 
-    databaseTodos.dbTodos.grantReadWriteData(webappServer.webappServer);
     databasePersons.dbPersons.grantReadWriteData(webappServer.webappServer);
     eventsTable.table.grantReadData(webappServer.webappServer);
 
@@ -81,7 +79,9 @@ export class Webapp extends Construct {
       webappServer: webappServer.webappServer,
     });
 
-    const assetsBucket = new WebappAssetsBucket(this, 'WebappAssetsBucket');
+    const assetsBucket = new WebappAssetsBucket(this, 'WebappAssetsBucket', {
+      autoDeleteObjects: appLifecycle === 'ephemeral',
+    });
 
     // const distributionFunctionUrl = new WebappDistribution(this, 'WebappDistributionFunctionUrl', {
     //   assetsBucket: assetsBucket.assetsBucket,

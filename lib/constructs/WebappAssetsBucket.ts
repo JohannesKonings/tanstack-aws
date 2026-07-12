@@ -1,15 +1,20 @@
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 export class WebappAssetsBucket extends Construct {
   readonly assetsBucket: Bucket;
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, options?: { autoDeleteObjects?: boolean }) {
     super(scope, id);
 
+    const autoDeleteObjects = options?.autoDeleteObjects ?? false;
+
     this.assetsBucket = new Bucket(this, 'AssetsBucket', {
+      autoDeleteObjects,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
+      removalPolicy: autoDeleteObjects ? RemovalPolicy.DESTROY : undefined,
     });
 
     NagSuppressions.addResourceSuppressions(

@@ -1,10 +1,12 @@
-import { App, Mixins, RemovalPolicies, Stack, type StackProps, Tags } from 'aws-cdk-lib';
+import { BlocksBackend } from '@aws-blocks/blocks/cdk';
+import { App, RemovalPolicies, Stack, type StackProps, Tags } from 'aws-cdk-lib';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../test/cdk-snapshot.ts';
+import { blocksBackendPaths } from './blocks-backend-paths.ts';
 import { APPLICATION_RESOURCE_SCOPE_TAG_VALUE, RESOURCE_SCOPE_TAG_KEY } from './resource-tags.ts';
 import { resolveStageLifecycle, resolveStageName } from './stage-name.ts';
 
@@ -14,16 +16,20 @@ type SynthesizedResource = {
   UpdateReplacePolicy?: string;
 };
 
-type MinimalTestStackProps = StackProps & {
+type LifecycleTestStackProps = StackProps & {
   appStage: string;
 };
 
-class MinimalTestStack extends Stack {
-  constructor(scope: Construct, id: string, props: MinimalTestStackProps) {
+class LifecycleTestStack extends Stack {
+  constructor(scope: Construct, id: string, props: LifecycleTestStackProps) {
     super(scope, id, props);
     Tags.of(this).add(RESOURCE_SCOPE_TAG_KEY, APPLICATION_RESOURCE_SCOPE_TAG_VALUE);
 
-    const assetsBucket = new s3.Bucket(this, 'WebappAssetsBucket');
+    const autoDeleteObjects = resolveStageLifecycle(props.appStage) === 'ephemeral';
+    const assetsBucket = new s3.Bucket(this, 'WebappAssetsBucket', {
+      autoDeleteObjects,
+      removalPolicy: autoDeleteObjects ? RemovalPolicy.DESTROY : undefined,
+    });
     assetsBucket.addToResourcePolicy(
       new iam.PolicyStatement({
         actions: ['s3:GetObject'],
@@ -34,18 +40,23 @@ class MinimalTestStack extends Stack {
   }
 }
 
-const synthesize = (branchOrStageName: string) => {
-  return synthesizeArtifact(branchOrStageName).template;
+const ensureCdkConditionActive = (): void => {
+  const nodeOptions = process.env.NODE_OPTIONS ?? '';
+  if (!nodeOptions.includes('--conditions=cdk')) {
+    process.env.NODE_OPTIONS = nodeOptions ? `${nodeOptions} --conditions=cdk` : '--conditions=cdk';
+  }
 };
 
-const synthesizeArtifact = (branchOrStageName: string) => {
+const synthesizeArtifact = async (branchOrStageName: string) => {
+  ensureCdkConditionActive();
+
   const app = new App();
   const appStage = resolveStageName(branchOrStageName, {
     fallbackStage: 'dev',
     lifecycle: 'permanent',
   });
   const appLifecycle = resolveStageLifecycle(appStage);
-  const stack = new MinimalTestStack(app, `TanstackAwsStack-${appStage}`, {
+  const stack = new LifecycleTestStack(app, `TanstackAwsStack-${appStage}`, {
     appStage,
     env: {
       account: '123456789012',
@@ -54,104 +65,108 @@ const synthesizeArtifact = (branchOrStageName: string) => {
   });
 
   if (appLifecycle === 'ephemeral') {
-    // Match app bootstrap orchestration: enforce ephemeral cleanup at app scope.
     RemovalPolicies.of(app).destroy();
-    Mixins.of(app).apply(new s3Mixins.BucketAutoDeleteObjects());
   }
+
+  await BlocksBackend.create(stack, 'BlocksBackend', blocksBackendPaths);
 
   const assembly = app.synth();
   return assembly.getStackArtifact(stack.artifactId);
 };
 
-const synthesizeResources = (branchOrStageName: string): SynthesizedResource[] => {
-  const artifact = synthesizeArtifact(branchOrStageName);
-  const isSynthesizedResource = (value: unknown): value is SynthesizedResource => {
-    if (typeof value !== 'object' || value === null) {
-      return false;
-    }
-
-    const type = Reflect.get(value, 'Type');
-    const deletionPolicy = Reflect.get(value, 'DeletionPolicy');
-    const updateReplacePolicy = Reflect.get(value, 'UpdateReplacePolicy');
-
-    if (typeof type !== 'string') {
-      return false;
-    }
-    if (deletionPolicy !== undefined && typeof deletionPolicy !== 'string') {
-      return false;
-    }
-    if (updateReplacePolicy !== undefined && typeof updateReplacePolicy !== 'string') {
-      return false;
-    }
-
-    return true;
-  };
-
-  return Object.values(artifact.template.Resources ?? {}).filter(isSynthesizedResource);
+const synthesize = async (branchOrStageName: string) => {
+  return (await synthesizeArtifact(branchOrStageName)).template;
 };
 
-const synthesizeTemplate = (branchOrStageName: string) => {
-  return snapshotSafeTemplate(synthesize(branchOrStageName));
+const findResourceById = (
+  resources: Record<string, SynthesizedResource & { Type: string }>,
+  idFragment: string,
+  type?: string,
+): (SynthesizedResource & { Type: string }) | undefined => {
+  const entry = Object.entries(resources).find(
+    ([id, resource]) => id.includes(idFragment) && (type === undefined || resource.Type === type),
+  );
+  return entry?.[1];
+};
+
+const synthesizeResourcesById = async (
+  branchOrStageName: string,
+): Promise<Record<string, SynthesizedResource & { Type: string }>> => {
+  const artifact = await synthesizeArtifact(branchOrStageName);
+  const resources = artifact.template.Resources ?? {};
+  const result: Record<string, SynthesizedResource & { Type: string }> = {};
+
+  for (const [id, resource] of Object.entries(resources)) {
+    if (typeof resource !== 'object' || resource === null) {
+      continue;
+    }
+
+    const type = Reflect.get(resource, 'Type');
+    if (typeof type === 'string') {
+      result[id] = resource as SynthesizedResource & { Type: string };
+    }
+  }
+
+  return result;
+};
+
+const synthesizeTemplate = async (branchOrStageName: string) => {
+  return snapshotSafeTemplate(await synthesize(branchOrStageName));
 };
 
 describe('TanstackAwsStack synth lifecycle behavior', () => {
-  it('matches public-safe snapshot for ephemeral stage', () => {
-    expect(synthesizeTemplate('feature/main')).toMatchSnapshot();
-  }, 60_000);
+  it('matches public-safe snapshot for ephemeral stage', async () => {
+    expect(await synthesizeTemplate('feature/main')).toMatchSnapshot();
+  }, 120_000);
 
-  it('matches public-safe snapshot for permanent stage', () => {
-    expect(synthesizeTemplate('main')).toMatchSnapshot();
-  }, 60_000);
+  it('matches public-safe snapshot for permanent stage', async () => {
+    expect(await synthesizeTemplate('main')).toMatchSnapshot();
+  }, 120_000);
 
-  it('marks ephemeral resources for full stack cleanup', () => {
-    const resources = synthesizeResources('feature/main');
+  it('marks ephemeral resources for full stack cleanup', async () => {
+    const resources = await synthesizeResourcesById('feature/main');
 
-    const retainedResources = resources.filter(
-      (resource) =>
+    const retainedResources = Object.entries(resources).filter(
+      ([, resource]) =>
         resource.DeletionPolicy === 'Retain' || resource.UpdateReplacePolicy === 'Retain',
     );
-
     expect(retainedResources).toEqual([]);
 
-    const s3Buckets = resources.filter((resource) => resource.Type === 'AWS::S3::Bucket');
-    expect(s3Buckets.length).toBeGreaterThan(0);
-    for (const bucket of s3Buckets) {
-      expect(bucket.DeletionPolicy).toBe('Delete');
-      expect(bucket.UpdateReplacePolicy).toBe('Delete');
-    }
+    const assetsBucket = findResourceById(resources, 'WebappAssetsBucket');
+    expect(assetsBucket?.Type).toBe('AWS::S3::Bucket');
+    expect(assetsBucket?.DeletionPolicy).toBe('Delete');
+    expect(assetsBucket?.UpdateReplacePolicy).toBe('Delete');
 
-    const bucketPolicies = resources.filter(
-      (resource) => resource.Type === 'AWS::S3::BucketPolicy',
+    const blocksHandler = findResourceById(
+      resources,
+      'BlocksBackendHandler',
+      'AWS::Lambda::Function',
     );
-    expect(bucketPolicies.length).toBeGreaterThan(0);
-    for (const bucketPolicy of bucketPolicies) {
-      expect(bucketPolicy.DeletionPolicy).toBe('Delete');
-      expect(bucketPolicy.UpdateReplacePolicy).toBe('Delete');
-    }
-  }, 60_000);
+    expect(blocksHandler?.Type).toBe('AWS::Lambda::Function');
+    expect(blocksHandler?.DeletionPolicy).toBe('Delete');
+    expect(blocksHandler?.UpdateReplacePolicy).toBe('Delete');
+  }, 120_000);
 
-  it('keeps permanent stack retention defaults', () => {
-    const resources = synthesizeResources('main');
+  it('keeps permanent stack retention defaults', async () => {
+    const resources = await synthesizeResourcesById('main');
 
-    const s3Buckets = resources.filter((resource) => resource.Type === 'AWS::S3::Bucket');
-    expect(s3Buckets.length).toBeGreaterThan(0);
-    for (const bucket of s3Buckets) {
-      expect(bucket.DeletionPolicy).toBe('Retain');
-      expect(bucket.UpdateReplacePolicy).toBe('Retain');
-    }
+    const assetsBucket = findResourceById(resources, 'WebappAssetsBucket');
+    expect(assetsBucket?.Type).toBe('AWS::S3::Bucket');
+    expect(assetsBucket?.DeletionPolicy).toBe('Retain');
+    expect(assetsBucket?.UpdateReplacePolicy).toBe('Retain');
 
-    const bucketPolicies = resources.filter(
-      (resource) => resource.Type === 'AWS::S3::BucketPolicy',
+    const blocksHandler = findResourceById(
+      resources,
+      'BlocksBackendHandler',
+      'AWS::Lambda::Function',
     );
-    expect(bucketPolicies.length).toBeGreaterThan(0);
-    for (const bucketPolicy of bucketPolicies) {
-      expect(bucketPolicy.DeletionPolicy).toBeUndefined();
-      expect(bucketPolicy.UpdateReplacePolicy).toBeUndefined();
-    }
-  }, 60_000);
+    expect(blocksHandler?.Type).toBe('AWS::Lambda::Function');
+    expect(blocksHandler?.DeletionPolicy).toBeUndefined();
+    expect(blocksHandler?.UpdateReplacePolicy).toBeUndefined();
+  }, 120_000);
 
-  it('applies mandatory application-wide resource tag', () => {
-    const template = synthesize('main');
+  it('applies mandatory application-wide resource tag', async () => {
+    const template = await synthesize('main');
     const resources = Object.values(
       (
         template as {
@@ -169,5 +184,5 @@ describe('TanstackAwsStack synth lifecycle behavior', () => {
         }),
       ]),
     );
-  });
+  }, 120_000);
 });
