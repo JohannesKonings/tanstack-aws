@@ -1,11 +1,8 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { BlocksStack, SandboxDisableDeletionProtection } from '@aws-blocks/blocks/cdk';
 import { getStackName } from '@aws-blocks/blocks/scripts';
 import * as cdk from 'aws-cdk-lib';
 import { Mixins, RemovalPolicies } from 'aws-cdk-lib';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = new cdk.App();
 
@@ -14,8 +11,8 @@ const projectRoot = app.node.tryGetContext('projectRoot') || process.cwd();
 
 const stackName = getStackName({ sandbox: sandboxMode, projectRoot });
 export const blocksStack = await BlocksStack.create(app, stackName, {
-  backendHandlerPath: join(__dirname, 'index.handler.ts'),
-  backendCDKPath: join(__dirname, 'index.ts'),
+  backendHandlerPath: join(import.meta.dirname, 'index.handler.ts'),
+  backendCDKPath: join(import.meta.dirname, 'index.ts'),
 });
 
 if (sandboxMode) {

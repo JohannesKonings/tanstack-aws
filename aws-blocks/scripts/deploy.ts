@@ -1,12 +1,9 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { deploy } from '@aws-blocks/blocks/scripts';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 deploy({
-  cdkAppPath: join(__dirname, '..', 'index.cdk.ts'),
-  projectRoot: join(__dirname, '..', '..'),
+  cdkAppPath: join(import.meta.dirname, '..', 'index.cdk.ts'),
+  projectRoot: join(import.meta.dirname, '..', '..'),
 }).catch((error) => {
   console.error(error);
   process.exit(1);
