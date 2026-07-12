@@ -1,3 +1,4 @@
+import { readBlocksSidecarUrl } from '#src/webapp/integrations/blocks-client/blocksSidecar';
 import type {
   CreateTodoRequest,
   DeleteTodosRequest,
@@ -64,15 +65,27 @@ export const resetTodosBlocksClientForTests = (): void => {
   blocksApiMethods = null;
 };
 
+const getInProcessBlocksApiMethods = async (): Promise<BlocksApiMethods> => {
+  const backend = await import('../../../../aws-blocks/index.ts');
+  // ApiNamespace exports a handler factory; cast bridges Blocks' internal type.
+  const apiHandler = backend.api as unknown as BlocksApiHandler;
+  return apiHandler(createBlocksRequestContext());
+};
+
+const getSidecarBlocksApiMethods = async (sidecarUrl: string): Promise<BlocksApiMethods> => {
+  const { ApiNamespaceClient } = await import('@aws-blocks/blocks/client');
+  return ApiNamespaceClient<BlocksApiMethods>('api', { url: sidecarUrl });
+};
+
 const getBlocksApiMethods = async (): Promise<BlocksApiMethods> => {
   if (blocksApiMethods) {
     return blocksApiMethods;
   }
 
-  const backend = await import('../../../../aws-blocks/index.ts');
-  // ApiNamespace exports a handler factory; cast bridges Blocks' internal type.
-  const apiHandler = backend.api as unknown as BlocksApiHandler;
-  blocksApiMethods = apiHandler(createBlocksRequestContext());
+  const sidecarUrl = readBlocksSidecarUrl();
+  blocksApiMethods = sidecarUrl
+    ? await getSidecarBlocksApiMethods(sidecarUrl)
+    : await getInProcessBlocksApiMethods();
   return blocksApiMethods;
 };
 

@@ -5,6 +5,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
+import { blocksSidecarPlugin } from './scripts/vite-blocks-sidecar-plugin.ts';
 
 const isVitest = Boolean(process.env.VITEST);
 
@@ -82,7 +83,12 @@ const config = defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts', 'src/webapp/**/*.test.ts'],
+    include: [
+      'lib/**/*.test.ts',
+      'accountSetup/lib/**/*.test.ts',
+      'scripts/**/*.test.ts',
+      'src/webapp/**/*.test.ts',
+    ],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
@@ -97,6 +103,7 @@ const config = defineConfig({
   plugins: isVitest
     ? []
     : [
+        blocksSidecarPlugin(),
         devtools({
           removeDevtoolsOnBuild: true,
         }),
