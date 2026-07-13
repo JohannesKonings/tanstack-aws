@@ -2,6 +2,7 @@ import { BlocksBackend } from '@aws-blocks/blocks/cdk';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { blocksBackendPaths } from './blocks-backend-paths.ts';
+import { applyBlocksBackendNagSuppressions } from './constructs/BlocksBackendNagSuppressions.ts';
 import { Webapp } from './constructs/Webapp.ts';
 
 export type TanstackAwsStackProps = cdk.StackProps & {
@@ -19,6 +20,7 @@ export async function createTanstackAwsStack(
 ): Promise<TanstackAwsStack> {
   const stack = new TanstackAwsStack(scope, id, props);
   stack.blocksBackend = await BlocksBackend.create(stack, 'BlocksBackend', blocksBackendPaths);
+  applyBlocksBackendNagSuppressions(stack.blocksBackend);
 
   new Webapp(stack, 'Webapp', {
     appStage: props.appStage,
