@@ -10,8 +10,10 @@ import { blocksSidecarPlugin } from './scripts/vite-blocks-sidecar-plugin.ts';
 const isVitest = Boolean(process.env.VITEST);
 
 const config = defineConfig({
+  // Rolldown bundled dev splits Zod 4 into lazy chunks where `util` is still
+  // undefined when classic schemas initialize (normalizeParams TypeError).
   experimental: {
-    bundledDev: true,
+    bundledDev: false,
   },
   server: {
     forwardConsole: {
@@ -129,6 +131,9 @@ const config = defineConfig({
       ],
   resolve: {
     dedupe: ['zod'],
+  },
+  optimizeDeps: {
+    include: ['zod'],
   },
 });
 
