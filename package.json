@@ -37,6 +37,7 @@
     "cdk": "cdk",
     "cdk:account": "cdk --app \"tsx accountSetup/bin/app.ts\"",
     "seed:persons": "node scripts/seed-persons.ts",
+    "migrate:todos": "tsx scripts/migrate-todos.ts",
     "compile": "tsc",
     "intent:list": "intent list",
     "intent:list:json": "intent list --json",
