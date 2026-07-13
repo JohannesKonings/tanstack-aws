@@ -18,3 +18,10 @@ cdk.out
 .oxc-inspector
 
 cdk.context.json
+# AWS Blocks
+.blocks-sandbox
+.bb-data
+.blocks
+cdk.out/
+aws-blocks/client.js
+aws-blocks/blocks.spec.json

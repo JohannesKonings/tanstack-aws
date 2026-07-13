@@ -5,12 +5,15 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
+import { blocksSidecarPlugin } from './scripts/vite-blocks-sidecar-plugin.ts';
 
 const isVitest = Boolean(process.env.VITEST);
 
 const config = defineConfig({
+  // Rolldown bundled dev splits Zod 4 into lazy chunks where `util` is still
+  // undefined when classic schemas initialize (normalizeParams TypeError).
   experimental: {
-    bundledDev: true,
+    bundledDev: false,
   },
   server: {
     forwardConsole: {
@@ -82,7 +85,12 @@ const config = defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    include: [
+      'lib/**/*.test.ts',
+      'accountSetup/lib/**/*.test.ts',
+      'scripts/**/*.test.ts',
+      'src/webapp/**/*.test.ts',
+    ],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
@@ -97,6 +105,7 @@ const config = defineConfig({
   plugins: isVitest
     ? []
     : [
+        blocksSidecarPlugin(),
         devtools({
           removeDevtoolsOnBuild: true,
         }),
@@ -120,6 +129,12 @@ const config = defineConfig({
           presets: [reactCompilerPreset()],
         }),
       ],
+  resolve: {
+    dedupe: ['zod'],
+  },
+  optimizeDeps: {
+    include: ['zod'],
+  },
 });
 
 export default config;

@@ -1,8 +1,12 @@
-import { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 // oxlint-disable func-style
 import { createTRPCClient, httpBatchStreamLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
+import {
+  getQueryClient,
+  resetQueryClientForTests,
+} from '#src/webapp/integrations/tanstack-query/query-client';
 import { TRPCProvider } from '#src/webapp/integrations/trpc/react';
 import type { TRPCRouter } from '#src/webapp/integrations/trpc/router';
 
@@ -21,13 +25,15 @@ const trpcClient = createTRPCClient<TRPCRouter>({
   ],
 });
 
-export function getContext() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      dehydrate: { serializeData: superjson.serialize },
-      hydrate: { deserializeData: superjson.deserialize },
-    },
-  });
+type QueryContext = {
+  queryClient: QueryClient;
+  trpc: ReturnType<typeof createTRPCOptionsProxy<TRPCRouter>>;
+};
+
+let cachedContext: QueryContext | undefined;
+
+const createContext = (): QueryContext => {
+  const queryClient = getQueryClient();
 
   const serverHelpers = createTRPCOptionsProxy({
     client: trpcClient,
@@ -37,6 +43,16 @@ export function getContext() {
     queryClient,
     trpc: serverHelpers,
   };
+};
+
+export const resetQueryContextForTests = (): void => {
+  cachedContext = undefined;
+  resetQueryClientForTests();
+};
+
+export function getContext() {
+  cachedContext ??= createContext();
+  return cachedContext;
 }
 
 export function Provider({

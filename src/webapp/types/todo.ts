@@ -1,12 +1,7 @@
 import { z } from 'zod';
+import { type Todo, todoSchema } from '#src/webapp/types/todo-schema';
 
-export const todoSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  status: z.enum(['pending', 'completed']),
-});
-
-export type Todo = z.infer<typeof todoSchema>;
+export { todoSchema, type Todo };
 
 export const createTodoRequestSchema = todoSchema;
 export type CreateTodoRequest = z.infer<typeof createTodoRequestSchema>;

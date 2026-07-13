@@ -1,10 +1,9 @@
 import { queryCollectionOptions } from '@tanstack/query-db-collection';
 import { createCollection } from '@tanstack/react-db';
-import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
-import { type Todo, todoSchema } from '../types/todo';
+import { getQueryClient } from '#src/webapp/integrations/tanstack-query/query-client';
+import { type Todo, todoSchema } from '#src/webapp/types/todo-schema';
 
-// const todoApiPath = '/demo/api/tq-todos';
-const todoApiPath = '/demo/api/ddb-todos';
+const todoApiPath = '/demo/api/todos';
 const api = {
   async fetchTodos(): Promise<Todo[]> {
     const response = await fetch(todoApiPath);
@@ -15,14 +14,18 @@ const api = {
     return todoSchema.array().parse(data);
   },
 
-  async createTodo(todo: Omit<Todo, 'id'>) {
-    await fetch(todoApiPath, {
+  async createTodo(todo: Todo) {
+    const response = await fetch(todoApiPath, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(todo),
     });
+    if (!response.ok) {
+      throw new Error('Failed to create todo');
+    }
+    return todoSchema.parse(await response.json());
   },
 
   async updateTodos(updates: { id: number; changes: Partial<Omit<Todo, 'id'>> }[]) {
@@ -50,7 +53,7 @@ export const todosCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['todos'],
     queryFn: () => api.fetchTodos(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: todoSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
@@ -59,9 +62,7 @@ export const todosCollection = createCollection(
         name: mutation.modified.name,
         status: mutation.modified.status,
       }));
-      for (const item of newItems) {
-        api.createTodo(item);
-      }
+      await Promise.all(newItems.map((item) => api.createTodo(item)));
     },
     onUpdate: async ({ transaction }) => {
       const updates = transaction.mutations.map((mutation) => ({

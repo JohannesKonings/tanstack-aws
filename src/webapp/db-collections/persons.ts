@@ -3,7 +3,7 @@ import { createCollection } from '@tanstack/react-db';
 import { createServerFn } from '@tanstack/react-start';
 import { isFromSse } from '#src/webapp/hooks/useSseSync';
 import * as electrodbClient from '#src/webapp/integrations/electrodb/personsClient';
-import { getContext } from '#src/webapp/integrations/tanstack-query/root-provider';
+import { getQueryClient } from '#src/webapp/integrations/tanstack-query/query-client';
 import {
   type Address,
   AddressSchema,
@@ -147,7 +147,7 @@ export const personsCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['persons'],
     queryFn: () => fetchPersons(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: PersonSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
@@ -196,7 +196,7 @@ export const addressesCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['addresses'],
     queryFn: () => fetchAllAddresses(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: AddressSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
@@ -239,7 +239,7 @@ export const bankAccountsCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['bankAccounts'],
     queryFn: () => fetchAllBankAccounts(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: BankAccountSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
@@ -285,7 +285,7 @@ export const contactsCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['contacts'],
     queryFn: () => fetchAllContacts(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: ContactInfoSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
@@ -331,7 +331,7 @@ export const employmentsCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['employments'],
     queryFn: () => fetchAllEmployments(),
-    queryClient: getContext().queryClient,
+    queryClient: getQueryClient(),
     schema: EmploymentSchema,
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {

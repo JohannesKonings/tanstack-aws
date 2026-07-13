@@ -1,15 +1,31 @@
+import { BlocksBackend } from '@aws-blocks/blocks/cdk';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { blocksBackendPaths } from './blocks-backend-paths.ts';
+import { applyBlocksBackendNagSuppressions } from './constructs/BlocksBackendNagSuppressions.ts';
 import { Webapp } from './constructs/Webapp.ts';
 
-type TanstackAwsStackProps = cdk.StackProps & {
+export type TanstackAwsStackProps = cdk.StackProps & {
   appStage: string;
 };
 
 export class TanstackAwsStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: TanstackAwsStackProps) {
-    super(scope, id, props);
+  blocksBackend!: BlocksBackend;
+}
 
-    new Webapp(this, 'Webapp', { appStage: props.appStage });
-  }
+export async function createTanstackAwsStack(
+  scope: Construct,
+  id: string,
+  props: TanstackAwsStackProps,
+): Promise<TanstackAwsStack> {
+  const stack = new TanstackAwsStack(scope, id, props);
+  stack.blocksBackend = await BlocksBackend.create(stack, 'BlocksBackend', blocksBackendPaths);
+  applyBlocksBackendNagSuppressions(stack.blocksBackend);
+
+  new Webapp(stack, 'Webapp', {
+    appStage: props.appStage,
+    blocksApiUrl: stack.blocksBackend.apiUrl,
+  });
+
+  return stack;
 }

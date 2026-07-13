@@ -1,6 +1,9 @@
 {
   "name": "tanstack-aws",
   "private": true,
+  "workspaces": [
+    "aws-blocks"
+  ],
   "type": "module",
   "imports": {
     "#src/webapp/components/*": "./src/webapp/components/*.tsx",
@@ -9,6 +12,7 @@
     "#src/webapp/types/*": "./src/webapp/types/*.ts",
     "#src/webapp/data/*": "./src/webapp/data/*.ts",
     "#src/webapp/db-collections/*": "./src/webapp/db-collections/*.ts",
+    "#src/webapp/integrations/tanstack-query/query-client": "./src/webapp/integrations/tanstack-query/query-client.ts",
     "#src/webapp/integrations/tanstack-query/*": "./src/webapp/integrations/tanstack-query/*.tsx",
     "#src/webapp/integrations/bedrock-adapter": "./src/webapp/integrations/bedrock-adapter/index.ts",
     "#src/webapp/integrations/*": "./src/webapp/integrations/*.ts",
@@ -33,12 +37,20 @@
     "cdk": "cdk",
     "cdk:account": "cdk --app \"tsx accountSetup/bin/app.ts\"",
     "seed:persons": "node scripts/seed-persons.ts",
+    "migrate:todos": "tsx scripts/migrate-todos.ts",
     "compile": "tsc",
     "intent:list": "intent list",
     "intent:list:json": "intent list --json",
-    "intent:install": "intent install"
+    "intent:install": "intent install",
+    "sandbox": "tsx aws-blocks/scripts/sandbox.ts",
+    "sandbox:destroy": "tsx -C cdk aws-blocks/scripts/sandbox-destroy.ts",
+    "sandbox:console": "tsx aws-blocks/scripts/console.ts",
+    "deploy": "tsx aws-blocks/scripts/deploy.ts",
+    "destroy": "tsx aws-blocks/scripts/destroy.ts",
+    "dev:server": "tsx watch aws-blocks/scripts/server.ts"
   },
   "dependencies": {
+    "@aws-blocks/blocks": "0.2.0",
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
     "@aws-sdk/client-cloudwatch": "3.1081.0",
     "@aws-sdk/client-dynamodb": "3.1081.0",
@@ -90,6 +102,7 @@
     "@tanstack/intent": "0.0.23",
     "@tanstack/react-ai-devtools": "^0.2.65",
     "@types/aws-lambda": "^8.10.162",
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^25.9.5",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

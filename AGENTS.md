@@ -39,6 +39,10 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
 
+### Demo lane (v1)
+
+**Demo lane v1** local workflow (`vp dev`, `/demo/db-todo`, no AWS creds): `docs/agents/demo-lane.md`.
+
 <!-- intent-skills:start -->
 
 # Skill mappings — when working in these areas, load the linked skill file into context.

@@ -13,7 +13,7 @@ type WebappServerProps = {
   auroraClusterArn: string;
   auroraSecretArn: string;
   auroraDatabaseName: string;
-  tableNameTodos: string;
+  blocksApiUrl: string;
   tableNamePersons: string;
   tableNameEvents: string;
 };
@@ -28,7 +28,7 @@ export class WebappServer extends Construct {
       auroraClusterArn,
       auroraSecretArn,
       auroraDatabaseName,
-      tableNameTodos,
+      blocksApiUrl,
       tableNamePersons,
       tableNameEvents,
     } = props;
@@ -51,7 +51,7 @@ export class WebappServer extends Construct {
         AURORA_SECRET_ARN: auroraSecretArn,
         AURORA_DATABASE_NAME: auroraDatabaseName,
         AURORA_SCHEMA: auroraSchema,
-        DDB_TODOS_TABLE_NAME: tableNameTodos,
+        BLOCKS_SIDECAR_URL: blocksApiUrl,
         DDB_PERSONS_TABLE_NAME: tableNamePersons,
         EVENTS_TABLE: tableNameEvents,
       },
