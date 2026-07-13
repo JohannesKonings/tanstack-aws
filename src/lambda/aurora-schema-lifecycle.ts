@@ -59,11 +59,18 @@ export const handler = async (event: CloudFormationCustomResourceEvent) => {
       await runSql(props, `DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`);
     }
     return {
-      PhysicalResourceId: props.schemaName,
+      PhysicalResourceId: event.PhysicalResourceId,
     };
   }
 
   await runSql(props, `CREATE SCHEMA IF NOT EXISTS ${quotedSchemaName}`);
+
+  if (event.RequestType === 'Update') {
+    return {
+      PhysicalResourceId: event.PhysicalResourceId,
+    };
+  }
+
   return {
     PhysicalResourceId: props.schemaName,
   };

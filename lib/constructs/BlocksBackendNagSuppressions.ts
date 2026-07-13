@@ -1,9 +1,11 @@
 import type { BlocksBackend } from '@aws-blocks/blocks/cdk';
 import { Stack } from 'aws-cdk-lib';
+import { Alias } from 'aws-cdk-lib/aws-kms';
 import { SingletonFunction } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment } from 'aws-cdk-lib/aws-s3-deployment';
 import { NagSuppressions } from 'cdk-nag';
+import type { Construct } from 'constructs';
 
 const blocksApiSuppressions = [
   {
@@ -124,11 +126,25 @@ const bucketDeploymentSuppressions = [
   },
 ];
 
+const grantCdkBootstrapKeyDecrypt = (
+  scope: Construct,
+  bucketDeployment: BucketDeployment,
+): void => {
+  const cdkBootstrapKey = Alias.fromAliasName(
+    scope,
+    'CdkBootstrapKeyAlias',
+    'alias/cdk-bootstrap-key',
+  );
+  cdkBootstrapKey.grantDecrypt(bucketDeployment.handlerRole);
+};
+
 const suppressBlocksConfigDeployment = (blocksBackend: BlocksBackend): void => {
   const bucketDeployment = blocksBackend.node.tryFindChild('BlocksConfigDeployment');
   if (!(bucketDeployment instanceof BucketDeployment)) {
     return;
   }
+
+  grantCdkBootstrapKeyDecrypt(blocksBackend, bucketDeployment);
 
   const handler = bucketDeployment.node.tryFindChild('CustomResourceHandler');
   if (!(handler instanceof SingletonFunction)) {
