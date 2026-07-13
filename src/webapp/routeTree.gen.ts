@@ -25,7 +25,6 @@ import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiTodosRouteImport } from './routes/demo/api.todos'
 import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
-import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
 import { Route as DemoApiBedrockBudgetRouteImport } from './routes/demo/api.bedrock-budget'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
@@ -115,11 +114,6 @@ const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
   path: '/demo/api/names',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoApiDdbTodosRoute = DemoApiDdbTodosRouteImport.update({
-  id: '/demo/api/ddb-todos',
-  path: '/demo/api/ddb-todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DemoApiBedrockBudgetRoute = DemoApiBedrockBudgetRouteImport.update({
   id: '/demo/api/bedrock-budget',
   path: '/demo/api/bedrock-budget',
@@ -174,7 +168,6 @@ export interface FileRoutesByFullPath {
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
-  '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/todos': typeof DemoApiTodosRoute
@@ -201,7 +194,6 @@ export interface FileRoutesByTo {
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
-  '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/todos': typeof DemoApiTodosRoute
@@ -229,7 +221,6 @@ export interface FileRoutesById {
   '/api/sse/stream': typeof ApiSseStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/demo/api/bedrock-budget': typeof DemoApiBedrockBudgetRoute
-  '/demo/api/ddb-todos': typeof DemoApiDdbTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/todos': typeof DemoApiTodosRoute
@@ -258,7 +249,6 @@ export interface FileRouteTypes {
     | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/bedrock-budget'
-    | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/todos'
@@ -285,7 +275,6 @@ export interface FileRouteTypes {
     | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/bedrock-budget'
-    | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/todos'
@@ -312,7 +301,6 @@ export interface FileRouteTypes {
     | '/api/sse/stream'
     | '/api/trpc/$'
     | '/demo/api/bedrock-budget'
-    | '/demo/api/ddb-todos'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/todos'
@@ -340,7 +328,6 @@ export interface RootRouteChildren {
   ApiSseStreamRoute: typeof ApiSseStreamRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
   DemoApiBedrockBudgetRoute: typeof DemoApiBedrockBudgetRoute
-  DemoApiDdbTodosRoute: typeof DemoApiDdbTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTanchatRoute: typeof DemoApiTanchatRoute
   DemoApiTodosRoute: typeof DemoApiTodosRoute
@@ -469,13 +456,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiNamesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/api/ddb-todos': {
-      id: '/demo/api/ddb-todos'
-      path: '/demo/api/ddb-todos'
-      fullPath: '/demo/api/ddb-todos'
-      preLoaderRoute: typeof DemoApiDdbTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/demo/api/bedrock-budget': {
       id: '/demo/api/bedrock-budget'
       path: '/demo/api/bedrock-budget'
@@ -548,7 +528,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSseStreamRoute: ApiSseStreamRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
   DemoApiBedrockBudgetRoute: DemoApiBedrockBudgetRoute,
-  DemoApiDdbTodosRoute: DemoApiDdbTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTanchatRoute: DemoApiTanchatRoute,
   DemoApiTodosRoute: DemoApiTodosRoute,
