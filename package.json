@@ -12,7 +12,8 @@
     "#src/webapp/integrations/tanstack-query/*": "./src/webapp/integrations/tanstack-query/*.tsx",
     "#src/webapp/integrations/bedrock-adapter": "./src/webapp/integrations/bedrock-adapter/index.ts",
     "#src/webapp/integrations/*": "./src/webapp/integrations/*.ts",
-    "#src/webapp/utils/*": "./src/webapp/utils/*.ts"
+    "#src/webapp/utils/*": "./src/webapp/utils/*.ts",
+    "#src/webapp/ds/*": "./src/webapp/ds/*"
   },
   "scripts": {
     "webapp:dev": "vp dev --port 3000",
@@ -21,6 +22,7 @@
     "check": "vp check",
     "check:fix": "vp check --fix",
     "generate:robots": "node scripts/generate-robots-txt.ts",
+    "sync:tanstack-ds": "tsx scripts/sync-tanstack-ds.cli.ts",
     "test": "vp test",
     "test:bedrock": "tsx scripts/test-bedrock-chat.ts",
     "test:bedrock-budget": "tsx scripts/test-bedrock-budget.ts",

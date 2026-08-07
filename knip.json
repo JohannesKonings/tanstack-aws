@@ -11,7 +11,7 @@
   "paths": {
     "#src/*": ["./src/*"]
   },
-  "ignore": ["src/webapp/routeTree.gen.ts"],
+  "ignore": ["src/webapp/routeTree.gen.ts", "src/webapp/ds/**"],
   "vite": {
     "config": ["vite.config.ts"]
   },
