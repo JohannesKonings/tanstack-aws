@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { DS_TOKENS_GENERATED_REL, extractDsThemeTokens } from './extract-ds-theme-tokens.ts';
 
 export type SyncTanstackDsLock = {
   repo: string;
@@ -156,6 +157,14 @@ export async function syncTanstackDs(
   }
 
   await deps.downloadSelfHostedFonts(path.join(options.repoRoot, 'public', 'fonts'));
+
+  const vendoredAppCss = await fs.readFile(
+    path.join(options.repoRoot, 'src/webapp/ds/styles/app.css'),
+    'utf8',
+  );
+  const generatedTokensAbs = path.join(options.repoRoot, DS_TOKENS_GENERATED_REL);
+  await fs.mkdir(path.dirname(generatedTokensAbs), { recursive: true });
+  await fs.writeFile(generatedTokensAbs, extractDsThemeTokens(vendoredAppCss), 'utf8');
 
   const nextLock: SyncTanstackDsLock = {
     repo: UPSTREAM_REPO,

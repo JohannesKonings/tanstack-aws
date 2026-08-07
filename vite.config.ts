@@ -75,6 +75,7 @@ const config = defineConfig({
       'docs/PLAN-DB-PERSONS.md',
       'src/webapp/routeTree.gen.ts',
       'src/webapp/ds/**',
+      'src/webapp/styles/ds-tokens.generated.css',
       'public/fonts/**',
       'public/images/brand/**',
     ],

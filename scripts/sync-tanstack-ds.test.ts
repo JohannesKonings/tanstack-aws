@@ -43,7 +43,18 @@ describe('syncTanstackDs', () => {
     upstreamRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'sync-ds-up-'));
 
     await writeTree(upstreamRoot, {
-      'src/styles/app.css': '/* tokens */',
+      'src/styles/app.css': `@theme static {
+  --color-background-default: #ffffff;
+  --color-text-primary: #111111;
+}
+:root,
+:host {
+  --color-gray-50: #faf8f2;
+}
+html.dark {
+  --color-background-default: #111111;
+}
+`,
       'src/components/ds/ui/index.tsx': 'export const Button = () => null\n',
       'src/components/ds/ui/PixelSpinner.tsx':
         "import { PIXEL_SPINNER_FRAMES } from '../pixel-spinner-frames'\n",
@@ -115,7 +126,13 @@ describe('syncTanstackDs', () => {
     );
 
     expect(result.sha).toBe(LOCK_SHA);
-    expect(await readUtf8(repoRoot, 'src/webapp/ds/styles/app.css')).toBe('/* tokens */');
+    expect(await readUtf8(repoRoot, 'src/webapp/ds/styles/app.css')).toContain('@theme static');
+    expect(await readUtf8(repoRoot, 'src/webapp/styles/ds-tokens.generated.css')).toContain(
+      '@theme static',
+    );
+    expect(await readUtf8(repoRoot, 'src/webapp/styles/ds-tokens.generated.css')).toContain(
+      'html.dark',
+    );
     expect(await readUtf8(repoRoot, 'src/webapp/ds/ui/index.tsx')).toContain('Button');
     expect(await readUtf8(repoRoot, 'src/webapp/ds/pixel-spinner-frames.ts')).toContain(
       'PIXEL_SPINNER_FRAMES',

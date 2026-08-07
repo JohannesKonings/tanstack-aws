@@ -206,6 +206,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   console.log(`Synced ${UPSTREAM_REPO}@${result.sha}`);
   console.log('Wrote:');
   console.log('  src/webapp/ds/**');
+  console.log('  src/webapp/styles/ds-tokens.generated.css');
   console.log('  public/fonts/**');
   console.log('  public/images/brand/**');
   console.log('  public/favicon-light.svg, public/favicon-dark.svg');
