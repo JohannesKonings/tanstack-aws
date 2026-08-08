@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/frog/schema.json",
+  "inbound": {
+    "enabled": false
+  },
+  "outbound": {
+    "enabled": false
+  }
+}

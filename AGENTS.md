@@ -14,6 +14,17 @@ TanStack AWS is a single TanStack Start (React SSR) application built with Vite 
 - TypeScript: do not use `any` or `as` casts to silence type errors unless unavoidable and justified.
 - Before completing substantial code changes, run `vp check` and `vp test`.
 
+## Friction log
+
+Local-only (this repo’s `.agents/friction-log/`). No GitHub Issues, publish, sync, or cross-repo targets.
+
+- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `vp exec frog log`.
+- Do not add global, system, or internal friction.
+- Run `vp exec frog list` first to see what is already known.
+- Do not run `frog publish`, `frog sync`, or `frog log --publish` / `--target`.
+- When fixed, remove with `vp exec frog resolve <id>`.
+- Details: `.agents/friction-log/README.md`.
+
 ## Rules index
 
 - CDK lifecycle + workflow stage handling: `.cursor/rules/cdk-stage-lifecycle.mdc`
