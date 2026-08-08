@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import type { Employment } from '#src/webapp/types/person';
 import { EmploymentForm } from './EmploymentForm.tsx';
 
@@ -42,7 +42,7 @@ export const EmploymentFormModal = ({
             onClick={onCancel}
             className="p-1 rounded hover:bg-white/20 text-white/70 hover:text-white"
           >
-            <X className="h-5 w-5" />
+            <XIcon className="h-5 w-5" />
           </button>
         </div>
         <EmploymentForm employment={employment} onSave={handleSave} onCancel={onCancel} />

@@ -1,56 +1,56 @@
+import {
+  ArrowSquareOutIcon,
+  CloudIcon,
+  DatabaseIcon,
+  GlobeIcon,
+  HardDrivesIcon,
+  HardHatIcon,
+  LightningIcon,
+  PathIcon,
+  ShieldIcon,
+  SparkleIcon,
+  WavesIcon,
+} from '@phosphor-icons/react';
 // oxlint-disable jsx-max-depth
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
-import {
-  Cloud,
-  Construction,
-  Database,
-  ExternalLink,
-  Globe,
-  RouteIcon,
-  Server,
-  Shield,
-  Sparkles,
-  Waves,
-  Zap,
-} from 'lucide-react';
 
 export const Route = createFileRoute('/')({ component: App });
 
 function App() {
   const features = [
     {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
+      icon: <LightningIcon className="w-12 h-12 text-cyan-400" />,
       title: 'Powerful Server Functions',
       description:
         'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
     },
     {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
+      icon: <HardDrivesIcon className="w-12 h-12 text-cyan-400" />,
       title: 'Flexible Server Side Rendering',
       description:
         'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
     },
     {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
+      icon: <PathIcon className="w-12 h-12 text-cyan-400" />,
       title: 'API Routes',
       description:
         'Build type-safe API endpoints alongside your application. No separate backend needed.',
     },
     {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
+      icon: <ShieldIcon className="w-12 h-12 text-cyan-400" />,
       title: 'Strongly Typed Everything',
       description:
         'End-to-end type safety from server to client. Catch errors before they reach production.',
     },
     {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
+      icon: <WavesIcon className="w-12 h-12 text-cyan-400" />,
       title: 'Full Streaming Support',
       description:
         'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
     },
     {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
+      icon: <SparkleIcon className="w-12 h-12 text-cyan-400" />,
       title: 'Next Generation Ready',
       description:
         'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
@@ -59,19 +59,19 @@ function App() {
 
   const awsFeatures = [
     {
-      icon: <Cloud className="w-10 h-10 text-orange-400" />,
+      icon: <CloudIcon className="w-10 h-10 text-orange-400" />,
       title: 'AWS CDK Infrastructure',
       description:
         'Deploy with AWS CDK constructs. Infrastructure as code with TypeScript for Lambda, CloudFront, S3, and more.',
     },
     {
-      icon: <Database className="w-10 h-10 text-orange-400" />,
+      icon: <DatabaseIcon className="w-10 h-10 text-orange-400" />,
       title: 'DynamoDB + ElectroDB',
       description:
         'Type-safe database operations with ElectroDB entities. Single-table design patterns made simple.',
     },
     {
-      icon: <Globe className="w-10 h-10 text-orange-400" />,
+      icon: <GlobeIcon className="w-10 h-10 text-orange-400" />,
       title: 'CloudFront Distribution',
       description:
         'Global edge caching with CloudFront. Fast, secure, and scalable content delivery worldwide.',
@@ -143,9 +143,9 @@ function App() {
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-8">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-3">
-              <Construction className="w-10 h-10 text-yellow-400" />
+              <HardHatIcon className="w-10 h-10 text-yellow-400" />
               <h2 className="text-2xl font-bold text-yellow-400">Work in Progress</h2>
-              <Construction className="w-10 h-10 text-yellow-400" />
+              <HardHatIcon className="w-10 h-10 text-yellow-400" />
             </div>
             <p className="text-gray-300 max-w-2xl mx-auto">
               This project is under active development. New features and examples are being added
@@ -159,7 +159,7 @@ function App() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition-all group"
             >
-              <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
+              <ArrowSquareOutIcon className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
                   TanStack Start AWS Serverless
@@ -177,7 +177,7 @@ function App() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition-all group"
             >
-              <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
+              <ArrowSquareOutIcon className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
                   TanStack DB with DynamoDb - Todo List
@@ -194,7 +194,7 @@ function App() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition-all group"
             >
-              <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
+              <ArrowSquareOutIcon className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
                   TanStack DB with DynamoDb - Multiple Entities
@@ -212,7 +212,7 @@ function App() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition-all group"
             >
-              <ExternalLink className="w-5 h-5 text-yellow-400 shrink-0" />
+              <ArrowSquareOutIcon className="w-5 h-5 text-yellow-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-white font-medium group-hover:text-yellow-400 transition-colors">
                   TanStack DB with DynamoDb - Multiple Entities SSE

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import { Button } from '#src/webapp/components/ui/button';
 
 // oxlint-disable no-ternary
@@ -39,7 +39,7 @@ export const ConfirmationModal = ({
             onClick={onCancel}
             className="p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition-colors"
           >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
 

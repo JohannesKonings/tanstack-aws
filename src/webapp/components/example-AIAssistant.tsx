@@ -1,8 +1,8 @@
+import { CaretRightIcon, PaperPlaneRightIcon, XIcon } from '@phosphor-icons/react';
 import type { UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { useStore } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
-import { ChevronRight, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import GuitarRecommendation from './example-GuitarRecommendation';
@@ -95,7 +95,7 @@ export default function AIAssistant() {
           </div>
           <span className="font-medium">AI Assistant</span>
         </div>
-        <ChevronRight className="w-4 h-4" />
+        <CaretRightIcon className="w-4 h-4" />
       </button>
 
       {isOpen && (
@@ -106,7 +106,7 @@ export default function AIAssistant() {
               onClick={() => showAIAssistant.setState((state) => !state)}
               className="text-gray-400 hover:text-white transition-colors"
             >
-              <X className="w-4 h-4" />
+              <XIcon className="w-4 h-4" />
             </button>
           </div>
 
@@ -150,7 +150,7 @@ export default function AIAssistant() {
                   disabled={!input.trim()}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
                 >
-                  <Send className="w-4 h-4" />
+                  <PaperPlaneRightIcon className="w-4 h-4" />
                 </button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import { CreditCard, Landmark, Pencil, Star, Trash2 } from 'lucide-react';
+import { BankIcon, CreditCardIcon, PencilIcon, StarIcon, TrashIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '#src/webapp/components/ui/button';
 import type { BankAccount } from '#src/webapp/types/person';
@@ -34,19 +34,19 @@ export const BankAccountCard = ({
     <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <Landmark className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <BankIcon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-white">{bankAccount.bankName}</p>
               {bankAccount.isPrimary && (
                 <div className="flex items-center gap-1 text-xs text-white/75">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  <StarIcon weight="fill" className="h-3 w-3 text-yellow-400" />
                   Primary
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2 text-sm text-white/75">
-              <CreditCard className="h-3.5 w-3.5" />
+              <CreditCardIcon className="h-3.5 w-3.5" />
               <span className="capitalize">{bankAccount.accountType}</span>
               <span>•</span>
               <span>****{bankAccount.accountNumberLast4}</span>
@@ -65,7 +65,7 @@ export const BankAccountCard = ({
               disabled={isLoading}
               title="Set as primary"
             >
-              <Star className="h-4 w-4" />
+              <StarIcon className="h-4 w-4" />
             </Button>
           )}
           <Button
@@ -74,7 +74,7 @@ export const BankAccountCard = ({
             onClick={() => onEdit?.(bankAccount)}
             disabled={isLoading}
           >
-            <Pencil className="h-4 w-4" />
+            <PencilIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="icon"
@@ -83,7 +83,7 @@ export const BankAccountCard = ({
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>

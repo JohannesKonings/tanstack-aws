@@ -1,21 +1,21 @@
+import {
+  CaretDownIcon,
+  CaretRightIcon,
+  ChatCircleIcon,
+  DatabaseIcon,
+  FunctionIcon,
+  GithubLogoIcon,
+  GuitarIcon,
+  HouseIcon,
+  ListIcon,
+  NetworkIcon,
+  NoteIcon,
+  StorefrontIcon,
+  UsersIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 // oxlint-disable no-ternary
 import { Link } from '@tanstack/react-router';
-import {
-  ChevronDown,
-  ChevronRight,
-  Database,
-  Github,
-  Guitar,
-  Home,
-  Menu,
-  MessagesSquare,
-  Network,
-  SquareFunction,
-  StickyNote,
-  Store,
-  Users,
-  X,
-} from 'lucide-react';
 import { useState } from 'react';
 import TanChatAIAssistant from './example-AIAssistant.tsx';
 
@@ -32,7 +32,7 @@ export default function Header() {
             className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
             aria-label="Open menu"
           >
-            <Menu size={24} />
+            <ListIcon size={24} />
           </button>
           <h1 className="ml-4 text-xl font-semibold">
             <Link to="/">
@@ -51,7 +51,7 @@ export default function Header() {
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
           aria-label="View on GitHub"
         >
-          <Github size={24} />
+          <GithubLogoIcon size={24} />
         </a>
       </header>
 
@@ -67,7 +67,7 @@ export default function Header() {
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
             aria-label="Close menu"
           >
-            <X size={24} />
+            <XIcon size={24} />
           </button>
         </div>
 
@@ -81,7 +81,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Home size={20} />
+            <HouseIcon size={20} />
             <span className="font-medium">Home</span>
           </Link>
 
@@ -96,7 +96,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <SquareFunction size={20} />
+            <FunctionIcon size={20} />
             <span className="font-medium">Start - Server Functions</span>
           </Link>
 
@@ -109,7 +109,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Network size={20} />
+            <NetworkIcon size={20} />
             <span className="font-medium">Start - API Request</span>
           </Link>
 
@@ -123,7 +123,7 @@ export default function Header() {
                   'flex-1 flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
               }}
             >
-              <StickyNote size={20} />
+              <NoteIcon size={20} />
               <span className="font-medium">Start - SSR Demos</span>
             </Link>
             <button
@@ -136,9 +136,9 @@ export default function Header() {
               }
             >
               {groupedExpanded.StartSSRDemo ? (
-                <ChevronDown size={20} />
+                <CaretDownIcon size={20} />
               ) : (
-                <ChevronRight size={20} />
+                <CaretRightIcon size={20} />
               )}
             </button>
           </div>
@@ -153,7 +153,7 @@ export default function Header() {
                     'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
                 }}
               >
-                <StickyNote size={20} />
+                <NoteIcon size={20} />
                 <span className="font-medium">SPA Mode</span>
               </Link>
 
@@ -166,7 +166,7 @@ export default function Header() {
                     'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
                 }}
               >
-                <StickyNote size={20} />
+                <NoteIcon size={20} />
                 <span className="font-medium">Full SSR</span>
               </Link>
 
@@ -179,7 +179,7 @@ export default function Header() {
                     'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
                 }}
               >
-                <StickyNote size={20} />
+                <NoteIcon size={20} />
                 <span className="font-medium">Data Only</span>
               </Link>
             </div>
@@ -194,7 +194,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Network size={20} />
+            <NetworkIcon size={20} />
             <span className="font-medium">tRPC Todo</span>
           </Link>
 
@@ -207,7 +207,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Network size={20} />
+            <NetworkIcon size={20} />
             <span className="font-medium">TanStack Query</span>
           </Link>
 
@@ -220,7 +220,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <MessagesSquare size={20} />
+            <ChatCircleIcon size={20} />
             <span className="font-medium">Chat (TanStack AI with Amazon Bedrock)</span>
           </Link>
 
@@ -233,7 +233,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Guitar size={20} />
+            <GuitarIcon size={20} />
             <span className="font-medium">Guitar Demo</span>
           </Link>
 
@@ -246,7 +246,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Store size={20} />
+            <StorefrontIcon size={20} />
             <span className="font-medium">Store</span>
           </Link>
           <Link
@@ -258,7 +258,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Database size={20} />
+            <DatabaseIcon size={20} />
             <span className="font-medium">DB Todo</span>
           </Link>
           <Link
@@ -270,7 +270,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Users size={20} />
+            <UsersIcon size={20} />
             <span className="font-medium">DB Persons</span>
           </Link>
 
