@@ -223,8 +223,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         {onCancel && (
           <Button
             type="button"
+            variant="ghost"
             onClick={onCancel}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40"
           >
             Cancel
           </Button>

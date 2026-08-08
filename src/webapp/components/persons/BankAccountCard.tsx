@@ -59,31 +59,29 @@ export const BankAccountCard = ({
         <div className="flex gap-1">
           {!bankAccount.isPrimary && (
             <Button
-              size="icon"
-              variant="ghost"
+              variant="icon"
+              size="icon-sm"
               onClick={handleSetPrimary}
               disabled={isLoading}
-              className="h-8 w-8 cursor-pointer"
               title="Set as primary"
             >
               <Star className="h-4 w-4" />
             </Button>
           )}
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
             onClick={() => onEdit?.(bankAccount)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
           >
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
+            color="red"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

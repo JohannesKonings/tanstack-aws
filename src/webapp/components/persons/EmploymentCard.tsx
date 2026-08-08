@@ -87,20 +87,19 @@ export const EmploymentCard = ({
 
         <div className="flex gap-1">
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
             onClick={() => onEdit?.(employment)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
           >
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
+            color="red"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

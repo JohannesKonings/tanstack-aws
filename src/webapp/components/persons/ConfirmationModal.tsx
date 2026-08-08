@@ -47,16 +47,18 @@ export const ConfirmationModal = ({
 
         <div className="flex gap-3 justify-end">
           <Button
+            variant="ghost"
             onClick={onCancel}
             disabled={isLoading}
-            className="cursor-pointer bg-white/20 hover:bg-white/30 text-white border border-white/40"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40"
           >
             {cancelLabel}
           </Button>
           <Button
+            variant="primary"
+            color={isDangerous ? 'red' : 'neutral'}
             onClick={onConfirm}
             disabled={isLoading}
-            className={`cursor-pointer ${isDangerous ? 'bg-destructive hover:bg-destructive/90' : ''}`}
           >
             {confirmLabel}
           </Button>
