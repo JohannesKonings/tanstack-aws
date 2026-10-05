@@ -1,5 +1,6 @@
 packages:
   - .
+  - packages/*
 
 # Shared by local shell and Cursor agent sandbox (workspace-writable).
 storeDir: .pnpm-store

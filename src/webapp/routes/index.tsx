@@ -11,6 +11,7 @@ import {
   SparkleIcon,
   WavesIcon,
 } from '@phosphor-icons/react';
+import { getTanstackAwsClientInfo } from '@tanstack-aws/client';
 // oxlint-disable jsx-max-depth
 // oxlint-disable func-style
 import { createFileRoute } from '@tanstack/react-router';
@@ -18,6 +19,7 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute('/')({ component: App });
 
 function App() {
+  const clientInfo = getTanstackAwsClientInfo();
   const features = [
     {
       icon: <LightningIcon className="w-12 h-12 text-cyan-400" />,
@@ -104,6 +106,9 @@ function App() {
             Explore full-stack examples using TanStack Router, Query, and Start — deployed to AWS
             with CDK infrastructure as code. Learn serverless patterns with Lambda, DynamoDB,
             CloudFront, and S3.
+          </p>
+          <p className="text-sm text-cyan-300/90 mb-8">
+            Workspace: {clientInfo.label} · base {clientInfo.baseVersion}
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <span className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-full text-sm text-gray-300">
