@@ -73,6 +73,7 @@ const getRowClassName = (isSelected: boolean) => {
 export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: PersonsTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable function refs by design
   const table = useReactTable({
     data,
     columns,

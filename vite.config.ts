@@ -4,11 +4,12 @@ import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
+import type { PluginOption } from 'vite-plus';
 import { defineConfig } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
 
-const config = defineConfig({
+export default defineConfig({
   experimental: {
     bundledDev: true,
   },
@@ -94,7 +95,7 @@ const config = defineConfig({
     ],
   },
   staged: { '*': 'vp check --fix' },
-  plugins: isVitest
+  plugins: (isVitest
     ? []
     : [
         devtools({
@@ -119,7 +120,5 @@ const config = defineConfig({
         babel({
           presets: [reactCompilerPreset()],
         }),
-      ],
+      ]) as PluginOption[],
 });
-
-export default config;
