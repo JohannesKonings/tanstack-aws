@@ -26,6 +26,8 @@ const config = defineConfig({
       '.tanstack/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
+      // Vendored TanStack DS — copy-as-is; adaptations live outside this tree.
+      'src/webapp/ds/**',
     ],
     categories: {
       correctness: 'error',
@@ -72,6 +74,10 @@ const config = defineConfig({
       'cdk.out/**',
       'docs/PLAN-DB-PERSONS.md',
       'src/webapp/routeTree.gen.ts',
+      'src/webapp/ds/**',
+      'src/webapp/styles/ds-tokens.generated.css',
+      'public/fonts/**',
+      'public/images/brand/**',
     ],
     singleQuote: true,
     experimentalSortImports: {
@@ -82,7 +88,7 @@ const config = defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts', 'scripts/**/*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',

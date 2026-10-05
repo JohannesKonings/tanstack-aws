@@ -1,3 +1,4 @@
+import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
 import {
@@ -8,7 +9,6 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
 export interface PersonTableRow {
@@ -124,8 +124,8 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
                       {{
-                        asc: <ChevronUp className="h-4 w-4" />,
-                        desc: <ChevronDown className="h-4 w-4" />,
+                        asc: <CaretUpIcon className="h-4 w-4" />,
+                        desc: <CaretDownIcon className="h-4 w-4" />,
                       }[header.column.getIsSorted() as string] ?? null}
                     </div>
                   </th>

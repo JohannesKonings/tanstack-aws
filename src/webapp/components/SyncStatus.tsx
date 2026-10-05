@@ -1,5 +1,5 @@
 // oxlint-disable no-ternary
-import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { ArrowsClockwiseIcon, WifiHighIcon, WifiSlashIcon } from '@phosphor-icons/react';
 import { useSseSync } from '#src/webapp/hooks/useSseSync';
 
 // =============================================================================
@@ -50,12 +50,12 @@ export const SyncStatus = ({
       <div className="flex items-center gap-2">
         {isConnected ? (
           <>
-            <Wifi className="size-4 text-green-500" aria-hidden="true" />
+            <WifiHighIcon className="size-4 text-green-500" aria-hidden="true" />
             <span className="text-green-500">Connected</span>
           </>
         ) : (
           <>
-            <WifiOff className="size-4 text-red-500" aria-hidden="true" />
+            <WifiSlashIcon className="size-4 text-red-500" aria-hidden="true" />
             <span className="text-red-500">Disconnected</span>
           </>
         )}
@@ -74,7 +74,7 @@ export const SyncStatus = ({
           className="ml-2 flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-white transition-colors hover:bg-gray-600"
           aria-label="Reconnect to sync"
         >
-          <RefreshCw className="size-3" aria-hidden="true" />
+          <ArrowsClockwiseIcon className="size-3" aria-hidden="true" />
           Reconnect
         </button>
       )}
@@ -107,9 +107,9 @@ export const SyncStatusIndicator = ({
       aria-label={isConnected ? 'Sync connected' : 'Sync disconnected - click to reconnect'}
     >
       {isConnected ? (
-        <Wifi className="size-4 text-green-500" aria-hidden="true" />
+        <WifiHighIcon className="size-4 text-green-500" aria-hidden="true" />
       ) : (
-        <WifiOff className="size-4 text-red-500" aria-hidden="true" />
+        <WifiSlashIcon className="size-4 text-red-500" aria-hidden="true" />
       )}
     </button>
   );

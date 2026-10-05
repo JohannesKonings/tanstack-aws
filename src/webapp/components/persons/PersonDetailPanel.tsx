@@ -2,7 +2,17 @@
 // oxlint-disable no-magic-numbers
 // oxlint-disable id-length
 // oxlint-disable max-statements
-import { Briefcase, Edit2, Landmark, Mail, MapPin, Plus, Trash2, User, X } from 'lucide-react';
+import {
+  BankIcon,
+  BriefcaseIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+  UserIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { useState } from 'react';
 import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
 import type {
@@ -86,7 +96,7 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <User className="h-6 w-6 text-cyan-400" />
+            <UserIcon className="h-6 w-6 text-cyan-400" />
             <div>
               <h2 className="text-xl font-semibold text-white">
                 {person.firstName} {person.lastName}
@@ -100,20 +110,20 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
               className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
               title="Edit person"
             >
-              <Edit2 className="h-5 w-5" />
+              <PencilSimpleIcon className="h-5 w-5" />
             </button>
             <button
               onClick={handleDeletePerson}
               className="p-2 rounded-lg hover:bg-red-500/20 text-white/70 hover:text-red-300 transition-colors"
               title="Delete person"
             >
-              <Trash2 className="h-5 w-5" />
+              <TrashIcon className="h-5 w-5" />
             </button>
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
             >
-              <X className="h-5 w-5" />
+              <XIcon className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -123,7 +133,7 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
           {/* Addresses */}
           <DetailSection
             title="Addresses"
-            icon={MapPin}
+            icon={MapPinIcon}
             count={addresses.length}
             onAdd={() => setAddingAddress(true)}
           >
@@ -145,7 +155,7 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
           {/* Contacts */}
           <DetailSection
             title="Contact Info"
-            icon={Mail}
+            icon={EnvelopeIcon}
             count={contacts.length}
             onAdd={() => setAddingContact(true)}
           >
@@ -167,7 +177,7 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
           {/* Employment */}
           <DetailSection
             title="Employment"
-            icon={Briefcase}
+            icon={BriefcaseIcon}
             count={employments.length}
             onAdd={() => setAddingEmployment(true)}
           >
@@ -189,7 +199,7 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
           {/* Bank Accounts */}
           <DetailSection
             title="Bank Accounts"
-            icon={Landmark}
+            icon={BankIcon}
             count={bankAccounts.length}
             onAdd={() => setAddingBankAccount(true)}
           >
@@ -341,7 +351,7 @@ const DetailSection = ({ title, icon: Icon, count, children, onAdd }: DetailSect
           className="ml-1 p-1 rounded hover:bg-white/20 text-white/70 hover:text-white transition-colors"
           title={`Add ${title.toLowerCase()}`}
         >
-          <Plus className="h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
         </button>
       )}
     </div>

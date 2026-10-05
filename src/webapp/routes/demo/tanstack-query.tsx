@@ -1,7 +1,7 @@
+import { TrashIcon } from '@phosphor-icons/react';
 // oxlint-disable func-style
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { type Todo, todoSchema } from '#src/webapp/types/todo';
 
@@ -128,7 +128,7 @@ function TanStackQueryDemo() {
                   className="text-white/80 hover:text-red-300 p-2 rounded-full hover:bg-white/10 transition-colors"
                   aria-label={`Delete todo ${todoItem.name}`}
                 >
-                  <Trash2 className="w-5 h-5" aria-hidden="true" />
+                  <TrashIcon className="w-5 h-5" aria-hidden="true" />
                 </button>
               </li>
             );

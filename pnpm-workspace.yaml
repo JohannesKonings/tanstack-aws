@@ -1,5 +1,12 @@
 packages:
   - .
+  - packages/*
+
+# Shared by local shell and Cursor agent sandbox (workspace-writable).
+storeDir: .pnpm-store
+
+# Experimental: https://pnpm.io/global-virtual-store
+enableGlobalVirtualStore: true
 
 minimumReleaseAge: 2880
 

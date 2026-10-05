@@ -242,9 +242,10 @@ export const EmploymentForm = ({
         {onCancel && (
           <Button
             type="button"
+            variant="ghost"
             onClick={onCancel}
             disabled={isLoading}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40"
           >
             Cancel
           </Button>

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import { Button } from '#src/webapp/components/ui/button';
 
 // oxlint-disable no-ternary
@@ -39,7 +39,7 @@ export const ConfirmationModal = ({
             onClick={onCancel}
             className="p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition-colors"
           >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
 
@@ -47,16 +47,18 @@ export const ConfirmationModal = ({
 
         <div className="flex gap-3 justify-end">
           <Button
+            variant="ghost"
             onClick={onCancel}
             disabled={isLoading}
-            className="cursor-pointer bg-white/20 hover:bg-white/30 text-white border border-white/40"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/40"
           >
             {cancelLabel}
           </Button>
           <Button
+            variant="primary"
+            color={isDangerous ? 'red' : 'neutral'}
             onClick={onConfirm}
             disabled={isLoading}
-            className={`cursor-pointer ${isDangerous ? 'bg-destructive hover:bg-destructive/90' : ''}`}
           >
             {confirmLabel}
           </Button>

@@ -1,4 +1,13 @@
-import { CheckCircle2, Linkedin, Mail, Pencil, Phone, Star, Trash2, Twitter } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  EnvelopeIcon,
+  LinkedinLogoIcon,
+  PencilIcon,
+  PhoneIcon,
+  StarIcon,
+  TrashIcon,
+  XLogoIcon,
+} from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '#src/webapp/components/ui/button';
 import type { ContactInfo } from '#src/webapp/types/person';
@@ -15,16 +24,16 @@ interface ContactInfoCardProps {
 const getContactIcon = (type: string) => {
   switch (type) {
     case 'email':
-      return Mail;
+      return EnvelopeIcon;
     case 'phone':
     case 'mobile':
-      return Phone;
+      return PhoneIcon;
     case 'linkedin':
-      return Linkedin;
+      return LinkedinLogoIcon;
     case 'twitter':
-      return Twitter;
+      return XLogoIcon;
     default:
-      return Mail;
+      return EnvelopeIcon;
   }
 };
 
@@ -60,13 +69,13 @@ export const ContactInfoCard = ({
               </span>
               {contact.isPrimary && (
                 <div className="flex items-center gap-1 text-xs text-white/75">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  <StarIcon weight="fill" className="h-3 w-3 text-yellow-400" />
                   Primary
                 </div>
               )}
               {contact.isVerified && (
                 <div className="flex items-center gap-1 text-xs text-green-400">
-                  <CheckCircle2 className="h-3 w-3" />
+                  <CheckCircleIcon className="h-3 w-3" />
                   Verified
                 </div>
               )}
@@ -78,33 +87,31 @@ export const ContactInfoCard = ({
         <div className="flex gap-1">
           {!contact.isPrimary && (
             <Button
-              size="icon"
-              variant="ghost"
+              variant="icon"
+              size="icon-sm"
               onClick={handleSetPrimary}
               disabled={isLoading}
-              className="h-8 w-8 cursor-pointer"
               title="Set as primary"
             >
-              <Star className="h-4 w-4" />
+              <StarIcon className="h-4 w-4" />
             </Button>
           )}
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
             onClick={() => onEdit?.(contact)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
           >
-            <Pencil className="h-4 w-4" />
+            <PencilIcon className="h-4 w-4" />
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            size="icon-sm"
+            color="red"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>

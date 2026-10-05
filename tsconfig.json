@@ -1,5 +1,6 @@
 {
   "include": ["**/*.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["src/webapp/ds/**"],
   "compilerOptions": {
     "target": "es2024",
     "jsx": "react-jsx",
