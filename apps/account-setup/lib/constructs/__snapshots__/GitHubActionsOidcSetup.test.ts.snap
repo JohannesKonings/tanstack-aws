@@ -29,7 +29,7 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",

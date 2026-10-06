@@ -13,6 +13,7 @@ type SharedAuroraPostgresServerlessV2Props = {
 const DEFAULT_DATABASE_NAME = 'tanstackaws';
 const DEFAULT_MIN_CAPACITY = 0.5;
 const DEFAULT_MAX_CAPACITY = 4;
+const PREFERRED_MAINTENANCE_WINDOW = 'Sun:03:00-Sun:03:30';
 
 /** Aurora PostgreSQL Serverless v2 cluster, Data API only. Cluster endpoints are unreachable; no direct TCP connections. */
 export class SharedAuroraPostgresServerlessV2 extends Construct {
@@ -47,7 +48,10 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
         version: rds.AuroraPostgresEngineVersion.VER_18_4,
       }),
-      writer: rds.ClusterInstance.serverlessV2('Writer'),
+      writer: rds.ClusterInstance.serverlessV2('Writer', {
+        preferredMaintenanceWindow: PREFERRED_MAINTENANCE_WINDOW,
+      }),
+      preferredMaintenanceWindow: PREFERRED_MAINTENANCE_WINDOW,
       vpc: this.vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
