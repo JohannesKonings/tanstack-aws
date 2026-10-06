@@ -16,7 +16,8 @@
   },
   "scripts": {
     "webapp:dev": "vp dev --port 3000",
-    "webapp:build": "node scripts/generate-robots-txt.ts && vp build",
+    "build": "node scripts/generate-robots-txt.ts && vp build",
+    "webapp:build": "vp run build",
     "webapp:serve": "node .output/server/index.mjs",
     "check": "vp check",
     "check:fix": "vp check --fix",
