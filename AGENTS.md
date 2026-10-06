@@ -39,7 +39,7 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
+Multi-context: `GLOSSARY-MAP.md` points at per-context `GLOSSARY.md` files and `docs/adr/`. See `docs/agents/domain.md`.
 
 <!-- intent-skills:start -->
 

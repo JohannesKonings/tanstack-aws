@@ -21,7 +21,11 @@ export default defineWorkspaceConfig({
     blockAgentSkills: {
       glossaryMap: {
         root: {
-          glossary: 'CONTEXT.md',
+          glossary: 'GLOSSARY.md',
+          adr: 'docs/adr',
+        },
+        'account-setup': {
+          glossary: 'apps/account-setup/GLOSSARY.md',
           adr: 'docs/adr',
         },
       },
