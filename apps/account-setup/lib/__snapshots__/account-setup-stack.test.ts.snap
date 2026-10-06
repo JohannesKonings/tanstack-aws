@@ -44,7 +44,7 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -472,7 +472,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -587,7 +587,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "Properties": {
         "BackupRetentionPeriod": 7,
         "CopyTagsToSnapshot": true,
-        "DBClusterParameterGroupName": "default.aurora-postgresql17",
+        "DBClusterParameterGroupName": "default.aurora-postgresql18",
         "DBSubnetGroupName": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterSubnetsFBE4330F",
         },
@@ -598,7 +598,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         ],
         "EnableHttpEndpoint": true,
         "Engine": "aurora-postgresql",
-        "EngineVersion": "17.7",
+        "EngineVersion": "18.4",
         "MasterUserPassword": {
           "Fn::Join": [
             "",
@@ -613,6 +613,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         },
         "MasterUsername": "clusteradmin",
         "Port": 5432,
+        "PreferredMaintenanceWindow": "Sun:03:00-Sun:03:30",
         "ServerlessV2ScalingConfiguration": {
           "MaxCapacity": 4,
           "MinCapacity": 0.5,
@@ -750,6 +751,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         },
         "DBInstanceClass": "db.serverless",
         "Engine": "aurora-postgresql",
+        "PreferredMaintenanceWindow": "Sun:03:00-Sun:03:30",
         "PromotionTier": 0,
         "PubliclyAccessible": false,
       },
