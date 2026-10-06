@@ -59,7 +59,7 @@ jobs:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          vp -C apps/account-setup exec cdk diff --all --progress=events 2>&1 | tee cdk-diff.log || true
+          vp -C apps/account-setup exec cdk diff 2>&1 | tee cdk-diff.log || true
           cdk-notifier \
             --vcs github \
             --owner "${{ github.repository_owner }}" \

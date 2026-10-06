@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { App, Aspects, Tags } from 'aws-cdk-lib';
+import { Aspects, Tags } from 'aws-cdk-lib';
 import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
   ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
@@ -8,9 +8,10 @@ import {
 import { GLOBAL_SERVICES_REGION, WORKLOAD_REGION } from '../../../lib/workload-region.ts';
 import { AccountSetupStack } from '../lib/account-setup-stack.ts';
 import { resolveAccountSetupEnv } from '../lib/app-config.ts';
+import { createAccountSetupApp } from '../lib/cdk-app.ts';
 import { WorkloadRegionAccountSetupStack } from '../lib/workload-region-account-setup-stack.ts';
 
-const app = new App();
+const app = createAccountSetupApp();
 Tags.of(app).add(RESOURCE_SCOPE_TAG_KEY, ACCOUNT_RESOURCE_SCOPE_TAG_VALUE);
 const accountSetupEnv = resolveAccountSetupEnv();
 

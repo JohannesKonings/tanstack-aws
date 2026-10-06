@@ -27,6 +27,7 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
     this.vpc = new ec2.Vpc(this, 'Vpc', {
       maxAzs: 2,
       natGateways: 0,
+      restrictDefaultSecurityGroup: true,
       subnetConfiguration: [
         {
           name: 'Database',

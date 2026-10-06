@@ -375,7 +375,7 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
           "sts.amazonaws.com",
         ],
         "CodeHash": "<hash>",
-        "RejectUnauthorized": false,
+        "RejectUnauthorized": true,
         "ServiceToken": {
           "Fn::GetAtt": [
             "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderHandlerF2C543E0",
@@ -427,11 +427,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "Fn::Join": [
           "",
           [
-            "arn:",
-            {
-              "Ref": "AWS::Partition",
-            },
-            ":rds:us-east-2:<account-id>:cluster:",
+            "<arn>",
             {
               "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
             },
@@ -458,6 +454,86 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
   },
   "Resources": {
+    "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+      "DependsOn": [
+        "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "<cdk-bootstrap-role>",
+          "S3Key": "<hash>.zip",
+        },
+        "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group",
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "ec2:AuthorizeSecurityGroupIngress",
+                    "ec2:AuthorizeSecurityGroupEgress",
+                    "ec2:RevokeSecurityGroupIngress",
+                    "ec2:RevokeSecurityGroupEgress",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "<arn>",
+                          {
+                            "Fn::GetAtt": [
+                              "SharedAuroraPostgresServerlessV2VpcCF03BE53",
+                              "DefaultSecurityGroup",
+                            ],
+                          },
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "Inline",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "SharedAuroraClusterArnParameterD7B51CC3": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/cluster-arn",
@@ -466,11 +542,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           "Fn::Join": [
             "",
             [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":rds:us-east-2:<account-id>:cluster:",
+              "<arn>",
               {
                 "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
               },
@@ -808,6 +880,26 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         },
       },
       "Type": "AWS::EC2::Subnet",
+    },
+    "SharedAuroraPostgresServerlessV2VpcRestrictDefaultSecurityGroupCustomResourceA490E0B3": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Account": "<redacted-name>",
+        "DefaultSecurityGroupId": {
+          "Fn::GetAtt": [
+            "SharedAuroraPostgresServerlessV2VpcCF03BE53",
+            "DefaultSecurityGroup",
+          ],
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::VpcRestrictDefaultSG",
+      "UpdateReplacePolicy": "Delete",
     },
     "SharedAuroraSecretArnParameter8AEC77FC": {
       "Properties": {
