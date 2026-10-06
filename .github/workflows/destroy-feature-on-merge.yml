@@ -13,7 +13,14 @@ concurrency:
 
 jobs:
   destroy-feature:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: >-
+      ${{ github.event.pull_request.merged == true &&
+      !(
+        startsWith(github.event.pull_request.head.ref, 'renovate/') ||
+        startsWith(github.event.pull_request.head.ref, 'dependabot/') ||
+        github.event.pull_request.user.login == 'renovate[bot]' ||
+        github.event.pull_request.user.login == 'dependabot[bot]'
+      ) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
