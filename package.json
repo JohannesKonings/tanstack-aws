@@ -32,7 +32,7 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "cdk": "cdk",
-    "cdk:account": "cdk --app \"tsx accountSetup/bin/app.ts\"",
+    "cdk:account": "vp -C apps/account-setup exec cdk",
     "seed:persons": "node scripts/seed-persons.ts",
     "compile": "tsc",
     "intent:list": "intent list",

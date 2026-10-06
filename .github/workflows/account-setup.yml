@@ -1,0 +1,96 @@
+name: Account Setup
+
+on:
+  pull_request:
+    paths:
+      - 'apps/account-setup/**'
+      - '.github/workflows/account-setup.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/account-setup/**'
+      - '.github/workflows/account-setup.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: account-setup-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          cache: true
+          node-version-file: package.json
+          run-install: |
+            - args: ['--frozen-lockfile']
+
+      - name: Run checks
+        run: vp check apps/account-setup
+
+      - name: Run tests
+        run: mkdir -p test-results && vp -C apps/account-setup test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+
+      - name: Publish test report
+        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
+        uses: dorny/test-reporter@v3
+        with:
+          name: Account Setup Vitest
+          path: test-results/vitest.junit.xml
+          reporter: java-junit
+
+      - name: Upload test results artifact
+        if: always() && hashFiles('test-results/vitest.junit.xml') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: account-setup-vitest-junit-report
+          path: test-results/vitest.junit.xml
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy:
+    if: >-
+      always() &&
+      (needs.validate.result == 'success' || needs.validate.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          cache: true
+          node-version-file: package.json
+          run-install: |
+            - args: ['--frozen-lockfile']
+
+      - name: Configure AWS credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: Deploy all account setup stacks
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
+        run: vp -C apps/account-setup exec cdk deploy --all --require-approval never

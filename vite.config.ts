@@ -6,6 +6,10 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import type { PluginOption } from 'vite-plus';
+import {
+  accountSetupImportBoundaries,
+  applicationImportBoundaries,
+} from './tooling/lint/import-boundaries.ts';
 
 const isVitest = Boolean(process.env.VITEST);
 
@@ -73,6 +77,7 @@ export default defineWorkspaceConfig({
       'sort-keys': 'off',
       'typescript/no-floating-promises': 'error',
     },
+    overrides: [accountSetupImportBoundaries, applicationImportBoundaries],
   },
   fmt: {
     ignorePatterns: [
@@ -92,7 +97,7 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'accountSetup/lib/**/*.test.ts'],
+    include: ['lib/**/*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',

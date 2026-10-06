@@ -1,7 +1,7 @@
 import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
-import { snapshotSafeTemplate } from '../../test/cdk-snapshot.ts';
+import { snapshotSafeTemplate } from '../../../test/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
 import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
