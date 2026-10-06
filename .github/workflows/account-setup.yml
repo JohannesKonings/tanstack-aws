@@ -18,6 +18,57 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  diff:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          cache: true
+          node-version-file: package.json
+          run-install: |
+            - args: ['--frozen-lockfile']
+
+      - name: Configure AWS credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: Install cdk-notifier
+        run: |
+          curl -L "https://github.com/karlderkaefer/cdk-notifier/releases/latest/download/cdk-notifier_$(uname)_amd64.gz" -o cdk-notifier.gz
+          gunzip cdk-notifier.gz && chmod +x cdk-notifier && rm -rf cdk-notifier.gz
+          sudo mv cdk-notifier /usr/local/bin/cdk-notifier
+          cdk-notifier --version
+
+      - name: CDK diff and post PR comment
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          vp -C apps/account-setup exec cdk diff --all --progress=events 2>&1 | tee cdk-diff.log || true
+          cdk-notifier \
+            --vcs github \
+            --owner "${{ github.repository_owner }}" \
+            --repo "$(echo '${{ github.repository }}' | cut -d'/' -f2)" \
+            --pull-request-id "${{ github.event.pull_request.number }}" \
+            --log-file ./cdk-diff.log \
+            --tag-id account-setup \
+            --token "${GITHUB_TOKEN}"
+
   validate:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest

@@ -34,11 +34,15 @@ Account setup stacks deploy through the dedicated
 [Account Setup workflow](https://github.com/JohannesKonings/tanstack-aws/blob/main/.github/workflows/account-setup.yml).
 Both stacks always deploy together.
 
-| Event                                 | CI (check + test) | Deploy                            |
-| ------------------------------------- | ----------------- | --------------------------------- |
-| PR push (account-setup paths)         | Every commit      | Manual only (`workflow_dispatch`) |
-| Merge to `main` (account-setup paths) | Yes               | Automatic (`deploy --all`)        |
-| `workflow_dispatch`                   | No                | Deploy all stacks from any branch |
+| Event                                 | CI (check + test) | CDK diff comment | Deploy                            |
+| ------------------------------------- | ----------------- | ---------------- | --------------------------------- |
+| PR push (account-setup paths)         | Every commit      | Yes (same-repo)  | Manual only (`workflow_dispatch`) |
+| Merge to `main` (account-setup paths) | Yes               | No               | Automatic (`deploy --all`)        |
+| `workflow_dispatch`                   | No                | No               | Deploy all stacks from any branch |
+
+Fork PRs skip the CDK diff job (no AWS credentials); check and test still run. The diff
+comment compares the PR branch against currently deployed account-setup stacks in AWS and
+is updated on each push via `cdk-notifier` (`--tag-id account-setup`).
 
 Required deployment order across the repository:
 
