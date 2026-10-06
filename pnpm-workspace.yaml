@@ -1,7 +1,21 @@
+minimumReleaseAge: 2880
+minimumReleaseAgeStrict: true
+minimumReleaseAgeExclude:
+  - '@jaykingson/vite-plus-base'
+
 packages:
   - .
-
-minimumReleaseAge: 2880
-
 allowBuilds:
   esbuild: true
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  vite-plus: 1.0.0
+  vitest: 5.0.1
+overrides:
+  vite@*: 'catalog:'
+  vitest@*: 'catalog:'
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: '*'

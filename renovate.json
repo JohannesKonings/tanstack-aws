@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "minimumReleaseAge": "2 days",
+  "packageRules": [
+    {
+      "description": "Allow immediate updates for @jaykingson/vite-plus-base",
+      "matchPackageNames": ["@jaykingson/vite-plus-base"],
+      "minimumReleaseAge": null
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  }
+}

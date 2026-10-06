@@ -286,6 +286,58 @@ type BudgetState = {
   error?: string;
 };
 
+const BUDGET_TIMEOUT_MS = 20_000;
+
+async function requestBudget(): Promise<BudgetState> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), BUDGET_TIMEOUT_MS);
+
+  try {
+    const res = await fetch('/demo/api/bedrock-budget', {
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      throw new Error(
+        res.status === 0
+          ? 'Budget request timed out (20s)'
+          : `Budget request failed: ${res.status}`,
+      );
+    }
+    const data = (await res.json()) as {
+      overBudget?: boolean;
+      estimatedCost?: number;
+      limit?: number;
+      error?: string;
+    };
+    const rawCost = Number(data.estimatedCost);
+    const rawLimit = Number(data.limit);
+    return {
+      overBudget: data.overBudget ?? false,
+      estimatedCost: Number.isFinite(rawCost) ? rawCost : 0,
+      limit: Number.isFinite(rawLimit) ? rawLimit : DAILY_LIMIT_USD,
+      loading: false,
+      error: data.error,
+    };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    const message =
+      err instanceof Error
+        ? err.name === 'AbortError'
+          ? 'Budget request timed out (20s)'
+          : err.message
+        : String(err);
+    return {
+      overBudget: false,
+      estimatedCost: 0,
+      limit: DAILY_LIMIT_USD,
+      loading: false,
+      error: message,
+    };
+  }
+}
+
 function ChatPage() {
   const [runLog, setRunLog] = useState<RunLogEntry[]>([]);
   const [budget, setBudget] = useState<BudgetState>({
@@ -301,64 +353,26 @@ function ChatPage() {
     };
   }, []);
 
-  const fetchBudget = useCallback(async () => {
-    const BUDGET_TIMEOUT_MS = 20_000;
-    setBudget((prev) => ({ ...prev, loading: true, error: undefined }));
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), BUDGET_TIMEOUT_MS);
-
-    try {
-      const res = await fetch('/demo/api/bedrock-budget', {
-        signal: controller.signal,
-        cache: 'no-store',
-      });
-      clearTimeout(timeoutId);
-      if (!res.ok) {
-        throw new Error(
-          res.status === 0
-            ? 'Budget request timed out (20s)'
-            : `Budget request failed: ${res.status}`,
-        );
-      }
-      const data = (await res.json()) as {
-        overBudget?: boolean;
-        estimatedCost?: number;
-        limit?: number;
-        error?: string;
-      };
-      const rawCost = Number(data.estimatedCost);
-      const rawLimit = Number(data.limit);
-      const next: BudgetState = {
-        overBudget: data.overBudget ?? false,
-        estimatedCost: Number.isFinite(rawCost) ? rawCost : 0,
-        limit: Number.isFinite(rawLimit) ? rawLimit : DAILY_LIMIT_USD,
-        loading: false,
-        error: data.error,
-      };
-      if (!mountedRef.current) return;
-      setBudget(next);
-    } catch (err) {
-      clearTimeout(timeoutId);
-      if (!mountedRef.current) return;
-      const message =
-        err instanceof Error
-          ? err.name === 'AbortError'
-            ? 'Budget request timed out (20s)'
-            : err.message
-          : String(err);
-      setBudget({
-        overBudget: false,
-        estimatedCost: 0,
-        limit: DAILY_LIMIT_USD,
-        loading: false,
-        error: message,
-      });
+  const fetchBudget = useCallback(async (options?: { showLoading?: boolean }) => {
+    if (options?.showLoading) {
+      setBudget((prev) => ({ ...prev, loading: true, error: undefined }));
     }
+    const next = await requestBudget();
+    if (!mountedRef.current) return;
+    setBudget(next);
   }, []);
 
   useEffect(() => {
-    void fetchBudget();
-  }, [fetchBudget]);
+    let cancelled = false;
+    void requestBudget().then((next) => {
+      if (!cancelled) {
+        setBudget(next);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onChunk = useCallback(
     (chunk: AGUIEvent) => {
@@ -380,7 +394,7 @@ function ChatPage() {
             },
           ];
         });
-        void fetchBudget();
+        void fetchBudget({ showLoading: true });
       }
     },
     [fetchBudget],
@@ -464,7 +478,7 @@ function ChatPage() {
           limitUsd={budget.limit}
           budgetError={budget.error}
           budgetLoading={budget.loading}
-          onRetryBudget={fetchBudget}
+          onRetryBudget={() => void fetchBudget({ showLoading: true })}
         />
       </div>
     </div>

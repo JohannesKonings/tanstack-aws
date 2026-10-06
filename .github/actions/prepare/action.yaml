@@ -1,0 +1,9 @@
+description: Prepares the repo for CI and release jobs
+name: Prepare
+runs:
+  using: composite
+  steps:
+    - uses: voidzero-dev/setup-vp@v1.21.1
+      with:
+        cache: 'true'
+        run-install: 'false'

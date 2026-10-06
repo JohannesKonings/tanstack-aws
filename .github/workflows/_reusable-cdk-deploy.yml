@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.21.1
         with:
           cache: true
           node-version-file: package.json
@@ -66,6 +66,7 @@ jobs:
           echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
+        id: aws-credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.aws_role_to_assume }}
@@ -75,4 +76,6 @@ jobs:
         env:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
           STACK_PREFIX: ${{ inputs.stack_prefix }}
-        run: vp run cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
+        # vp exec (not vp run) passes AWS credentials through to CDK; vp run filters them in Vite+ 1.0.
+        run: vp exec cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never

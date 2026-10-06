@@ -1,0 +1,22 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+concurrency:
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  cancel-in-progress: "${{ github.event_name == 'pull_request' }}"
+permissions:
+  contents: read
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/prepare
+      - run: vp install --frozen-lockfile
+      - run: vp check
+      - run: vp run -r test
+      - run: vp run -r build

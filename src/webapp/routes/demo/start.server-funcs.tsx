@@ -55,15 +55,15 @@ export const Route = createFileRoute('/demo/start/server-funcs')({
 // oxlint-disable-next-line func-style
 function Home() {
   const router = useRouter();
-  let todos = Route.useLoaderData();
+  const todos = Route.useLoaderData();
 
   const [todo, setTodo] = useState('');
 
   const submitTodo = useCallback(async () => {
-    todos = await addTodo({ data: todo });
+    await addTodo({ data: todo });
     setTodo('');
     router.invalidate();
-  }, [todo, todos, router]);
+  }, [todo, router]);
 
   return (
     <div

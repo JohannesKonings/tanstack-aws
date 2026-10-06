@@ -12,21 +12,21 @@ interface ContactInfoCardProps {
   isLoading?: boolean;
 }
 
-const getContactIcon = (type: string) => {
+function ContactTypeIcon({ type, className }: { type: string; className?: string }) {
   switch (type) {
     case 'email':
-      return Mail;
+      return <Mail className={className} />;
     case 'phone':
     case 'mobile':
-      return Phone;
+      return <Phone className={className} />;
     case 'linkedin':
-      return Linkedin;
+      return <Linkedin className={className} />;
     case 'twitter':
-      return Twitter;
+      return <Twitter className={className} />;
     default:
-      return Mail;
+      return <Mail className={className} />;
   }
-};
+}
 
 export const ContactInfoCard = ({
   contact,
@@ -46,13 +46,11 @@ export const ContactInfoCard = ({
     onUpdate?.(contact.id, { isPrimary: true });
   };
 
-  const Icon = getContactIcon(contact.type);
-
   return (
     <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <Icon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <ContactTypeIcon type={contact.type} className="mt-1 h-5 w-5 shrink-0 text-white/70" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium capitalize text-cyan-300">
