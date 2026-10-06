@@ -6,7 +6,9 @@
 
 ### Overview
 
-TanStack AWS is a single TanStack Start (React SSR) application built with Vite + Nitro. It showcases TanStack libraries (Start, Router, DB, AI, Query, Store, Form, Table) with AWS services. There is no monorepo structure — one `package.json` at the root, pnpm as the package manager.
+TanStack AWS is a Vite+ monorepo. The root package hosts the TanStack Start (React SSR) application built with Vite + Nitro, showcasing TanStack libraries (Start, Router, DB, AI, Query, Store, Form, Table) with AWS services. Workspace packages live under `apps/*` (account setup today; more apps later) and `packages/*` (reserved for shared libraries). pnpm manages the workspace; root `vite.config.ts` governs lint, format, and check across packages.
+
+Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/account-setup test`.
 
 ## Global conventions
 
@@ -37,7 +39,7 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
+Multi-context: `GLOSSARY-MAP.md` points at per-context `GLOSSARY.md` files and `docs/adr/`. See `docs/agents/domain.md`.
 
 <!-- intent-skills:start -->
 

@@ -1,9 +1,9 @@
-import { App } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
-import { snapshotSafeTemplate } from '../../test/cdk-snapshot.ts';
+import { snapshotSafeTemplate } from '../../../test/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
+import { createAccountSetupApp } from './cdk-app.ts';
 import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
 
 describe('resolveAccountSetupEnv', () => {
@@ -83,7 +83,7 @@ describe('resolveAccountSetupEnv', () => {
 
 describe('AccountSetupStack', () => {
   it('creates GitHub OIDC deployment resources for this repository only', () => {
-    const app = new App();
+    const app = createAccountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -148,7 +148,7 @@ describe('AccountSetupStack', () => {
 
 describe('WorkloadRegionAccountSetupStack', () => {
   it('creates shared Aurora PostgreSQL Serverless v2 infrastructure with Data API enabled', () => {
-    const app = new App();
+    const app = createAccountSetupApp();
     const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
       env: {
         account: '123456789012',

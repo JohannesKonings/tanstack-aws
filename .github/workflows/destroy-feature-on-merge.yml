@@ -32,7 +32,7 @@ jobs:
             - args: ['--frozen-lockfile']
 
       - name: Build
-        run: vp build
+        run: vp -C . build
 
       - name: Resolve stage name
         id: resolve-stage

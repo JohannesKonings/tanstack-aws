@@ -391,6 +391,36 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
 
+  apps/account-setup:
+    devDependencies:
+      aws-cdk:
+        specifier: 2.1129.0
+        version: 2.1129.0
+      aws-cdk-lib:
+        specifier: 2.244.0
+        version: 2.244.0(constructs@10.6.0)
+      cdk-nag:
+        specifier: ^2.38.2
+        version: 2.38.2(aws-cdk-lib@2.244.0(constructs@10.6.0))(constructs@10.6.0)
+      constructs:
+        specifier: ^10.6.0
+        version: 10.6.0
+      tsx:
+        specifier: ^4.23.0
+        version: 4.23.0
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(tsx@4.23.0)(typescript@7.0.2)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+
 packages:
 
   '@ag-ui/core@0.0.49':
