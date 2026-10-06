@@ -1,3 +1,4 @@
+import { defineWorkspaceConfig } from '@jaykingson/vite-plus-base';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
@@ -5,11 +6,23 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import type { PluginOption } from 'vite-plus';
-import { defineConfig } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
 
-export default defineConfig({
+export default defineWorkspaceConfig({
+  bingo: {
+    blockPackageJson: {
+      name: 'tanstack-aws',
+    },
+    blockAgentSkills: {
+      glossaryMap: {
+        root: {
+          glossary: 'CONTEXT.md',
+          adr: 'docs/adr',
+        },
+      },
+    },
+  },
   experimental: {
     bundledDev: true,
   },
@@ -32,10 +45,6 @@ export default defineConfig({
       correctness: 'error',
       perf: 'warn',
       style: 'off',
-    },
-    options: {
-      typeAware: true,
-      typeCheck: true,
     },
     plugins: ['react'],
     rules: {
@@ -94,7 +103,6 @@ export default defineConfig({
       'dist/**',
     ],
   },
-  staged: { '*': 'vp check --fix' },
   plugins: (isVitest
     ? []
     : [
