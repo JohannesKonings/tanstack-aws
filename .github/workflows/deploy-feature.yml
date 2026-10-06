@@ -20,7 +20,14 @@ jobs:
 
   deploy-feature:
     needs: validate
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    if: >-
+      ${{ github.event.pull_request.head.repo.full_name == github.repository &&
+      !(
+        startsWith(github.event.pull_request.head.ref, 'renovate/') ||
+        startsWith(github.event.pull_request.head.ref, 'dependabot/') ||
+        github.event.pull_request.user.login == 'renovate[bot]' ||
+        github.event.pull_request.user.login == 'dependabot[bot]'
+      ) }}
     uses: ./.github/workflows/_reusable-cdk-deploy.yml
     with:
       stage_source: ${{ github.event.pull_request.head.ref }}
@@ -40,3 +47,20 @@ jobs:
     steps:
       - name: Explain fork behavior
         run: echo "Skipping feature stack deploy for fork pull requests. Validation checks still run."
+
+  skip-dependency-deploy:
+    name: Skip deploy for dependency update PR
+    needs: validate
+    if: >-
+      ${{ github.event.pull_request.head.repo.full_name == github.repository &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'renovate/') ||
+        startsWith(github.event.pull_request.head.ref, 'dependabot/') ||
+        github.event.pull_request.user.login == 'renovate[bot]' ||
+        github.event.pull_request.user.login == 'dependabot[bot]'
+      ) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Explain dependency update behavior
+        run: echo "Skipping feature stack deploy for dependency update pull requests. Validation checks still run."
