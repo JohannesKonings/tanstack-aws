@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.21.1
         with:
           cache: true
           node-version-file: package.json
@@ -30,7 +30,7 @@ jobs:
 
       - name: Publish test report
         if: always() && hashFiles('test-results/vitest.junit.xml') != ''
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@v3
         with:
           name: Vitest
           path: test-results/vitest.junit.xml

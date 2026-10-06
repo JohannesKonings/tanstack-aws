@@ -104,14 +104,11 @@
     "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
     "knip": "6.25.0",
-    "oxfmt": "0.71.0",
-    "oxlint": "1.86.0",
-    "oxlint-tsgolint": "^7.0.2003",
     "tsx": "^4.23.0",
     "typescript": "7.0.2",
-    "vite": "8.3.2",
-    "vite-plus": "^1.0.0",
-    "vitest": "^5.0.3"
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "devEngines": {
     "packageManager": {
