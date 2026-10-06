@@ -50,6 +50,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        id: aws-credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
@@ -59,6 +60,7 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           APP_STAGE: ${{ steps.resolve-stage.outputs.stage }}
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
         run: |
           STACK_NAME="TanstackAwsStack-${APP_STAGE}"
           if [ -d ".output/server" ] && [ -d ".output/public" ]; then
@@ -69,7 +71,7 @@ jobs:
           echo "Destroying stack: ${STACK_NAME}"
 
           set +e
-          DESTROY_OUTPUT="$(vp run cdk destroy "${STACK_NAME}" --force 2>&1)"
+          DESTROY_OUTPUT="$(vp exec cdk destroy "${STACK_NAME}" --force 2>&1)"
           DESTROY_EXIT_CODE=$?
           set -e
 
