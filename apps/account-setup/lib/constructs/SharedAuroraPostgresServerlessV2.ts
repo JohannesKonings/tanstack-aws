@@ -45,7 +45,7 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
 
     this.cluster = new rds.DatabaseCluster(this, 'Cluster', {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_17_7,
+        version: rds.AuroraPostgresEngineVersion.VER_18_4,
       }),
       writer: rds.ClusterInstance.serverlessV2('Writer'),
       vpc: this.vpc,
