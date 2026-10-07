@@ -69,7 +69,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
       <FormField name="bankName">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Bank Name</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Bank Name</label>
             <Input
               placeholder="Bank name"
               value={field.state.value}
@@ -78,7 +78,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -87,7 +89,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
       <FormField name="accountType">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Account Type</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Account Type</label>
             <SelectDropdown
               value={field.state.value}
               onChange={(value) => {
@@ -101,7 +103,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -110,7 +114,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
       <FormField name="accountNumberLast4">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Last 4 digits</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">
+              Last 4 digits
+            </label>
             <Input
               placeholder="1234"
               value={field.state.value}
@@ -119,7 +125,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -128,7 +136,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
       <FormField name="iban">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">IBAN</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">IBAN</label>
             <Input
               placeholder="Optional"
               value={field.state.value}
@@ -137,7 +145,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -146,7 +156,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
       <FormField name="bic">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">BIC</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">BIC</label>
             <Input
               placeholder="Optional"
               value={field.state.value}
@@ -155,7 +165,9 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -170,7 +182,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
               onChange={(event) => field.handleChange(event.target.checked)}
               onBlur={field.handleBlur}
             />
-            <span className="text-sm">Primary</span>
+            <span className="text-sm text-text-primary">Primary</span>
           </div>
         )}
       </FormField>

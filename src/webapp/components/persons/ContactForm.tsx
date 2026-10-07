@@ -75,7 +75,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
       <FormField name="type">
         {(field) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Type</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Type</label>
             <SelectDropdown
               value={field.state.value}
               onChange={(value) => {
@@ -90,7 +90,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             {(() => {
               const [firstError] = field.state.meta.errors;
               const msg = firstError ? toErrorMessage(firstError) : null;
-              return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
+              return msg ? <p className="text-xs text-text-error mt-1">{msg}</p> : null;
             })()}
           </div>
         )}
@@ -99,7 +99,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
       <FormField name="value">
         {(field) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Value</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Value</label>
             <Input
               placeholder="Enter value"
               value={field.state.value}
@@ -109,7 +109,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
             {(() => {
               const [firstError] = field.state.meta.errors;
               const msg = firstError ? toErrorMessage(firstError) : null;
-              return msg ? <p className="text-xs text-red-400 mt-1">{msg}</p> : null;
+              return msg ? <p className="text-xs text-text-error mt-1">{msg}</p> : null;
             })()}
           </div>
         )}
@@ -125,7 +125,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
                 onChange={(event) => field.handleChange(event.target.checked)}
                 onBlur={field.handleBlur}
               />
-              <span className="text-sm">Primary</span>
+              <span className="text-sm text-text-primary">Primary</span>
             </div>
           )}
         </FormField>
@@ -139,7 +139,7 @@ export const ContactForm = ({ contact, onSave, onCancel, isLoading }: ContactFor
                 onChange={(event) => field.handleChange(event.target.checked)}
                 onBlur={field.handleBlur}
               />
-              <span className="text-sm">Verified</span>
+              <span className="text-sm text-text-primary">Verified</span>
             </div>
           )}
         </FormField>

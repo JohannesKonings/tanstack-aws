@@ -1,6 +1,8 @@
 import { BankIcon, CreditCardIcon, PencilIcon, StarIcon, TrashIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
+import { Card } from '#src/webapp/components/ui/card';
 import type { BankAccount } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -31,28 +33,32 @@ export const BankAccountCard = ({
   };
 
   return (
-    <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
+    <Card className="group p-4 transition-colors hover:bg-surface-state-hover">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <BankIcon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <BankIcon className="mt-1 h-5 w-5 shrink-0 text-icon-muted" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-white">{bankAccount.bankName}</p>
+              <p className="font-semibold text-text-primary">{bankAccount.bankName}</p>
               {bankAccount.isPrimary && (
-                <div className="flex items-center gap-1 text-xs text-white/75">
-                  <StarIcon className="h-3 w-3 text-yellow-400" weight="fill" />
+                <Badge variant="warning" className="gap-1">
+                  <StarIcon className="h-3 w-3 fill-current" weight="fill" />
                   Primary
-                </div>
+                </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2 text-sm text-white/75">
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
               <CreditCardIcon className="h-3.5 w-3.5" />
               <span className="capitalize">{bankAccount.accountType}</span>
               <span>•</span>
               <span>****{bankAccount.accountNumberLast4}</span>
             </div>
-            {bankAccount.iban && <p className="text-xs text-white/75">IBAN: {bankAccount.iban}</p>}
-            {bankAccount.bic && <p className="text-xs text-white/75">BIC: {bankAccount.bic}</p>}
+            {bankAccount.iban && (
+              <p className="text-xs text-text-secondary">IBAN: {bankAccount.iban}</p>
+            )}
+            {bankAccount.bic && (
+              <p className="text-xs text-text-secondary">BIC: {bankAccount.bic}</p>
+            )}
           </div>
         </div>
 
@@ -104,6 +110,6 @@ export const BankAccountCard = ({
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteConfirm(false)}
       />
-    </div>
+    </Card>
   );
 };
