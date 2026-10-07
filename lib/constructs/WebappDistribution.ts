@@ -32,6 +32,10 @@ import { Construct } from 'constructs';
 
 // const domainName = '*.cloudfront.net';
 
+// main/prod distributions use CloudFront's Free pricing plan, which allows at most
+// five additional cache behaviors (excluding the default SSR behavior).
+const CLOUDFRONT_FREE_PLAN_MAX_CACHE_BEHAVIORS = 5;
+
 type DistributionProps = {
   appStage: string;
   webappServerFunctionUrl: IFunctionUrl;
@@ -219,17 +223,25 @@ export class WebappDistribution extends Construct {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
 
-    // Vite copies public/ into the assets bucket. Paths that miss these
-    // behaviors fall through to the SSR API and return the app 404 page.
+    // Vite copies public/ into the assets bucket. Built chunks and public
+    // files both live under /assets/*. Root files like manifest.json and
+    // robots.txt are served by Start routes. Paths that miss /assets/* fall
+    // through to the SSR API.
+    const staticAssetCacheBehaviors = {
+      '/assets/*': staticAssetBehavior,
+    };
+
+    if (
+      hasCloudFrontFreePlane &&
+      Object.keys(staticAssetCacheBehaviors).length > CLOUDFRONT_FREE_PLAN_MAX_CACHE_BEHAVIORS
+    ) {
+      throw new Error(
+        `Protected stage "${appStage}" exceeds CloudFront Free plan limit of ${CLOUDFRONT_FREE_PLAN_MAX_CACHE_BEHAVIORS.toString()} cache behaviors. Serve additional static paths through SSR routes instead.`,
+      );
+    }
+
     this.distribution = new Distribution(this, 'Distribution', {
-      additionalBehaviors: {
-        '/assets/*': staticAssetBehavior,
-        '/favicon*': staticAssetBehavior,
-        '/fonts/*': staticAssetBehavior,
-        '/images/*': staticAssetBehavior,
-        '/manifest.json': staticAssetBehavior,
-        '/robots.txt': staticAssetBehavior,
-      },
+      additionalBehaviors: staticAssetCacheBehaviors,
       comment: originBehaviorKind,
       defaultBehavior,
       ...(domainConfig && {

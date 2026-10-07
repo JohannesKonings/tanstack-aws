@@ -3,6 +3,15 @@ import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 
 const client = new RDSDataClient({});
 const VALID_SCHEMA_NAME = /^[a-z_][a-z0-9_]*$/;
+const AURORA_RESUME_RETRY_ATTEMPTS = 2;
+const AURORA_RESUME_RETRY_DELAY_MS = 30_000;
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isAuroraResumingError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('resuming after being auto-paused');
+};
 
 type SchemaResourceProps = {
   clusterArn: string;
@@ -40,14 +49,27 @@ const toProps = (event: CloudFormationCustomResourceEvent): SchemaResourceProps 
 };
 
 const runSql = async (props: SchemaResourceProps, sql: string): Promise<void> => {
-  await client.send(
-    new ExecuteStatementCommand({
-      resourceArn: props.clusterArn,
-      secretArn: props.secretArn,
-      database: props.databaseName,
-      sql,
-    }),
-  );
+  for (let attempt = 0; attempt <= AURORA_RESUME_RETRY_ATTEMPTS; attempt++) {
+    try {
+      // oxlint-disable-next-line no-await-in-loop -- sequential retries with backoff
+      await client.send(
+        new ExecuteStatementCommand({
+          resourceArn: props.clusterArn,
+          secretArn: props.secretArn,
+          database: props.databaseName,
+          sql,
+        }),
+      );
+      return;
+    } catch (error) {
+      const shouldRetry = isAuroraResumingError(error) && attempt < AURORA_RESUME_RETRY_ATTEMPTS;
+      if (!shouldRetry) {
+        throw error;
+      }
+      // oxlint-disable-next-line no-await-in-loop -- wait for Aurora to finish resuming
+      await sleep(AURORA_RESUME_RETRY_DELAY_MS);
+    }
+  }
 };
 
 export const handler = async (event: CloudFormationCustomResourceEvent) => {

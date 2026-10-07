@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as ManifestDotjsonRouteImport } from './routes/manifest[.]json'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
@@ -34,6 +36,16 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManifestDotjsonRoute = ManifestDotjsonRouteImport.update({
+  id: '/manifest.json',
+  path: '/manifest.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -157,6 +169,8 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/manifest.json': typeof ManifestDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -183,6 +197,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/manifest.json': typeof ManifestDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -210,6 +226,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/manifest.json': typeof ManifestDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/api/persons-stream': typeof ApiPersonsStreamRoute
   '/demo/db-person': typeof DemoDbPersonRoute
   '/demo/db-todo': typeof DemoDbTodoRoute
@@ -238,6 +256,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/manifest.json'
+    | '/robots.txt'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -264,6 +284,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/manifest.json'
+    | '/robots.txt'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -290,6 +312,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/manifest.json'
+    | '/robots.txt'
     | '/api/persons-stream'
     | '/demo/db-person'
     | '/demo/db-todo'
@@ -317,6 +341,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ManifestDotjsonRoute: typeof ManifestDotjsonRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   ApiPersonsStreamRoute: typeof ApiPersonsStreamRoute
   DemoDbPersonRoute: typeof DemoDbPersonRoute
   DemoDbTodoRoute: typeof DemoDbTodoRoute
@@ -344,6 +370,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manifest.json': {
+      id: '/manifest.json'
+      path: '/manifest.json'
+      fullPath: '/manifest.json'
+      preLoaderRoute: typeof ManifestDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -517,6 +557,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ManifestDotjsonRoute: ManifestDotjsonRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   ApiPersonsStreamRoute: ApiPersonsStreamRoute,
   DemoDbPersonRoute: DemoDbPersonRoute,
   DemoDbTodoRoute: DemoDbTodoRoute,

@@ -18,6 +18,10 @@ _Avoid_: vendored `src/webapp/ds/**` tree, wipe-overwrite sync script, runtime i
 Per-stage application infrastructure (for example `TanstackAwsStack-main`) deployed by the main application CI/CD pipelines.
 _Avoid_: App stack, environment stack, service stack
 
+**CloudFront Free plan limit**:
+`main` and `prod` distributions stay on CloudFront's Free pricing plan. That plan allows at most five additional cache behaviors beyond the default SSR behavior. Public static files live under `/assets/*` (one behavior); root files like `manifest.json` and `robots.txt` use SSR routes.
+_Avoid_: extra cache behaviors per static prefix, root-level public paths outside `/assets/`
+
 ## CI/CD
 
 **Dependency update PR**:

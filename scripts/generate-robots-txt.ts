@@ -61,7 +61,7 @@ Allow: /
 
 const outputPath = path.join(
   path.dirname(new URL(import.meta.url).pathname),
-  '../public/robots.txt',
+  '../public/assets/robots.txt',
 );
 
 fs.writeFileSync(outputPath, robotsTxtContent, 'utf-8');

@@ -29,7 +29,7 @@ export class AuroraSchemaLifecycle extends Construct {
         externalModules: ['@aws-sdk/*'],
       },
       runtime: Runtime.NODEJS_24_X,
-      timeout: Duration.seconds(30),
+      timeout: Duration.seconds(120),
     });
 
     handler.addToRolePolicy(

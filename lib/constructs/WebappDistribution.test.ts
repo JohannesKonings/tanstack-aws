@@ -5,14 +5,7 @@ import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { describe, expect, it } from 'vite-plus/test';
 import { WebappDistribution } from './WebappDistribution.ts';
 
-const staticAssetPathPatterns = [
-  '/assets/*',
-  '/favicon*',
-  '/fonts/*',
-  '/images/*',
-  '/manifest.json',
-  '/robots.txt',
-];
+const staticAssetPathPatterns = ['/assets/*'];
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;

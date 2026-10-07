@@ -22,42 +22,42 @@
         {
           "path": "registry/theme/fonts/Inter-latin.woff2",
           "type": "registry:file",
-          "target": "public/fonts/Inter-latin.woff2"
+          "target": "public/assets/fonts/Inter-latin.woff2"
         },
         {
           "path": "registry/theme/fonts/Inter-latin-ext.woff2",
           "type": "registry:file",
-          "target": "public/fonts/Inter-latin-ext.woff2"
+          "target": "public/assets/fonts/Inter-latin-ext.woff2"
         },
         {
           "path": "registry/theme/fonts/BricolageGrotesque-latin-wght-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/BricolageGrotesque-latin-wght-normal.woff2"
+          "target": "public/assets/fonts/BricolageGrotesque-latin-wght-normal.woff2"
         },
         {
           "path": "registry/theme/fonts/IBMPlexMono-latin-300-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/IBMPlexMono-latin-300-normal.woff2"
+          "target": "public/assets/fonts/IBMPlexMono-latin-300-normal.woff2"
         },
         {
           "path": "registry/theme/fonts/IBMPlexMono-latin-400-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/IBMPlexMono-latin-400-normal.woff2"
+          "target": "public/assets/fonts/IBMPlexMono-latin-400-normal.woff2"
         },
         {
           "path": "registry/theme/fonts/IBMPlexMono-latin-500-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/IBMPlexMono-latin-500-normal.woff2"
+          "target": "public/assets/fonts/IBMPlexMono-latin-500-normal.woff2"
         },
         {
           "path": "registry/theme/fonts/IBMPlexMono-latin-600-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/IBMPlexMono-latin-600-normal.woff2"
+          "target": "public/assets/fonts/IBMPlexMono-latin-600-normal.woff2"
         },
         {
           "path": "registry/theme/fonts/IBMPlexMono-latin-700-normal.woff2",
           "type": "registry:file",
-          "target": "public/fonts/IBMPlexMono-latin-700-normal.woff2"
+          "target": "public/assets/fonts/IBMPlexMono-latin-700-normal.woff2"
         }
       ],
       "cssVars": {
@@ -354,32 +354,32 @@
         {
           "path": "registry/brand/assets/tanstack-emblem-black.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-emblem-black.svg"
+          "target": "public/assets/images/brand/tanstack-emblem-black.svg"
         },
         {
           "path": "registry/brand/assets/tanstack-emblem-white.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-emblem-white.svg"
+          "target": "public/assets/images/brand/tanstack-emblem-white.svg"
         },
         {
           "path": "registry/brand/assets/tanstack-stacked-black.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-stacked-black.svg"
+          "target": "public/assets/images/brand/tanstack-stacked-black.svg"
         },
         {
           "path": "registry/brand/assets/tanstack-stacked-white.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-stacked-white.svg"
+          "target": "public/assets/images/brand/tanstack-stacked-white.svg"
         },
         {
           "path": "registry/brand/assets/tanstack-landscape-black.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-landscape-black.svg"
+          "target": "public/assets/images/brand/tanstack-landscape-black.svg"
         },
         {
           "path": "registry/brand/assets/tanstack-landscape-white.svg",
           "type": "registry:file",
-          "target": "public/images/brand/tanstack-landscape-white.svg"
+          "target": "public/assets/images/brand/tanstack-landscape-white.svg"
         }
       ]
     },
@@ -392,12 +392,12 @@
         {
           "path": "registry/brand/favicons/favicon-light.svg",
           "type": "registry:file",
-          "target": "public/favicon-light.svg"
+          "target": "public/assets/favicon-light.svg"
         },
         {
           "path": "registry/brand/favicons/favicon-dark.svg",
           "type": "registry:file",
-          "target": "public/favicon-dark.svg"
+          "target": "public/assets/favicon-dark.svg"
         }
       ]
     }
