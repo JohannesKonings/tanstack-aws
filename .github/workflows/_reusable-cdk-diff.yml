@@ -13,6 +13,9 @@ on:
         required: false
         default: us-east-2
         type: string
+    secrets:
+      aws_role_to_assume:
+        required: true
 
 jobs:
   diff:
@@ -38,7 +41,7 @@ jobs:
         id: aws-credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ secrets.aws_role_to_assume }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: Install cdk-notifier
@@ -51,7 +54,7 @@ jobs:
       - name: CDK diff and post PR comment
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           vp -C "${{ inputs.cdk_package }}" exec cdk diff 2>&1 | tee cdk-diff.log || true
           cdk-notifier \

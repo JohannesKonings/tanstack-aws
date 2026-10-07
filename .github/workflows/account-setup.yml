@@ -29,7 +29,12 @@ jobs:
       cdk_package: apps/cdk-account-setup
       tag_id: account-setup
       aws_region: us-east-1
-    secrets: inherit
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
 
   validate:
     if: github.event_name != 'workflow_dispatch'

@@ -25,7 +25,12 @@ jobs:
     with:
       cdk_package: apps/cdk-app
       tag_id: cdk-app
-    secrets: inherit
+    secrets:
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
 
   validate:
     runs-on: ubuntu-latest
