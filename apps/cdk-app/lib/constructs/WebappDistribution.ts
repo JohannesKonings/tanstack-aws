@@ -38,6 +38,8 @@ const CLOUDFRONT_FREE_PLAN_MAX_CACHE_BEHAVIORS = 5;
 
 type DistributionProps = {
   appStage: string;
+  /** Human-readable label shown as the CloudFront distribution description in the AWS console. */
+  description: string;
   webappServerFunctionUrl: IFunctionUrl;
   webappServerApi: RestApi;
   assetsBucket: Bucket;
@@ -50,7 +52,14 @@ export class WebappDistribution extends Construct {
   constructor(scope: Construct, id: string, props: DistributionProps) {
     super(scope, id);
 
-    const { appStage, webappServerApi, assetsBucket, originBehaviorKind, customHostname } = props;
+    const {
+      appStage,
+      description,
+      webappServerApi,
+      assetsBucket,
+      originBehaviorKind,
+      customHostname,
+    } = props;
 
     const baseDomain = 'tanstack-aws-examples.com';
     const isProd = appStage === 'prod';
@@ -244,7 +253,7 @@ export class WebappDistribution extends Construct {
 
     this.distribution = new Distribution(this, 'Distribution', {
       additionalBehaviors: staticAssetCacheBehaviors,
-      comment: originBehaviorKind,
+      comment: description,
       defaultBehavior,
       ...(domainConfig && {
         domainNames: domainConfig.domainNames,

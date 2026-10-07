@@ -9,6 +9,8 @@ import { WebappServer } from './WebappServer.ts';
 
 type WorkloadFrontendProps = {
   appStage: string;
+  /** Human-readable app name used in the CloudFront distribution description. */
+  appLabel: string;
   sharedData: SharedWorkloadData;
   serverAssetPath: string;
   publicAssetPath: string;
@@ -19,7 +21,8 @@ export class WorkloadFrontend extends Construct {
   constructor(scope: Construct, id: string, props: WorkloadFrontendProps) {
     super(scope, id);
 
-    const { appStage, sharedData, serverAssetPath, publicAssetPath, customHostname } = props;
+    const { appStage, appLabel, sharedData, serverAssetPath, publicAssetPath, customHostname } =
+      props;
 
     const webappServer = new WebappServer(this, 'WebappServer', {
       appStage,
@@ -50,6 +53,7 @@ export class WorkloadFrontend extends Construct {
       appStage,
       assetsBucket: assetsBucket.assetsBucket,
       customHostname,
+      description: `tanstack-aws ${appLabel} (${appStage})`,
       originBehaviorKind: 'apiGw',
       webappServerApi: webappApi.webappApi,
       webappServerFunctionUrl: webappServerFunctionUrl.webappServerFunctionUrl,

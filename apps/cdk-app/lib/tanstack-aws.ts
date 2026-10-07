@@ -16,6 +16,7 @@ export class TanstackAwsStack extends cdk.Stack {
     });
 
     new WorkloadFrontend(this, 'Webapp', {
+      appLabel: 'Webapp',
       appStage: props.appStage,
       sharedData,
       serverAssetPath: '.output/server',
@@ -23,6 +24,7 @@ export class TanstackAwsStack extends cdk.Stack {
     });
 
     new WorkloadFrontend(this, 'WebappAdmin', {
+      appLabel: 'Webapp admin',
       appStage: props.appStage,
       sharedData,
       serverAssetPath: 'apps/webapp-admin/.output/server',

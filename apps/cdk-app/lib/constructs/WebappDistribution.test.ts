@@ -68,6 +68,7 @@ describe('WebappDistribution static asset routing', () => {
     new WebappDistribution(stack, 'WebappDistribution', {
       appStage: 'dev',
       assetsBucket,
+      description: 'tanstack-aws Webapp (dev)',
       originBehaviorKind: 'apiGw',
       webappServerApi,
       webappServerFunctionUrl: server.addFunctionUrl(),
