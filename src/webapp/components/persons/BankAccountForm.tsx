@@ -3,6 +3,8 @@
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { Button } from '#src/webapp/components/ui/button';
+import { SelectDropdown } from '#src/webapp/components/ui/dropdown';
+import { Input } from '#src/webapp/components/ui/input';
 import type { BankAccount } from '#src/webapp/types/person';
 
 const AccountTypeEnum = z.enum(['checking', 'savings', 'investment']);
@@ -17,6 +19,12 @@ const BankAccountFormSchema = z.object({
 });
 
 type BankAccountFormValues = z.infer<typeof BankAccountFormSchema>;
+
+const accountTypeOptions = [
+  { value: 'checking' as const, label: 'Checking' },
+  { value: 'savings' as const, label: 'Savings' },
+  { value: 'investment' as const, label: 'Investment' },
+];
 
 interface BankAccountFormProps {
   account?: BankAccount;
@@ -62,9 +70,8 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Bank Name</label>
-            <input
+            <Input
               placeholder="Bank name"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -81,16 +88,17 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Account Type</label>
-            <select
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+            <SelectDropdown
               value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
+              onChange={(value) => {
+                if (value) {
+                  field.handleChange(value);
+                }
+              }}
               onBlur={field.handleBlur}
-            >
-              <option value="checking">Checking</option>
-              <option value="savings">Savings</option>
-              <option value="investment">Investment</option>
-            </select>
+              placeholder="Select account type"
+              options={accountTypeOptions}
+            />
             {(() => {
               const [firstError] = field.state.meta.errors;
               return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
@@ -103,9 +111,8 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Last 4 digits</label>
-            <input
+            <Input
               placeholder="1234"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -122,9 +129,8 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">IBAN</label>
-            <input
+            <Input
               placeholder="Optional"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -141,9 +147,8 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">BIC</label>
-            <input
+            <Input
               placeholder="Optional"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -172,12 +177,7 @@ export const BankAccountForm = ({ account, onSave, onCancel, isLoading }: BankAc
 
       <div className="flex justify-end gap-2">
         {onCancel && (
-          <Button
-            type="button"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
-          >
+          <Button type="button" onClick={onCancel} disabled={isLoading} variant="secondary">
             Cancel
           </Button>
         )}

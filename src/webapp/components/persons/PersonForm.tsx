@@ -3,6 +3,8 @@
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { Button } from '#src/webapp/components/ui/button';
+import { SelectDropdown } from '#src/webapp/components/ui/dropdown';
+import { Input } from '#src/webapp/components/ui/input';
 import { GenderEnum, type Person } from '#src/webapp/types/person';
 
 const PersonFormSchema = z.object({
@@ -13,6 +15,13 @@ const PersonFormSchema = z.object({
 });
 
 type PersonFormValues = z.infer<typeof PersonFormSchema>;
+
+const genderOptions = [
+  { value: 'male' as const, label: 'Male' },
+  { value: 'female' as const, label: 'Female' },
+  { value: 'other' as const, label: 'Other' },
+  { value: 'prefer_not_to_say' as const, label: 'Prefer not to say' },
+];
 
 interface PersonFormProps {
   person?: Person;
@@ -62,9 +71,8 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">First Name</label>
-              <input
+              <Input
                 placeholder="John"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -83,9 +91,8 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Last Name</label>
-              <input
+              <Input
                 placeholder="Doe"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -105,14 +112,13 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Date of Birth</label>
-            <input
+            <Input
               type="date"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
             />
-            <p className="text-xs text-white/60 mt-1">Optional. Your date of birth.</p>
+            <p className="text-xs text-text-muted mt-1">Optional. Your date of birth.</p>
             {(() => {
               const [firstError] = field.state.meta.errors;
               return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
@@ -125,32 +131,15 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Gender</label>
-            <style>{`
-              select option {
-                background-color: #1f2937;
-                color: white;
-              }
-              select option:checked {
-                background-color: #3b82f6;
-                color: white;
-              }
-            `}</style>
-            <select
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
-              value={field.state.value ?? ''}
-              onChange={(event) => field.handleChange(event.target.value || undefined)}
+            <SelectDropdown
+              value={field.state.value}
+              onChange={(value) => field.handleChange(value)}
               onBlur={field.handleBlur}
-              style={{
-                colorScheme: 'dark',
-              }}
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer_not_to_say">Prefer not to say</option>
-            </select>
-            <p className="text-xs text-white/60 mt-1">Optional. How you identify.</p>
+              placeholder="Select gender"
+              clearable
+              options={genderOptions}
+            />
+            <p className="text-xs text-text-muted mt-1">Optional. How you identify.</p>
             {(() => {
               const [firstError] = field.state.meta.errors;
               return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
@@ -172,11 +161,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
           })()}
         </Button>
         {onCancel && (
-          <Button
-            type="button"
-            onClick={onCancel}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
-          >
+          <Button type="button" onClick={onCancel} variant="secondary">
             Cancel
           </Button>
         )}

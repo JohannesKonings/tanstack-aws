@@ -87,4 +87,52 @@ describe('tanstack-ds registry', () => {
       expect(item.files[0]?.content).toBeTruthy();
     }
   });
+
+  it('publishes form and overlay primitive registry items input, dialog, and dropdown', () => {
+    const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
+      items: Array<{ name: string; type: string; dependencies?: string[] }>;
+    };
+    const itemNames = registry.items.map((item) => item.name);
+    expect(itemNames).toContain('input');
+    expect(itemNames).toContain('dialog');
+    expect(itemNames).toContain('dropdown');
+
+    const dialogItem = registry.items.find((item) => item.name === 'dialog');
+    expect(dialogItem?.dependencies).toContain('@radix-ui/react-dialog');
+
+    const dropdownItem = registry.items.find((item) => item.name === 'dropdown');
+    expect(dropdownItem?.dependencies).toContain('@radix-ui/react-dropdown-menu');
+
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+
+    for (const name of ['input', 'dialog', 'dropdown'] as const) {
+      const itemPath = join(packageRoot, `public/r/${name}.json`);
+      expect(existsSync(itemPath)).toBe(true);
+
+      const item = JSON.parse(readFileSync(itemPath, 'utf8')) as {
+        name: string;
+        type: string;
+        files: Array<{ path: string; type: string; content?: string }>;
+      };
+      expect(item.name).toBe(name);
+      expect(item.type).toBe('registry:ui');
+      expect(item.files.length).toBeGreaterThan(0);
+      expect(item.files[0]?.content).toBeTruthy();
+    }
+
+    const inputSource = readFileSync(join(packageRoot, 'registry/input/input.tsx'), 'utf8');
+    expect(inputSource).toContain('focus:border-border-strong');
+    expect(inputSource).not.toContain('focus:ring-2');
+
+    const dialogSource = readFileSync(join(packageRoot, 'registry/dialog/dialog.tsx'), 'utf8');
+    expect(dialogSource).toContain('DialogPrimitive');
+    expect(dialogSource).toContain('data-ds-dialog-panel');
+
+    const dropdownSource = readFileSync(
+      join(packageRoot, 'registry/dropdown/dropdown.tsx'),
+      'utf8',
+    );
+    expect(dropdownSource).toContain('SelectDropdown');
+    expect(dropdownSource).toContain('DropdownMenu');
+  });
 });

@@ -193,6 +193,55 @@
           "target": "src/webapp/components/ui/tabs.tsx"
         }
       ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "TanStack DS Input",
+      "description": "Text input with DS borders, surfaces, and neutral focus treatment.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/input/input.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/input.tsx"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "TanStack DS Dialog",
+      "description": "Radix-backed centered modal with focus trap, scroll lock, and DS motion.",
+      "dependencies": ["@radix-ui/react-dialog"],
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/dialog/dialog.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/dialog.tsx"
+        },
+        {
+          "path": "registry/overlays/ds-overlays.css",
+          "type": "registry:file",
+          "target": "src/webapp/styles/ds-overlays.css"
+        }
+      ]
+    },
+    {
+      "name": "dropdown",
+      "type": "registry:ui",
+      "title": "TanStack DS Dropdown",
+      "description": "Radix-backed menu and form select dropdown with DS surfaces.",
+      "dependencies": ["@radix-ui/react-dropdown-menu"],
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/dropdown/dropdown.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/dropdown.tsx"
+        }
+      ]
     }
   ]
 }

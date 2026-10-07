@@ -4,6 +4,7 @@
 
 @import './styles/ds-fonts.css';
 @import './styles/ds-tokens.css';
+@import './styles/ds-overlays.css';
 
 @custom-variant dark (&:is(.dark, .dark *));
 

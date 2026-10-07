@@ -3,6 +3,8 @@ import { useForm } from '@tanstack/react-form';
 // oxlint-disable no-ternary
 import { z } from 'zod';
 import { Button } from '#src/webapp/components/ui/button';
+import { SelectDropdown } from '#src/webapp/components/ui/dropdown';
+import { Input } from '#src/webapp/components/ui/input';
 import { type Address, AddressTypeEnum } from '#src/webapp/types/person';
 
 const AddressFormSchema = z.object({
@@ -16,6 +18,13 @@ const AddressFormSchema = z.object({
 });
 
 type AddressFormValues = z.infer<typeof AddressFormSchema>;
+
+const addressTypeOptions = [
+  { value: 'home' as const, label: 'Home' },
+  { value: 'work' as const, label: 'Work' },
+  { value: 'billing' as const, label: 'Billing' },
+  { value: 'shipping' as const, label: 'Shipping' },
+];
 
 interface AddressFormProps {
   address?: Address;
@@ -62,17 +71,17 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Address Type</label>
-            <select
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
+            <SelectDropdown
               value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
+              onChange={(value) => {
+                if (value) {
+                  field.handleChange(value);
+                }
+              }}
               onBlur={field.handleBlur}
-            >
-              <option value="home">Home</option>
-              <option value="work">Work</option>
-              <option value="billing">Billing</option>
-              <option value="shipping">Shipping</option>
-            </select>
+              placeholder="Select address type"
+              options={addressTypeOptions}
+            />
             {(() => {
               const [firstError] = field.state.meta.errors;
               return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
@@ -85,9 +94,8 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Street Address</label>
-            <input
+            <Input
               placeholder="123 Main St"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -105,9 +113,8 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">City</label>
-              <input
+              <Input
                 placeholder="New York"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -126,9 +133,8 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">State/Province</label>
-              <input
+              <Input
                 placeholder="NY"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -149,9 +155,8 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Postal Code</label>
-              <input
+              <Input
                 placeholder="10001"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -170,9 +175,8 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Country</label>
-              <input
+              <Input
                 placeholder="USA"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -190,7 +194,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
 
       <FormField name="isPrimary">
         {(field: any) => (
-          <div className="flex flex-row items-center gap-2 rounded-md border p-4">
+          <div className="flex flex-row items-center gap-2 rounded-md border border-border-default p-4">
             <input
               type="checkbox"
               checked={field.state.value}
@@ -199,7 +203,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
             />
             <div className="space-y-1 leading-none">
               <span className="text-sm font-medium">Primary Address</span>
-              <span className="block text-xs text-white/60">This is your main address.</span>
+              <span className="block text-xs text-text-muted">This is your main address.</span>
             </div>
           </div>
         )}
@@ -221,11 +225,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
           );
         })()}
         {onCancel && (
-          <Button
-            type="button"
-            onClick={onCancel}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
-          >
+          <Button type="button" onClick={onCancel} variant="secondary">
             Cancel
           </Button>
         )}

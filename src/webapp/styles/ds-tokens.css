@@ -201,6 +201,7 @@
   --color-menu-item-pressed: #1111111f; /* black 12% */
   --color-divider-subtle: var(--color-ds-neutral-100);
   --color-divider-on-inverse: var(--color-ds-neutral-100);
+  --color-scrim: rgb(0 0 0 / 0.5);
 
   /* --- Font families ---
      display/heading = Bricolage Grotesque, body/label = Inter (--font-sans),
@@ -311,6 +312,13 @@
   --text-ds-eyebrow-md--line-height: 13px;
   --text-ds-eyebrow-md--letter-spacing: 1.75px;
   --text-ds-eyebrow-md--font-weight: 500;
+
+  /* Overlay stacking and motion (dialog, dropdown, drawer) */
+  --z-scrim: 999;
+  --z-overlay: 1000;
+  --z-above-overlay: 1200;
+  --motion-duration-fast: 150ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 :root,
@@ -402,6 +410,7 @@ html.dark {
   --color-menu-item-pressed: #ffffff1f; /* white 12% */
   --color-divider-subtle: #1e1e1e;
   --color-divider-on-inverse: #1e1e1e;
+  --color-scrim: rgb(0 0 0 / 0.65);
 }
 
 @utility corner-squircle {

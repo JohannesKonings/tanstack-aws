@@ -3,6 +3,7 @@
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { Button } from '#src/webapp/components/ui/button';
+import { Input } from '#src/webapp/components/ui/input';
 import type { Employment } from '#src/webapp/types/person';
 
 const EmploymentFormSchema = z.object({
@@ -78,9 +79,8 @@ export const EmploymentForm = ({
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Company Name</label>
-            <input
+            <Input
               placeholder="Company"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -97,9 +97,8 @@ export const EmploymentForm = ({
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Position</label>
-            <input
+            <Input
               placeholder="Position"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -116,9 +115,8 @@ export const EmploymentForm = ({
         {(field: any) => (
           <div>
             <label className="block text-sm font-medium mb-1">Department</label>
-            <input
+            <Input
               placeholder="Optional"
-              className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
               value={field.state.value}
               onChange={(event) => field.handleChange(event.target.value)}
               onBlur={field.handleBlur}
@@ -136,9 +134,8 @@ export const EmploymentForm = ({
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Start Date</label>
-              <input
+              <Input
                 type="date"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -157,9 +154,8 @@ export const EmploymentForm = ({
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">End Date</label>
-              <input
+              <Input
                 type="date"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -195,10 +191,9 @@ export const EmploymentForm = ({
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Salary</label>
-              <input
+              <Input
                 type="number"
                 placeholder="Optional"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value ?? ''}
                 onChange={(event) => {
                   const valueStr = event.target.value;
@@ -220,9 +215,8 @@ export const EmploymentForm = ({
           {(field: any) => (
             <div>
               <label className="block text-sm font-medium mb-1">Currency</label>
-              <input
+              <Input
                 placeholder="USD"
-                className="w-full rounded border border-white/20 bg-white/5 p-2 text-white"
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value.toUpperCase())}
                 onBlur={field.handleBlur}
@@ -240,12 +234,7 @@ export const EmploymentForm = ({
 
       <div className="flex justify-end gap-2">
         {onCancel && (
-          <Button
-            type="button"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/40 cursor-pointer"
-          >
+          <Button type="button" onClick={onCancel} disabled={isLoading} variant="secondary">
             Cancel
           </Button>
         )}
