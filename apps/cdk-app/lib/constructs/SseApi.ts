@@ -88,8 +88,6 @@ const configureStreamingEndpoint = (
  * - SSE format for native browser EventSource support
  * - Reconnection support via Last-Event-ID header
  * - 15-minute streaming sessions with auto-reconnect hints
- *
- * @see docs/PLAN-DB-PERSONS.md Section 15B for architecture details
  */
 export class SseApi extends Construct {
   public readonly api: RestApi;

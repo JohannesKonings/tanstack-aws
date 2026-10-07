@@ -11,8 +11,6 @@ import { Construct } from 'constructs';
  * - pk: "EVENTS" (single partition for simplicity, scales to ~10k events/sec)
  * - sk: timestamp#ULID (sortable, unique across concurrent writes)
  * - ttl: Auto-delete after 1 hour (clients can catch up after reconnect)
- *
- * @see docs/PLAN-DB-PERSONS.md Section 15B for architecture details
  */
 export class EventsTable extends Construct {
   public readonly table: Table;

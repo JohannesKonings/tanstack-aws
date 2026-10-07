@@ -26,8 +26,6 @@ interface StreamToEventsProcessorProps {
  *
  * Lambda triggered by DynamoDB Streams that writes entity change events
  * to the Events table. SSE clients query the Events table independently.
- *
- * @see docs/PLAN-DB-PERSONS.md Section 15B for architecture details
  */
 export class StreamToEventsProcessor extends Construct {
   public readonly processor: NodejsFunction;

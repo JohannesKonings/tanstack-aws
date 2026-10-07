@@ -107,7 +107,6 @@ export default defineWorkspaceConfig({
       '.nitro/**',
       '.tanstack/**',
       'cdk.out/**',
-      'docs/PLAN-DB-PERSONS.md',
       'packages/tanstack-ds/public/r/**',
       'apps/webapp/src/routeTree.gen.ts',
       'apps/webapp-admin/src/routeTree.gen.ts',
