@@ -28,6 +28,10 @@ export default defineWorkspaceConfig({
           glossary: 'apps/account-setup/GLOSSARY.md',
           adr: 'docs/adr',
         },
+        'tanstack-ds': {
+          glossary: 'packages/tanstack-ds/GLOSSARY.md',
+          adr: 'docs/adr',
+        },
       },
     },
   },
@@ -48,6 +52,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
+      'packages/tanstack-ds/registry/**/*.tsx',
     ],
     categories: {
       correctness: 'error',

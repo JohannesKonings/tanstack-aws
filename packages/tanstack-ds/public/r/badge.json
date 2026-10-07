@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "title": "TanStack DS Badge",
+  "description": "Status and label badge with DS semantic color variants.",
+  "registryDependencies": ["@tanstack-ds/theme"],
+  "files": [
+    {
+      "path": "registry/badge/badge.tsx",
+      "content": "import * as React from 'react';\nimport { cn } from '#src/webapp/lib/utils';\n\n/**\n * TanStack DS Badge — adapted from tanstack.com/src/components/ds/ui/index.tsx.\n */\n\ntype BadgeVariant =\n  | 'default'\n  | 'success'\n  | 'warning'\n  | 'error'\n  | 'info'\n  | 'purple'\n  | 'teal'\n  | 'orange';\ntype BadgeRounded = 'md' | 'full';\n\nconst badgeVariantStyles: Record<BadgeVariant, string> = {\n  default: 'bg-background-subtle text-text-secondary',\n  success: 'bg-status-success-bg text-text-success',\n  warning: 'bg-status-warning-bg text-text-warning',\n  error: 'bg-status-error-bg text-text-error',\n  info: 'bg-status-info-bg text-text-info',\n  purple: 'bg-accent-creative/15 text-accent-creative',\n  teal: 'bg-lib-start/15 text-lib-start',\n  orange: 'bg-accent-warm/20 text-accent-warm',\n};\n\nexport function Badge({\n  children,\n  variant = 'default',\n  rounded = 'full',\n  className,\n}: {\n  children: React.ReactNode;\n  variant?: BadgeVariant;\n  rounded?: BadgeRounded;\n  className?: string;\n}) {\n  return (\n    <span\n      className={cn(\n        'inline-flex items-center px-2 py-1 text-xs font-medium',\n        rounded === 'full' ? 'rounded-full' : 'rounded-md',\n        badgeVariantStyles[variant],\n        className,\n      )}\n    >\n      {children}\n    </span>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "src/webapp/components/ui/badge.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

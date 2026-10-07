@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "card",
+  "title": "TanStack DS Card",
+  "description": "Surface card for grouped content with DS border and shadow.",
+  "registryDependencies": ["@tanstack-ds/theme"],
+  "files": [
+    {
+      "path": "registry/card/card.tsx",
+      "content": "import * as React from 'react';\nimport { cn } from '#src/webapp/lib/utils';\n\n/**\n * TanStack DS Card — adapted from tanstack.com/src/components/ds/ui/index.tsx.\n */\n\nexport function Card({ children, className }: { children: React.ReactNode; className?: string }) {\n  return (\n    <div\n      className={cn(\n        'rounded-lg corner-squircle border border-border-default bg-background-surface shadow-md',\n        className,\n      )}\n    >\n      {children}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "src/webapp/components/ui/card.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

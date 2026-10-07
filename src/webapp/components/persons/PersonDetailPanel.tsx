@@ -4,6 +4,9 @@
 // oxlint-disable max-statements
 import { Briefcase, Edit2, Landmark, Mail, MapPin, Plus, Trash2, User, X } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '#src/webapp/components/ui/badge';
+import { Card } from '#src/webapp/components/ui/card';
+import { Tabs, TabsList, TabsPanel, TabsTrigger } from '#src/webapp/components/ui/tabs';
 import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
 import type {
   Address,
@@ -63,9 +66,9 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
 
   if (isLoading) {
     return (
-      <div className="p-6 rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm">
-        <div className="animate-pulse text-white/70">Loading person details...</div>
-      </div>
+      <Card className="p-6 bg-background-surface/90 backdrop-blur-sm">
+        <div className="animate-pulse text-text-secondary">Loading person details...</div>
+      </Card>
     );
   }
 
@@ -82,135 +85,137 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
 
   return (
     <>
-      <div className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden max-h-[calc(100vh-300px)] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/10 shrink-0">
+      <Card className="overflow-hidden max-h-[calc(100vh-300px)] flex flex-col bg-background-surface/95 backdrop-blur-sm">
+        <div className="flex items-center justify-between p-4 border-b border-border-default bg-background-subtle shrink-0">
           <div className="flex items-center gap-3">
-            <User className="h-6 w-6 text-cyan-400" />
+            <User className="h-6 w-6 text-lib-start" />
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-text-primary">
                 {person.firstName} {person.lastName}
               </h2>
-              <p className="text-sm text-white/60">ID: {person.id}</p>
+              <p className="text-sm text-text-muted">ID: {person.id}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setEditingPerson(true)}
-              className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-state-hover text-text-secondary hover:text-text-primary transition-colors"
               title="Edit person"
             >
               <Edit2 className="h-5 w-5" />
             </button>
             <button
               onClick={handleDeletePerson}
-              className="p-2 rounded-lg hover:bg-red-500/20 text-white/70 hover:text-red-300 transition-colors"
+              className="p-2 rounded-lg hover:bg-status-error-bg text-text-secondary hover:text-text-error transition-colors"
               title="Delete person"
             >
               <Trash2 className="h-5 w-5" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-state-hover text-text-secondary hover:text-text-primary transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Content Grid - Scrollable */}
-        <div className="p-4 grid gap-4 md:grid-cols-2 overflow-y-auto flex-1">
-          {/* Addresses */}
-          <DetailSection
-            title="Addresses"
-            icon={MapPin}
-            count={addresses.length}
-            onAdd={() => setAddingAddress(true)}
-          >
-            {addresses.length === 0 ? (
-              <p className="text-sm text-white/50 italic">No addresses</p>
-            ) : (
-              addresses.map((addressItem) => (
-                <AddressCard
-                  key={addressItem.id}
-                  address={addressItem}
-                  onUpdate={(id, updates) => updateAddress(id, updates)}
-                  onDelete={(id) => deleteAddress(id)}
-                  onEdit={(address) => setEditingAddress(address)}
-                />
-              ))
-            )}
-          </DetailSection>
+        <div className="p-4 overflow-y-auto flex-1">
+          <Tabs defaultValue="addresses" variant="secondary">
+            <TabsList aria-label="Person detail sections">
+              <TabsTrigger value="addresses" icon={<MapPin className="size-4" />}>
+                Addresses
+                <Badge variant="default">{addresses.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="contacts" icon={<Mail className="size-4" />}>
+                Contacts
+                <Badge variant="default">{contacts.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="employment" icon={<Briefcase className="size-4" />}>
+                Employment
+                <Badge variant="default">{employments.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="banking" icon={<Landmark className="size-4" />}>
+                Banking
+                <Badge variant="default">{bankAccounts.length}</Badge>
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Contacts */}
-          <DetailSection
-            title="Contact Info"
-            icon={Mail}
-            count={contacts.length}
-            onAdd={() => setAddingContact(true)}
-          >
-            {contacts.length === 0 ? (
-              <p className="text-sm text-white/50 italic">No contacts</p>
-            ) : (
-              contacts.map((contactItem) => (
-                <ContactInfoCard
-                  key={contactItem.id}
-                  contact={contactItem}
-                  onUpdate={(id, updates) => updateContact(id, updates)}
-                  onDelete={(id) => deleteContact(id)}
-                  onEdit={(contact) => setEditingContact(contact)}
-                />
-              ))
-            )}
-          </DetailSection>
+            <TabsPanel value="addresses">
+              <DetailSection title="Addresses" onAdd={() => setAddingAddress(true)}>
+                {addresses.length === 0 ? (
+                  <p className="text-sm text-text-muted italic">No addresses</p>
+                ) : (
+                  addresses.map((addressItem) => (
+                    <AddressCard
+                      key={addressItem.id}
+                      address={addressItem}
+                      onUpdate={(id, updates) => updateAddress(id, updates)}
+                      onDelete={(id) => deleteAddress(id)}
+                      onEdit={(address) => setEditingAddress(address)}
+                    />
+                  ))
+                )}
+              </DetailSection>
+            </TabsPanel>
 
-          {/* Employment */}
-          <DetailSection
-            title="Employment"
-            icon={Briefcase}
-            count={employments.length}
-            onAdd={() => setAddingEmployment(true)}
-          >
-            {employments.length === 0 ? (
-              <p className="text-sm text-white/50 italic">No employment records</p>
-            ) : (
-              employments.map((employmentItem) => (
-                <EmploymentCard
-                  key={employmentItem.id}
-                  employment={employmentItem}
-                  onUpdate={(id, updates) => updateEmployment(id, updates)}
-                  onDelete={(id) => deleteEmployment(id)}
-                  onEdit={(employment) => setEditingEmployment(employment)}
-                />
-              ))
-            )}
-          </DetailSection>
+            <TabsPanel value="contacts">
+              <DetailSection title="Contact Info" onAdd={() => setAddingContact(true)}>
+                {contacts.length === 0 ? (
+                  <p className="text-sm text-text-muted italic">No contacts</p>
+                ) : (
+                  contacts.map((contactItem) => (
+                    <ContactInfoCard
+                      key={contactItem.id}
+                      contact={contactItem}
+                      onUpdate={(id, updates) => updateContact(id, updates)}
+                      onDelete={(id) => deleteContact(id)}
+                      onEdit={(contact) => setEditingContact(contact)}
+                    />
+                  ))
+                )}
+              </DetailSection>
+            </TabsPanel>
 
-          {/* Bank Accounts */}
-          <DetailSection
-            title="Bank Accounts"
-            icon={Landmark}
-            count={bankAccounts.length}
-            onAdd={() => setAddingBankAccount(true)}
-          >
-            {bankAccounts.length === 0 ? (
-              <p className="text-sm text-white/50 italic">No bank accounts</p>
-            ) : (
-              bankAccounts.map((accountItem) => (
-                <BankAccountCard
-                  key={accountItem.id}
-                  bankAccount={accountItem}
-                  onUpdate={(id, updates) => updateBankAccount(id, updates)}
-                  onDelete={(id) => deleteBankAccount(id)}
-                  onEdit={(bankAccount) => setEditingBankAccount(bankAccount)}
-                />
-              ))
-            )}
-          </DetailSection>
+            <TabsPanel value="employment">
+              <DetailSection title="Employment" onAdd={() => setAddingEmployment(true)}>
+                {employments.length === 0 ? (
+                  <p className="text-sm text-text-muted italic">No employment records</p>
+                ) : (
+                  employments.map((employmentItem) => (
+                    <EmploymentCard
+                      key={employmentItem.id}
+                      employment={employmentItem}
+                      onUpdate={(id, updates) => updateEmployment(id, updates)}
+                      onDelete={(id) => deleteEmployment(id)}
+                      onEdit={(employment) => setEditingEmployment(employment)}
+                    />
+                  ))
+                )}
+              </DetailSection>
+            </TabsPanel>
+
+            <TabsPanel value="banking">
+              <DetailSection title="Bank Accounts" onAdd={() => setAddingBankAccount(true)}>
+                {bankAccounts.length === 0 ? (
+                  <p className="text-sm text-text-muted italic">No bank accounts</p>
+                ) : (
+                  bankAccounts.map((accountItem) => (
+                    <BankAccountCard
+                      key={accountItem.id}
+                      bankAccount={accountItem}
+                      onUpdate={(id, updates) => updateBankAccount(id, updates)}
+                      onDelete={(id) => deleteBankAccount(id)}
+                      onEdit={(bankAccount) => setEditingBankAccount(bankAccount)}
+                    />
+                  ))
+                )}
+              </DetailSection>
+            </TabsPanel>
+          </Tabs>
         </div>
-      </div>
+      </Card>
 
-      {/* Modals */}
       {editingPerson && (
         <PersonEditModal
           person={person}
@@ -317,36 +322,27 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
   );
 };
 
-// Helper Components
-
 interface DetailSectionProps {
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  count: number;
   children: React.ReactNode;
   onAdd?: () => void;
 }
 
-const DetailSection = ({ title, icon: Icon, count, children, onAdd }: DetailSectionProps) => (
-  <div className="rounded-lg border border-white/20 bg-white/5 overflow-hidden flex flex-col">
-    <div className="flex items-center gap-2 p-3 border-b border-white/10 bg-white/5 shrink-0">
-      <Icon className="h-4 w-4 text-cyan-400" />
-      <h3 className="font-medium text-white">{title}</h3>
-      <span className="ml-auto text-xs text-white/50 bg-white/10 px-2 py-0.5 rounded-full">
-        {count}
-      </span>
+const DetailSection = ({ title, children, onAdd }: DetailSectionProps) => (
+  <div className="space-y-3">
+    <div className="flex items-center justify-between">
+      <h3 className="font-medium text-text-primary">{title}</h3>
       {onAdd && (
         <button
           onClick={onAdd}
-          className="ml-1 p-1 rounded hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-text-secondary hover:bg-action-secondary hover:text-text-primary transition-colors"
           title={`Add ${title.toLowerCase()}`}
         >
           <Plus className="h-4 w-4" />
+          Add
         </button>
       )}
     </div>
-    <div className="p-3 space-y-2 overflow-y-auto flex-1">{children}</div>
+    <div className="space-y-2">{children}</div>
   </div>
 );
-
-// Removed unused helper components and utilities

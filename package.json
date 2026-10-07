@@ -37,7 +37,9 @@
     "compile": "tsc",
     "intent:list": "intent list",
     "intent:list:json": "intent list --json",
-    "intent:install": "intent install"
+    "intent:install": "intent install",
+    "ds:build": "vp -C packages/tanstack-ds run build",
+    "ds:add": "vp dlx shadcn@latest add"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
