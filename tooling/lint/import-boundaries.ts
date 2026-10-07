@@ -46,6 +46,11 @@ export const applicationImportBoundaries = {
             group: ['**/apps/account-setup/**'],
             message: 'Application code must not import account-setup package internals',
           },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message:
+              'Application code must not import the DS registry package — use shadcn add @tanstack-ds/<item> instead',
+          },
         ],
       },
     ],

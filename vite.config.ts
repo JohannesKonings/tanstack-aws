@@ -28,6 +28,10 @@ export default defineWorkspaceConfig({
           glossary: 'apps/account-setup/GLOSSARY.md',
           adr: 'docs/adr',
         },
+        'tanstack-ds': {
+          glossary: 'packages/tanstack-ds/GLOSSARY.md',
+          adr: 'docs/adr',
+        },
       },
     },
   },
