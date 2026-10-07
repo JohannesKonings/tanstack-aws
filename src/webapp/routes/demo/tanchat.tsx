@@ -1,7 +1,7 @@
+import { CaretDownIcon, CaretRightIcon, PaperPlaneRightIcon } from '@phosphor-icons/react';
 import type { AGUIEvent, UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
-import { ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import GuitarRecommendation from '#src/webapp/components/example-GuitarRecommendation';
@@ -210,9 +210,9 @@ function RunLogPanel({
         aria-expanded={open}
       >
         {open ? (
-          <ChevronDown className="h-4 w-4 shrink-0" />
+          <CaretDownIcon className="h-4 w-4 shrink-0" />
         ) : (
-          <ChevronRight className="h-4 w-4 shrink-0" />
+          <CaretRightIcon className="h-4 w-4 shrink-0" />
         )}
         <span>Run log</span>
         <span className="text-gray-500">({entries.length})</span>
@@ -466,7 +466,7 @@ function ChatPage() {
                 disabled={!input.trim() || budget.overBudget}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
               >
-                <Send className="w-4 h-4" />
+                <PaperPlaneRightIcon className="w-4 h-4" />
               </button>
             </div>
           </form>

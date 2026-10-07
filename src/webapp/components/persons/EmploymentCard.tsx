@@ -1,4 +1,11 @@
-import { Briefcase, Building2, Calendar, DollarSign, Pencil, Trash2 } from 'lucide-react';
+import {
+  BriefcaseIcon,
+  BuildingsIcon,
+  CalendarIcon,
+  CurrencyDollarIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
@@ -50,7 +57,7 @@ export const EmploymentCard = ({
     <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <Briefcase className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <BriefcaseIcon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-white">{employment.position}</p>
@@ -58,7 +65,7 @@ export const EmploymentCard = ({
             </div>
 
             <div className="flex items-center gap-2 text-sm text-white/75">
-              <Building2 className="h-3.5 w-3.5" />
+              <BuildingsIcon className="h-3.5 w-3.5" />
               <span>{employment.companyName}</span>
               {employment.department && (
                 <>
@@ -69,7 +76,7 @@ export const EmploymentCard = ({
             </div>
 
             <div className="flex items-center gap-2 text-sm text-white/75">
-              <Calendar className="h-3.5 w-3.5" />
+              <CalendarIcon className="h-3.5 w-3.5" />
               <span>
                 {formatDate(employment.startDate)} -{' '}
                 {employment.endDate ? formatDate(employment.endDate) : 'Present'}
@@ -78,7 +85,7 @@ export const EmploymentCard = ({
 
             {employment.salary && (
               <div className="flex items-center gap-2 text-sm text-white/75">
-                <DollarSign className="h-3.5 w-3.5" />
+                <CurrencyDollarIcon className="h-3.5 w-3.5" />
                 <span>{formatSalary(employment.salary, employment.currency)}</span>
               </div>
             )}
@@ -93,7 +100,7 @@ export const EmploymentCard = ({
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer"
           >
-            <Pencil className="h-4 w-4" />
+            <PencilIcon className="h-4 w-4" />
           </Button>
           <Button
             size="icon"
@@ -102,7 +109,7 @@ export const EmploymentCard = ({
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -17,5 +17,5 @@
     "lib": "#src/webapp/lib",
     "hooks": "#src/webapp/hooks"
   },
-  "iconLibrary": "lucide"
+  "iconLibrary": "phosphor"
 }

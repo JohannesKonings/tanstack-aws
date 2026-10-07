@@ -1,4 +1,13 @@
-import { CheckCircle2, Linkedin, Mail, Pencil, Phone, Star, Trash2, Twitter } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  EnvelopeIcon,
+  LinkedinLogoIcon,
+  PencilIcon,
+  PhoneIcon,
+  StarIcon,
+  TrashIcon,
+  XLogoIcon,
+} from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '#src/webapp/components/ui/button';
 import type { ContactInfo } from '#src/webapp/types/person';
@@ -15,16 +24,16 @@ interface ContactInfoCardProps {
 function ContactTypeIcon({ type, className }: { type: string; className?: string }) {
   switch (type) {
     case 'email':
-      return <Mail className={className} />;
+      return <EnvelopeIcon className={className} />;
     case 'phone':
     case 'mobile':
-      return <Phone className={className} />;
+      return <PhoneIcon className={className} />;
     case 'linkedin':
-      return <Linkedin className={className} />;
+      return <LinkedinLogoIcon className={className} />;
     case 'twitter':
-      return <Twitter className={className} />;
+      return <XLogoIcon className={className} />;
     default:
-      return <Mail className={className} />;
+      return <EnvelopeIcon className={className} />;
   }
 }
 
@@ -58,13 +67,13 @@ export const ContactInfoCard = ({
               </span>
               {contact.isPrimary && (
                 <div className="flex items-center gap-1 text-xs text-white/75">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  <StarIcon className="h-3 w-3 text-yellow-400" weight="fill" />
                   Primary
                 </div>
               )}
               {contact.isVerified && (
                 <div className="flex items-center gap-1 text-xs text-green-400">
-                  <CheckCircle2 className="h-3 w-3" />
+                  <CheckCircleIcon className="h-3 w-3" />
                   Verified
                 </div>
               )}
@@ -83,7 +92,7 @@ export const ContactInfoCard = ({
               className="h-8 w-8 cursor-pointer"
               title="Set as primary"
             >
-              <Star className="h-4 w-4" />
+              <StarIcon className="h-4 w-4" />
             </Button>
           )}
           <Button
@@ -93,7 +102,7 @@ export const ContactInfoCard = ({
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer"
           >
-            <Pencil className="h-4 w-4" />
+            <PencilIcon className="h-4 w-4" />
           </Button>
           <Button
             size="icon"
@@ -102,7 +111,7 @@ export const ContactInfoCard = ({
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
