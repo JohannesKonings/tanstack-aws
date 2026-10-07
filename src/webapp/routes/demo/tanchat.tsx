@@ -5,6 +5,9 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import GuitarRecommendation from '#src/webapp/components/example-GuitarRecommendation';
+import { Badge } from '#src/webapp/components/ui/badge';
+import { Button } from '#src/webapp/components/ui/button';
+import { Card } from '#src/webapp/components/ui/card';
 import { DAILY_LIMIT_USD } from '#src/webapp/lib/bedrock-budget';
 import './tanchat.css';
 
@@ -50,7 +53,7 @@ function TextWithInlineImages({ content }: { content: string }) {
             key={i}
             src={part.src}
             alt=""
-            className="block w-full max-w-xs max-h-40 object-cover rounded-lg my-2 border border-gray-700/50"
+            className="my-2 block max-h-40 w-full max-w-xs rounded-lg border border-border-default object-cover"
           />
         ),
       )}
@@ -60,16 +63,19 @@ function TextWithInlineImages({ content }: { content: string }) {
 
 function InitalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex-1 flex items-center justify-center px-4">
-      <div className="text-center max-w-3xl mx-auto w-full">
-        <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-red-600 text-transparent bg-clip-text uppercase">
-          <span className="text-white">TanStack</span> Chat{' '}
-          <span className="text-gray-400 text-4xl font-normal normal-case">with Bedrock</span>
-        </h1>
-        <p className="text-gray-400 mb-6 w-2/3 mx-auto text-lg">
+    <div className="flex flex-1 items-center justify-center px-4">
+      <div className="mx-auto w-full max-w-3xl text-center">
+        <div className="mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-6xl font-bold uppercase">
+            <span className="text-text-primary">TanStack</span> Chat
+          </h1>
+          <Badge variant="orange">TanStack AI</Badge>
+        </div>
+        <p className="mx-auto mb-6 w-2/3 text-lg text-text-muted">
           You can ask me about anything, I might or might not have a good answer, but you can still
           ask.
         </p>
+        <p className="mb-6 text-4xl font-normal text-text-secondary normal-case">with Bedrock</p>
         {children}
       </div>
     </div>
@@ -78,8 +84,8 @@ function InitalLayout({ children }: { children: React.ReactNode }) {
 
 function ChattingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="sticky bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-orange-500/10 z-10">
-      <div className="max-w-3xl mx-auto w-full px-4 py-3">{children}</div>
+    <div className="sticky bottom-0 left-0 right-0 z-10 border-t border-border-default bg-background-surface/80 backdrop-blur-sm">
+      <div className="mx-auto w-full max-w-3xl px-4 py-3">{children}</div>
     </div>
   );
 }
@@ -103,19 +109,15 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
         {messages.map(({ id, role, parts }) => (
           <div
             key={id}
-            className={`p-4 ${
-              role === 'assistant'
-                ? 'bg-gradient-to-r from-orange-500/5 to-red-600/5'
-                : 'bg-transparent'
-            }`}
+            className={`p-4 ${role === 'assistant' ? 'bg-accent-warm/5' : 'bg-transparent'}`}
           >
             <div className="flex items-start gap-4 max-w-3xl mx-auto w-full">
               {role === 'assistant' ? (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 mt-2 flex items-center justify-center text-sm font-medium text-white flex-shrink-0">
+                <div className="mt-2 flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-accent-warm to-ds-terracotta-400 text-sm font-medium text-white">
                   AI
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center text-sm font-medium text-white flex-shrink-0">
+                <div className="mt-2 flex size-8 shrink-0 items-center justify-center rounded-lg bg-background-subtle text-sm font-medium text-text-primary">
                   Y
                 </div>
               )}
@@ -202,73 +204,79 @@ function RunLogPanel({
     hasEntries || usedLabel != null || budgetError != null || budgetLoading === true;
   if (!showPanel) return null;
   return (
-    <div className="border-t border-orange-500/10 bg-gray-900/60">
-      <button
+    <div className="border-t border-border-default bg-background-subtle/60">
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500/30"
+        className="w-full justify-start rounded-none px-4 py-2 text-sm text-text-muted"
         aria-expanded={open}
       >
         {open ? (
-          <CaretDownIcon className="h-4 w-4 shrink-0" />
+          <CaretDownIcon className="size-4 shrink-0" />
         ) : (
-          <CaretRightIcon className="h-4 w-4 shrink-0" />
+          <CaretRightIcon className="size-4 shrink-0" />
         )}
         <span>Run log</span>
-        <span className="text-gray-500">({entries.length})</span>
-        {budgetLoading && <span className="ml-2 text-gray-500">Checking budget...</span>}
+        <span className="text-text-muted">({entries.length})</span>
+        {budgetLoading && <span className="ml-2 text-text-muted">Checking budget...</span>}
         {usedLabel != null && !budgetLoading && (
-          <span className="ml-2 text-amber-500/90">{usedLabel}</span>
+          <Badge variant="warning" className="ml-2">
+            {usedLabel}
+          </Badge>
         )}
         {budgetError != null && usedLabel == null && !budgetLoading && (
-          <span className="ml-2 text-amber-600/80">Budget unavailable</span>
+          <Badge variant="warning" className="ml-2">
+            Budget unavailable
+          </Badge>
         )}
-      </button>
+      </Button>
       {open && (
         <div className="max-h-48 overflow-y-auto px-4 pb-3">
-          {budgetLoading && <p className="mb-2 text-xs text-gray-500">Checking budget...</p>}
+          {budgetLoading && <p className="mb-2 text-xs text-text-muted">Checking budget...</p>}
           {usedLabel != null && !budgetLoading && (
-            <p className="mb-2 text-xs text-amber-500/90">{usedLabel}</p>
+            <p className="mb-2 text-xs text-text-warning">{usedLabel}</p>
           )}
           {budgetError != null && (
-            <p className="mb-2 text-xs text-amber-600/90">
+            <p className="mb-2 text-xs text-text-warning">
               Budget metric: {budgetError}
               {onRetryBudget != null && (
                 <>
                   {' '}
-                  <button
+                  <Button
                     type="button"
+                    variant="link"
+                    color="orange"
+                    size="xs"
                     onClick={(e) => {
                       e.stopPropagation();
                       onRetryBudget();
                     }}
-                    className="text-orange-500 hover:underline"
                   >
                     Retry
-                  </button>
+                  </Button>
                 </>
               )}
             </p>
           )}
           <ul className="space-y-2 text-xs">
             {entries.map((entry, i) => (
-              <li
-                key={`${entry.timestamp}-${i}`}
-                className="rounded border border-orange-500/10 bg-gray-800/50 p-2 font-mono"
-              >
-                <div className="text-gray-400">
-                  <span className="text-orange-500/90">{entry.model}</span>
-                  <span className="ml-2">{new Date(entry.timestamp).toLocaleTimeString()}</span>
-                  {entry.finishReason != null && (
-                    <span className="ml-2 text-gray-500">finish: {entry.finishReason}</span>
-                  )}
-                </div>
-                {entry.usage != null && (
-                  <div className="mt-1 text-gray-500">
-                    input: {entry.usage.promptTokens} · output: {entry.usage.completionTokens} ·
-                    total: {entry.usage.totalTokens}
+              <li key={`${entry.timestamp}-${i}`}>
+                <Card className="p-2 font-mono">
+                  <div className="text-text-muted">
+                    <span className="text-accent-warm">{entry.model}</span>
+                    <span className="ml-2">{new Date(entry.timestamp).toLocaleTimeString()}</span>
+                    {entry.finishReason != null && (
+                      <span className="ml-2 text-text-muted">finish: {entry.finishReason}</span>
+                    )}
                   </div>
-                )}
+                  {entry.usage != null && (
+                    <div className="mt-1 text-text-muted">
+                      input: {entry.usage.promptTokens} · output: {entry.usage.completionTokens} ·
+                      total: {entry.usage.totalTokens}
+                    </div>
+                  )}
+                </Card>
               </li>
             ))}
           </ul>
@@ -409,20 +417,20 @@ function ChatPage() {
   const Layout = messages.length ? ChattingLayout : InitalLayout;
 
   return (
-    <div className="relative flex h-[calc(100vh-80px)] flex-col bg-gray-900">
+    <div className="relative flex h-[calc(100vh-80px)] flex-col bg-background-default">
       <div className="flex min-h-0 flex-1 flex-col">
         {error && (
-          <div className="mx-4 mt-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <Card className="mx-4 mt-2 border-status-error/30 bg-status-error-bg p-3 text-sm text-text-error">
             {error.message}
-          </div>
+          </Card>
         )}
         {budget.overBudget && (
-          <div className="mx-4 mt-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
+          <Card className="mx-4 mt-2 border-status-warning/30 bg-status-warning-bg p-3 text-sm text-text-warning">
             Budget is empty for the day. Daily limit (${budget.limit}) reached.
-          </div>
+          </Card>
         )}
         <Messages messages={messages} />
-        {isLoading && <div className="px-4 py-2 text-gray-400 text-sm">Thinking...</div>}
+        {isLoading && <div className="px-4 py-2 text-sm text-text-muted">Thinking...</div>}
 
         <Layout>
           <form
@@ -434,8 +442,8 @@ function ChatPage() {
               }
             }}
           >
-            <div className="relative max-w-xl mx-auto">
-              {budget.loading && <p className="mb-1 text-xs text-gray-500">Checking budget...</p>}
+            <div className="relative mx-auto max-w-xl">
+              {budget.loading && <p className="mb-1 text-xs text-text-muted">Checking budget...</p>}
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -443,7 +451,7 @@ function ChatPage() {
                   budget.overBudget ? 'Budget is empty for the day' : 'Type something clever...'
                 }
                 disabled={budget.overBudget}
-                className="w-full rounded-lg border border-orange-500/20 bg-gray-800/50 pl-4 pr-12 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent resize-none overflow-hidden shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full resize-none overflow-hidden rounded-lg border border-border-default bg-background-subtle py-3 pl-4 pr-12 text-sm text-text-primary shadow-lg placeholder:text-text-muted focus:border-border-strong focus:outline-none focus:ring-2 focus:ring-border-focus disabled:cursor-not-allowed disabled:opacity-60"
                 rows={1}
                 style={{ minHeight: '44px', maxHeight: '200px' }}
                 onInput={(e) => {
@@ -461,13 +469,16 @@ function ChatPage() {
                   }
                 }}
               />
-              <button
+              <Button
                 type="submit"
+                variant="icon"
+                color="orange"
+                size="icon-sm"
                 disabled={!input.trim() || budget.overBudget}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
+                className="absolute right-2 top-1/2 -translate-y-1/2"
               >
-                <PaperPlaneRightIcon className="w-4 h-4" />
-              </button>
+                <PaperPlaneRightIcon className="size-4" />
+              </Button>
             </div>
           </form>
         </Layout>
