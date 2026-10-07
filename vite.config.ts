@@ -106,7 +106,7 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts'],
+    include: ['lib/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',

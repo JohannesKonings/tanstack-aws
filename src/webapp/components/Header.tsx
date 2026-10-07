@@ -14,120 +14,161 @@ import {
   UsersIcon,
   XIcon,
 } from '@phosphor-icons/react';
-// oxlint-disable no-ternary
-import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Link, type LinkProps } from '@tanstack/react-router';
+import { type ReactNode, useState } from 'react';
+import { DrawerLibraryMark } from '#src/webapp/components/DrawerLibraryMark';
+import { ThemeToggle } from '#src/webapp/components/ThemeToggle';
+import { Button } from '#src/webapp/components/ui/button';
+import type { DrawerLibraryId } from '#src/webapp/lib/drawer-library-marks';
 import TanChatAIAssistant from './example-AIAssistant.tsx';
+
+const navLinkClass =
+  'flex items-center gap-3 p-3 rounded-lg hover:bg-surface-state-hover transition-colors mb-2 text-text-primary';
+const navLinkActiveClass =
+  'flex items-center gap-3 p-3 rounded-lg bg-action-primary/10 text-text-primary border border-border-focus/30 transition-colors mb-2';
+
+function DrawerNavLink({
+  to,
+  onNavigate,
+  icon,
+  label,
+  libraryId,
+  className = navLinkClass,
+  activeClassName = navLinkActiveClass,
+}: {
+  to: LinkProps['to'];
+  onNavigate: () => void;
+  icon: ReactNode;
+  label: string;
+  libraryId?: DrawerLibraryId;
+  className?: string;
+  activeClassName?: string;
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onNavigate}
+      className={className}
+      activeProps={{ className: activeClassName }}
+    >
+      {icon}
+      <span className="flex min-w-0 flex-col">
+        <span className="font-medium text-ds-label-md">{label}</span>
+        {libraryId ? <DrawerLibraryMark libraryId={libraryId} /> : null}
+      </span>
+    </Link>
+  );
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [groupedExpanded, setGroupedExpanded] = useState<Record<string, boolean>>({});
+  const close = () => {
+    setIsOpen(false);
+  };
 
   return (
     <>
-      <header className="p-4 flex items-center justify-between bg-gray-800 text-white shadow-lg">
+      <header className="flex items-center justify-between border-b border-border bg-background-surface p-4 text-text-primary shadow-sm">
         <div className="flex items-center">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+          <Button
+            type="button"
+            variant="icon"
+            color="gray"
+            size="icon-md"
             aria-label="Open menu"
+            onClick={() => setIsOpen(true)}
           >
             <ListIcon size={24} />
-          </button>
-          <h1 className="ml-4 text-xl font-semibold">
+          </Button>
+          <h1 className="ml-4 text-ds-heading-5 font-display">
             <Link to="/">
               <img
                 src="/images/tanstack-word-logo-white.svg"
                 alt="TanStack Logo"
-                className="h-10"
+                className="h-10 dark:invert-0 invert"
               />
             </Link>
           </h1>
         </div>
-        <a
-          href="https://github.com/JohannesKonings/tanstack-aws"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="View on GitHub"
-        >
-          <GithubLogoIcon size={24} />
-        </a>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <Button
+            as="a"
+            href="https://github.com/JohannesKonings/tanstack-aws"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="icon"
+            color="gray"
+            size="icon-md"
+            aria-label="View on GitHub"
+          >
+            <GithubLogoIcon size={24} />
+          </Button>
+        </div>
       </header>
 
       <aside
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-0 left-0 z-50 flex h-full w-80 transform flex-col border-r border-border bg-background-elevated text-text-primary shadow-2xl transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+        <div className="flex items-center justify-between border-b border-border p-4">
+          <h2 className="font-display text-ds-heading-4">Navigation</h2>
+          <Button
+            type="button"
+            variant="icon"
+            color="gray"
+            size="icon-md"
             aria-label="Close menu"
+            onClick={close}
           >
             <XIcon size={24} />
-          </button>
+          </Button>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <Link
+        <nav className="flex-1 overflow-y-auto p-4">
+          <DrawerNavLink
             to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <HouseIcon size={20} />
-            <span className="font-medium">Home</span>
-          </Link>
+            onNavigate={close}
+            icon={<HouseIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Home"
+          />
 
           {/* Demo Links Start */}
 
-          <Link
+          <DrawerNavLink
             to="/demo/start/server-funcs"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <FunctionIcon size={20} />
-            <span className="font-medium">Start - Server Functions</span>
-          </Link>
+            onNavigate={close}
+            icon={<FunctionIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Start - Server Functions"
+            libraryId="start"
+          />
 
-          <Link
+          <DrawerNavLink
             to="/demo/start/api-request"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <NetworkIcon size={20} />
-            <span className="font-medium">Start - API Request</span>
-          </Link>
+            onNavigate={close}
+            icon={<NetworkIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Start - API Request"
+            libraryId="start"
+          />
 
           <div className="flex flex-row justify-between">
-            <Link
+            <DrawerNavLink
               to="/demo/start/ssr"
-              onClick={() => setIsOpen(false)}
-              className="flex-1 flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-              activeProps={{
-                className:
-                  'flex-1 flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-              }}
-            >
-              <NoteIcon size={20} />
-              <span className="font-medium">Start - SSR Demos</span>
-            </Link>
-            <button
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              onNavigate={close}
+              icon={<NoteIcon size={20} className="shrink-0 text-icon-default" />}
+              label="Start - SSR Demos"
+              libraryId="start"
+              className="mb-2 flex flex-1 items-center gap-3 rounded-lg p-3 text-text-primary transition-colors hover:bg-surface-state-hover"
+              activeClassName="mb-2 flex flex-1 items-center gap-3 rounded-lg border border-border-focus/30 bg-action-primary/10 p-3 text-text-primary transition-colors"
+            />
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-md"
+              aria-label="Toggle SSR demos"
               onClick={() =>
                 setGroupedExpanded((prev) => ({
                   ...prev,
@@ -140,144 +181,95 @@ export default function Header() {
               ) : (
                 <CaretRightIcon size={20} />
               )}
-            </button>
+            </Button>
           </div>
-          {groupedExpanded.StartSSRDemo && (
-            <div className="flex flex-col ml-4">
-              <Link
+          {groupedExpanded.StartSSRDemo ? (
+            <div className="ml-4 flex flex-col">
+              <DrawerNavLink
                 to="/demo/start/ssr/spa-mode"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <NoteIcon size={20} />
-                <span className="font-medium">SPA Mode</span>
-              </Link>
+                onNavigate={close}
+                icon={<NoteIcon size={20} className="shrink-0 text-icon-default" />}
+                label="SPA Mode"
+                libraryId="start"
+              />
 
-              <Link
+              <DrawerNavLink
                 to="/demo/start/ssr/full-ssr"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <NoteIcon size={20} />
-                <span className="font-medium">Full SSR</span>
-              </Link>
+                onNavigate={close}
+                icon={<NoteIcon size={20} className="shrink-0 text-icon-default" />}
+                label="Full SSR"
+                libraryId="start"
+              />
 
-              <Link
+              <DrawerNavLink
                 to="/demo/start/ssr/data-only"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <NoteIcon size={20} />
-                <span className="font-medium">Data Only</span>
-              </Link>
+                onNavigate={close}
+                icon={<NoteIcon size={20} className="shrink-0 text-icon-default" />}
+                label="Data Only"
+                libraryId="start"
+              />
             </div>
-          )}
+          ) : null}
 
-          <Link
+          <DrawerNavLink
             to="/demo/trpc-todo"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <NetworkIcon size={20} />
-            <span className="font-medium">tRPC Todo</span>
-          </Link>
+            onNavigate={close}
+            icon={<NetworkIcon size={20} className="shrink-0 text-icon-default" />}
+            label="tRPC Todo"
+          />
 
-          <Link
+          <DrawerNavLink
             to="/demo/tanstack-query"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <NetworkIcon size={20} />
-            <span className="font-medium">TanStack Query</span>
-          </Link>
+            onNavigate={close}
+            icon={<NetworkIcon size={20} className="shrink-0 text-icon-default" />}
+            label="TanStack Query"
+            libraryId="query"
+          />
 
-          <Link
+          <DrawerNavLink
             to="/demo/tanchat"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <ChatCircleIcon size={20} />
-            <span className="font-medium">Chat (TanStack AI with Amazon Bedrock)</span>
-          </Link>
+            onNavigate={close}
+            icon={<ChatCircleIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Chat (TanStack AI with Amazon Bedrock)"
+            libraryId="ai"
+          />
 
-          <Link
+          <DrawerNavLink
             to="/example/guitars"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <GuitarIcon size={20} />
-            <span className="font-medium">Guitar Demo</span>
-          </Link>
+            onNavigate={close}
+            icon={<GuitarIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Guitar Demo"
+            libraryId="ai"
+          />
 
-          <Link
+          <DrawerNavLink
             to="/demo/store"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <StorefrontIcon size={20} />
-            <span className="font-medium">Store</span>
-          </Link>
-          <Link
+            onNavigate={close}
+            icon={<StorefrontIcon size={20} className="shrink-0 text-icon-default" />}
+            label="Store"
+            libraryId="store"
+          />
+
+          <DrawerNavLink
             to="/demo/db-todo"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <DatabaseIcon size={20} />
-            <span className="font-medium">DB Todo</span>
-          </Link>
-          <Link
+            onNavigate={close}
+            icon={<DatabaseIcon size={20} className="shrink-0 text-icon-default" />}
+            label="DB Todo"
+            libraryId="db"
+          />
+
+          <DrawerNavLink
             to="/demo/db-person"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <UsersIcon size={20} />
-            <span className="font-medium">DB Persons</span>
-          </Link>
+            onNavigate={close}
+            icon={<UsersIcon size={20} className="shrink-0 text-icon-default" />}
+            label="DB Persons"
+            libraryId="db"
+          />
 
           {/* Demo Links End */}
         </nav>
 
-        <div className="p-4 border-t border-gray-700 bg-gray-800 flex flex-col gap-2">
+        <div className="flex flex-col gap-2 border-t border-border bg-background-surface p-4">
           <TanChatAIAssistant />
         </div>
       </aside>
