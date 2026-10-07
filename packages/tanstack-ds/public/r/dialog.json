@@ -3,12 +3,8 @@
   "name": "dialog",
   "title": "TanStack DS Dialog",
   "description": "Radix-backed centered modal with focus trap, scroll lock, and DS motion.",
-  "dependencies": [
-    "@radix-ui/react-dialog"
-  ],
-  "registryDependencies": [
-    "@tanstack-ds/theme"
-  ],
+  "dependencies": ["@radix-ui/react-dialog"],
+  "registryDependencies": ["@tanstack-ds/theme"],
   "files": [
     {
       "path": "registry/dialog/dialog.tsx",

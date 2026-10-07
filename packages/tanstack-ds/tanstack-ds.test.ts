@@ -11,7 +11,7 @@ function runRegistryBuild() {
 }
 
 describe('tanstack-ds registry', () => {
-  it('registry.json validates against the shadcn registry schema', () => {
+  it('registry.json declares the shadcn registry schema URL and catalog items', () => {
     const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
       $schema: string;
       name: string;

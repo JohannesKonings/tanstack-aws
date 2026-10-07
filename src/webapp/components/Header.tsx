@@ -236,7 +236,6 @@ export default function Header() {
             onNavigate={close}
             icon={<GuitarIcon size={20} className="shrink-0 text-icon-default" />}
             label="Guitar Demo"
-            libraryId="ai"
           />
 
           <DrawerNavLink

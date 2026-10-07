@@ -3,9 +3,7 @@
   "name": "partner-rail",
   "title": "TanStack DS Partner Rail",
   "description": "Tiered partner logo rail with gold, silver, and bronze sections.",
-  "registryDependencies": [
-    "@tanstack-ds/theme"
-  ],
+  "registryDependencies": ["@tanstack-ds/theme"],
   "files": [
     {
       "path": "registry/partner-rail/partner-rail.tsx",

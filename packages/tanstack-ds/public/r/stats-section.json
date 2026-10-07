@@ -3,9 +3,7 @@
   "name": "stats-section",
   "title": "TanStack DS Stats Section",
   "description": "Presentational stats matrix for home, hero, and library page layouts.",
-  "registryDependencies": [
-    "@tanstack-ds/theme"
-  ],
+  "registryDependencies": ["@tanstack-ds/theme"],
   "files": [
     {
       "path": "registry/stats-section/stats-section.tsx",

@@ -3,9 +3,7 @@
   "name": "brand-logos",
   "title": "TanStack DS Brand Logos",
   "description": "Official TanStack emblem and lockup SVG assets with React logo helpers.",
-  "registryDependencies": [
-    "@tanstack-ds/theme"
-  ],
+  "registryDependencies": ["@tanstack-ds/theme"],
   "files": [
     {
       "path": "registry/brand/logo.tsx",

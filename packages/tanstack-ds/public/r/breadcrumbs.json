@@ -3,10 +3,7 @@
   "name": "breadcrumbs",
   "title": "TanStack DS Breadcrumbs",
   "description": "Section breadcrumb with optional on-this-page table of contents dropdown.",
-  "registryDependencies": [
-    "@tanstack-ds/theme",
-    "@tanstack-ds/dropdown"
-  ],
+  "registryDependencies": ["@tanstack-ds/theme", "@tanstack-ds/dropdown"],
   "files": [
     {
       "path": "registry/breadcrumbs/breadcrumbs.tsx",

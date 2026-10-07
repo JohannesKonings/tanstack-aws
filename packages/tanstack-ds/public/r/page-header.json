@@ -3,10 +3,7 @@
   "name": "page-header",
   "title": "TanStack DS Page Header",
   "description": "Editorial page masthead with brand mark, lede, and optional actions.",
-  "registryDependencies": [
-    "@tanstack-ds/theme",
-    "@tanstack-ds/brand-logos"
-  ],
+  "registryDependencies": ["@tanstack-ds/theme", "@tanstack-ds/brand-logos"],
   "files": [
     {
       "path": "registry/page-header/page-header.tsx",
