@@ -53,7 +53,7 @@
     "ulid": "^3.0.2"
   },
   "devDependencies": {
-    "@jaykingson/vite-plus-base": "0.0.3",
+    "@jaykingson/vite-plus-base": "0.0.4",
     "@phosphor-icons/react": "^2.1.10",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tanstack/intent": "0.0.23",
