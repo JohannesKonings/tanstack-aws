@@ -3,7 +3,9 @@
   "name": "tabs",
   "title": "TanStack DS Tabs",
   "description": "Primary underline or secondary segmented tabs with full a11y semantics.",
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/tabs/tabs.tsx",

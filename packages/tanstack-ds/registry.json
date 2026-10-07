@@ -139,6 +139,20 @@
       }
     },
     {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "TanStack DS Button",
+      "description": "DS Button with orthogonal variant and color axes, lift motion, and polymorphic as prop.",
+      "dependencies": ["tailwind-merge"],
+      "files": [
+        {
+          "path": "registry/ui/button.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/button.tsx"
+        }
+      ]
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "title": "TanStack DS Badge",

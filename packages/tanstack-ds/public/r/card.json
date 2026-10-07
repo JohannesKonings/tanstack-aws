@@ -3,7 +3,9 @@
   "name": "card",
   "title": "TanStack DS Card",
   "description": "Surface card for grouped content with DS border and shadow.",
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/card/card.tsx",

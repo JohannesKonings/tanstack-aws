@@ -3,7 +3,9 @@
   "name": "badge",
   "title": "TanStack DS Badge",
   "description": "Status and label badge with DS semantic color variants.",
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/badge/badge.tsx",

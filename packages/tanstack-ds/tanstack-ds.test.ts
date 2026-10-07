@@ -19,7 +19,7 @@ describe('tanstack-ds registry', () => {
   });
 
   it('shadcn build emits static registry JSON with required fields', () => {
-    execSync('pnpm run build', { cwd: packageRoot, stdio: 'pipe' });
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
 
     const themeJsonPath = join(packageRoot, 'public/r/theme.json');
     expect(existsSync(themeJsonPath)).toBe(true);
@@ -38,6 +38,29 @@ describe('tanstack-ds registry', () => {
     }
   });
 
+  it('shadcn build emits button registry item with DS variant/color API', () => {
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+
+    const buttonJsonPath = join(packageRoot, 'public/r/button.json');
+    expect(existsSync(buttonJsonPath)).toBe(true);
+
+    const buttonItem = JSON.parse(readFileSync(buttonJsonPath, 'utf8')) as {
+      name: string;
+      type: string;
+      files: Array<{ content?: string; path: string; type: string }>;
+    };
+    expect(buttonItem.name).toBe('button');
+    expect(buttonItem.type).toBe('registry:ui');
+    expect(buttonItem.files.length).toBe(1);
+
+    const source =
+      buttonItem.files[0]?.content ??
+      readFileSync(join(packageRoot, 'registry/ui/button.tsx'), 'utf8');
+    expect(source).toContain('variant?: ButtonVariant');
+    expect(source).toContain('color?: ButtonColor');
+    expect(source).not.toContain('class-variance-authority');
+  });
+
   it('publishes layout primitive registry items badge, card, and tabs', () => {
     const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
       items: Array<{ name: string; type: string }>;
@@ -47,7 +70,7 @@ describe('tanstack-ds registry', () => {
     expect(itemNames).toContain('card');
     expect(itemNames).toContain('tabs');
 
-    execSync('pnpm run build', { cwd: packageRoot, stdio: 'pipe' });
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
 
     for (const name of ['badge', 'card', 'tabs'] as const) {
       const itemPath = join(packageRoot, `public/r/${name}.json`);
