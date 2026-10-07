@@ -19,6 +19,7 @@ import { type ReactNode, useState } from 'react';
 import { DrawerLibraryMark } from '#src/webapp/components/DrawerLibraryMark';
 import { ThemeToggle } from '#src/webapp/components/ThemeToggle';
 import { Button } from '#src/webapp/components/ui/button';
+import { TanStackLandscapeLogo } from '#src/webapp/components/ui/logo';
 import type { DrawerLibraryId } from '#src/webapp/lib/drawer-library-marks';
 import TanChatAIAssistant from './example-AIAssistant.tsx';
 
@@ -83,11 +84,7 @@ export default function Header() {
           </Button>
           <h1 className="ml-4 text-ds-heading-5 font-display">
             <Link to="/">
-              <img
-                src="/images/tanstack-word-logo-white.svg"
-                alt="TanStack Logo"
-                className="h-10 dark:invert-0 invert"
-              />
+              <TanStackLandscapeLogo className="h-8" />
             </Link>
           </h1>
         </div>

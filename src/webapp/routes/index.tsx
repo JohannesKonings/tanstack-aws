@@ -17,6 +17,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
 import { Card } from '#src/webapp/components/ui/card';
+import { PageHeader } from '#src/webapp/components/ui/page-header';
+import { StatsSection } from '#src/webapp/components/ui/stats-section';
 
 export const Route = createFileRoute('/')({ component: App });
 
@@ -113,31 +115,21 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background-default">
-      <section className="relative overflow-hidden px-6 py-20 text-center">
+      <section className="relative overflow-hidden px-6 py-20">
         <div className="absolute inset-0 bg-gradient-to-r from-lib-start/10 via-ds-blue-500/10 to-ds-purple-400/10" />
-        <div className="relative mx-auto max-w-5xl">
-          <div className="mb-6 flex items-center justify-center gap-6">
-            <img
-              src="/images/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="size-24 md:size-32"
-            />
-            <h1 className="text-5xl font-black text-text-primary [letter-spacing:-0.08em] md:text-6xl">
-              <span className="text-text-secondary">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-lib-start to-ds-blue-400 bg-clip-text pr-1 text-transparent">
-                AWS
-              </span>{' '}
-              <span className="text-text-secondary">EXAMPLES</span>
-            </h1>
-          </div>
-          <p className="mb-4 text-2xl font-light text-text-secondary md:text-3xl">
-            TanStack examples deployed with AWS CDK
-          </p>
-          <p className="mx-auto mb-8 max-w-3xl text-lg text-text-muted">
-            Explore full-stack examples using TanStack Router, Query, and Start — deployed to AWS
-            with CDK infrastructure as code. Learn serverless patterns with Lambda, DynamoDB,
-            CloudFront, and S3.
-          </p>
+        <div className="relative mx-auto max-w-5xl text-center">
+          <PageHeader
+            align="center"
+            title={
+              <>
+                <span className="text-text-secondary">TanStack </span>
+                <em>AWS</em>
+                <span className="text-text-secondary"> Examples</span>
+              </>
+            }
+            lede="Explore full-stack examples using TanStack Router, Query, and Start — deployed to AWS with CDK infrastructure as code."
+            icon={null}
+          />
           <div className="mb-8 flex flex-wrap justify-center gap-3">
             <Badge variant="teal">TanStack Router</Badge>
             <Badge variant="info">TanStack Query</Badge>
@@ -146,6 +138,31 @@ function App() {
             <Badge variant="orange">Lambda</Badge>
             <Badge variant="orange">DynamoDB</Badge>
           </div>
+          <StatsSection
+            page="home"
+            layout="landscape"
+            className="mb-8"
+            stats={[
+              {
+                key: 'demos',
+                value: '10+',
+                label: 'Live demos',
+                icon: <LightningIcon className="size-6 text-lib-start" />,
+              },
+              {
+                key: 'services',
+                value: '5',
+                label: 'AWS services',
+                icon: <CloudIcon className="size-6 text-accent-warm" />,
+              },
+              {
+                key: 'libraries',
+                value: '6',
+                label: 'TanStack libraries',
+                icon: <SparkleIcon className="size-6 text-ds-purple-400" />,
+              },
+            ]}
+          />
           <div className="flex flex-col items-center gap-4">
             <Button
               as="a"

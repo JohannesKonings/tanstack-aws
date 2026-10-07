@@ -1,9 +1,12 @@
 import { type CSSProperties, type ReactNode } from 'react';
+import { Breadcrumbs } from '#src/webapp/components/ui/breadcrumbs';
 import { Card } from '#src/webapp/components/ui/card';
 
 type DemoPageShellProps = {
   title: string;
   badge?: ReactNode;
+  section?: string;
+  sectionTo?: string;
   backgroundStyle?: CSSProperties;
   cardClassName?: string;
   children: ReactNode;
@@ -12,6 +15,8 @@ type DemoPageShellProps = {
 export function DemoPageShell({
   title,
   badge,
+  section,
+  sectionTo = '/',
   backgroundStyle,
   cardClassName,
   children,
@@ -22,6 +27,11 @@ export function DemoPageShell({
       style={backgroundStyle}
     >
       <Card className={`w-full max-w-2xl p-8 ${cardClassName ?? ''}`}>
+        {section ? (
+          <div className="mb-4">
+            <Breadcrumbs section={section} sectionTo={sectionTo} />
+          </div>
+        ) : null}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold">{title}</h1>
           {badge}

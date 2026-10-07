@@ -5,6 +5,8 @@
 @import './styles/ds-fonts.css';
 @import './styles/ds-tokens.css';
 @import './styles/ds-overlays.css';
+@import './styles/ds-spinner.css';
+@import './styles/ds-brand.css';
 
 @custom-variant dark (&:is(.dark, .dark *));
 

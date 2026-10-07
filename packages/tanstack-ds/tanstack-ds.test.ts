@@ -135,4 +135,73 @@ describe('tanstack-ds registry', () => {
     expect(dropdownSource).toContain('SelectDropdown');
     expect(dropdownSource).toContain('DropdownMenu');
   });
+
+  it('publishes extended catalog registry items spinner through favicons', () => {
+    const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
+      items: Array<{ name: string; type: string }>;
+    };
+    const itemNames = registry.items.map((item) => item.name);
+    for (const name of [
+      'spinner',
+      'stats-section',
+      'breadcrumbs',
+      'page-header',
+      'partner-rail',
+      'brand-logos',
+      'favicons',
+    ] as const) {
+      expect(itemNames).toContain(name);
+    }
+
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+
+    for (const name of [
+      'spinner',
+      'stats-section',
+      'breadcrumbs',
+      'page-header',
+      'partner-rail',
+      'brand-logos',
+      'favicons',
+    ] as const) {
+      const itemPath = join(packageRoot, `public/r/${name}.json`);
+      expect(existsSync(itemPath)).toBe(true);
+    }
+
+    const spinnerSource = readFileSync(join(packageRoot, 'registry/spinner/spinner.tsx'), 'utf8');
+    expect(spinnerSource).toContain('CircleNotchIcon');
+    expect(spinnerSource).toContain('PalmSpinner');
+
+    const statsSource = readFileSync(
+      join(packageRoot, 'registry/stats-section/stats-section.tsx'),
+      'utf8',
+    );
+    expect(statsSource).toContain('export function StatsSection');
+
+    const breadcrumbsSource = readFileSync(
+      join(packageRoot, 'registry/breadcrumbs/breadcrumbs.tsx'),
+      'utf8',
+    );
+    expect(breadcrumbsSource).toContain('BreadcrumbHeading');
+    expect(breadcrumbsSource).toContain('On this page');
+
+    const pageHeaderSource = readFileSync(
+      join(packageRoot, 'registry/page-header/page-header.tsx'),
+      'utf8',
+    );
+    expect(pageHeaderSource).toContain('ds-brand-mark');
+
+    const partnerRailSource = readFileSync(
+      join(packageRoot, 'registry/partner-rail/partner-rail.tsx'),
+      'utf8',
+    );
+    expect(partnerRailSource).toContain('PartnerRail');
+    expect(partnerRailSource).toContain('PartnerTier');
+
+    const emblemPath = join(packageRoot, 'registry/brand/assets/tanstack-emblem-black.svg');
+    expect(existsSync(emblemPath)).toBe(true);
+
+    const faviconPath = join(packageRoot, 'registry/brand/favicons/favicon-light.svg');
+    expect(existsSync(faviconPath)).toBe(true);
+  });
 });

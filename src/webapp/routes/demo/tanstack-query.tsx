@@ -7,6 +7,7 @@ import { DemoListItem, DemoPageShell } from '#src/webapp/components/DemoPageShel
 import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
 import { Input } from '#src/webapp/components/ui/input';
+import { Spinner } from '#src/webapp/components/ui/spinner';
 import { type Todo, todoSchema } from '#src/webapp/types/todo';
 
 export const Route = createFileRoute('/demo/tanstack-query')({
@@ -16,7 +17,7 @@ export const Route = createFileRoute('/demo/tanstack-query')({
 const todoApiPath = '/demo/api/tq-todos';
 
 function TanStackQueryDemo() {
-  const { data, refetch } = useQuery<Todo[]>({
+  const { data, isPending, refetch } = useQuery<Todo[]>({
     initialData: [],
     queryFn: async () => {
       const response = await fetch(todoApiPath);
@@ -100,12 +101,18 @@ function TanStackQueryDemo() {
   return (
     <DemoPageShell
       title="TanStack Query Todos list"
+      section="Demos"
       badge={<Badge variant="info">TanStack Query</Badge>}
       backgroundStyle={{
         backgroundImage:
           'radial-gradient(50% 50% at 80% 20%, #3B021F 0%, #7B1028 60%, #1A000A 100%)',
       }}
     >
+      {isPending ? (
+        <div className="mb-4 flex justify-center py-8">
+          <Spinner className="size-8" />
+        </div>
+      ) : null}
       <ul className="mb-4 space-y-2">
         {data?.map((todoItem) => {
           const isCompleted = todoItem.status === 'completed';

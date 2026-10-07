@@ -242,6 +242,163 @@
           "target": "src/webapp/components/ui/dropdown.tsx"
         }
       ]
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "TanStack DS Spinner",
+      "description": "Generic CircleNotch spinner plus branded Palm and Pixel spinners.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/spinner/spinner.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/spinner.tsx"
+        },
+        {
+          "path": "registry/spinner/palm-spinner.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/palm-spinner.tsx"
+        },
+        {
+          "path": "registry/spinner/pixel-spinner.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/pixel-spinner.tsx"
+        },
+        {
+          "path": "registry/spinner/pixel-spinner-frames.ts",
+          "type": "registry:file",
+          "target": "src/webapp/components/ui/pixel-spinner-frames.ts"
+        },
+        {
+          "path": "registry/spinner/ds-spinner.css",
+          "type": "registry:file",
+          "target": "src/webapp/styles/ds-spinner.css"
+        }
+      ]
+    },
+    {
+      "name": "stats-section",
+      "type": "registry:ui",
+      "title": "TanStack DS Stats Section",
+      "description": "Presentational stats matrix for home, hero, and library page layouts.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/stats-section/stats-section.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/stats-section.tsx"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumbs",
+      "type": "registry:ui",
+      "title": "TanStack DS Breadcrumbs",
+      "description": "Section breadcrumb with optional on-this-page table of contents dropdown.",
+      "registryDependencies": ["@tanstack-ds/theme", "@tanstack-ds/dropdown"],
+      "files": [
+        {
+          "path": "registry/breadcrumbs/breadcrumbs.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/breadcrumbs.tsx"
+        }
+      ]
+    },
+    {
+      "name": "page-header",
+      "type": "registry:ui",
+      "title": "TanStack DS Page Header",
+      "description": "Editorial page masthead with brand mark, lede, and optional actions.",
+      "registryDependencies": ["@tanstack-ds/theme", "@tanstack-ds/brand-logos"],
+      "files": [
+        {
+          "path": "registry/page-header/page-header.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/page-header.tsx"
+        },
+        {
+          "path": "registry/page-header/ds-brand.css",
+          "type": "registry:file",
+          "target": "src/webapp/styles/ds-brand.css"
+        }
+      ]
+    },
+    {
+      "name": "partner-rail",
+      "type": "registry:ui",
+      "title": "TanStack DS Partner Rail",
+      "description": "Tiered partner logo rail with gold, silver, and bronze sections.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/partner-rail/partner-rail.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/partner-rail.tsx"
+        }
+      ]
+    },
+    {
+      "name": "brand-logos",
+      "type": "registry:ui",
+      "title": "TanStack DS Brand Logos",
+      "description": "Official TanStack emblem and lockup SVG assets with React logo helpers.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/brand/logo.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/logo.tsx"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-emblem-black.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-emblem-black.svg"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-emblem-white.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-emblem-white.svg"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-stacked-black.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-stacked-black.svg"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-stacked-white.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-stacked-white.svg"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-landscape-black.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-landscape-black.svg"
+        },
+        {
+          "path": "registry/brand/assets/tanstack-landscape-white.svg",
+          "type": "registry:file",
+          "target": "public/images/brand/tanstack-landscape-white.svg"
+        }
+      ]
+    },
+    {
+      "name": "favicons",
+      "type": "registry:file",
+      "title": "TanStack DS Favicons",
+      "description": "Light and dark TanStack favicon SVGs from the upstream brand kit.",
+      "files": [
+        {
+          "path": "registry/brand/favicons/favicon-light.svg",
+          "type": "registry:file",
+          "target": "public/favicon-light.svg"
+        },
+        {
+          "path": "registry/brand/favicons/favicon-dark.svg",
+          "type": "registry:file",
+          "target": "public/favicon-dark.svg"
+        }
+      ]
     }
   ]
 }

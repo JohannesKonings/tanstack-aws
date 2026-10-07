@@ -155,6 +155,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: 'canonical',
         href: siteUrl,
       },
+      {
+        rel: 'icon',
+        href: '/favicon-light.svg',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        rel: 'icon',
+        href: '/favicon-dark.svg',
+        media: '(prefers-color-scheme: dark)',
+      },
     ],
     scripts: [
       {
