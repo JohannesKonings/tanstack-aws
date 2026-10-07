@@ -95,6 +95,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'docs/PLAN-DB-PERSONS.md',
+      'packages/tanstack-ds/public/r/**',
       'src/webapp/routeTree.gen.ts',
     ],
     singleQuote: true,
