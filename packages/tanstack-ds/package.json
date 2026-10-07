@@ -1,0 +1,20 @@
+{
+  "name": "@tanstack-aws/tanstack-ds",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./registry.json": "./registry.json",
+    "./r/*": "./public/r/*"
+  },
+  "scripts": {
+    "build": "shadcn build",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "shadcn": "^3.0.0",
+    "typescript": "7.0.2",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

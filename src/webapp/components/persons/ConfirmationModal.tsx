@@ -56,7 +56,9 @@ export const ConfirmationModal = ({
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className={`cursor-pointer ${isDangerous ? 'bg-destructive hover:bg-destructive/90' : ''}`}
+            variant="primary"
+            color={isDangerous ? 'red' : 'neutral'}
+            className="cursor-pointer"
           >
             {confirmLabel}
           </Button>

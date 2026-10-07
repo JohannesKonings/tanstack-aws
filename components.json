@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles.css",
+    "css": "src/webapp/styles.css",
     "baseColor": "zinc",
     "cssVariables": true,
     "prefix": ""
@@ -17,5 +17,10 @@
     "lib": "#src/webapp/lib",
     "hooks": "#src/webapp/hooks"
   },
-  "iconLibrary": "lucide"
+  "iconLibrary": "lucide",
+  "registries": {
+    "@tanstack-ds": {
+      "url": "./packages/tanstack-ds/public/r/{name}.json"
+    }
+  }
 }

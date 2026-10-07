@@ -76,8 +76,9 @@ export const ContactInfoCard = ({
         <div className="flex gap-1">
           {!contact.isPrimary && (
             <Button
-              size="icon"
-              variant="ghost"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
               onClick={handleSetPrimary}
               disabled={isLoading}
               className="h-8 w-8 cursor-pointer"
@@ -87,8 +88,9 @@ export const ContactInfoCard = ({
             </Button>
           )}
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            color="gray"
+            size="icon-sm"
             onClick={() => onEdit?.(contact)}
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer"
@@ -96,11 +98,12 @@ export const ContactInfoCard = ({
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            color="red"
+            size="icon-sm"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
+            className="h-8 w-8 cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
