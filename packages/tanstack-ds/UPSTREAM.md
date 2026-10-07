@@ -19,3 +19,9 @@ Maps each `@tanstack-ds` registry item to its [TanStack DS upstream catalog](htt
 | `partner-rail`  | [Partner Rail](https://tanstack.com/ds/partner-rail)                                          | 2026-10-07   | Adapted from `PartnerRail.tsx`. Self-contained presentational version without upstream analytics/partner-placement deps.                        |
 | `brand-logos`   | [Logos](https://tanstack.com/ds/logos)                                                        | 2026-10-07   | SVG lockups from `public/images/brand/**` plus `logo.tsx` helpers (`TanStackEmblem`, stacked, landscape).                                       |
 | `favicons`      | [Logos](https://tanstack.com/ds/logos) (Favicons section)                                     | 2026-10-07   | `favicon-light.svg` and `favicon-dark.svg` from `tanstack.com/public/`. Wire in root route `<head>` links.                                      |
+
+## Icon dependency (not a registry item)
+
+| Dependency              | Upstream source                                                                 | Notes                                                                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@phosphor-icons/react` | [Phosphor Icons](https://phosphoricons.com/) — TanStack DS standard iconography | Root app dependency (not installed via `shadcn add`). Use `*Icon` named exports for TanStack Start SSR. `components.json` `iconLibrary`: `phosphor`. |

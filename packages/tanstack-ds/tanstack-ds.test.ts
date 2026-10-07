@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Ajv from 'ajv';
 import { describe, expect, it } from 'vite-plus/test';
 
 const packageRoot = dirname(fileURLToPath(import.meta.url));
@@ -11,13 +12,22 @@ function runRegistryBuild() {
 }
 
 describe('tanstack-ds registry', () => {
-  it('registry.json declares the shadcn registry schema URL and catalog items', () => {
-    const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
-      $schema: string;
-      name: string;
-      items?: Array<{ name: string }>;
-    };
-    expect(registry.$schema).toBe('https://ui.shadcn.com/schema/registry.json');
+  it('registry.json validates against the shadcn registry schema', async () => {
+    const [schemaResponse, itemSchemaResponse] = await Promise.all([
+      fetch('https://ui.shadcn.com/schema/registry.json'),
+      fetch('https://ui.shadcn.com/schema/registry-item.json'),
+    ]);
+    expect(schemaResponse.ok).toBe(true);
+    expect(itemSchemaResponse.ok).toBe(true);
+    const schema = await schemaResponse.json();
+    const itemSchema = await itemSchemaResponse.json();
+
+    const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8'));
+    const ajv = new Ajv({ allErrors: true, strict: false, validateSchema: false });
+    ajv.addSchema(itemSchema, 'https://ui.shadcn.com/schema/registry-item.json');
+    const validate = ajv.compile(schema);
+    const valid = validate(registry);
+    expect(valid, JSON.stringify(validate.errors, null, 2)).toBe(true);
     expect(registry.name).toBe('tanstack-ds');
     expect(registry.items?.length).toBeGreaterThan(0);
   });
