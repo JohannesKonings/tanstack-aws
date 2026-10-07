@@ -17,5 +17,5 @@
     "lib": "./registry",
     "hooks": "./registry"
   },
-  "iconLibrary": "lucide"
+  "iconLibrary": "phosphor"
 }
