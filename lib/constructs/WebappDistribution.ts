@@ -219,14 +219,16 @@ export class WebappDistribution extends Construct {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
 
+    // Vite copies public/ into the assets bucket. Paths that miss these
+    // behaviors fall through to the SSR API and return the app 404 page.
     this.distribution = new Distribution(this, 'Distribution', {
       additionalBehaviors: {
         '/assets/*': staticAssetBehavior,
-        '/favicon.ico': staticAssetBehavior,
+        '/favicon*': staticAssetBehavior,
+        '/fonts/*': staticAssetBehavior,
         '/images/*': staticAssetBehavior,
-        // '/manifest.json': staticAssetBehavior,
-        // '/robots.txt': staticAssetBehavior,
-        // '/site.webmanifest': staticAssetBehavior,
+        '/manifest.json': staticAssetBehavior,
+        '/robots.txt': staticAssetBehavior,
       },
       comment: originBehaviorKind,
       defaultBehavior,
