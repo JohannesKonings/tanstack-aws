@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Badge } from '#src/webapp/components/ui/badge';
+import { Button } from '#src/webapp/components/ui/button';
 import { Card } from '#src/webapp/components/ui/card';
 import { Tabs, TabsList, TabsPanel, TabsTrigger } from '#src/webapp/components/ui/tabs';
 import { usePersonDetail } from '#src/webapp/hooks/useDbPersons';
@@ -106,27 +107,28 @@ export const PersonDetailPanel = ({ personId, onClose }: PersonDetailPanelProps)
               <p className="text-sm text-text-muted">ID: {person.id}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
+          <div className="flex items-center gap-1">
+            <Button
+              variant="icon"
+              color="gray"
+              size="icon-md"
               onClick={() => setEditingPerson(true)}
-              className="p-2 rounded-lg hover:bg-surface-state-hover text-text-secondary hover:text-text-primary transition-colors"
               title="Edit person"
             >
               <PencilSimpleIcon className="h-5 w-5" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="icon"
+              color="red"
+              size="icon-md"
               onClick={handleDeletePerson}
-              className="p-2 rounded-lg hover:bg-status-error-bg text-text-secondary hover:text-text-error transition-colors"
               title="Delete person"
             >
               <TrashIcon className="h-5 w-5" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-surface-state-hover text-text-secondary hover:text-text-primary transition-colors"
-            >
+            </Button>
+            <Button variant="icon" color="gray" size="icon-md" onClick={onClose} title="Close">
               <XIcon className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -343,14 +345,10 @@ const DetailSection = ({ title, children, onAdd }: DetailSectionProps) => (
     <div className="flex items-center justify-between">
       <h3 className="font-medium text-text-primary">{title}</h3>
       {onAdd && (
-        <button
-          onClick={onAdd}
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-text-secondary hover:bg-action-secondary hover:text-text-primary transition-colors"
-          title={`Add ${title.toLowerCase()}`}
-        >
+        <Button variant="ghost" size="sm" onClick={onAdd} title={`Add ${title.toLowerCase()}`}>
           <PlusIcon className="h-4 w-4" />
           Add
-        </button>
+        </Button>
       )}
     </div>
     <div className="space-y-2">{children}</div>

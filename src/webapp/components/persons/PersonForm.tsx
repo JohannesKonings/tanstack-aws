@@ -70,7 +70,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
         <FormField name="firstName">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">First Name</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">First Name</label>
               <Input
                 placeholder="John"
                 value={field.state.value}
@@ -80,7 +80,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -90,7 +90,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
         <FormField name="lastName">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Last Name</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">Last Name</label>
               <Input
                 placeholder="Doe"
                 value={field.state.value}
@@ -100,7 +100,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -111,7 +111,9 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
       <FormField name="dateOfBirth">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Date of Birth</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">
+              Date of Birth
+            </label>
             <Input
               type="date"
               value={field.state.value}
@@ -121,7 +123,9 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
             <p className="text-xs text-text-muted mt-1">Optional. Your date of birth.</p>
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -130,7 +134,7 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
       <FormField name="gender">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Gender</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Gender</label>
             <SelectDropdown
               value={field.state.value}
               onChange={(value) => field.handleChange(value)}
@@ -142,7 +146,9 @@ export const PersonForm = ({ person, onSave, onCancel, isLoading }: PersonFormPr
             <p className="text-xs text-text-muted mt-1">Optional. How you identify.</p>
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}

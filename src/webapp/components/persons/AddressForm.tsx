@@ -70,7 +70,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
       <FormField name="type">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Address Type</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Address Type</label>
             <SelectDropdown
               value={field.state.value}
               onChange={(value) => {
@@ -84,7 +84,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -93,7 +95,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
       <FormField name="street">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Street Address</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">
+              Street Address
+            </label>
             <Input
               placeholder="123 Main St"
               value={field.state.value}
@@ -102,7 +106,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -112,7 +118,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         <FormField name="city">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">City</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">City</label>
               <Input
                 placeholder="New York"
                 value={field.state.value}
@@ -122,7 +128,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -132,7 +138,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         <FormField name="state">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">State/Province</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">
+                State/Province
+              </label>
               <Input
                 placeholder="NY"
                 value={field.state.value}
@@ -142,7 +150,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -154,7 +162,9 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         <FormField name="postalCode">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Postal Code</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">
+                Postal Code
+              </label>
               <Input
                 placeholder="10001"
                 value={field.state.value}
@@ -164,7 +174,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -174,7 +184,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
         <FormField name="country">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Country</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">Country</label>
               <Input
                 placeholder="USA"
                 value={field.state.value}
@@ -184,7 +194,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -202,7 +212,7 @@ export const AddressForm = ({ address, onSave, onCancel, isLoading }: AddressFor
               onBlur={field.handleBlur}
             />
             <div className="space-y-1 leading-none">
-              <span className="text-sm font-medium">Primary Address</span>
+              <span className="text-sm font-medium text-text-primary">Primary Address</span>
               <span className="block text-xs text-text-muted">This is your main address.</span>
             </div>
           </div>

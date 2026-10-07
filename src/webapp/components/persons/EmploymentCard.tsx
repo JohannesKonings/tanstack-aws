@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
+import { Card } from '#src/webapp/components/ui/card';
 import type { Employment } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -54,17 +55,17 @@ export const EmploymentCard = ({
   };
 
   return (
-    <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
+    <Card className="group p-4 transition-colors hover:bg-surface-state-hover">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <BriefcaseIcon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <BriefcaseIcon className="mt-1 h-5 w-5 shrink-0 text-icon-muted" />
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-white">{employment.position}</p>
+              <p className="font-semibold text-text-primary">{employment.position}</p>
               {employment.isCurrent && <Badge variant="success">Current</Badge>}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-white/75">
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
               <BuildingsIcon className="h-3.5 w-3.5" />
               <span>{employment.companyName}</span>
               {employment.department && (
@@ -75,7 +76,7 @@ export const EmploymentCard = ({
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-white/75">
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
               <CalendarIcon className="h-3.5 w-3.5" />
               <span>
                 {formatDate(employment.startDate)} -{' '}
@@ -84,7 +85,7 @@ export const EmploymentCard = ({
             </div>
 
             {employment.salary && (
-              <div className="flex items-center gap-2 text-sm text-white/75">
+              <div className="flex items-center gap-2 text-sm text-text-secondary">
                 <CurrencyDollarIcon className="h-3.5 w-3.5" />
                 <span>{formatSalary(employment.salary, employment.currency)}</span>
               </div>
@@ -127,6 +128,6 @@ export const EmploymentCard = ({
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteConfirm(false)}
       />
-    </div>
+    </Card>
   );
 };

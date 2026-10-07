@@ -78,7 +78,7 @@ export const EmploymentForm = ({
       <FormField name="companyName">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Company Name</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Company Name</label>
             <Input
               placeholder="Company"
               value={field.state.value}
@@ -87,7 +87,9 @@ export const EmploymentForm = ({
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -96,7 +98,7 @@ export const EmploymentForm = ({
       <FormField name="position">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Position</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Position</label>
             <Input
               placeholder="Position"
               value={field.state.value}
@@ -105,7 +107,9 @@ export const EmploymentForm = ({
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -114,7 +118,7 @@ export const EmploymentForm = ({
       <FormField name="department">
         {(field: any) => (
           <div>
-            <label className="block text-sm font-medium mb-1">Department</label>
+            <label className="mb-1 block text-sm font-medium text-text-primary">Department</label>
             <Input
               placeholder="Optional"
               value={field.state.value}
@@ -123,7 +127,9 @@ export const EmploymentForm = ({
             />
             {(() => {
               const [firstError] = field.state.meta.errors;
-              return firstError ? <p className="text-xs text-red-400 mt-1">{firstError}</p> : null;
+              return firstError ? (
+                <p className="text-xs text-text-error mt-1">{firstError}</p>
+              ) : null;
             })()}
           </div>
         )}
@@ -133,7 +139,7 @@ export const EmploymentForm = ({
         <FormField name="startDate">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Start Date</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">Start Date</label>
               <Input
                 type="date"
                 value={field.state.value}
@@ -143,7 +149,7 @@ export const EmploymentForm = ({
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -153,7 +159,7 @@ export const EmploymentForm = ({
         <FormField name="endDate">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">End Date</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">End Date</label>
               <Input
                 type="date"
                 value={field.state.value}
@@ -164,7 +170,7 @@ export const EmploymentForm = ({
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -181,7 +187,7 @@ export const EmploymentForm = ({
               onChange={(event) => field.handleChange(event.target.checked)}
               onBlur={field.handleBlur}
             />
-            <span className="text-sm">Current Role</span>
+            <span className="text-sm text-text-primary">Current Role</span>
           </div>
         )}
       </FormField>
@@ -190,7 +196,7 @@ export const EmploymentForm = ({
         <FormField name="salary">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Salary</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">Salary</label>
               <Input
                 type="number"
                 placeholder="Optional"
@@ -204,7 +210,7 @@ export const EmploymentForm = ({
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
@@ -214,7 +220,7 @@ export const EmploymentForm = ({
         <FormField name="currency">
           {(field: any) => (
             <div>
-              <label className="block text-sm font-medium mb-1">Currency</label>
+              <label className="mb-1 block text-sm font-medium text-text-primary">Currency</label>
               <Input
                 placeholder="USD"
                 value={field.state.value}
@@ -224,7 +230,7 @@ export const EmploymentForm = ({
               {(() => {
                 const [firstError] = field.state.meta.errors;
                 return firstError ? (
-                  <p className="text-xs text-red-400 mt-1">{firstError}</p>
+                  <p className="text-xs text-text-error mt-1">{firstError}</p>
                 ) : null;
               })()}
             </div>
