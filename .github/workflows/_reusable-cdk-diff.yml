@@ -13,6 +13,21 @@ on:
         required: false
         default: us-east-2
         type: string
+      stage_source:
+        description: Raw stage ref passed to scripts/resolve-stage.ts. Omit for apps that do not use APP_STAGE.
+        required: false
+        default: ''
+        type: string
+      lifecycle:
+        description: Stage lifecycle passed to scripts/resolve-stage.ts when stage_source is set.
+        required: false
+        default: ephemeral
+        type: string
+      build_apps:
+        description: Build webapp and webapp-admin before cdk diff so asset paths exist.
+        required: false
+        default: false
+        type: boolean
     secrets:
       aws_role_to_assume:
         required: true
@@ -37,6 +52,20 @@ jobs:
           run-install: |
             - args: ['--frozen-lockfile']
 
+      - name: Build apps
+        if: inputs.build_apps
+        run: vpr build && vp run webapp-admin:build
+
+      - name: Resolve stage name
+        if: inputs.stage_source != ''
+        id: resolve-stage
+        env:
+          STAGE_SOURCE: ${{ inputs.stage_source }}
+          STAGE_LIFECYCLE: ${{ inputs.lifecycle }}
+        run: |
+          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
+          echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS credentials
         id: aws-credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -55,7 +84,11 @@ jobs:
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
           GITHUB_TOKEN: ${{ github.token }}
+          RESOLVED_STAGE: ${{ steps.resolve-stage.outputs.stage }}
         run: |
+          if [ -n "${RESOLVED_STAGE}" ]; then
+            export APP_STAGE="${RESOLVED_STAGE}"
+          fi
           vp -C "${{ inputs.cdk_package }}" exec cdk diff 2>&1 | tee cdk-diff.log || true
           cdk-notifier \
             --vcs github \

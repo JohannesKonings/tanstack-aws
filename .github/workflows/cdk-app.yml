@@ -25,6 +25,9 @@ jobs:
     with:
       cdk_package: apps/cdk-app
       tag_id: cdk-app
+      stage_source: ${{ github.event.pull_request.head.ref }}
+      lifecycle: ephemeral
+      build_apps: true
     secrets:
       aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:
