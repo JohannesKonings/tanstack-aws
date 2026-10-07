@@ -403,3 +403,7 @@ html.dark {
   --color-divider-subtle: #1e1e1e;
   --color-divider-on-inverse: #1e1e1e;
 }
+
+@utility corner-squircle {
+  corner-shape: squircle;
+}

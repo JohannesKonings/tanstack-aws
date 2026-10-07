@@ -60,4 +60,31 @@ describe('tanstack-ds registry', () => {
     expect(source).toContain('color?: ButtonColor');
     expect(source).not.toContain('class-variance-authority');
   });
+
+  it('publishes layout primitive registry items badge, card, and tabs', () => {
+    const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
+      items: Array<{ name: string; type: string }>;
+    };
+    const itemNames = registry.items.map((item) => item.name);
+    expect(itemNames).toContain('badge');
+    expect(itemNames).toContain('card');
+    expect(itemNames).toContain('tabs');
+
+    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+
+    for (const name of ['badge', 'card', 'tabs'] as const) {
+      const itemPath = join(packageRoot, `public/r/${name}.json`);
+      expect(existsSync(itemPath)).toBe(true);
+
+      const item = JSON.parse(readFileSync(itemPath, 'utf8')) as {
+        name: string;
+        type: string;
+        files: Array<{ path: string; type: string; content?: string }>;
+      };
+      expect(item.name).toBe(name);
+      expect(item.type).toBe('registry:ui');
+      expect(item.files.length).toBeGreaterThan(0);
+      expect(item.files[0]?.content).toBeTruthy();
+    }
+  });
 });

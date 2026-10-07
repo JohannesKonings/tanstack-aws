@@ -1,5 +1,6 @@
 import { MapPinIcon, PencilIcon, StarIcon, TrashIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
 import type { Address } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
@@ -27,14 +28,14 @@ export const AddressCard = ({ address, onDelete, onEdit, isLoading }: AddressCar
           <MapPinIcon className="mt-1 h-5 w-5 shrink-0 text-white/70" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium capitalize text-cyan-300">
+              <Badge variant="teal" className="capitalize">
                 {address.type}
-              </span>
+              </Badge>
               {address.isPrimary && (
-                <div className="flex items-center gap-1 text-xs text-white/75">
-                  <StarIcon className="h-3 w-3 text-yellow-400" weight="fill" />
+                <Badge variant="warning" className="gap-1">
+                  <StarIcon className="h-3 w-3 fill-current" weight="fill" />
                   Primary
-                </div>
+                </Badge>
               )}
             </div>
             <p className="font-medium text-white">{address.street}</p>

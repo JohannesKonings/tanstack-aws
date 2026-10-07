@@ -61,7 +61,7 @@ export const EmploymentCard = ({
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-white">{employment.position}</p>
-              {employment.isCurrent && <Badge variant="secondary">Current</Badge>}
+              {employment.isCurrent && <Badge variant="success">Current</Badge>}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-white/75">

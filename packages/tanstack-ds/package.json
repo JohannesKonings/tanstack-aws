@@ -2,6 +2,9 @@
   "name": "@tanstack-aws/tanstack-ds",
   "private": true,
   "type": "module",
+  "imports": {
+    "#src/webapp/lib/utils": "../../src/webapp/lib/utils.ts"
+  },
   "exports": {
     "./registry.json": "./registry.json",
     "./r/*": "./public/r/*"

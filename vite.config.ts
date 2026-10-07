@@ -52,6 +52,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
+      'packages/tanstack-ds/registry/**/*.tsx',
     ],
     categories: {
       correctness: 'error',

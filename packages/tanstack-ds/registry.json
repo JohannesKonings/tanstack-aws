@@ -151,6 +151,48 @@
           "target": "src/webapp/components/ui/button.tsx"
         }
       ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "TanStack DS Badge",
+      "description": "Status and label badge with DS semantic color variants.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/badge/badge.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/badge.tsx"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "TanStack DS Card",
+      "description": "Surface card for grouped content with DS border and shadow.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/card/card.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "TanStack DS Tabs",
+      "description": "Primary underline or secondary segmented tabs with full a11y semantics.",
+      "registryDependencies": ["@tanstack-ds/theme"],
+      "files": [
+        {
+          "path": "registry/tabs/tabs.tsx",
+          "type": "registry:ui",
+          "target": "src/webapp/components/ui/tabs.tsx"
+        }
+      ]
     }
   ]
 }

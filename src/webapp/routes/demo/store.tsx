@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
+import { Badge } from '#src/webapp/components/ui/badge';
+import { Card } from '#src/webapp/components/ui/card';
+import { Tabs, TabsList, TabsPanel, TabsTrigger } from '#src/webapp/components/ui/tabs';
 import { fullName, store } from '#src/webapp/lib/demo-store';
 
 export const Route = createFileRoute('/demo/store')({
@@ -54,18 +57,35 @@ function FullName() {
 function DemoStore() {
   return (
     <div
-      className="min-h-[calc(100vh-32px)] text-white p-8 flex items-center justify-center w-full h-full"
+      className="min-h-[calc(100vh-32px)] text-text-primary p-8 flex items-center justify-center w-full h-full bg-background-default"
       style={{
         backgroundImage:
           'radial-gradient(50% 50% at 80% 80%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)',
       }}
     >
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 shadow-lg flex flex-col gap-4 text-3xl min-w-1/2">
-        <h1 className="text-4xl font-bold mb-5">Store Example</h1>
-        <FirstName />
-        <LastName />
-        <FullName />
-      </div>
+      <Card className="w-full max-w-2xl p-8 bg-background-surface/95 backdrop-blur-lg">
+        <div className="mb-6 flex items-center gap-3">
+          <h1 className="text-4xl font-bold">Store Example</h1>
+          <Badge variant="info">TanStack Store</Badge>
+        </div>
+
+        <Tabs defaultValue="editor" variant="primary">
+          <TabsList aria-label="Store demo views">
+            <TabsTrigger value="editor">Editor</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
+
+          <TabsPanel value="editor" className="space-y-4 text-2xl">
+            <FirstName />
+            <LastName />
+          </TabsPanel>
+
+          <TabsPanel value="preview">
+            <p className="mb-3 text-sm text-text-secondary">Live derived full name</p>
+            <FullName />
+          </TabsPanel>
+        </Tabs>
+      </Card>
     </div>
   );
 }

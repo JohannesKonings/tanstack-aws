@@ -3,7 +3,9 @@
   "name": "button",
   "title": "TanStack DS Button",
   "description": "DS Button with orthogonal variant and color axes, lift motion, and polymorphic as prop.",
-  "dependencies": ["tailwind-merge"],
+  "dependencies": [
+    "tailwind-merge"
+  ],
   "files": [
     {
       "path": "registry/ui/button.tsx",
