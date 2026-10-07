@@ -12,12 +12,12 @@
         {
           "path": "registry/theme/ds-tokens.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-tokens.css"
+          "target": "apps/webapp/src/styles/ds-tokens.css"
         },
         {
           "path": "registry/theme/ds-fonts.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-fonts.css"
+          "target": "apps/webapp/src/styles/ds-fonts.css"
         },
         {
           "path": "registry/theme/fonts/Inter-latin.woff2",
@@ -149,7 +149,7 @@
         {
           "path": "registry/ui/button.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/button.tsx"
+          "target": "apps/webapp/src/components/ui/button.tsx"
         }
       ]
     },
@@ -163,7 +163,7 @@
         {
           "path": "registry/badge/badge.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/badge.tsx"
+          "target": "apps/webapp/src/components/ui/badge.tsx"
         }
       ]
     },
@@ -177,7 +177,7 @@
         {
           "path": "registry/card/card.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/card.tsx"
+          "target": "apps/webapp/src/components/ui/card.tsx"
         }
       ]
     },
@@ -191,7 +191,7 @@
         {
           "path": "registry/tabs/tabs.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/tabs.tsx"
+          "target": "apps/webapp/src/components/ui/tabs.tsx"
         }
       ]
     },
@@ -205,7 +205,7 @@
         {
           "path": "registry/input/input.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/input.tsx"
+          "target": "apps/webapp/src/components/ui/input.tsx"
         }
       ]
     },
@@ -220,12 +220,12 @@
         {
           "path": "registry/dialog/dialog.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/dialog.tsx"
+          "target": "apps/webapp/src/components/ui/dialog.tsx"
         },
         {
           "path": "registry/overlays/ds-overlays.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-overlays.css"
+          "target": "apps/webapp/src/styles/ds-overlays.css"
         }
       ]
     },
@@ -240,7 +240,7 @@
         {
           "path": "registry/dropdown/dropdown.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/dropdown.tsx"
+          "target": "apps/webapp/src/components/ui/dropdown.tsx"
         }
       ]
     },
@@ -254,27 +254,27 @@
         {
           "path": "registry/spinner/spinner.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/spinner.tsx"
+          "target": "apps/webapp/src/components/ui/spinner.tsx"
         },
         {
           "path": "registry/spinner/palm-spinner.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/palm-spinner.tsx"
+          "target": "apps/webapp/src/components/ui/palm-spinner.tsx"
         },
         {
           "path": "registry/spinner/pixel-spinner.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/pixel-spinner.tsx"
+          "target": "apps/webapp/src/components/ui/pixel-spinner.tsx"
         },
         {
           "path": "registry/spinner/pixel-spinner-frames.ts",
           "type": "registry:file",
-          "target": "src/webapp/components/ui/pixel-spinner-frames.ts"
+          "target": "apps/webapp/src/components/ui/pixel-spinner-frames.ts"
         },
         {
           "path": "registry/spinner/ds-spinner.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-spinner.css"
+          "target": "apps/webapp/src/styles/ds-spinner.css"
         }
       ]
     },
@@ -288,7 +288,7 @@
         {
           "path": "registry/stats-section/stats-section.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/stats-section.tsx"
+          "target": "apps/webapp/src/components/ui/stats-section.tsx"
         }
       ]
     },
@@ -302,7 +302,7 @@
         {
           "path": "registry/breadcrumbs/breadcrumbs.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/breadcrumbs.tsx"
+          "target": "apps/webapp/src/components/ui/breadcrumbs.tsx"
         }
       ]
     },
@@ -316,12 +316,12 @@
         {
           "path": "registry/page-header/page-header.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/page-header.tsx"
+          "target": "apps/webapp/src/components/ui/page-header.tsx"
         },
         {
           "path": "registry/page-header/ds-brand.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-brand.css"
+          "target": "apps/webapp/src/styles/ds-brand.css"
         }
       ]
     },
@@ -335,7 +335,7 @@
         {
           "path": "registry/partner-rail/partner-rail.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/partner-rail.tsx"
+          "target": "apps/webapp/src/components/ui/partner-rail.tsx"
         }
       ]
     },
@@ -349,7 +349,7 @@
         {
           "path": "registry/brand/logo.tsx",
           "type": "registry:ui",
-          "target": "src/webapp/components/ui/logo.tsx"
+          "target": "apps/webapp/src/components/ui/logo.tsx"
         },
         {
           "path": "registry/brand/assets/tanstack-emblem-black.svg",

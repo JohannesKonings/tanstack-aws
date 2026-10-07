@@ -3,14 +3,16 @@ name: Account Setup
 on:
   pull_request:
     paths:
-      - 'apps/account-setup/**'
+      - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
+      - '.github/workflows/_reusable-cdk-diff.yml'
   push:
     branches:
       - main
     paths:
-      - 'apps/account-setup/**'
+      - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
+      - '.github/workflows/_reusable-cdk-diff.yml'
   workflow_dispatch:
 
 concurrency:
@@ -22,52 +24,12 @@ jobs:
     if: >-
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      pull-requests: write
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1.21.1
-        with:
-          cache: true
-          node-version-file: package.json
-          run-install: |
-            - args: ['--frozen-lockfile']
-
-      - name: Configure AWS credentials
-        id: aws-credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
-
-      - name: Install cdk-notifier
-        run: |
-          curl -L "https://github.com/karlderkaefer/cdk-notifier/releases/latest/download/cdk-notifier_$(uname)_amd64.gz" -o cdk-notifier.gz
-          gunzip cdk-notifier.gz && chmod +x cdk-notifier && rm -rf cdk-notifier.gz
-          sudo mv cdk-notifier /usr/local/bin/cdk-notifier
-          cdk-notifier --version
-
-      - name: CDK diff and post PR comment
-        env:
-          CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          vp -C apps/account-setup exec cdk diff 2>&1 | tee cdk-diff.log || true
-          cdk-notifier \
-            --vcs github \
-            --owner "${{ github.repository_owner }}" \
-            --repo "$(echo '${{ github.repository }}' | cut -d'/' -f2)" \
-            --pull-request-id "${{ github.event.pull_request.number }}" \
-            --log-file ./cdk-diff.log \
-            --tag-id account-setup \
-            --token "${GITHUB_TOKEN}"
+    uses: ./.github/workflows/_reusable-cdk-diff.yml
+    with:
+      cdk_package: apps/cdk-account-setup
+      tag_id: account-setup
+      aws_region: us-east-1
+    secrets: inherit
 
   validate:
     if: github.event_name != 'workflow_dispatch'
@@ -89,10 +51,10 @@ jobs:
             - args: ['--frozen-lockfile']
 
       - name: Run checks
-        run: vp check apps/account-setup
+        run: vp check apps/cdk-account-setup
 
       - name: Run tests
-        run: mkdir -p test-results && vp -C apps/account-setup test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+        run: mkdir -p test-results && vp -C apps/cdk-account-setup test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
 
       - name: Publish test report
         if: always() && hashFiles('test-results/vitest.junit.xml') != ''
@@ -144,4 +106,4 @@ jobs:
       - name: Deploy all account setup stacks
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
-        run: vp -C apps/account-setup exec cdk deploy --all --require-approval never
+        run: vp -C apps/cdk-account-setup exec cdk deploy --all --require-approval never

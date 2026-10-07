@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "#apps/webapp/components",
+    "utils": "#apps/webapp/lib/utils",
+    "ui": "#apps/webapp/components/ui",
+    "lib": "#apps/webapp/lib",
+    "hooks": "#apps/webapp/hooks"
+  },
+  "iconLibrary": "phosphor",
+  "registries": {
+    "@tanstack-ds": {
+      "url": "../../packages/tanstack-ds/public/r/{name}.json"
+    }
+  }
+}

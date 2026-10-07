@@ -27,7 +27,9 @@ function collectSourceFiles(dir: string): string[] {
 
 describe('phosphor icon migration', () => {
   it('uses phosphor as the shadcn icon library', () => {
-    const componentsJson = JSON.parse(readFileSync(join(repoRoot, 'components.json'), 'utf8')) as {
+    const componentsJson = JSON.parse(
+      readFileSync(join(repoRoot, 'apps/webapp/components.json'), 'utf8'),
+    ) as {
       iconLibrary: string;
     };
 
@@ -35,7 +37,9 @@ describe('phosphor icon migration', () => {
   });
 
   it('depends on @phosphor-icons/react instead of lucide-react', () => {
-    const packageJson = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
+    const packageJson = JSON.parse(
+      readFileSync(join(repoRoot, 'apps/webapp/package.json'), 'utf8'),
+    ) as {
       dependencies: Record<string, string>;
     };
 
@@ -43,8 +47,8 @@ describe('phosphor icon migration', () => {
     expect(packageJson.dependencies['lucide-react']).toBeUndefined();
   });
 
-  it('has no lucide-react imports under src/webapp', () => {
-    const webappDir = join(repoRoot, 'src/webapp');
+  it('has no lucide-react imports under apps/webapp/src', () => {
+    const webappDir = join(repoRoot, 'apps/webapp/src');
     const filesWithLucide = collectSourceFiles(webappDir).filter((file) =>
       readFileSync(file, 'utf8').includes("from 'lucide-react'"),
     );

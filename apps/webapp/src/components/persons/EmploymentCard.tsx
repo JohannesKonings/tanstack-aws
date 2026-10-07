@@ -1,0 +1,133 @@
+import {
+  BriefcaseIcon,
+  BuildingsIcon,
+  CalendarIcon,
+  CurrencyDollarIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
+import { useState } from 'react';
+import { Badge } from '#apps/webapp/components/ui/badge';
+import { Button } from '#apps/webapp/components/ui/button';
+import { Card } from '#apps/webapp/components/ui/card';
+import type { Employment } from '#apps/webapp/types/person';
+import { ConfirmationModal } from './ConfirmationModal';
+
+// oxlint-disable no-ternary
+
+interface EmploymentCardProps {
+  employment: Employment;
+  onUpdate?: (employmentId: string, updates: Partial<Employment>) => void;
+  onDelete?: (employmentId: string) => void;
+  onEdit?: (employment: Employment) => void;
+  isLoading?: boolean;
+}
+
+export const EmploymentCard = ({
+  employment,
+  onDelete,
+  onEdit,
+  isLoading,
+}: EmploymentCardProps) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteConfirm = () => {
+    onDelete?.(employment.id);
+    setShowDeleteConfirm(false);
+  };
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+    });
+
+  const formatSalary = (salary?: number, currency?: string) => {
+    if (!salary) {
+      return null;
+    }
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency ?? 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(salary);
+  };
+
+  return (
+    <Card className="group p-4 transition-colors hover:bg-surface-state-hover">
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-3">
+          <BriefcaseIcon className="mt-1 h-5 w-5 shrink-0 text-icon-muted" />
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-text-primary">{employment.position}</p>
+              {employment.isCurrent && <Badge variant="success">Current</Badge>}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
+              <BuildingsIcon className="h-3.5 w-3.5" />
+              <span>{employment.companyName}</span>
+              {employment.department && (
+                <>
+                  <span>•</span>
+                  <span>{employment.department}</span>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
+              <CalendarIcon className="h-3.5 w-3.5" />
+              <span>
+                {formatDate(employment.startDate)} -{' '}
+                {employment.endDate ? formatDate(employment.endDate) : 'Present'}
+              </span>
+            </div>
+
+            {employment.salary && (
+              <div className="flex items-center gap-2 text-sm text-text-secondary">
+                <CurrencyDollarIcon className="h-3.5 w-3.5" />
+                <span>{formatSalary(employment.salary, employment.currency)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-1">
+          <Button
+            variant="icon"
+            color="gray"
+            size="icon-sm"
+            onClick={() => onEdit?.(employment)}
+            disabled={isLoading}
+            className="h-8 w-8 cursor-pointer"
+          >
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="icon"
+            color="red"
+            size="icon-sm"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={isLoading}
+            className="h-8 w-8 cursor-pointer"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <ConfirmationModal
+        title="Delete Employment"
+        message="Are you sure you want to delete this employment record? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isOpen={showDeleteConfirm}
+        isLoading={isLoading}
+        isDangerous
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </Card>
+  );
+};

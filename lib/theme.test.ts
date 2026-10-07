@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { resolveTheme, themeIsDark } from '#src/webapp/lib/theme';
+import { resolveTheme, themeIsDark } from '#apps/webapp/lib/theme';
 
 describe('theme', () => {
   it('defaults to dark when no preference is stored', () => {

@@ -6,9 +6,9 @@
 
 ### Overview
 
-TanStack AWS is a Vite+ monorepo. The root package hosts the TanStack Start (React SSR) application built with Vite + Nitro, showcasing TanStack libraries (Start, Router, DB, AI, Query, Store, Form, Table) with AWS services. Workspace packages live under `apps/*` (account setup today; more apps later) and `packages/*` (reserved for shared libraries). pnpm manages the workspace; root `vite.config.ts` governs lint, format, and check across packages.
+TanStack AWS is a Vite+ monorepo. Workspace apps under `apps/*` include the primary **Webapp** (`apps/webapp`), **Webapp admin** (`apps/webapp-admin`), workload CDK (`apps/cdk-app`), and account-setup CDK (`apps/cdk-account-setup`). Shared libraries live under `packages/*`. pnpm manages the workspace; root `vite.config.ts` governs lint, format, and check across packages.
 
-Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/account-setup test`.
+Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/cdk-account-setup test`.
 
 ## Global conventions
 

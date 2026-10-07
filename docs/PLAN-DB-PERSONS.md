@@ -259,7 +259,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
 ### Phase 1: Types & Fake Data Generation
 
 #### 3.1 Create Type Definitions
-- [ ] Create `/src/webapp/types/person.ts` with all entity schemas (Zod)
+- [ ] Create `/apps/webapp/src/types/person.ts` with all entity schemas (Zod)
   - PersonSchema
   - AddressSchema
   - BankAccountSchema
@@ -268,7 +268,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
   - Combined request/response schemas
 
 #### 3.2 Create Fake Data Generator
-- [ ] Create `/src/webapp/data/fake-persons.ts`
+- [ ] Create `/apps/webapp/src/data/fake-persons.ts`
   - Use `@faker-js/faker` with seeded random for reproducible data
   - Generate **10,000 fake persons** with related data
   - Each person should have:
@@ -294,7 +294,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
 ### Phase 3: ElectroDB Entities (Derived from Zod)
 
 #### 3.5 Create Zod-to-ElectroDB Schema Converter
-- [ ] Create `/src/webapp/integrations/electrodb/zod-to-electrodb.ts`
+- [ ] Create `/apps/webapp/src/integrations/electrodb/zod-to-electrodb.ts`
   - Utility to convert Zod schemas to ElectroDB attribute definitions
   - Maps Zod types to ElectroDB types:
     - `z.string()` → `{ type: 'string' }`
@@ -305,7 +305,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
   - Ensures single source of truth: Zod changes → ElectroDB changes
 
 #### 3.6 Create ElectroDB Entities
-- [ ] Create `/src/webapp/integrations/electrodb/entities.ts`
+- [ ] Create `/apps/webapp/src/integrations/electrodb/entities.ts`
   - `PersonEntity` - Person profile entity
   - `AddressEntity` - Address entity with personId composite key
   - `BankAccountEntity` - Bank account entity
@@ -314,7 +314,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
   - All entities share the same table (single-table design)
 
 #### 3.7 Create ElectroDB Service
-- [ ] Create `/src/webapp/integrations/electrodb/personsService.ts`
+- [ ] Create `/apps/webapp/src/integrations/electrodb/personsService.ts`
   - Combine all entities into a Service for collection queries
   - Collection: `personData` - Query person with all related entities
   - CRUD operations use ElectroDB's fluent API:
@@ -329,7 +329,7 @@ Our persons example uses **Eager mode** since typical datasets are well under 10
 ### Phase 4: TanStack DB Collections with Server Functions
 
 #### 4.1 Create Server Functions & Collections
- - [x] Create `/src/webapp/db-collections/persons.ts`
+ - [x] Create `/apps/webapp/src/db-collections/persons.ts`
   - Define server functions for DynamoDB operations (co-located with collections)
   - personsCollection - Base collection using server functions
   - addressesCollection - Addresses collection
@@ -609,7 +609,7 @@ async function loadPrebuiltIndex() {
 ### Phase 5: TanStack DB Collections with Server Functions
 
 #### 3.8 Create Server Functions & Collections
-- [ ] Create `/src/webapp/db-collections/persons.ts`
+- [ ] Create `/apps/webapp/src/db-collections/persons.ts`
   - Define server functions for DynamoDB operations (co-located with collections)
   - personsCollection - Base collection using server functions
   - addressesCollection - Addresses collection
@@ -752,7 +752,7 @@ not(condition)
 ### Phase 6: Hooks
 
 #### 3.11 Create React Hooks
- - [x] Create `/src/webapp/hooks/useDbPersons.ts`
+ - [x] Create `/apps/webapp/src/hooks/useDbPersons.ts`
   - `usePersons()` - List all persons using `useLiveQuery`
   - `usePerson(personId)` - Single person with all related data
   - `usePersonMutations()` - CRUD operations using collection methods
@@ -835,21 +835,21 @@ const handleCreateWithServerData = () => {
 ### Phase 7: UI Components (shadcn/ui)
 
 #### 3.12 Create UI Components (shadcn/ui)
-- [ ] Create `/src/webapp/components/persons/PersonCard.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/PersonCard.tsx`
   - Display person summary with inline edit capability
-- [ ] Create `/src/webapp/components/persons/PersonForm.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/PersonForm.tsx`
   - Form for creating/editing person profile
-- [ ] Create `/src/webapp/components/persons/PersonSearchInput.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/PersonSearchInput.tsx`
   - Search input with debouncing for Orama search
-- [ ] Create `/src/webapp/components/persons/AddressCard.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/AddressCard.tsx`
   - Display address with inline editing
-- [ ] Create `/src/webapp/components/persons/AddressForm.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/AddressForm.tsx`
   - Form for adding/editing addresses
-- [ ] Create `/src/webapp/components/persons/BankAccountCard.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/BankAccountCard.tsx`
   - Display bank account (masked data) with inline editing
-- [ ] Create `/src/webapp/components/persons/ContactInfoCard.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/ContactInfoCard.tsx`
   - Display contact info with inline editing
-- [ ] Create `/src/webapp/components/persons/EmploymentCard.tsx`
+- [ ] Create `/apps/webapp/src/components/persons/EmploymentCard.tsx`
   - Display employment history with inline editing
 
 **Search Component Pattern (using TanStack Pacer):**
@@ -940,12 +940,12 @@ function PersonCard({ person }: { person: Person }) {
 ### Phase 8: Pages/Routes
 
 #### 3.13 Create Pages
-- [ ] Create `/src/webapp/routes/demo/db-persons.tsx`
+- [ ] Create `/apps/webapp/src/routes/demo/db-persons.tsx`
   - **Search-first UI** with Orama fuzzy search
   - Paginated list view (10k persons - must paginate!)
   - Create new person button
 
-- [ ] Create `/src/webapp/routes/demo/db-persons.$personId.tsx`
+- [ ] Create `/apps/webapp/src/routes/demo/db-persons.$personId.tsx`
   - Detail view using shadcn/ui Tabs component
   - Tabs: Profile | Addresses | Banking | Contacts | Employment
   - Each tab uses `useLiveQuery` with joins for related data
@@ -1074,7 +1074,7 @@ function PersonDetailPage({ personId }: { personId: string }) {
 ```typescript
 // scripts/seed-persons.ts
 import { faker } from '@faker-js/faker'
-import { createPersonsDdbClient } from '../src/webapp/integrations/ddb-client/personsClient'
+import { createPersonsDdbClient } from '../apps/webapp/src/integrations/ddb-client/personsClient'
 
 const TOTAL_PERSONS = 10_000
 const BATCH_SIZE = 25  // DynamoDB limit
@@ -1107,7 +1107,7 @@ seedPersons()
 ## 4. File Structure (New Files)
 
 ```
-src/webapp/
+apps/webapp/src/
 ├── types/
 │   └── person.ts                          # All entity type definitions (Zod - SOURCE OF TRUTH)
 ├── data/
@@ -1293,7 +1293,7 @@ These are deferred to a specialized real-time branch.
 The key insight: **Zod is the single source of truth**. ElectroDB schemas are derived from Zod schemas programmatically.
 
 ```typescript
-// /src/webapp/integrations/electrodb/zod-to-electrodb.ts
+// /apps/webapp/src/integrations/electrodb/zod-to-electrodb.ts
 import { z } from 'zod'
 import type { Attribute } from 'electrodb'
 
@@ -1373,7 +1373,7 @@ function convertZodType(zodType: z.ZodTypeAny): ElectroDBAttribute {
 ### Using Derived Schemas in Entities
 
 ```typescript
-// /src/webapp/integrations/electrodb/entities.ts
+// /apps/webapp/src/integrations/electrodb/entities.ts
 import { Entity } from 'electrodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { zodToElectroDBAttributes } from './zod-to-electrodb'
@@ -1466,7 +1466,7 @@ export const AddressEntity = new Entity(
 ### ElectroDB Service for Collection Queries
 
 ```typescript
-// /src/webapp/integrations/electrodb/personsService.ts
+// /apps/webapp/src/integrations/electrodb/personsService.ts
 import { Service } from 'electrodb'
 import { PersonEntity, AddressEntity, BankAccountEntity, ContactInfoEntity, EmploymentEntity } from './entities'
 
@@ -3183,7 +3183,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 #### 15.3.1 WebSocket Hook
 
 ```typescript
-// src/webapp/hooks/useWebSocketSync.ts
+// apps/webapp/src/hooks/useWebSocketSync.ts
 import { useEffect, useRef, useCallback, useState } from 'react';
 import {
   personsCollection,
@@ -3191,7 +3191,7 @@ import {
   bankAccountsCollection,
   contactsCollection,
   employmentsCollection,
-} from '#src/webapp/db-collections/persons';
+} from '#apps/webapp/db-collections/persons';
 
 interface SyncMessage {
   type: 'SYNC';
@@ -3325,8 +3325,8 @@ export function useWebSocketSync() {
 #### 15.3.2 Sync Status Component
 
 ```tsx
-// src/webapp/components/SyncStatus.tsx
-import { useWebSocketSync } from '#src/webapp/hooks/useWebSocketSync';
+// apps/webapp/src/components/SyncStatus.tsx
+import { useWebSocketSync } from '#apps/webapp/hooks/useWebSocketSync';
 import { formatDistanceToNow } from 'date-fns';
 
 export function SyncStatus() {
@@ -3358,8 +3358,8 @@ export function SyncStatus() {
 #### 15.3.3 Integration in Root Layout
 
 ```tsx
-// src/webapp/routes/__root.tsx
-import { SyncStatus } from '#src/webapp/components/SyncStatus';
+// apps/webapp/src/routes/__root.tsx
+import { SyncStatus } from '#apps/webapp/components/SyncStatus';
 
 export default function RootLayout() {
   return (
@@ -3788,7 +3788,7 @@ Client C (reconnects at T4, was disconnected since T2):
 #### 15B.3.1 SSE Hook (Simpler than WebSocket!)
 
 ```typescript
-// src/webapp/hooks/useSseSync.ts
+// apps/webapp/src/hooks/useSseSync.ts
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   personsCollection,
@@ -3796,7 +3796,7 @@ import {
   bankAccountsCollection,
   contactsCollection,
   employmentsCollection,
-} from '#src/webapp/db-collections/persons';
+} from '#apps/webapp/db-collections/persons';
 
 interface ChangeEvent {
   timestamp: string;
@@ -3918,8 +3918,8 @@ export function useSseSync() {
 #### 15B.3.2 Sync Status Component (Same as WebSocket version)
 
 ```tsx
-// src/webapp/components/SyncStatusSse.tsx
-import { useSseSync } from '#src/webapp/hooks/useSseSync';
+// apps/webapp/src/components/SyncStatusSse.tsx
+import { useSseSync } from '#apps/webapp/hooks/useSseSync';
 import { formatDistanceToNow } from 'date-fns';
 
 export function SyncStatus() {

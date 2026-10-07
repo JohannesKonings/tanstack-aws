@@ -3,8 +3,8 @@ import {
   type DrawerLibraryId,
   drawerLibraryNames,
   resolveDrawerLibraryMark,
-} from '#src/webapp/lib/drawer-library-marks';
-import { fallbackLibraryIcon, libraryIcons } from '#src/webapp/lib/library-icons';
+} from '#apps/webapp/lib/drawer-library-marks';
+import { fallbackLibraryIcon, libraryIcons } from '#apps/webapp/lib/library-icons';
 
 describe('drawer library marks', () => {
   it('maps showcase drawer libraries to short TanStack product names', () => {

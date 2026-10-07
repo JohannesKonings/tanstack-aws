@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#src/webapp/lib/utils": "../../src/webapp/lib/utils.ts"
+    "#apps/webapp/lib/utils": "../../apps/webapp/src/lib/utils.ts"
   },
   "exports": {
     "./registry.json": "./registry.json",

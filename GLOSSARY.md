@@ -10,7 +10,7 @@ _Avoid_: tanstack.com repo sync, `@tanstack/ds` npm package
 
 **DS registry package** (`packages/tanstack-ds`):
 A workspace that publishes TanStack DS components as an external shadcn registry. Apps consume it only via `shadcn add @tanstack-ds/<item>` — never by importing the package directly.
-_Avoid_: vendored `src/webapp/ds/**` tree, wipe-overwrite sync script, runtime import from `@tanstack-aws/tanstack-ds`
+_Avoid_: vendored `apps/webapp/src/ds/**` tree, wipe-overwrite sync script, runtime import from `@tanstack-aws/tanstack-ds`
 
 ## Applications
 
@@ -58,7 +58,7 @@ _Avoid_: PR deploy, preview deploy, ephemeral deploy
 
 Planned extraction order after **Webapp admin** placeholder (issue #118 slice 1):
 
-1. Move **Webapp** from `src/webapp/` to `apps/webapp`
+1. Move **Webapp** from `src/webapp/` to `apps/webapp` (done — #120)
 2. Extract workload CDK to `apps/cdk-app` (includes `cdk-notifier` PR diff comments)
-3. Rename `apps/account-setup` directory to `apps/cdk-account-setup`
+3. Rename `apps/account-setup` directory to `apps/cdk-account-setup` (done — #122)
 4. Wire **Webapp admin** into the **Workload stack** with **Shared workload data** and separate **Workload frontend** per app

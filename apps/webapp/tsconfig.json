@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "#apps/webapp/components/*": ["./src/components/*.tsx"],
+      "#apps/webapp/hooks/*": ["./src/hooks/*.ts"],
+      "#apps/webapp/lib/*": ["./src/lib/*.ts"],
+      "#apps/webapp/types/*": ["./src/types/*.ts"],
+      "#apps/webapp/data/*": ["./src/data/*.ts"],
+      "#apps/webapp/db-collections/*": ["./src/db-collections/*.ts"],
+      "#apps/webapp/integrations/tanstack-query/*": ["./src/integrations/tanstack-query/*.tsx"],
+      "#apps/webapp/integrations/bedrock-adapter": ["./src/integrations/bedrock-adapter/index.ts"],
+      "#apps/webapp/integrations/*": ["./src/integrations/*.ts"],
+      "#apps/webapp/utils/*": ["./src/utils/*.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
+  "exclude": []
+}
