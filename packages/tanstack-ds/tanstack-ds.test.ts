@@ -8,7 +8,9 @@ import { describe, expect, it } from 'vite-plus/test';
 const packageRoot = dirname(fileURLToPath(import.meta.url));
 
 function runRegistryBuild() {
-  execSync('vp run build', { cwd: packageRoot, stdio: 'pipe' });
+  // Use `vp exec shadcn build` — not `vp run build`, which resolves to Vite+'s
+  // built-in `vp build` (needs index.html) when invoked from a Vitest subprocess.
+  execSync('vp exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
 }
 
 describe('tanstack-ds registry', () => {

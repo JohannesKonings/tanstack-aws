@@ -38,7 +38,7 @@
     "intent:list": "intent list",
     "intent:list:json": "intent list --json",
     "intent:install": "intent install",
-    "ds:build": "vp -C packages/tanstack-ds run build",
+    "ds:build": "vp -C packages/tanstack-ds run registry:build",
     "ds:add": "vp dlx shadcn@latest add"
   },
   "dependencies": {

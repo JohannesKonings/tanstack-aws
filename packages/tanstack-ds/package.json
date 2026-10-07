@@ -10,7 +10,7 @@
     "./r/*": "./public/r/*"
   },
   "scripts": {
-    "build": "shadcn build",
+    "registry:build": "shadcn build",
     "check": "vp check",
     "test": "vp test"
   },

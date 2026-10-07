@@ -3,7 +3,9 @@
   "name": "spinner",
   "title": "TanStack DS Spinner",
   "description": "Generic CircleNotch spinner plus branded Palm and Pixel spinners.",
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/spinner/spinner.tsx",
