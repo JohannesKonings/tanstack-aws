@@ -108,7 +108,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: 'og:image',
-        content: `${siteUrl}/images/og-image.png`,
+        content: `${siteUrl}/assets/images/og-image.png`,
       },
       // Twitter Card tags
       {
@@ -125,7 +125,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'twitter:image',
-        content: `${siteUrl}/images/og-image.png`,
+        content: `${siteUrl}/assets/images/og-image.png`,
       },
       // Additional SEO tags for GEO (Generative Engine Optimization)
       {
@@ -157,12 +157,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         rel: 'icon',
-        href: '/favicon-light.svg',
+        href: '/assets/favicon-light.svg',
         media: '(prefers-color-scheme: light)',
       },
       {
         rel: 'icon',
-        href: '/favicon-dark.svg',
+        href: '/assets/favicon-dark.svg',
         media: '(prefers-color-scheme: dark)',
       },
     ],

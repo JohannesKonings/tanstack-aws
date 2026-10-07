@@ -16,7 +16,7 @@
     },
     {
       "path": "registry/page-header/ds-brand.css",
-      "content": ".ds-brand-mark {\n  display: inline-block;\n  width: 0.82em;\n  height: 0.82em;\n  flex: none;\n  background-color: currentColor;\n  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n}\n",
+      "content": ".ds-brand-mark {\n  display: inline-block;\n  width: 0.82em;\n  height: 0.82em;\n  flex: none;\n  background-color: currentColor;\n  -webkit-mask: url('/assets/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n  mask: url('/assets/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n}\n",
       "type": "registry:file",
       "target": "src/webapp/styles/ds-brand.css"
     }

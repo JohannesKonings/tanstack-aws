@@ -3,7 +3,7 @@ import { cn } from '#src/webapp/lib/utils';
 
 /**
  * TanStack DS brand logo components — adapted from tanstack.com/src/components/Logo.tsx
- * and public/images/brand assets. Uses static SVG assets instead of inline SVG + context menu.
+ * and public/assets/images/brand assets. Uses static SVG assets instead of inline SVG + context menu.
  */
 
 type BrandLogoProps = ImgHTMLAttributes<HTMLImageElement>;
@@ -11,7 +11,7 @@ type BrandLogoProps = ImgHTMLAttributes<HTMLImageElement>;
 export function TanStackEmblem({ className, ...props }: BrandLogoProps) {
   return (
     <img
-      src="/images/brand/tanstack-emblem-black.svg"
+      src="/assets/images/brand/tanstack-emblem-black.svg"
       alt="TanStack"
       className={cn('dark:invert', className)}
       {...props}
@@ -22,7 +22,7 @@ export function TanStackEmblem({ className, ...props }: BrandLogoProps) {
 export function TanStackStackedLogo({ className, ...props }: BrandLogoProps) {
   return (
     <img
-      src="/images/brand/tanstack-stacked-black.svg"
+      src="/assets/images/brand/tanstack-stacked-black.svg"
       alt="TanStack"
       className={cn('dark:invert', className)}
       {...props}
@@ -33,7 +33,7 @@ export function TanStackStackedLogo({ className, ...props }: BrandLogoProps) {
 export function TanStackLandscapeLogo({ className, ...props }: BrandLogoProps) {
   return (
     <img
-      src="/images/brand/tanstack-landscape-black.svg"
+      src="/assets/images/brand/tanstack-landscape-black.svg"
       alt="TanStack"
       className={cn('dark:invert', className)}
       {...props}
