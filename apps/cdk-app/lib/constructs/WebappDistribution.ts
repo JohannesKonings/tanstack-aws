@@ -234,10 +234,10 @@ export class WebappDistribution extends Construct {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
 
-    // Vite copies public/ into the assets bucket. Built chunks and public
-    // files both live under /assets/*. Root files like manifest.json and
-    // robots.txt are served by Start routes. Paths that miss /assets/* fall
-    // through to the SSR API.
+    // Build output and synced public/ files both live under /assets/* in S3.
+    // scripts/sync-public-assets.ts merges public/assets/ after each Vite build.
+    // Root files like manifest.json and robots.txt are served by Start routes.
+    // Paths that miss /assets/* fall through to the SSR API.
     const staticAssetCacheBehaviors = {
       '/assets/*': staticAssetBehavior,
     };

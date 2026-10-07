@@ -17,8 +17,8 @@
   "scripts": {
     "webapp:dev": "vp -C apps/webapp dev",
     "webapp-admin:dev": "vp -C apps/webapp-admin dev --port 3001",
-    "webapp-admin:build": "vp build apps/webapp-admin",
-    "build": "node scripts/generate-robots-txt.ts && vp build apps/webapp",
+    "webapp-admin:build": "vp build apps/webapp-admin && node scripts/sync-public-assets.ts apps/webapp-admin/.output/public/assets",
+    "build": "node scripts/generate-robots-txt.ts && vp build apps/webapp && node scripts/sync-public-assets.ts",
     "webapp:build": "vp run build",
     "webapp:serve": "node .output/server/index.mjs",
     "check": "vp check && vp exec tsc -p apps/webapp-admin/tsconfig.json --noEmit && vp exec tsc -p apps/webapp/tsconfig.json --noEmit",

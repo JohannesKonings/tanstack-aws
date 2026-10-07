@@ -7,9 +7,21 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'TanStack AWS Admin' },
+      { title: 'TanStack AWS Examples Admin' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      {
+        rel: 'icon',
+        href: '/assets/favicon-light.svg',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        rel: 'icon',
+        href: '/assets/favicon-dark.svg',
+        media: '(prefers-color-scheme: dark)',
+      },
+    ],
   }),
   component: RootComponent,
 });

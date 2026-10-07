@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
@@ -6,8 +8,12 @@ import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
+const packageRoot = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(packageRoot, '../..');
 
 export default defineConfig({
+  root: packageRoot,
+  publicDir: path.join(repoRoot, 'public'),
   plugins: isVitest
     ? []
     : [
