@@ -36,7 +36,7 @@ export default defineWorkspaceConfig({
     },
   },
   experimental: {
-    bundledDev: true,
+    bundledDev: false,
   },
   server: {
     forwardConsole: {
