@@ -1,0 +1,29 @@
+{
+  "name": "@tanstack-aws/webapp-admin",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#apps/webapp-admin/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vp dev --port 3001",
+    "serve": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.2",
+    "@tanstack/react-router": "^1.170.17",
+    "@tanstack/react-start": "^1.168.27",
+    "nitro": "3.0.260610-beta",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.2"
+  },
+  "devDependencies": {
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "typescript": "7.0.2",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

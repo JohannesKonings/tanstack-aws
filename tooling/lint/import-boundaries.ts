@@ -35,6 +35,32 @@ export const accountSetupImportBoundaries = {
   },
 } satisfies OxlintOverride;
 
+export const webappAdminImportBoundaries = {
+  files: ['apps/webapp-admin/**'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['**/src/**'],
+            message: 'Webapp admin must not import primary Webapp source',
+          },
+          {
+            group: ['**/apps/**'],
+            message: 'Webapp admin must not import other workspace apps',
+          },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message:
+              'Webapp admin must not import the DS registry package — use shadcn add @tanstack-ds/<item> instead',
+          },
+        ],
+      },
+    ],
+  },
+} satisfies OxlintOverride;
+
 export const applicationImportBoundaries = {
   files: ['lib/**', 'src/**', 'bin/**', 'scripts/**'],
   rules: {

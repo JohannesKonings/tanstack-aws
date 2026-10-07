@@ -7,6 +7,7 @@ Per-context glossaries for this monorepo. Read the glossary for each context rel
 | root          | GLOSSARY.md                      | docs/adr |
 | account-setup | apps/account-setup/GLOSSARY.md   | docs/adr |
 | tanstack-ds   | packages/tanstack-ds/GLOSSARY.md | docs/adr |
+| webapp-admin  | GLOSSARY.md                      | docs/adr |
 
 ## Relationships
 

@@ -9,6 +9,7 @@ import type { PluginOption } from 'vite-plus';
 import {
   accountSetupImportBoundaries,
   applicationImportBoundaries,
+  webappAdminImportBoundaries,
 } from './tooling/lint/import-boundaries.ts';
 
 const isVitest = Boolean(process.env.VITEST);
@@ -32,6 +33,10 @@ export default defineWorkspaceConfig({
           glossary: 'packages/tanstack-ds/GLOSSARY.md',
           adr: 'docs/adr',
         },
+        'webapp-admin': {
+          glossary: 'GLOSSARY.md',
+          adr: 'docs/adr',
+        },
       },
     },
   },
@@ -52,6 +57,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
+      'apps/webapp-admin/src/routeTree.gen.ts',
       'packages/tanstack-ds/registry/**/*.tsx',
     ],
     categories: {
@@ -86,7 +92,11 @@ export default defineWorkspaceConfig({
       'sort-keys': 'off',
       'typescript/no-floating-promises': 'error',
     },
-    overrides: [accountSetupImportBoundaries, applicationImportBoundaries],
+    overrides: [
+      accountSetupImportBoundaries,
+      applicationImportBoundaries,
+      webappAdminImportBoundaries,
+    ],
   },
   fmt: {
     ignorePatterns: [
@@ -97,6 +107,7 @@ export default defineWorkspaceConfig({
       'docs/PLAN-DB-PERSONS.md',
       'packages/tanstack-ds/public/r/**',
       'src/webapp/routeTree.gen.ts',
+      'apps/webapp-admin/src/routeTree.gen.ts',
     ],
     singleQuote: true,
     experimentalSortImports: {
@@ -107,7 +118,7 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.{test,spec}.{ts,tsx}'],
+    include: ['lib/**/*.{test,spec}.{ts,tsx}', 'tooling/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
