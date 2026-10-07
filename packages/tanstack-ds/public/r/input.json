@@ -3,7 +3,9 @@
   "name": "input",
   "title": "TanStack DS Input",
   "description": "Text input with DS borders, surfaces, and neutral focus treatment.",
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/input/input.tsx",

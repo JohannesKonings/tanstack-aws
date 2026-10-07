@@ -6,6 +6,10 @@ import { describe, expect, it } from 'vite-plus/test';
 
 const packageRoot = dirname(fileURLToPath(import.meta.url));
 
+function runRegistryBuild() {
+  execSync('vp run build', { cwd: packageRoot, stdio: 'pipe' });
+}
+
 describe('tanstack-ds registry', () => {
   it('registry.json validates against the shadcn registry schema', () => {
     const registry = JSON.parse(readFileSync(join(packageRoot, 'registry.json'), 'utf8')) as {
@@ -19,7 +23,7 @@ describe('tanstack-ds registry', () => {
   });
 
   it('shadcn build emits static registry JSON with required fields', () => {
-    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+    runRegistryBuild();
 
     const themeJsonPath = join(packageRoot, 'public/r/theme.json');
     expect(existsSync(themeJsonPath)).toBe(true);
@@ -39,7 +43,7 @@ describe('tanstack-ds registry', () => {
   });
 
   it('shadcn build emits button registry item with DS variant/color API', () => {
-    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+    runRegistryBuild();
 
     const buttonJsonPath = join(packageRoot, 'public/r/button.json');
     expect(existsSync(buttonJsonPath)).toBe(true);
@@ -70,7 +74,7 @@ describe('tanstack-ds registry', () => {
     expect(itemNames).toContain('card');
     expect(itemNames).toContain('tabs');
 
-    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+    runRegistryBuild();
 
     for (const name of ['badge', 'card', 'tabs'] as const) {
       const itemPath = join(packageRoot, `public/r/${name}.json`);
@@ -103,7 +107,7 @@ describe('tanstack-ds registry', () => {
     const dropdownItem = registry.items.find((item) => item.name === 'dropdown');
     expect(dropdownItem?.dependencies).toContain('@radix-ui/react-dropdown-menu');
 
-    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+    runRegistryBuild();
 
     for (const name of ['input', 'dialog', 'dropdown'] as const) {
       const itemPath = join(packageRoot, `public/r/${name}.json`);
@@ -153,7 +157,7 @@ describe('tanstack-ds registry', () => {
       expect(itemNames).toContain(name);
     }
 
-    execSync('pnpm exec shadcn build', { cwd: packageRoot, stdio: 'pipe' });
+    runRegistryBuild();
 
     for (const name of [
       'spinner',

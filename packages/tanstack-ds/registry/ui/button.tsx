@@ -158,6 +158,7 @@ function getDefaultRounded(size: ButtonSize): ButtonRounded {
   return 'lg';
 }
 
+// forwardRef cannot express polymorphic `as` prop typing; cast restores the generic call signature.
 export const Button: ButtonComponent = React.forwardRef<HTMLElement, ButtonInnerProps>(
   function Button(props, ref) {
     const {
@@ -169,6 +170,7 @@ export const Button: ButtonComponent = React.forwardRef<HTMLElement, ButtonInner
       rounded,
       className,
       ...rest
+      // ButtonInnerProps includes Record<string, unknown> for rest spreading; narrow owned props before use.
     } = props as ButtonOwnProps & Record<string, unknown>;
     const Component = as || 'button';
     const resolvedSize = size ?? getDefaultSize(variant);

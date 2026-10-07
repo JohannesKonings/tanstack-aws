@@ -3,8 +3,12 @@
   "name": "dropdown",
   "title": "TanStack DS Dropdown",
   "description": "Radix-backed menu and form select dropdown with DS surfaces.",
-  "dependencies": ["@radix-ui/react-dropdown-menu"],
-  "registryDependencies": ["@tanstack-ds/theme"],
+  "dependencies": [
+    "@radix-ui/react-dropdown-menu"
+  ],
+  "registryDependencies": [
+    "@tanstack-ds/theme"
+  ],
   "files": [
     {
       "path": "registry/dropdown/dropdown.tsx",
