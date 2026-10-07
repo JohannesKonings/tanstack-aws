@@ -1,3 +1,4 @@
+import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 // oxlint-disable no-ternary
 // oxlint-disable no-magic-numbers
 import {
@@ -8,8 +9,9 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+import { Card } from '#src/webapp/components/ui/card';
+import { cn } from '#src/webapp/lib/utils';
 
 export interface PersonTableRow {
   id: string;
@@ -62,13 +64,11 @@ const columns = [
   }),
 ];
 
-const getRowClassName = (isSelected: boolean) => {
-  const base = 'border-b border-white/10 cursor-pointer transition-colors';
-  if (isSelected) {
-    return `${base} bg-cyan-600/30 hover:bg-cyan-600/40`;
-  }
-  return `${base} hover:bg-white/10`;
-};
+const getRowClassName = (isSelected: boolean) =>
+  cn(
+    'border-b border-border-default cursor-pointer transition-colors',
+    isSelected ? 'bg-action-primary/10 hover:bg-action-primary/15' : 'hover:bg-surface-state-hover',
+  );
 
 export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: PersonsTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -87,46 +87,51 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden">
-        <div className="p-8 text-center text-white/70">
+      <Card className="overflow-hidden">
+        <div className="p-8 text-center text-text-secondary">
           <div className="animate-pulse">Loading persons...</div>
         </div>
-      </div>
+      </Card>
     );
   }
 
   const hasNoData = data.length === 0;
   if (hasNoData) {
     return (
-      <div className="rounded-lg border border-dashed border-white/30 p-12 text-center">
-        <p className="text-lg font-medium text-white/70">No persons found</p>
-        <p className="mt-1 text-sm text-white/60">Try adjusting your search or add some persons.</p>
-      </div>
+      <Card className="border-dashed p-12 text-center">
+        <p className="text-lg font-medium text-text-secondary">No persons found</p>
+        <p className="mt-1 text-sm text-text-muted">
+          Try adjusting your search or add some persons.
+        </p>
+      </Card>
     );
   }
 
   const personLabel = data.length === 1 ? 'person' : 'persons';
 
   return (
-    <div className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden">
+    <Card className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-white/20 bg-white/10">
+              <tr
+                key={headerGroup.id}
+                className="border-b border-border-default bg-background-subtle"
+              >
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="px-4 py-3 text-left text-sm font-semibold text-white cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-4 py-3 text-left text-sm font-semibold text-text-primary cursor-pointer hover:bg-surface-state-hover transition-colors select-none"
                   >
                     <div className="flex items-center gap-2">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
                       {{
-                        asc: <ChevronUp className="h-4 w-4" />,
-                        desc: <ChevronDown className="h-4 w-4" />,
+                        asc: <CaretUpIcon className="h-4 w-4 text-icon-muted" />,
+                        desc: <CaretDownIcon className="h-4 w-4 text-icon-muted" />,
                       }[header.column.getIsSorted() as string] ?? null}
                     </div>
                   </th>
@@ -144,7 +149,7 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
                   className={getRowClassName(isSelected)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-3 text-sm text-white/90">
+                    <td key={cell.id} className="px-4 py-3 text-sm text-text-primary">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -154,9 +159,9 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2 text-sm text-white/60 border-t border-white/10">
+      <div className="border-t border-border-default px-4 py-2 text-sm text-text-muted">
         {data.length} {personLabel}
       </div>
-    </div>
+    </Card>
   );
 };

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "breadcrumbs",
+  "title": "TanStack DS Breadcrumbs",
+  "description": "Section breadcrumb with optional on-this-page table of contents dropdown.",
+  "registryDependencies": [
+    "@tanstack-ds/theme",
+    "@tanstack-ds/dropdown"
+  ],
+  "files": [
+    {
+      "path": "registry/breadcrumbs/breadcrumbs.tsx",
+      "content": "import { CaretDownIcon } from '@phosphor-icons/react';\nimport { Link } from '@tanstack/react-router';\nimport {\n  Dropdown,\n  DropdownContent,\n  DropdownItem,\n  DropdownTrigger,\n} from '#src/webapp/components/ui/dropdown';\nimport { cn } from '#src/webapp/lib/utils';\n\n/**\n * TanStack DS Breadcrumbs — adapted from tanstack.com/src/components/ds/ui/index.tsx.\n */\n\nexport type BreadcrumbHeading = {\n  id: string;\n  text: string;\n  level: number;\n};\n\nexport function Breadcrumbs({\n  section,\n  sectionTo,\n  headings,\n  tocHiddenBreakpoint = 'lg',\n}: {\n  section: string;\n  sectionTo?: string;\n  headings?: BreadcrumbHeading[];\n  tocHiddenBreakpoint?: 'md' | 'lg' | 'xl';\n}) {\n  const showTocToggle = headings && headings.length > 1;\n  const hiddenClass =\n    tocHiddenBreakpoint === 'md'\n      ? 'md:hidden'\n      : tocHiddenBreakpoint === 'xl'\n        ? 'xl:hidden'\n        : 'lg:hidden';\n\n  return (\n    <div className=\"flex items-center justify-between gap-4 text-sm text-text-muted\">\n      {sectionTo ? (\n        <Link\n          to={sectionTo}\n          className=\"whitespace-nowrap transition-colors hover:text-text-primary\"\n        >\n          {section}\n        </Link>\n      ) : (\n        <span className=\"whitespace-nowrap\">{section}</span>\n      )}\n      {showTocToggle ? (\n        <Dropdown>\n          <DropdownTrigger>\n            <button\n              type=\"button\"\n              className={cn(\n                hiddenClass,\n                'inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-text-muted transition-colors hover:text-text-primary',\n              )}\n            >\n              <span>On this page</span>\n              <CaretDownIcon className=\"size-3.5\" />\n            </button>\n          </DropdownTrigger>\n          <DropdownContent align=\"end\" sideOffset={8} className={hiddenClass}>\n            {headings.map((heading) => (\n              <DropdownItem key={`breadcrumb-toc-${heading.id}`} asChild>\n                <Link\n                  to=\".\"\n                  hash={heading.id}\n                  style={{\n                    paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,\n                  }}\n                  resetScroll={false}\n                  hashScrollIntoView={{ behavior: 'smooth' }}\n                >\n                  <span dangerouslySetInnerHTML={{ __html: heading.text }} />\n                </Link>\n              </DropdownItem>\n            ))}\n          </DropdownContent>\n        </Dropdown>\n      ) : null}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "src/webapp/components/ui/breadcrumbs.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

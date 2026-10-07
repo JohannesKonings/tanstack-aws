@@ -1,0 +1,24 @@
+{
+  "name": "@tanstack-aws/tanstack-ds",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#src/webapp/lib/utils": "../../src/webapp/lib/utils.ts"
+  },
+  "exports": {
+    "./registry.json": "./registry.json",
+    "./r/*": "./public/r/*"
+  },
+  "scripts": {
+    "registry:build": "shadcn build",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "shadcn": "^3.0.0",
+    "typescript": "7.0.2",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

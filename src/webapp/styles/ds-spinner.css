@@ -1,0 +1,20 @@
+@keyframes palm-sway {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.animate-palm-sway {
+  transform-origin: 40% 88%;
+  animation: palm-sway 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-palm-sway {
+    animation: none;
+  }
+}

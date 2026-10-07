@@ -1,6 +1,8 @@
 // oxlint-disable no-ternary
-import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { ArrowsClockwiseIcon, WifiHighIcon, WifiSlashIcon } from '@phosphor-icons/react';
+import { Button } from '#src/webapp/components/ui/button';
 import { useSseSync } from '#src/webapp/hooks/useSseSync';
+import { cn } from '#src/webapp/lib/utils';
 
 // =============================================================================
 // Types
@@ -40,43 +42,44 @@ export const SyncStatus = ({
   className = '',
 }: SyncStatusProps): React.ReactElement => {
   const { isConnected, lastSyncTime, reconnect } = useSseSync();
-  // const isConnected = false;
-  // const lastSyncTime = null;
-  // const reconnect = () => {};
 
   return (
-    <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${className}`}>
-      {/* Connection Status Indicator */}
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-sm',
+        className,
+      )}
+    >
       <div className="flex items-center gap-2">
         {isConnected ? (
           <>
-            <Wifi className="size-4 text-green-500" aria-hidden="true" />
-            <span className="text-green-500">Connected</span>
+            <WifiHighIcon className="size-4 text-status-success" aria-hidden="true" />
+            <span className="font-medium text-text-success">Connected</span>
           </>
         ) : (
           <>
-            <WifiOff className="size-4 text-red-500" aria-hidden="true" />
-            <span className="text-red-500">Disconnected</span>
+            <WifiSlashIcon className="size-4 text-status-error" aria-hidden="true" />
+            <span className="font-medium text-text-error">Disconnected</span>
           </>
         )}
       </div>
 
-      {/* Last Sync Time */}
       {showDetails && lastSyncTime && (
-        <span className="text-gray-500">Last sync: {formatLastSync(lastSyncTime)}</span>
+        <span className="text-text-muted">Last sync: {formatLastSync(lastSyncTime)}</span>
       )}
 
-      {/* Reconnect Button (only shown when disconnected) */}
       {!isConnected && (
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="xs"
           onClick={reconnect}
-          className="ml-2 flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-white transition-colors hover:bg-gray-600"
+          className="ml-1"
           aria-label="Reconnect to sync"
         >
-          <RefreshCw className="size-3" aria-hidden="true" />
+          <ArrowsClockwiseIcon className="size-3" aria-hidden="true" />
           Reconnect
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -99,18 +102,21 @@ export const SyncStatusIndicator = ({
   };
 
   return (
-    <button
+    <Button
       type="button"
+      variant="icon"
+      color={isConnected ? 'green' : 'red'}
+      size="icon-sm"
       onClick={handleClick}
-      className={`rounded p-1 transition-colors hover:bg-gray-700 ${className}`}
+      className={className}
       title={isConnected ? 'Sync connected' : 'Sync disconnected - click to reconnect'}
       aria-label={isConnected ? 'Sync connected' : 'Sync disconnected - click to reconnect'}
     >
       {isConnected ? (
-        <Wifi className="size-4 text-green-500" aria-hidden="true" />
+        <WifiHighIcon className="size-4" aria-hidden="true" />
       ) : (
-        <WifiOff className="size-4 text-red-500" aria-hidden="true" />
+        <WifiSlashIcon className="size-4" aria-hidden="true" />
       )}
-    </button>
+    </Button>
   );
 };

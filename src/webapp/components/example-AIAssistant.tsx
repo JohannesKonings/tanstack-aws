@@ -1,10 +1,13 @@
+import { CaretRightIcon, PaperPlaneRightIcon, XIcon } from '@phosphor-icons/react';
 import type { UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
 import { useStore } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
-import { ChevronRight, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
+import { Badge } from '#src/webapp/components/ui/badge';
+import { Button } from '#src/webapp/components/ui/button';
+import { Card } from '#src/webapp/components/ui/card';
 import GuitarRecommendation from './example-GuitarRecommendation';
 
 export const showAIAssistant = new Store(false);
@@ -20,7 +23,7 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
 
   if (!messages.length) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
+      <div className="flex flex-1 items-center justify-center text-sm text-text-muted">
         Ask me anything! I'm here to help.
       </div>
     );
@@ -31,26 +34,22 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
       {messages.map(({ id, role, parts }) => (
         <div
           key={id}
-          className={`py-3 ${
-            role === 'assistant'
-              ? 'bg-gradient-to-r from-orange-500/5 to-red-600/5'
-              : 'bg-transparent'
-          }`}
+          className={`py-3 ${role === 'assistant' ? 'bg-accent-warm/5' : 'bg-transparent'}`}
         >
           {parts.map((part, index) => {
             if (part.type === 'text') {
               return (
                 <div key={index} className="flex items-start gap-2 px-4">
                   {role === 'assistant' ? (
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center text-xs font-medium text-white flex-shrink-0">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-accent-warm to-ds-terracotta-400 text-xs font-medium text-white">
                       AI
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-lg bg-gray-700 flex items-center justify-center text-xs font-medium text-white flex-shrink-0">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-background-subtle text-xs font-medium text-text-primary">
                       Y
                     </div>
                   )}
-                  <div className="flex-1 min-w-0 text-white prose dark:prose-invert max-w-none prose-sm">
+                  <div className="prose dark:prose-invert prose-sm max-w-none min-w-0 flex-1 text-text-primary">
                     <Streamdown>{part.content}</Streamdown>
                   </div>
                 </div>
@@ -63,7 +62,7 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
               (part.output as { id?: string })?.id
             ) {
               return (
-                <div key={index} className="max-w-[80%] mx-auto">
+                <div key={index} className="mx-auto max-w-[80%]">
                   <GuitarRecommendation id={(part.output as { id: string }).id} />
                 </div>
               );
@@ -85,34 +84,44 @@ export default function AIAssistant() {
 
   return (
     <div className="relative z-50">
-      <button
+      <Button
+        type="button"
+        variant="gradient"
+        color="orange"
+        className="w-full justify-between"
         onClick={() => showAIAssistant.setState((state) => !state)}
-        className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 text-white hover:opacity-90 transition-opacity"
       >
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center text-xs font-medium">
+          <div className="flex size-5 items-center justify-center rounded-lg bg-white/20 text-xs font-medium">
             AI
           </div>
           <span className="font-medium">AI Assistant</span>
         </div>
-        <ChevronRight className="w-4 h-4" />
-      </button>
+        <CaretRightIcon className="size-4" />
+      </Button>
 
       {isOpen && (
-        <div className="absolute bottom-0 left-full ml-2 w-[700px] h-[600px] bg-gray-900 rounded-lg shadow-xl border border-orange-500/20 flex flex-col">
-          <div className="flex items-center justify-between p-3 border-b border-orange-500/20">
-            <h3 className="font-semibold text-white">AI Assistant</h3>
-            <button
+        <Card className="absolute bottom-0 left-full ml-2 flex h-[600px] w-[700px] flex-col border-border-default shadow-xl">
+          <div className="flex items-center justify-between border-b border-border-default p-3">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-text-primary">AI Assistant</h3>
+              <Badge variant="orange">TanStack AI</Badge>
+            </div>
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
+              aria-label="Close AI assistant"
               onClick={() => showAIAssistant.setState((state) => !state)}
-              className="text-gray-400 hover:text-white transition-colors"
             >
-              <X className="w-4 h-4" />
-            </button>
+              <XIcon className="size-4" />
+            </Button>
           </div>
 
           <Messages messages={messages} />
 
-          <div className="p-3 border-t border-orange-500/20">
+          <div className="border-t border-border-default p-3">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -127,7 +136,7 @@ export default function AIAssistant() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
-                  className="w-full rounded-lg border border-orange-500/20 bg-gray-800/50 pl-3 pr-10 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent resize-none overflow-hidden"
+                  className="w-full resize-none overflow-hidden rounded-lg border border-border-default bg-background-subtle py-2 pl-3 pr-10 text-sm text-text-primary placeholder-text-muted focus:border-border-strong focus:outline-none focus:ring-2 focus:ring-border-focus"
                   rows={1}
                   style={{ minHeight: '36px', maxHeight: '120px' }}
                   onInput={(e) => {
@@ -145,17 +154,20 @@ export default function AIAssistant() {
                     }
                   }}
                 />
-                <button
+                <Button
                   type="submit"
+                  variant="icon"
+                  color="orange"
+                  size="icon-sm"
                   disabled={!input.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-orange-500 hover:text-orange-400 disabled:text-gray-500 focus:outline-none"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
                 >
-                  <Send className="w-4 h-4" />
-                </button>
+                  <PaperPlaneRightIcon className="size-4" />
+                </Button>
               </div>
             </form>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

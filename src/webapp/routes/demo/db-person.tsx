@@ -47,23 +47,17 @@ function DbPersons() {
   };
 
   return (
-    <div
-      className="min-h-screen p-4 md:p-6 lg:p-8 text-white"
-      style={{
-        backgroundImage:
-          'radial-gradient(50% 50% at 80% 20%, #1a4d3e 0%, #0d7377 60%, #0a2e36 100%)',
-      }}
-    >
+    <div className="min-h-screen bg-background-default p-4 text-text-primary md:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">DB Persons</h1>
-            <p className="mt-1 text-white/70">
+            <p className="mt-1 text-text-secondary">
               Browse and manage persons with multi-entity support
             </p>
           </div>
-          <SyncStatus className="bg-gray-800/50" />
+          <SyncStatus />
         </div>
         <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
           Create Person

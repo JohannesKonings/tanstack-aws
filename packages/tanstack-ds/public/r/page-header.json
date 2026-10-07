@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "page-header",
+  "title": "TanStack DS Page Header",
+  "description": "Editorial page masthead with brand mark, lede, and optional actions.",
+  "registryDependencies": [
+    "@tanstack-ds/theme",
+    "@tanstack-ds/brand-logos"
+  ],
+  "files": [
+    {
+      "path": "registry/page-header/page-header.tsx",
+      "content": "import * as React from 'react';\nimport { cn } from '#src/webapp/lib/utils';\n\n/**\n * Editorial page masthead — a large display title with an optional leading mark,\n * a lede, and an optional trailing action. Emphasized words (wrapped in `<em>`)\n * pick up the warm accent with a soft underline.\n *\n * Generalized from the Merch store hero (see `ShopHero`) so any surface — blog,\n * shop, marketing — can share one header treatment. Colors resolve through DS\n * semantic tokens, so it adapts to the current light/dark theme automatically.\n */\nexport function PageHeader({\n  title,\n  lede,\n  icon,\n  actions,\n  align = 'left',\n  withDivider = false,\n  className,\n}: {\n  title: React.ReactNode;\n  lede?: React.ReactNode;\n  /** Leading mark, paired with the title. Defaults to the TanStack brand emblem\n   *  — the standard for global (non-library) pages. Pass a custom node to\n   *  override it, or `null` to omit the mark entirely. */\n  icon?: React.ReactNode;\n  /** Trailing control (e.g. an RSS link), pinned to the top-right corner. */\n  actions?: React.ReactNode;\n  align?: 'left' | 'center';\n  /** Draw a hairline divider beneath the header. */\n  withDivider?: boolean;\n  className?: string;\n}) {\n  const centered = align === 'center';\n  // The brand mark is the default so global pages pair the emblem with the page\n  // name out of the box; an explicit `icon` (including `null`) opts out.\n  const usingBrandMark = icon === undefined;\n  const mark = usingBrandMark ? <span className=\"ds-brand-mark\" aria-hidden /> : icon;\n\n  return (\n    <header\n      className={cn(\n        'relative flex flex-col',\n        centered && 'items-center text-center',\n        withDivider && 'border-b border-border-subtle pb-6',\n        className,\n      )}\n    >\n      <h1 className=\"m-0 font-ds-display font-bold leading-[1.02] tracking-[-0.03em] text-text-primary text-[clamp(var(--text-ds-heading-1),5vw,var(--text-ds-display-md))] [&_em]:relative [&_em]:not-italic [&_em]:text-accent-warm [&_em]:after:absolute [&_em]:after:inset-x-0 [&_em]:after:-bottom-0.5 [&_em]:after:h-[3px] [&_em]:after:rounded-sm [&_em]:after:bg-accent-warm [&_em]:after:opacity-35\">\n        <span className=\"inline-flex items-center gap-2\">\n          {usingBrandMark ? <span className=\"sr-only\">TanStack </span> : null}\n          {mark}\n          <span>{title}</span>\n        </span>\n      </h1>\n      {lede ? (\n        <p\n          className={cn(\n            'mt-3.5 max-w-[58ch] text-ds-body-sm leading-[1.55] text-text-secondary opacity-75',\n            centered && 'mx-auto',\n          )}\n        >\n          {lede}\n        </p>\n      ) : null}\n      {actions ? <div className=\"absolute right-0 top-0\">{actions}</div> : null}\n    </header>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "src/webapp/components/ui/page-header.tsx"
+    },
+    {
+      "path": "registry/page-header/ds-brand.css",
+      "content": ".ds-brand-mark {\n  display: inline-block;\n  width: 0.82em;\n  height: 0.82em;\n  flex: none;\n  background-color: currentColor;\n  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain no-repeat;\n}\n",
+      "type": "registry:file",
+      "target": "src/webapp/styles/ds-brand.css"
+    }
+  ],
+  "type": "registry:ui"
+}

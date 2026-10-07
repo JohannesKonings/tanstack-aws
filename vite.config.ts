@@ -28,11 +28,15 @@ export default defineWorkspaceConfig({
           glossary: 'apps/account-setup/GLOSSARY.md',
           adr: 'docs/adr',
         },
+        'tanstack-ds': {
+          glossary: 'packages/tanstack-ds/GLOSSARY.md',
+          adr: 'docs/adr',
+        },
       },
     },
   },
   experimental: {
-    bundledDev: true,
+    bundledDev: false,
   },
   server: {
     forwardConsole: {
@@ -48,6 +52,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'src/webapp/routeTree.gen.ts',
+      'packages/tanstack-ds/registry/**/*.tsx',
     ],
     categories: {
       correctness: 'error',
@@ -90,6 +95,7 @@ export default defineWorkspaceConfig({
       '.tanstack/**',
       'cdk.out/**',
       'docs/PLAN-DB-PERSONS.md',
+      'packages/tanstack-ds/public/r/**',
       'src/webapp/routeTree.gen.ts',
     ],
     singleQuote: true,
@@ -101,7 +107,7 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts'],
+    include: ['lib/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',

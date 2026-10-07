@@ -1,6 +1,8 @@
-import { MapPin, Pencil, Star, Trash2 } from 'lucide-react';
+import { MapPinIcon, PencilIcon, StarIcon, TrashIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { Badge } from '#src/webapp/components/ui/badge';
 import { Button } from '#src/webapp/components/ui/button';
+import { Card } from '#src/webapp/components/ui/card';
 import type { Address } from '#src/webapp/types/person';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -21,48 +23,50 @@ export const AddressCard = ({ address, onDelete, onEdit, isLoading }: AddressCar
   };
 
   return (
-    <div className="group rounded-lg border border-white/30 bg-white/15 p-4 transition-colors hover:bg-white/25">
+    <Card className="group p-4 transition-colors hover:bg-surface-state-hover">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <MapPin className="mt-1 h-5 w-5 shrink-0 text-white/70" />
+          <MapPinIcon className="mt-1 h-5 w-5 shrink-0 text-icon-muted" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium capitalize text-cyan-300">
+              <Badge variant="teal" className="capitalize">
                 {address.type}
-              </span>
+              </Badge>
               {address.isPrimary && (
-                <div className="flex items-center gap-1 text-xs text-white/75">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <Badge variant="warning" className="gap-1">
+                  <StarIcon className="h-3 w-3 fill-current" weight="fill" />
                   Primary
-                </div>
+                </Badge>
               )}
             </div>
-            <p className="font-medium text-white">{address.street}</p>
-            <p className="text-sm text-white/75">
+            <p className="font-medium text-text-primary">{address.street}</p>
+            <p className="text-sm text-text-secondary">
               {address.city}, {address.state} {address.postalCode}
             </p>
-            <p className="text-sm text-white/75">{address.country}</p>
+            <p className="text-sm text-text-secondary">{address.country}</p>
           </div>
         </div>
 
         <div className="flex gap-1">
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            color="gray"
+            size="icon-sm"
             onClick={() => onEdit?.(address)}
             disabled={isLoading}
             className="h-8 w-8 cursor-pointer"
           >
-            <Pencil className="h-4 w-4" />
+            <PencilIcon className="h-4 w-4" />
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            variant="icon"
+            color="red"
+            size="icon-sm"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
+            className="h-8 w-8 cursor-pointer"
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -78,6 +82,6 @@ export const AddressCard = ({ address, onDelete, onEdit, isLoading }: AddressCar
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteConfirm(false)}
       />
-    </div>
+    </Card>
   );
 };

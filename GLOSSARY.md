@@ -2,6 +2,16 @@
 
 TanStack Start application with AWS CDK infrastructure, organized as a Vite+ monorepo.
 
+## UI
+
+**TanStack DS upstream catalog**:
+The official copy-paste registry at [tanstack.com/ds](https://tanstack.com/ds). Source of truth when adding or refreshing design tokens and components.
+_Avoid_: tanstack.com repo sync, `@tanstack/ds` npm package
+
+**DS registry package** (`packages/tanstack-ds`):
+A workspace that publishes TanStack DS components as an external shadcn registry. Apps consume it only via `shadcn add @tanstack-ds/<item>` — never by importing the package directly.
+_Avoid_: vendored `src/webapp/ds/**` tree, wipe-overwrite sync script, runtime import from `@tanstack-aws/tanstack-ds`
+
 ## Infrastructure
 
 **Workload stack**:

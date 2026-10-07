@@ -1,0 +1,140 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "theme",
+      "type": "registry:theme",
+      "title": "TanStack DS Theme",
+      "description": "DS design tokens, self-hosted fonts, and shadcn semantic variable bridge.",
+      "files": [
+        {
+          "path": "ds-tokens.css",
+          "type": "registry:file",
+          "target": "src/webapp/styles/ds-tokens.css"
+        },
+        {
+          "path": "ds-fonts.css",
+          "type": "registry:file",
+          "target": "src/webapp/styles/ds-fonts.css"
+        },
+        {
+          "path": "fonts/Inter-latin.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/Inter-latin.woff2"
+        },
+        {
+          "path": "fonts/Inter-latin-ext.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/Inter-latin-ext.woff2"
+        },
+        {
+          "path": "fonts/BricolageGrotesque-latin-wght-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/BricolageGrotesque-latin-wght-normal.woff2"
+        },
+        {
+          "path": "fonts/IBMPlexMono-latin-300-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/IBMPlexMono-latin-300-normal.woff2"
+        },
+        {
+          "path": "fonts/IBMPlexMono-latin-400-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/IBMPlexMono-latin-400-normal.woff2"
+        },
+        {
+          "path": "fonts/IBMPlexMono-latin-500-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/IBMPlexMono-latin-500-normal.woff2"
+        },
+        {
+          "path": "fonts/IBMPlexMono-latin-600-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/IBMPlexMono-latin-600-normal.woff2"
+        },
+        {
+          "path": "fonts/IBMPlexMono-latin-700-normal.woff2",
+          "type": "registry:file",
+          "target": "public/fonts/IBMPlexMono-latin-700-normal.woff2"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "font-sans": "Inter, ui-sans-serif, system-ui, sans-serif",
+          "font-display": "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif",
+          "font-mono": "IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+        },
+        "light": {
+          "background": "var(--color-background-default)",
+          "foreground": "var(--color-text-primary)",
+          "card": "var(--color-background-surface)",
+          "card-foreground": "var(--color-text-primary)",
+          "popover": "var(--color-background-elevated)",
+          "popover-foreground": "var(--color-text-primary)",
+          "primary": "var(--color-action-primary)",
+          "primary-foreground": "var(--color-action-primary-text)",
+          "secondary": "var(--color-action-secondary)",
+          "secondary-foreground": "var(--color-text-primary)",
+          "muted": "var(--color-background-subtle)",
+          "muted-foreground": "var(--color-text-muted)",
+          "accent": "var(--color-background-subtle)",
+          "accent-foreground": "var(--color-text-primary)",
+          "destructive": "var(--color-action-destructive)",
+          "destructive-foreground": "#ffffff",
+          "border": "var(--color-border-default)",
+          "input": "var(--color-border-default)",
+          "ring": "var(--color-border-focus)",
+          "chart-1": "var(--color-category-framework)",
+          "chart-2": "var(--color-category-data)",
+          "chart-3": "var(--color-category-ui)",
+          "chart-4": "var(--color-category-performance)",
+          "chart-5": "var(--color-accent-creative)",
+          "radius": "0.5rem",
+          "sidebar": "var(--color-background-surface)",
+          "sidebar-foreground": "var(--color-text-primary)",
+          "sidebar-primary": "var(--color-action-primary)",
+          "sidebar-primary-foreground": "var(--color-action-primary-text)",
+          "sidebar-accent": "var(--color-background-subtle)",
+          "sidebar-accent-foreground": "var(--color-text-primary)",
+          "sidebar-border": "var(--color-border-default)",
+          "sidebar-ring": "var(--color-border-focus)"
+        },
+        "dark": {
+          "background": "var(--color-background-default)",
+          "foreground": "var(--color-text-primary)",
+          "card": "var(--color-background-surface)",
+          "card-foreground": "var(--color-text-primary)",
+          "popover": "var(--color-background-elevated)",
+          "popover-foreground": "var(--color-text-primary)",
+          "primary": "var(--color-action-primary)",
+          "primary-foreground": "var(--color-action-primary-text)",
+          "secondary": "var(--color-action-secondary)",
+          "secondary-foreground": "var(--color-text-primary)",
+          "muted": "var(--color-background-subtle)",
+          "muted-foreground": "var(--color-text-muted)",
+          "accent": "var(--color-background-subtle)",
+          "accent-foreground": "var(--color-text-primary)",
+          "destructive": "var(--color-action-destructive)",
+          "destructive-foreground": "#ffffff",
+          "border": "var(--color-border-default)",
+          "input": "var(--color-border-default)",
+          "ring": "var(--color-border-focus)",
+          "chart-1": "var(--color-category-framework)",
+          "chart-2": "var(--color-category-data)",
+          "chart-3": "var(--color-category-ui)",
+          "chart-4": "var(--color-category-performance)",
+          "chart-5": "var(--color-accent-creative)",
+          "radius": "0.5rem",
+          "sidebar": "var(--color-background-surface)",
+          "sidebar-foreground": "var(--color-text-primary)",
+          "sidebar-primary": "var(--color-action-primary)",
+          "sidebar-primary-foreground": "var(--color-action-primary-text)",
+          "sidebar-accent": "var(--color-background-subtle)",
+          "sidebar-accent-foreground": "var(--color-text-primary)",
+          "sidebar-border": "var(--color-border-default)",
+          "sidebar-ring": "var(--color-border-focus)"
+        }
+      }
+    }
+  ]
+}
