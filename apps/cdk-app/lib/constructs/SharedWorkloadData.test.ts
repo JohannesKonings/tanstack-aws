@@ -17,6 +17,7 @@ const pinnedLogicalIds = [
   'WebappDatabaseTodos39DA962E',
   'WebappEventsTableEventsC49DFB5F',
   'WebappStreamToEventsProcessor21303591',
+  'WebappStreamToEventsProcessorDynamoDBEventSourceTanstackAwsStackmainWebappDatabasePersonsB9F7D887328F8082',
   'WebappStreamToEventsProcessorLogGroup94729C40',
   'WebappStreamToEventsProcessorServiceRole48848DFA',
   'WebappStreamToEventsProcessorServiceRoleDefaultPolicyB4B3285F',
@@ -36,7 +37,7 @@ const resourceKeys = (template: unknown): string[] => {
 };
 
 const synthesizeSharedData = (app: App): string[] => {
-  const stack = new Stack(app, 'TanstackAwsStack-dev', {
+  const stack = new Stack(app, 'TanstackAwsStack-main', {
     env: { account: '123456789012', region: 'us-east-2' },
   });
   new SharedWorkloadData(stack, 'SharedWorkloadData', { appStage: 'dev' });
@@ -48,8 +49,6 @@ describe('SharedWorkloadData', () => {
     const resources = synthesizeSharedData(createCdkApp());
 
     expect(resources).toEqual(expect.arrayContaining(pinnedLogicalIds));
-    expect(resources.some((logicalId) => logicalId.startsWith('SharedWorkloadDataDatabase'))).toBe(
-      false,
-    );
+    expect(resources.some((logicalId) => logicalId.startsWith('SharedWorkloadData'))).toBe(false);
   }, 120_000);
 });

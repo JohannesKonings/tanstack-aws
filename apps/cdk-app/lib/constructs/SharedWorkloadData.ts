@@ -1,4 +1,5 @@
-import { CfnElement } from 'aws-cdk-lib';
+import { createHash } from 'node:crypto';
+import { CfnElement, Stack } from 'aws-cdk-lib';
 import type { Table } from 'aws-cdk-lib/aws-dynamodb';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct, type IConstruct } from 'constructs';
@@ -93,10 +94,83 @@ export class SharedWorkloadData extends Construct {
     for (const [constructPath, logicalId] of Object.entries(webappLogicalIds)) {
       overrideLogicalId(this, constructPath, logicalId);
     }
+    pinPersonsStreamMapping(this);
   }
 }
 
 const overrideLogicalId = (scope: Construct, constructPath: string, logicalId: string): void => {
+  const resource = findConstruct(scope, constructPath).node.defaultChild;
+  if (!CfnElement.isCfnElement(resource)) {
+    throw new Error(`Missing CloudFormation resource at ${constructPath}`);
+  }
+
+  resource.overrideLogicalId(logicalId);
+};
+
+/**
+ * CDK names a DynamoDB event source mapping from the table construct path, which
+ * includes the stack id. Moving the table under SharedWorkloadData therefore
+ * asks CloudFormation to create a second mapping for the same stream and function.
+ * Lambda rejects that. Keep the logical ID from when the table lived under Webapp.
+ *
+ * The hash is a frozen copy of aws-cdk-lib's makeUniqueId (md5 of the path, 8 hex
+ * chars). It must stay stable if CDK changes that algorithm later.
+ */
+const pinPersonsStreamMapping = (scope: Construct): void => {
+  const processor = findConstruct(scope, 'StreamToEventsProcessor/Processor');
+  const mapping = processor.node.children.find((child) =>
+    child.node.id.startsWith('DynamoDBEventSource:'),
+  );
+  if (!mapping) {
+    throw new Error(`Missing DynamoDB event source mapping under ${processor.node.path}`);
+  }
+
+  const resource = mapping.node.defaultChild;
+  if (!CfnElement.isCfnElement(resource)) {
+    throw new Error(`Missing CloudFormation resource at ${mapping.node.path}`);
+  }
+
+  resource.overrideLogicalId(historicalPersonsStreamMappingLogicalId(Stack.of(scope).node.id));
+};
+
+const historicalPersonsStreamMappingLogicalId = (stackId: string): string => {
+  const tableId = cdkUniqueId([stackId, 'Webapp', 'DatabasePersons', 'Persons']);
+  return cdkUniqueId([
+    'Webapp',
+    'StreamToEventsProcessor',
+    'Processor',
+    `DynamoDBEventSource:${tableId}`,
+    'Resource',
+  ]);
+};
+
+const cdkUniqueId = (components: readonly string[]): string => {
+  const hash = createHash('md5')
+    .update(components.join('/'))
+    .digest('hex')
+    .slice(0, 8)
+    .toUpperCase();
+  const human = removeDuplicatePathTails(components)
+    .filter((component) => component !== 'Resource')
+    .map((component) => component.replace(/[^A-Za-z0-9]/g, ''))
+    .join('')
+    .slice(0, 240);
+
+  return `${human}${hash}`;
+};
+
+const removeDuplicatePathTails = (components: readonly string[]): string[] => {
+  const unique: string[] = [];
+  for (const component of components) {
+    const previous = unique.at(-1);
+    if (previous === undefined || !previous.endsWith(component)) {
+      unique.push(component);
+    }
+  }
+  return unique;
+};
+
+const findConstruct = (scope: Construct, constructPath: string): IConstruct => {
   let current: IConstruct = scope;
   for (const id of constructPath.split('/')) {
     const child = current.node.tryFindChild(id);
@@ -105,11 +179,5 @@ const overrideLogicalId = (scope: Construct, constructPath: string, logicalId: s
     }
     current = child;
   }
-
-  const resource = current.node.defaultChild;
-  if (!CfnElement.isCfnElement(resource)) {
-    throw new Error(`Missing CloudFormation resource at ${constructPath}`);
-  }
-
-  resource.overrideLogicalId(logicalId);
+  return current;
 };
