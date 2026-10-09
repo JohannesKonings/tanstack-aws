@@ -1,4 +1,4 @@
-import { RDSDataClient, ExecuteStatementCommand } from '@aws-sdk/client-rds-data';
+import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
 import { count } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/aws-data-api/pg';

@@ -52,6 +52,7 @@
     "@aws-sdk/client-rds-data": "3.1081.0",
     "@aws-sdk/lib-dynamodb": "3.1081.0",
     "@aws-sdk/util-dynamodb": "3.996.5",
+    "@tanstack-aws/aurora": "workspace:*",
     "ulid": "^3.0.2"
   },
   "devDependencies": {

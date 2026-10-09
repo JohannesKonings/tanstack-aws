@@ -5,14 +5,13 @@ import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { TIMEOUT_IN_SECONDS } from '../../../../lib/sse-stream-timeout.ts';
-import { resolveAuroraSchemaName } from '../aurora-schema.ts';
 import { repoPath } from '../repo-root.ts';
 
 type WebappServerProps = {
-  appStage: string;
   auroraClusterArn: string;
-  auroraSecretArn: string;
   auroraDatabaseName: string;
+  auroraSchema: string;
+  auroraSecretArn: string;
   tableNameTodos: string;
   tableNamePersons: string;
   tableNameEvents: string;
@@ -25,16 +24,15 @@ export class WebappServer extends Construct {
     super(scope, id);
 
     const {
-      appStage,
       auroraClusterArn,
-      auroraSecretArn,
       auroraDatabaseName,
+      auroraSchema,
+      auroraSecretArn,
       tableNameTodos,
       tableNamePersons,
       tableNameEvents,
       serverAssetPath = '.output/server',
     } = props;
-    const auroraSchema = resolveAuroraSchemaName(appStage);
 
     this.webappServer = new Function(this, 'WebappServer', {
       code: Code.fromAsset(repoPath(serverAssetPath)),

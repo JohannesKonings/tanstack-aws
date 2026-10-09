@@ -1,3 +1,6 @@
+/** Person tables live in this schema inside every stage database. */
+export const STAGE_DATABASE_SCHEMA = 'default';
+
 const STAGE_SEPARATOR = '-';
 const POSTGRES_SEPARATOR = '_';
 const VALID_IDENTIFIER_START = /^[a-z_]/;

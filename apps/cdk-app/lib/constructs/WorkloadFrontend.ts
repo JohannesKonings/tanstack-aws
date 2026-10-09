@@ -33,10 +33,10 @@ export class WorkloadFrontend extends Construct {
     } = props;
 
     const webappServer = new WebappServer(this, 'WebappServer', {
-      appStage,
       auroraClusterArn: sharedData.auroraClusterArn,
+      auroraDatabaseName: sharedData.stageDatabaseName,
+      auroraSchema: sharedData.auroraSchema,
       auroraSecretArn: sharedData.auroraSecretArn,
-      auroraDatabaseName: sharedData.auroraDatabaseName,
       tableNameTodos: sharedData.dbTodos.tableName,
       tableNamePersons: sharedData.dbPersons.tableName,
       tableNameEvents: sharedData.eventsTable.tableName,

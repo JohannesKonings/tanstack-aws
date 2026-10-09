@@ -7,6 +7,9 @@
     "synth": "cdk synth",
     "deploy": "cdk deploy --all"
   },
+  "dependencies": {
+    "@tanstack-aws/aurora": "workspace:*"
+  },
   "devDependencies": {
     "aws-cdk": "2.1129.0",
     "aws-cdk-lib": "2.244.0",

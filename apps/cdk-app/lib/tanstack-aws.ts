@@ -34,5 +34,22 @@ export class TanstackAwsStack extends cdk.Stack {
       // webapp owns it, so admin stays without a WebACL.
       attachProtectedWebAcl: false,
     });
+
+    new cdk.CfnOutput(this, 'AuroraClusterArn', {
+      exportName: `${this.stackName}-AuroraClusterArn`,
+      value: sharedData.auroraClusterArn,
+    });
+    new cdk.CfnOutput(this, 'AuroraSecretArn', {
+      exportName: `${this.stackName}-AuroraSecretArn`,
+      value: sharedData.auroraSecretArn,
+    });
+    new cdk.CfnOutput(this, 'AuroraDatabaseName', {
+      exportName: `${this.stackName}-AuroraDatabaseName`,
+      value: sharedData.stageDatabaseName,
+    });
+    new cdk.CfnOutput(this, 'AuroraSchema', {
+      exportName: `${this.stackName}-AuroraSchema`,
+      value: sharedData.auroraSchema,
+    });
   }
 }

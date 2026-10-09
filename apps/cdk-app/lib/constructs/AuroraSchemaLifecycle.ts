@@ -10,10 +10,10 @@ import { repoPath } from '../repo-root.ts';
 
 type AuroraSchemaLifecycleProps = {
   clusterArn: string;
-  databaseName: string;
-  deleteSchemaOnDelete: boolean;
-  schemaName: string;
+  dropDatabaseOnDelete: boolean;
+  maintenanceDatabaseName: string;
   secretArn: string;
+  stageDatabaseName: string;
 };
 
 export class AuroraSchemaLifecycle extends Construct {
@@ -115,10 +115,10 @@ export class AuroraSchemaLifecycle extends Construct {
       serviceToken: provider.serviceToken,
       properties: {
         clusterArn: props.clusterArn,
-        databaseName: props.databaseName,
-        deleteSchemaOnDelete: props.deleteSchemaOnDelete ? 'true' : 'false',
-        schemaName: props.schemaName,
+        dropDatabaseOnDelete: props.dropDatabaseOnDelete ? 'true' : 'false',
+        maintenanceDatabaseName: props.maintenanceDatabaseName,
         secretArn: props.secretArn,
+        stageDatabaseName: props.stageDatabaseName,
       },
     });
   }

@@ -118,17 +118,19 @@ describe('stage database lifecycle', () => {
   });
 
   it('keeps the stage database when a permanent stage is deleted', async () => {
-    for (const stageDatabaseName of ['main', 'prod']) {
-      const { client, statements } = recordStatements();
+    const results = await Promise.all(
+      ['main', 'prod'].map(async (stageDatabaseName) => {
+        const recorded = recordStatements();
+        await applyStageDatabaseLifecycle(recorded.client, {
+          dropDatabaseOnDelete: false,
+          maintenanceDatabase: MAINTENANCE_DATABASE,
+          requestType: 'Delete',
+          stageDatabaseName,
+        });
+        return recorded.statements;
+      }),
+    );
 
-      await applyStageDatabaseLifecycle(client, {
-        dropDatabaseOnDelete: false,
-        maintenanceDatabase: MAINTENANCE_DATABASE,
-        requestType: 'Delete',
-        stageDatabaseName,
-      });
-
-      expect(statements).toEqual([]);
-    }
+    expect(results).toEqual([[], []]);
   });
 });

@@ -1,8 +1,9 @@
 import { boolean, numeric, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { createSelectSchema } from 'drizzle-orm/zod';
+import { STAGE_DATABASE_SCHEMA } from './stage-database-name.ts';
 
 /** Person tables live here. Schema `public` stays empty. */
-export const stageDatabaseSchema = pgSchema('default');
+export const stageDatabaseSchema = pgSchema(STAGE_DATABASE_SCHEMA);
 
 const timestampColumn = (name: string) => timestamp(name, { mode: 'string', withTimezone: true });
 

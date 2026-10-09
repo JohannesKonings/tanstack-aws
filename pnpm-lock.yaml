@@ -206,6 +206,9 @@ importers:
       '@aws-sdk/util-dynamodb':
         specifier: 3.996.5
         version: 3.996.5(@aws-sdk/client-dynamodb@3.1081.0)
+      '@tanstack-aws/aurora':
+        specifier: workspace:*
+        version: link:packages/aurora
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -314,6 +317,10 @@ importers:
         version: 4.6.5
 
   apps/cdk-app:
+    dependencies:
+      '@tanstack-aws/aurora':
+        specifier: workspace:*
+        version: link:../../packages/aurora
     devDependencies:
       aws-cdk:
         specifier: 2.1129.0
