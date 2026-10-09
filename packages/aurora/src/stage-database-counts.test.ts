@@ -1,7 +1,10 @@
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
-import { AuroraConfigurationError } from '@tanstack-aws/aurora';
 import { describe, expect, it } from 'vite-plus/test';
-import { countStageDatabaseTables, type StageDatabaseQueryClient } from './counts.ts';
+import { AuroraConfigurationError } from './client.ts';
+import {
+  countStageDatabaseTables,
+  type StageDatabaseQueryClient,
+} from './stage-database-counts.ts';
 
 const settings = {
   AURORA_CLUSTER_ARN: 'arn:aws:rds:us-east-2:123456789012:cluster:shared',

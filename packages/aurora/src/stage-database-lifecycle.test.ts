@@ -44,7 +44,7 @@ const featureTables: AuroraDataApiStatement[] = [
   },
   {
     database: FEATURE_DATABASE,
-    sql: 'CREATE TABLE IF NOT EXISTS "default"."persons" ("id" uuid PRIMARY KEY, "firstName" text NOT NULL, "lastName" text NOT NULL, "dateOfBirth" timestamptz, "gender" "default"."gender", "createdAt" timestamptz NOT NULL, "updatedAt" timestamptz NOT NULL)',
+    sql: 'CREATE TABLE IF NOT EXISTS "default"."persons" ("id" uuid PRIMARY KEY, "firstName" text NOT NULL, "lastName" text NOT NULL, "dateOfBirth" timestamp with time zone, "gender" "default"."gender", "createdAt" timestamp with time zone NOT NULL, "updatedAt" timestamp with time zone NOT NULL)',
   },
   {
     database: FEATURE_DATABASE,
@@ -60,7 +60,7 @@ const featureTables: AuroraDataApiStatement[] = [
   },
   {
     database: FEATURE_DATABASE,
-    sql: 'CREATE TABLE IF NOT EXISTS "default"."employments" ("id" uuid PRIMARY KEY, "personId" uuid NOT NULL REFERENCES "default"."persons" ("id") ON DELETE CASCADE, "companyName" text NOT NULL, "position" text NOT NULL, "department" text, "startDate" timestamptz NOT NULL, "endDate" timestamptz, "isCurrent" boolean NOT NULL, "salary" numeric, "currency" text NOT NULL)',
+    sql: 'CREATE TABLE IF NOT EXISTS "default"."employments" ("id" uuid PRIMARY KEY, "personId" uuid NOT NULL REFERENCES "default"."persons" ("id") ON DELETE CASCADE, "companyName" text NOT NULL, "position" text NOT NULL, "department" text, "startDate" timestamp with time zone NOT NULL, "endDate" timestamp with time zone, "isCurrent" boolean NOT NULL, "salary" numeric, "currency" text NOT NULL)',
   },
 ];
 

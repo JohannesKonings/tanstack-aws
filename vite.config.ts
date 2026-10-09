@@ -9,6 +9,18 @@ import {
 } from './tooling/lint/import-boundaries.ts';
 
 export default defineWorkspaceConfig({
+  run: {
+    tasks: {
+      migrate: {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/migrate-stage-database.ts',
+      },
+      studio: {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/drizzle-studio.ts',
+      },
+    },
+  },
   bingo: {
     blockPackageJson: {
       name: 'tanstack-aws',

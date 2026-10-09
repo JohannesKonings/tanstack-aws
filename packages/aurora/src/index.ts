@@ -5,6 +5,11 @@ export {
   type AuroraSettings,
 } from './client.ts';
 export {
+  countStageDatabaseTables,
+  type StageDatabaseQueryClient,
+  type StageTableCounts,
+} from './stage-database-counts.ts';
+export {
   addressSelectSchema,
   addresses,
   bankAccountSelectSchema,
