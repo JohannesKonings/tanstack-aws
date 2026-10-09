@@ -1,5 +1,4 @@
 // oxlint-disable max-statements
-import { Stack } from 'aws-cdk-lib';
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
@@ -17,13 +16,9 @@ import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import {
-  AwsCustomResource,
-  AwsCustomResourcePolicy,
-  PhysicalResourceId,
-} from 'aws-cdk-lib/custom-resources';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
+import { preserveProtectedStageWebAcl } from './ProtectedStageWebAcl.ts';
 
 // const cspAllowedSources = [
 //   'https://login.microsoftonline.com',
@@ -283,139 +278,14 @@ export class WebappDistribution extends Construct {
     ]);
 
     if (hasCloudFrontFreePlane) {
-      const cfnDistribution = this.distribution.node.defaultChild as CfnDistribution;
-      const distributionLogicalId = Stack.of(this).getLogicalId(cfnDistribution);
+      const cfnDistribution = this.distribution.node.defaultChild;
+      if (!(cfnDistribution instanceof CfnDistribution)) {
+        throw new Error('Expected the CloudFront distribution L1 resource.');
+      }
 
-      // Preserve the existing WebACL association in protected stages so updates
-      // do not accidentally detach the pricing-plan-required WAF.
-      const existingDistributionIdLookup = new AwsCustomResource(
-        this,
-        'ExistingDistributionIdLookup',
-        {
-          onUpdate: {
-            service: 'CloudFormation',
-            action: 'describeStackResource',
-            parameters: {
-              StackName: Stack.of(this).stackName,
-              LogicalResourceId: distributionLogicalId,
-            },
-            // Keep custom resource response small and return only the
-            // distribution id needed by the next lookup.
-            outputPaths: ['StackResourceDetail.PhysicalResourceId'],
-            physicalResourceId: PhysicalResourceId.of(
-              `existing-distribution-id-${distributionLogicalId}-${Date.now().toString()}`,
-            ),
-          },
-          policy: AwsCustomResourcePolicy.fromSdkCalls({
-            resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-          }),
-        },
-      );
-      NagSuppressions.addResourceSuppressions(
-        existingDistributionIdLookup,
-        [
-          {
-            id: 'AwsSolutions-IAM5',
-            reason:
-              'CloudFormation describeStackResource cannot be resource-scoped because stack resource IDs are resolved dynamically at deploy.',
-            appliesTo: ['Resource::*'],
-          },
-        ],
-        true,
-      );
-
-      const existingWebAclLookup = new AwsCustomResource(this, 'ExistingDistributionWebAclLookup', {
-        onUpdate: {
-          service: 'CloudFront',
-          action: 'getDistribution',
-          parameters: {
-            Id: existingDistributionIdLookup.getResponseField(
-              'StackResourceDetail.PhysicalResourceId',
-            ),
-          },
-          // Avoid "Response object is too long" by returning only WebACLId.
-          outputPaths: ['Distribution.DistributionConfig.WebACLId'],
-          physicalResourceId: PhysicalResourceId.of(
-            `existing-distribution-webacl-${distributionLogicalId}-${Date.now().toString()}`,
-          ),
-        },
-        policy: AwsCustomResourcePolicy.fromSdkCalls({
-          resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-        }),
-      });
-      NagSuppressions.addResourceSuppressions(
-        existingWebAclLookup,
-        [
-          {
-            id: 'AwsSolutions-IAM5',
-            reason:
-              'CloudFront getDistribution must allow wildcard resources because target distribution ID is discovered dynamically at deploy.',
-            appliesTo: ['Resource::*'],
-          },
-        ],
-        true,
-      );
-
-      const protectedStageStackPath = `/${Stack.of(this).node.path}`;
-      const awsCustomResourceProviderId = `AWS${AwsCustomResource.PROVIDER_FUNCTION_UUID.replaceAll('-', '')}`;
-      NagSuppressions.addResourceSuppressionsByPath(
-        Stack.of(this),
-        `${protectedStageStackPath}/${awsCustomResourceProviderId}/Resource`,
-        [
-          {
-            id: 'AwsSolutions-L1',
-            reason:
-              'AwsCustomResource provider runtime is framework-managed by aws-cdk-lib and updated only through CDK upgrades.',
-          },
-          {
-            id: 'Serverless-LambdaDefaultMemorySize',
-            reason:
-              'Framework singleton provider handles lightweight SDK calls; default memory is acceptable for protected-stage lookups.',
-          },
-          {
-            id: 'Serverless-LambdaDLQ',
-            reason:
-              'CloudFormation tracks custom resource failures and retries; failed deployments surface in stack events.',
-          },
-          {
-            id: 'Serverless-LambdaLatestVersion',
-            reason:
-              'Provider runtime lifecycle is owned by aws-cdk-lib framework code, not this application construct.',
-          },
-          {
-            id: 'Serverless-LambdaTracing',
-            reason:
-              'Protected-stage lookup provider runs only during deployment; active tracing is not required for this control path.',
-          },
-        ],
-      );
-      NagSuppressions.addResourceSuppressionsByPath(
-        Stack.of(this),
-        `${protectedStageStackPath}/${awsCustomResourceProviderId}/ServiceRole/Resource`,
-        [
-          {
-            id: 'AwsSolutions-IAM4',
-            reason:
-              'AwsCustomResource framework provider attaches AWSLambdaBasicExecutionRole managed policy as part of CDK internals.',
-            appliesTo: [
-              'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-            ],
-          },
-        ],
-      );
-
-      const resolvedProtectedStageWebAclId = existingWebAclLookup.getResponseField(
-        'Distribution.DistributionConfig.WebACLId',
-      );
-
-      // For pricing-plan protected stages (main/prod), the WebACL is managed externally
-      // from the AWS Console and must be preserved on every CDK update.
-      // Fail fast when lookup cannot resolve the current value: never synthesize
-      // protected-stage updates that omit DistributionConfig.WebACLId.
-      cfnDistribution.addPropertyOverride(
-        'DistributionConfig.WebACLId',
-        resolvedProtectedStageWebAclId,
-      );
+      // Protected stages keep the console-managed WebACL. A distribution that is
+      // not in the stack yet copies the WebACL from one that already is.
+      preserveProtectedStageWebAcl(this, cfnDistribution);
     }
 
     // Create Route53 A record for prod stage.

@@ -45,6 +45,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
+    "@aws-sdk/client-cloudformation": "3.1081.0",
+    "@aws-sdk/client-cloudfront": "3.1081.0",
     "@aws-sdk/client-cloudwatch": "3.1081.0",
     "@aws-sdk/client-dynamodb": "3.1081.0",
     "@aws-sdk/client-rds-data": "3.1081.0",
@@ -53,7 +55,7 @@
     "ulid": "^3.0.2"
   },
   "devDependencies": {
-    "@jaykingson/vite-plus-base": "0.0.4",
+    "@jaykingson/vite-plus-base": "0.0.5",
     "@phosphor-icons/react": "^2.1.10",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tanstack/intent": "0.0.23",

@@ -185,6 +185,12 @@ importers:
       '@aws-sdk/client-bedrock-runtime':
         specifier: 3.1081.0
         version: 3.1081.0
+      '@aws-sdk/client-cloudformation':
+        specifier: 3.1081.0
+        version: 3.1081.0
+      '@aws-sdk/client-cloudfront':
+        specifier: 3.1081.0
+        version: 3.1081.0
       '@aws-sdk/client-cloudwatch':
         specifier: 3.1081.0
         version: 3.1081.0
@@ -205,8 +211,8 @@ importers:
         version: 3.0.2
     devDependencies:
       '@jaykingson/vite-plus-base':
-        specifier: 0.0.4
-        version: 0.0.4(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
+        specifier: 0.0.5
+        version: 0.0.5(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -622,6 +628,14 @@ packages:
 
   '@aws-sdk/client-bedrock-runtime@3.1081.0':
     resolution: {integrity: sha512-rRAGXY5qV/NCYbVA0QZHPierv3diOOiE4+1f5vedpbyvg7Phh9m/I2pRFwu0koUtMdRSGPWgoNcvMIyaDhDj7Q==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-cloudformation@3.1081.0':
+    resolution: {integrity: sha512-i+lK0BnbX8JdFI/7HV/JY6XmrZsEmmLffuJRyn+J+gP9zzAiNOdraOnMi0eVcJE8CraTt5fixyxBO8AalFW8rw==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-cloudfront@3.1081.0':
+    resolution: {integrity: sha512-6Pzv5tolE4iqVg2SZcUAyWGwEd0h2ZbAwdvFnocCKIIbMXEtJrJ0sz/h8wEj+Yk7GWnwgYumzzYcA41B8VBEGw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-cloudwatch@3.1081.0':
@@ -1177,8 +1191,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@jaykingson/vite-plus-base@0.0.4':
-    resolution: {integrity: sha512-KgtDZnDMgiENmz7gM0l5IBq++ZAya22SQuplGu70VT24HGR7Lh/hJpO2z4ab20FskxoYGwZutGbaYfPY75aVxw==}
+  '@jaykingson/vite-plus-base@0.0.5':
+    resolution: {integrity: sha512-IOPR5iuwIWwsxL9ASPNPmGsSzbTzKpBmAgsGsCaFLzPYqjLPKuvbHbQfOnAZQ2dwzf0v5ED2bfG0gxdaF1EHXQ==}
     hasBin: true
     peerDependencies:
       vite-plus: '>=1.0.0'
@@ -6972,6 +6986,28 @@ snapshots:
       '@smithy/types': 4.15.1
       tslib: 2.8.1
 
+  '@aws-sdk/client-cloudformation@3.1081.0':
+    dependencies:
+      '@aws-sdk/core': 3.974.29
+      '@aws-sdk/credential-provider-node': 3.972.64
+      '@aws-sdk/types': 3.973.15
+      '@smithy/core': 3.29.1
+      '@smithy/fetch-http-handler': 5.6.3
+      '@smithy/node-http-handler': 4.9.3
+      '@smithy/types': 4.15.1
+      tslib: 2.8.1
+
+  '@aws-sdk/client-cloudfront@3.1081.0':
+    dependencies:
+      '@aws-sdk/core': 3.974.29
+      '@aws-sdk/credential-provider-node': 3.972.64
+      '@aws-sdk/types': 3.973.15
+      '@smithy/core': 3.29.1
+      '@smithy/fetch-http-handler': 5.6.3
+      '@smithy/node-http-handler': 4.9.3
+      '@smithy/types': 4.15.1
+      tslib: 2.8.1
+
   '@aws-sdk/client-cloudwatch@3.1081.0':
     dependencies:
       '@aws-sdk/core': 3.974.29
@@ -7625,7 +7661,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.9.5
 
-  '@jaykingson/vite-plus-base@0.0.4(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))':
+  '@jaykingson/vite-plus-base@0.0.5(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))':
     dependencies:
       bingo: 0.9.3
       bingo-stratum: 0.7.1(bingo-fs@0.6.0)(bingo-systems@0.7.0)(bingo@0.9.3)(zod@3.25.76)

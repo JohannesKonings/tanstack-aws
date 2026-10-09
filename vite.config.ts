@@ -120,7 +120,11 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['tooling/**/*.{test,spec}.{ts,tsx}', 'lib/**/*.{test,spec}.{ts,tsx}'],
+    include: [
+      'tooling/**/*.{test,spec}.{ts,tsx}',
+      'lib/**/*.{test,spec}.{ts,tsx}',
+      'src/lambda/**/*.{test,spec}.ts',
+    ],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
