@@ -20,7 +20,6 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/.git/**', '.output/**', '.nitro/**', '.tanstack/**'],
-    passWithNoTests: true,
   },
   plugins: isVitest
     ? []

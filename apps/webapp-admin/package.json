@@ -10,12 +10,14 @@
     "serve": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-rds-data": "3.1081.0",
     "@tailwindcss/vite": "^4.3.2",
     "@tanstack-aws/aurora": "workspace:*",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.17",
     "@tanstack/react-router-ssr-query": "^1.167.1",
     "@tanstack/react-start": "^1.168.27",
+    "drizzle-orm": "1.0.0-rc.4",
     "nitro": "3.0.260610-beta",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

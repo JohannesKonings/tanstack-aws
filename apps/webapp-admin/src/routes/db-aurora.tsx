@@ -1,12 +1,11 @@
-import {
-  AuroraConfigurationError,
-  countStageDatabaseTables,
-  createStageDatabaseClient,
-  type StageTableCounts,
-} from '@tanstack-aws/aurora';
+import { AuroraConfigurationError, createStageDatabaseClient } from '@tanstack-aws/aurora';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { createServerFn, useServerFn } from '@tanstack/react-start';
+import {
+  countStageDatabaseTables,
+  type StageTableCounts,
+} from '#apps/webapp-admin/db-aurora/counts.ts';
 
 const getStageDatabaseCounts = createServerFn({ method: 'GET' }).handler(async () => {
   try {

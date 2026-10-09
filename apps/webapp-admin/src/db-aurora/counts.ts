@@ -1,9 +1,15 @@
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
+import {
+  addresses,
+  bankAccounts,
+  contacts,
+  employments,
+  persons,
+  readAuroraSettings,
+} from '@tanstack-aws/aurora';
 import { count } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/aws-data-api/pg';
-import { readAuroraSettings } from './client.ts';
-import { addresses, bankAccounts, contacts, employments, persons } from './person-schema.ts';
 
 export type StageDatabaseQueryClient = {
   send: (command: ExecuteStatementCommand) => Promise<ExecuteStatementCommandOutput>;

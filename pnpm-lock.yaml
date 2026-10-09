@@ -177,7 +177,7 @@ catalogs:
       specifier: 5.0.3
       version: 5.0.3
     zod:
-      specifier: ^4.6.5
+      specifier: 4.6.5
       version: 4.6.5
 
 overrides:
@@ -462,7 +462,7 @@ importers:
         version: 11.11.1
       nitro:
         specifier: 3.0.260610-beta
-        version: 3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+        version: 3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5))(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -530,6 +530,9 @@ importers:
 
   apps/webapp-admin:
     dependencies:
+      '@aws-sdk/client-rds-data':
+        specifier: 3.1081.0
+        version: 3.1081.0
       '@tailwindcss/vite':
         specifier: ^4.3.2
         version: 4.3.2(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
@@ -548,9 +551,12 @@ importers:
       '@tanstack/react-start':
         specifier: ^1.168.27
         version: 1.168.27(@types/node@25.9.5)(crossws@0.4.9(srvx@0.11.21))(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rolldown@1.2.12)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+      drizzle-orm:
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)
       nitro:
         specifier: 3.0.260610-beta
-        version: 3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+        version: 3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5))(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -10899,7 +10905,9 @@ snapshots:
 
   dayjs@1.11.21: {}
 
-  db0@0.3.4: {}
+  db0@0.3.4(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)):
+    optionalDependencies:
+      drizzle-orm: 1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)
 
   debounce-fn@4.0.0:
     dependencies:
@@ -12357,11 +12365,11 @@ snapshots:
 
   nf3@0.3.21: {}
 
-  nitro@3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0):
+  nitro@3.0.260610-beta(@types/node@25.9.5)(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5))(esbuild@0.28.1)(jiti@2.7.0)(lru-cache@11.5.2)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.9(srvx@0.11.21)
-      db0: 0.3.4
+      db0: 0.3.4(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5))
       env-runner: 0.1.16
       h3: 2.0.1-rc.22(crossws@0.4.9(srvx@0.11.21))
       hookable: 6.1.1
@@ -12372,7 +12380,7 @@ snapshots:
       rolldown: 1.2.12
       srvx: 0.11.21
       unenv: 2.0.0-rc.24
-      unstorage: 2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4)(lru-cache@11.5.2)(ofetch@2.0.0-alpha.3)
+      unstorage: 2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)))(lru-cache@11.5.2)(ofetch@2.0.0-alpha.3)
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)'
     optionalDependencies:
       dotenv: 17.4.2
@@ -13482,10 +13490,10 @@ snapshots:
       rolldown: 1.2.12
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)'
 
-  unstorage@2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4)(lru-cache@11.5.2)(ofetch@2.0.0-alpha.3):
+  unstorage@2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)))(lru-cache@11.5.2)(ofetch@2.0.0-alpha.3):
     optionalDependencies:
       chokidar: 5.0.0
-      db0: 0.3.4
+      db0: 0.3.4(drizzle-orm@1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5))
       lru-cache: 11.5.2
       ofetch: 2.0.0-alpha.3
 
