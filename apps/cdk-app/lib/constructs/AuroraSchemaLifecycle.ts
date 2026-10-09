@@ -7,6 +7,7 @@ import { Provider } from 'aws-cdk-lib/custom-resources';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { repoPath } from '../repo-root.ts';
+import { hashStageDatabaseMigrations } from './stage-database-migrations-hash.ts';
 
 type AuroraSchemaLifecycleProps = {
   clusterArn: string;
@@ -23,6 +24,19 @@ export class AuroraSchemaLifecycle extends Construct {
     const handler = new NodejsFunction(this, 'Handler', {
       entry: repoPath('src/lambda/aurora-schema-lifecycle.ts'),
       bundling: {
+        commandHooks: {
+          afterBundling(inputDir: string, outputDir: string): string[] {
+            return [
+              `mkdir -p '${outputDir}/migrations' && cp -R '${inputDir}/packages/aurora/migrations/.' '${outputDir}/migrations'`,
+            ];
+          },
+          beforeBundling(): string[] {
+            return [];
+          },
+          beforeInstall(): string[] {
+            return [];
+          },
+        },
         externalModules: ['@aws-sdk/*'],
       },
       runtime: Runtime.NODEJS_24_X,
@@ -31,7 +45,12 @@ export class AuroraSchemaLifecycle extends Construct {
 
     handler.addToRolePolicy(
       new PolicyStatement({
-        actions: ['rds-data:ExecuteStatement'],
+        actions: [
+          'rds-data:BeginTransaction',
+          'rds-data:CommitTransaction',
+          'rds-data:ExecuteStatement',
+          'rds-data:RollbackTransaction',
+        ],
         effect: Effect.ALLOW,
         resources: [props.clusterArn],
       }),
@@ -117,6 +136,7 @@ export class AuroraSchemaLifecycle extends Construct {
         clusterArn: props.clusterArn,
         dropDatabaseOnDelete: props.dropDatabaseOnDelete ? 'true' : 'false',
         maintenanceDatabaseName: props.maintenanceDatabaseName,
+        migrationsHash: hashStageDatabaseMigrations(repoPath('packages/aurora/migrations')),
         secretArn: props.secretArn,
         stageDatabaseName: props.stageDatabaseName,
       },

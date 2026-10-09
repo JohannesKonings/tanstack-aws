@@ -2,11 +2,17 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
-import { drizzleKitBinary, drizzleStudioCommand, studioEnvironment } from '../drizzle-studio.ts';
+import {
+  drizzleKitBinary,
+  drizzleKitCommand,
+  parseDrizzleKitCli,
+  studioEnvironment,
+} from '../drizzle-studio.ts';
 import { readWorkloadStageDatabase, type StackOutput } from '../stage-database-migrate.ts';
 import { readGitBranch } from './git-branch.ts';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+const parsed = parseDrizzleKitCli(process.argv.slice(2));
 
 const describeStack = async (input: {
   region: string;
@@ -24,7 +30,7 @@ const connection = await readWorkloadStageDatabase({
   region: process.env.AWS_REGION,
 });
 
-const command = drizzleStudioCommand();
+const command = drizzleKitCommand(parsed.subcommand, parsed.extraArgs);
 const child = spawn(process.execPath, [drizzleKitBinary(), ...command.args], {
   cwd: repoRoot,
   env: studioEnvironment(process.env, connection),

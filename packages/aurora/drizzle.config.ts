@@ -7,7 +7,7 @@ const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const setting = (name: string): string => {
   const value = process.env[name]?.trim();
   if (!value) {
-    throw new Error(`Missing ${name} for Drizzle Studio.`);
+    throw new Error(`Missing ${name} for Drizzle Kit.`);
   }
   return value;
 };
@@ -20,5 +20,6 @@ export default defineConfig({
   },
   dialect: 'postgresql',
   driver: 'aws-data-api',
+  out: path.join(packageRoot, 'migrations'),
   schema: path.join(packageRoot, 'src/person-schema.ts'),
 });

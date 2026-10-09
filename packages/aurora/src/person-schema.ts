@@ -98,9 +98,6 @@ export const employments = stageDatabaseSchema.table('employments', {
   currency: text('currency').notNull(),
 });
 
-/** Tables the stage-database lifecycle creates, in dependency order. */
-export const stageDatabaseTables = [persons, addresses, bankAccounts, contacts, employments];
-
 export const personSelectSchema = createSelectSchema(persons);
 export const addressSelectSchema = createSelectSchema(addresses);
 export const bankAccountSelectSchema = createSelectSchema(bankAccounts);

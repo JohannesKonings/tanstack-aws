@@ -1,5 +1,10 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
-import { applyStageDatabaseLifecycle } from '@tanstack-aws/aurora/lifecycle';
+import {
+  applyStageDatabaseLifecycle,
+  migrateStageDatabaseSchema,
+} from '@tanstack-aws/aurora/lifecycle';
 import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 
 const client = new RDSDataClient({});
@@ -8,10 +13,16 @@ const AURORA_RESUME_RETRY_DELAY_MS = 30_000;
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-const isAuroraResumingError = (error: unknown): boolean => {
-  const message = error instanceof Error ? error.message : String(error);
-  return message.includes('resuming after being auto-paused');
+const errorText = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+  const cause = error.cause === undefined ? '' : errorText(error.cause);
+  return `${error.message}\n${cause}`;
 };
+
+const isAuroraResumingError = (error: unknown): boolean =>
+  errorText(error).includes('resuming after being auto-paused');
 
 type ConnectionProps = {
   clusterArn: string;
@@ -37,18 +48,11 @@ const requiredProp = (event: CloudFormationCustomResourceEvent, name: string): s
   return value;
 };
 
-const runSql = async (props: ConnectionProps, database: string, sql: string): Promise<void> => {
+const withAuroraResumeRetry = async (operation: () => Promise<void>): Promise<void> => {
   for (let attempt = 0; attempt <= AURORA_RESUME_RETRY_ATTEMPTS; attempt++) {
     try {
       // oxlint-disable-next-line no-await-in-loop -- sequential retries with backoff
-      await client.send(
-        new ExecuteStatementCommand({
-          resourceArn: props.clusterArn,
-          secretArn: props.secretArn,
-          database,
-          sql,
-        }),
-      );
+      await operation();
       return;
     } catch (error) {
       const shouldRetry = isAuroraResumingError(error) && attempt < AURORA_RESUME_RETRY_ATTEMPTS;
@@ -63,6 +67,31 @@ const runSql = async (props: ConnectionProps, database: string, sql: string): Pr
       await sleep(AURORA_RESUME_RETRY_DELAY_MS);
     }
   }
+};
+
+const runSql = async (props: ConnectionProps, database: string, sql: string): Promise<void> => {
+  await withAuroraResumeRetry(async () => {
+    await client.send(
+      new ExecuteStatementCommand({
+        resourceArn: props.clusterArn,
+        secretArn: props.secretArn,
+        database,
+        sql,
+      }),
+    );
+  });
+};
+
+const stageDatabaseMigrationsFolder = (): string => {
+  const root = process.env.LAMBDA_TASK_ROOT;
+  if (!root) {
+    throw new Error('LAMBDA_TASK_ROOT is unset; stage database migrations cannot be located.');
+  }
+  const folder = path.join(root, 'migrations');
+  if (!existsSync(folder)) {
+    throw new Error(`Stage database migrations folder is missing: ${folder}`);
+  }
+  return folder;
 };
 
 export const handler = async (event: CloudFormationCustomResourceEvent) => {
@@ -88,6 +117,18 @@ export const handler = async (event: CloudFormationCustomResourceEvent) => {
       maintenanceDatabase: maintenanceDatabaseName,
       requestType: event.RequestType,
       stageDatabaseName,
+    },
+    {
+      migrate: (databaseName) =>
+        withAuroraResumeRetry(() =>
+          migrateStageDatabaseSchema({
+            client,
+            clusterArn: connection.clusterArn,
+            migrationsFolder: stageDatabaseMigrationsFolder(),
+            secretArn: connection.secretArn,
+            stageDatabaseName: databaseName,
+          }),
+        ),
     },
   );
 
