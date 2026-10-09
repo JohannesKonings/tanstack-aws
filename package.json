@@ -45,6 +45,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
+    "@aws-sdk/client-cloudformation": "3.1081.0",
+    "@aws-sdk/client-cloudfront": "3.1081.0",
     "@aws-sdk/client-cloudwatch": "3.1081.0",
     "@aws-sdk/client-dynamodb": "3.1081.0",
     "@aws-sdk/client-rds-data": "3.1081.0",

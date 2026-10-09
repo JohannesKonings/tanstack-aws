@@ -185,6 +185,12 @@ importers:
       '@aws-sdk/client-bedrock-runtime':
         specifier: 3.1081.0
         version: 3.1081.0
+      '@aws-sdk/client-cloudformation':
+        specifier: 3.1081.0
+        version: 3.1081.0
+      '@aws-sdk/client-cloudfront':
+        specifier: 3.1081.0
+        version: 3.1081.0
       '@aws-sdk/client-cloudwatch':
         specifier: 3.1081.0
         version: 3.1081.0
@@ -622,6 +628,14 @@ packages:
 
   '@aws-sdk/client-bedrock-runtime@3.1081.0':
     resolution: {integrity: sha512-rRAGXY5qV/NCYbVA0QZHPierv3diOOiE4+1f5vedpbyvg7Phh9m/I2pRFwu0koUtMdRSGPWgoNcvMIyaDhDj7Q==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-cloudformation@3.1081.0':
+    resolution: {integrity: sha512-i+lK0BnbX8JdFI/7HV/JY6XmrZsEmmLffuJRyn+J+gP9zzAiNOdraOnMi0eVcJE8CraTt5fixyxBO8AalFW8rw==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-cloudfront@3.1081.0':
+    resolution: {integrity: sha512-6Pzv5tolE4iqVg2SZcUAyWGwEd0h2ZbAwdvFnocCKIIbMXEtJrJ0sz/h8wEj+Yk7GWnwgYumzzYcA41B8VBEGw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-cloudwatch@3.1081.0':
@@ -6965,6 +6979,28 @@ snapshots:
       '@aws-sdk/middleware-eventstream': 3.972.21
       '@aws-sdk/middleware-websocket': 3.972.37
       '@aws-sdk/token-providers': 3.1081.0
+      '@aws-sdk/types': 3.973.15
+      '@smithy/core': 3.29.1
+      '@smithy/fetch-http-handler': 5.6.3
+      '@smithy/node-http-handler': 4.9.3
+      '@smithy/types': 4.15.1
+      tslib: 2.8.1
+
+  '@aws-sdk/client-cloudformation@3.1081.0':
+    dependencies:
+      '@aws-sdk/core': 3.974.29
+      '@aws-sdk/credential-provider-node': 3.972.64
+      '@aws-sdk/types': 3.973.15
+      '@smithy/core': 3.29.1
+      '@smithy/fetch-http-handler': 5.6.3
+      '@smithy/node-http-handler': 4.9.3
+      '@smithy/types': 4.15.1
+      tslib: 2.8.1
+
+  '@aws-sdk/client-cloudfront@3.1081.0':
+    dependencies:
+      '@aws-sdk/core': 3.974.29
+      '@aws-sdk/credential-provider-node': 3.972.64
       '@aws-sdk/types': 3.973.15
       '@smithy/core': 3.29.1
       '@smithy/fetch-http-handler': 5.6.3
