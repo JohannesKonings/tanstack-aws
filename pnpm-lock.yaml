@@ -437,7 +437,7 @@ importers:
         version: 2.1.1
       electrodb:
         specifier: ^3.9.1
-        version: 3.9.1(@aws-sdk/client-dynamodb@3.1081.0)
+        version: 3.9.3(@aws-sdk/client-dynamodb@3.1081.0)
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
@@ -4377,8 +4377,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electrodb@3.9.1:
-    resolution: {integrity: sha512-Z1y19yQWuZq0pI7kmDfzMbSzTAImCHLqjmTCML1kYHuSSvK+yZZYY2RyDAefpe2xJ0RkGTmFjuH4y/AWL1nJPQ==}
+  electrodb@3.9.3:
+    resolution: {integrity: sha512-7RGiQt1mXunlhswzLW3wEwXdlIv2x32FzifOoJfyHFiyIrvRoUmfe69xIpoiOysHN4N/RKdxFQ53FlFA2nPQDA==}
 
   electron-to-chromium@1.5.389:
     resolution: {integrity: sha512-cEto7aeOqBfU1D+c5py5pE+ooscKE75JifxLBdFUZsqAxRS6y7kebtxAZvICszSl05gPjYHDTjY+lXpyGvpJbg==}
@@ -10449,7 +10449,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electrodb@3.9.1(@aws-sdk/client-dynamodb@3.1081.0):
+  electrodb@3.9.3(@aws-sdk/client-dynamodb@3.1081.0):
     dependencies:
       '@aws-sdk/lib-dynamodb': 3.1081.0(@aws-sdk/client-dynamodb@3.1081.0)
       '@aws-sdk/util-dynamodb': 3.996.5(@aws-sdk/client-dynamodb@3.1081.0)
