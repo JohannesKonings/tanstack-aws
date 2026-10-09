@@ -5,14 +5,19 @@ export {
   type AuroraSettings,
 } from './client.ts';
 export {
+  addressPageSchema,
   addressSelectSchema,
   addresses,
+  bankAccountPageSchema,
   bankAccountSelectSchema,
   bankAccounts,
+  contactPageSchema,
   contactSelectSchema,
   contacts,
+  employmentPageSchema,
   employmentSelectSchema,
   employments,
+  personPageSchema,
   personSelectSchema,
   persons,
 } from './person-schema.ts';

@@ -62,41 +62,47 @@ export const BankAccountCard = ({
           </div>
         </div>
 
-        <div className="flex gap-1">
-          {!bankAccount.isPrimary && (
-            <Button
-              variant="icon"
-              color="gray"
-              size="icon-sm"
-              onClick={handleSetPrimary}
-              disabled={isLoading}
-              className="h-8 w-8 cursor-pointer"
-              title="Set as primary"
-            >
-              <StarIcon className="h-4 w-4" />
-            </Button>
-          )}
-          <Button
-            variant="icon"
-            color="gray"
-            size="icon-sm"
-            onClick={() => onEdit?.(bankAccount)}
-            disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="icon"
-            color="red"
-            size="icon-sm"
-            onClick={() => setShowDeleteConfirm(true)}
-            disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </Button>
-        </div>
+        {onUpdate || onEdit || onDelete ? (
+          <div className="flex gap-1">
+            {onUpdate && !bankAccount.isPrimary ? (
+              <Button
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                onClick={handleSetPrimary}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+                title="Set as primary"
+              >
+                <StarIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+            {onEdit ? (
+              <Button
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                onClick={() => onEdit(bankAccount)}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button
+                variant="icon"
+                color="red"
+                size="icon-sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <ConfirmationModal

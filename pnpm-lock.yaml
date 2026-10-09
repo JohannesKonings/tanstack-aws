@@ -391,6 +391,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.3.2
         version: 4.3.2(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
+      '@tanstack-aws/aurora':
+        specifier: workspace:*
+        version: link:../../packages/aurora
       '@tanstack/ai':
         specifier: ^0.13.0
         version: 0.13.0
@@ -454,6 +457,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      drizzle-orm:
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4(@aws-sdk/client-rds-data@3.1081.0)(zod@4.6.5)
       electrodb:
         specifier: ^3.9.1
         version: 3.9.1(@aws-sdk/client-dynamodb@3.1081.0)
