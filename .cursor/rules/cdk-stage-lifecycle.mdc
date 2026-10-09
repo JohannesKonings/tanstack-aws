@@ -24,7 +24,7 @@ Keep stage normalization and lifecycle behavior centralized so deploy, destroy, 
     - `deploy-main.yml`: `github.ref_name` + `--lifecycle permanent`
     - `deploy-prod.yml`: `github.event.inputs.stage` + `--lifecycle permanent`
     - `destroy-feature-on-merge.yml`: `github.event.pull_request.head.ref` + `--lifecycle ephemeral`
-    - `cdk-app.yml` diff (via `_reusable-cdk-diff.yml`): `github.event.pull_request.head.ref` + `--lifecycle ephemeral`
+    - `cdk-app.yml` diff (via `_reusable-cdk-diff.yml`): `main` + `--lifecycle permanent` (preview of the post-merge `TanstackAwsStack-main` deploy, not the ephemeral feature stack)
 - Treat `main` and `prod` as permanent stages; all other stages are ephemeral.
 - If a branch normalizes to a reserved permanent name, prefix it (for example `feature-main`) so it remains ephemeral.
 - In `bin/app.ts`, classify lifecycle and instantiate the stack before applying ephemeral cleanup policies.
