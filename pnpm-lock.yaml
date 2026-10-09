@@ -555,6 +555,18 @@ importers:
         specifier: 'catalog:'
         version: 5.0.3(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))
 
+  packages/aurora:
+    devDependencies:
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.3(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))
+
   packages/tanstack-ds:
     devDependencies:
       ajv:
