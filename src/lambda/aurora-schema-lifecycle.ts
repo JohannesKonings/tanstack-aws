@@ -3,7 +3,7 @@ import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 
 const client = new RDSDataClient({});
 const VALID_SCHEMA_NAME = /^[a-z_][a-z0-9_]*$/;
-const AURORA_RESUME_RETRY_ATTEMPTS = 2;
+const AURORA_RESUME_RETRY_ATTEMPTS = 4;
 const AURORA_RESUME_RETRY_DELAY_MS = 30_000;
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -66,6 +66,10 @@ const runSql = async (props: SchemaResourceProps, sql: string): Promise<void> =>
       if (!shouldRetry) {
         throw error;
       }
+      // oxlint-disable-next-line no-console -- retry attempts are swallowed until the last failure
+      console.log(
+        `aurora-schema-lifecycle: Aurora is resuming after auto-pause; retry ${attempt + 1} of ${AURORA_RESUME_RETRY_ATTEMPTS} in ${AURORA_RESUME_RETRY_DELAY_MS}ms`,
+      );
       // oxlint-disable-next-line no-await-in-loop -- wait for Aurora to finish resuming
       await sleep(AURORA_RESUME_RETRY_DELAY_MS);
     }
