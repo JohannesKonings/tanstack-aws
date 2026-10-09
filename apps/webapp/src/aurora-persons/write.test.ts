@@ -2,6 +2,11 @@ import type { ExecuteStatementCommandOutput, SqlParameter } from '@aws-sdk/clien
 import { AuroraConfigurationError } from '@tanstack-aws/aurora';
 import { describe, expect, it } from 'vite-plus/test';
 import {
+  type AuroraAddressWrite,
+  type AuroraBankAccountWrite,
+  type AuroraContactWrite,
+  type AuroraEmploymentWrite,
+  type AuroraPersonWrite,
   createAuroraAddress,
   createAuroraBankAccount,
   createAuroraContact,
@@ -12,17 +17,12 @@ import {
   deleteAuroraContact,
   deleteAuroraEmployment,
   deleteAuroraPerson,
+  type StageDatabaseQueryClient,
   updateAuroraAddress,
   updateAuroraBankAccount,
   updateAuroraContact,
   updateAuroraEmployment,
   updateAuroraPerson,
-  type AuroraAddressWrite,
-  type AuroraBankAccountWrite,
-  type AuroraContactWrite,
-  type AuroraEmploymentWrite,
-  type AuroraPersonWrite,
-  type StageDatabaseQueryClient,
 } from './write.ts';
 
 const settings = {

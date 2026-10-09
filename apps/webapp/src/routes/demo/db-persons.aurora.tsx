@@ -4,8 +4,12 @@ import { createFileRoute } from '@tanstack/react-router';
 import { createServerFn, useServerFn } from '@tanstack/react-start';
 import { useState } from 'react';
 import { AuroraPersonDetail } from '#apps/webapp/aurora-persons/detail.tsx';
+import { useCreateAuroraPerson } from '#apps/webapp/aurora-persons/mutations.ts';
 import { readAuroraPersons } from '#apps/webapp/aurora-persons/read.ts';
+import { auroraPersonsQueryKey } from '#apps/webapp/aurora-persons/server.ts';
+import { CreatePersonModal } from '#apps/webapp/components/persons/CreatePersonModal';
 import { PersonsTable, type PersonTableRow } from '#apps/webapp/components/persons/PersonsTable';
+import { Button } from '#apps/webapp/components/ui/button';
 
 const getAuroraPersons = createServerFn({ method: 'GET' }).handler(async () => {
   try {
@@ -25,10 +29,12 @@ export const Route = createFileRoute('/demo/db-persons/aurora')({
 
 function AuroraPersonsPage() {
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const getPersons = useServerFn(getAuroraPersons);
+  const createPerson = useCreateAuroraPerson();
   const personsQuery = useQuery({
     queryFn: () => getPersons(),
-    queryKey: ['aurora-persons'],
+    queryKey: auroraPersonsQueryKey,
   });
   const rows = personsQuery.data?.status === 'ready' ? personsQuery.data.rows : undefined;
   const selectedPerson = rows?.persons.find((person) => person.id === selectedPersonId);
@@ -47,9 +53,16 @@ function AuroraPersonsPage() {
 
   return (
     <div className="min-h-screen bg-background-default p-4 text-text-primary md:p-6 lg:p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Aurora persons</h1>
-        <p className="mt-1 text-text-secondary">Browse persons stored in the stage database</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Aurora persons</h1>
+          <p className="mt-1 text-text-secondary">Manage persons stored in the stage database</p>
+        </div>
+        {rows ? (
+          <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+            Create Person
+          </Button>
+        ) : null}
       </div>
 
       {personsQuery.isPending ? (
@@ -63,6 +76,11 @@ function AuroraPersonsPage() {
       {personsQuery.data?.status === 'configuration-error' ? (
         <p className="text-ds-terracotta-400" role="alert">
           Aurora settings are missing. Aurora persons are unavailable.
+        </p>
+      ) : null}
+      {createPerson.isError ? (
+        <p className="mb-4 text-ds-terracotta-400" role="alert">
+          Aurora person could not be created.
         </p>
       ) : null}
 
@@ -95,6 +113,22 @@ function AuroraPersonsPage() {
             </div>
           ) : null}
         </div>
+      ) : null}
+      {showCreateModal ? (
+        <CreatePersonModal
+          onCancel={() => setShowCreateModal(false)}
+          onSave={(values) => {
+            createPerson.mutate(
+              {
+                firstName: values.firstName,
+                lastName: values.lastName,
+                dateOfBirth: values.dateOfBirth,
+                gender: values.gender,
+              },
+              { onSuccess: () => setShowCreateModal(false) },
+            );
+          }}
+        />
       ) : null}
     </div>
   );
