@@ -11,7 +11,8 @@ count.txt
 .wrangler
 .output
 .vinxi
-.worktrees
+.worktrees/
+.explore/
 todos.json
 cdk.out
 .cdk.out*
