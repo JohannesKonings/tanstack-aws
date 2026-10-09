@@ -1,22 +1,15 @@
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
+import {
+  addresses,
+  bankAccounts,
+  contacts,
+  employments,
+  persons,
+  readAuroraSettings,
+} from '@tanstack-aws/aurora';
 import { count } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/aws-data-api/pg';
-import { addresses, bankAccounts, contacts, employments, persons } from './person-schema.ts';
-
-export class AuroraConfigurationError extends Error {
-  constructor() {
-    super('Aurora settings are missing');
-    this.name = 'AuroraConfigurationError';
-  }
-}
-
-export type AuroraSettings = {
-  clusterArn: string;
-  databaseName: string;
-  schema: string;
-  secretArn: string;
-};
 
 export type StageDatabaseQueryClient = {
   send: (command: ExecuteStatementCommand) => Promise<ExecuteStatementCommandOutput>;
@@ -29,21 +22,6 @@ export type StageTableCounts = {
   employments: number;
   persons: number;
 };
-
-const setting = (env: NodeJS.ProcessEnv, name: string): string => {
-  const value = env[name]?.trim();
-  if (!value) {
-    throw new AuroraConfigurationError();
-  }
-  return value;
-};
-
-export const readAuroraSettings = (env: NodeJS.ProcessEnv): AuroraSettings => ({
-  clusterArn: setting(env, 'AURORA_CLUSTER_ARN'),
-  databaseName: setting(env, 'AURORA_DATABASE_NAME'),
-  schema: setting(env, 'AURORA_SCHEMA'),
-  secretArn: setting(env, 'AURORA_SECRET_ARN'),
-});
 
 /**
  * Drizzle's Data API driver types its client as `RDSDataClient`. Counts take a

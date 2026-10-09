@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { auroraDevServer } from '@tanstack-aws/aurora/vite';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
@@ -23,6 +24,7 @@ export default defineConfig({
   plugins: isVitest
     ? []
     : [
+        auroraDevServer(),
         devtools({
           removeDevtoolsOnBuild: true,
         }),

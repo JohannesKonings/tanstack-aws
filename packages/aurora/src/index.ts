@@ -1,11 +1,21 @@
 export {
   AuroraConfigurationError,
-  countStageDatabaseTables,
+  createStageDatabaseClient,
   readAuroraSettings,
   type AuroraSettings,
-  type StageDatabaseQueryClient,
-  type StageTableCounts,
-} from './stage-database-counts.ts';
+} from './client.ts';
+export {
+  addressSelectSchema,
+  addresses,
+  bankAccountSelectSchema,
+  bankAccounts,
+  contactSelectSchema,
+  contacts,
+  employmentSelectSchema,
+  employments,
+  personSelectSchema,
+  persons,
+} from './person-schema.ts';
 export { resolveStageDatabaseName, STAGE_DATABASE_SCHEMA } from './stage-database-name.ts';
 export {
   applyStageDatabaseLifecycle,
@@ -13,13 +23,6 @@ export {
   type AuroraDataApiStatement,
   type StageDatabaseLifecycleRequest,
 } from './stage-database-lifecycle.ts';
-export {
-  addressSelectSchema,
-  bankAccountSelectSchema,
-  contactSelectSchema,
-  employmentSelectSchema,
-  personSelectSchema,
-} from './person-schema.ts';
 export {
   resolveWorkloadStackStage,
   type WorkloadStackStage,
