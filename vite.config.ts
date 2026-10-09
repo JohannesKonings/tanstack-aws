@@ -5,6 +5,7 @@ import {
   cdkAppImportBoundaries,
   webappAdminImportBoundaries,
   webappImportBoundaries,
+  webappViteConfigImportBoundaries,
 } from './tooling/lint/import-boundaries.ts';
 
 export default defineWorkspaceConfig({
@@ -99,6 +100,7 @@ export default defineWorkspaceConfig({
       cdkAppImportBoundaries,
       webappAdminImportBoundaries,
       webappImportBoundaries,
+      webappViteConfigImportBoundaries,
     ],
   },
   fmt: {

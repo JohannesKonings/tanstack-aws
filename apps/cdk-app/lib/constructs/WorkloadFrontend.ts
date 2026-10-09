@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import type { WebappServerEnvironment } from '../webapp-server-environment.ts';
 import type { SharedWorkloadData } from './SharedWorkloadData.ts';
 import { WebappApi } from './WebappApi.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
@@ -11,6 +12,7 @@ type WorkloadFrontendProps = {
   appStage: string;
   /** Human-readable app name used in the CloudFront distribution description. */
   appLabel: string;
+  environment: WebappServerEnvironment;
   sharedData: SharedWorkloadData;
   serverAssetPath: string;
   publicAssetPath: string;
@@ -25,6 +27,7 @@ export class WorkloadFrontend extends Construct {
     const {
       appStage,
       appLabel,
+      environment,
       sharedData,
       serverAssetPath,
       publicAssetPath,
@@ -33,13 +36,7 @@ export class WorkloadFrontend extends Construct {
     } = props;
 
     const webappServer = new WebappServer(this, 'WebappServer', {
-      auroraClusterArn: sharedData.auroraClusterArn,
-      auroraDatabaseName: sharedData.stageDatabaseName,
-      auroraSchema: sharedData.auroraSchema,
-      auroraSecretArn: sharedData.auroraSecretArn,
-      tableNameTodos: sharedData.dbTodos.tableName,
-      tableNamePersons: sharedData.dbPersons.tableName,
-      tableNameEvents: sharedData.eventsTable.tableName,
+      environment,
       serverAssetPath,
     });
 

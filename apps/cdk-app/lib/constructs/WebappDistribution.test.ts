@@ -68,10 +68,7 @@ const readCacheBehaviorPathPatterns = (template: unknown): string[] => {
   return patterns;
 };
 
-const synthesizeDistribution = (
-  appStage: string,
-  attachProtectedWebAcl?: boolean,
-): unknown => {
+const synthesizeDistribution = (appStage: string, attachProtectedWebAcl?: boolean): unknown => {
   const app = new App();
   const stack = new Stack(app, 'TestStack', {
     env: { account: '123456789012', region: 'us-east-1' },

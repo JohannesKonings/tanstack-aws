@@ -1,19 +1,16 @@
 {
-  "name": "@tanstack-aws/aurora",
+  "name": "@tanstack-aws/cdk-vite-plugin",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./lifecycle": "./src/stage-database-lifecycle.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "check": "vp check",
     "test": "vp test"
   },
   "dependencies": {
-    "@aws-sdk/client-rds-data": "3.1081.0",
-    "drizzle-orm": "1.0.0-rc.4",
-    "zod": "catalog:"
+    "@aws-sdk/client-cloudformation": "3.1081.0"
   },
   "devDependencies": {
     "typescript": "catalog:",

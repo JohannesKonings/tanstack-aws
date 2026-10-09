@@ -23,8 +23,3 @@ export {
   type AuroraDataApiStatement,
   type StageDatabaseLifecycleRequest,
 } from './stage-database-lifecycle.ts';
-export {
-  resolveWorkloadStackStage,
-  type WorkloadStackStage,
-  type WorkloadStackStageInput,
-} from './workload-stack-stage.ts';

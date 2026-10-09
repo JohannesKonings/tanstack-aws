@@ -1,5 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router';
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import appCss from '#apps/webapp-admin/styles.css?url';
 
