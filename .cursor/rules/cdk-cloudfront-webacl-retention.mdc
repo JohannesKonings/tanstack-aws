@@ -20,6 +20,7 @@ When changing CDK infrastructure for CloudFront distributions, preserve the exis
 - Use fail-fast behavior if lookup cannot provide a non-empty value.
 - Never use `AWS::NoValue` fallback for protected-stage `DistributionConfig.WebACLId`.
 - Keep behavior unchanged for non-protected stages.
+- The public webapp is the only distribution that attaches the pricing-plan WebACL. A pricing-plan WebACL can belong to only one distribution, so `WebappAdmin` keeps `attachProtectedWebAcl: false` permanently. Do not copy the public webapp WebACL onto admin.
 
 ## Why
 

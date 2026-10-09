@@ -30,6 +30,9 @@ export class TanstackAwsStack extends cdk.Stack {
       serverAssetPath: 'apps/webapp-admin/.output/server',
       publicAssetPath: 'apps/webapp-admin/.output/public',
       customHostname: 'admin.tanstack-aws-examples.com',
+      // A pricing-plan WebACL can belong to only one distribution. The public
+      // webapp owns it, so admin stays without a WebACL.
+      attachProtectedWebAcl: false,
     });
   }
 }

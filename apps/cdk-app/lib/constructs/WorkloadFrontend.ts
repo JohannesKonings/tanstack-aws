@@ -15,14 +15,22 @@ type WorkloadFrontendProps = {
   serverAssetPath: string;
   publicAssetPath: string;
   customHostname?: string;
+  attachProtectedWebAcl?: boolean;
 };
 
 export class WorkloadFrontend extends Construct {
   constructor(scope: Construct, id: string, props: WorkloadFrontendProps) {
     super(scope, id);
 
-    const { appStage, appLabel, sharedData, serverAssetPath, publicAssetPath, customHostname } =
-      props;
+    const {
+      appStage,
+      appLabel,
+      sharedData,
+      serverAssetPath,
+      publicAssetPath,
+      customHostname,
+      attachProtectedWebAcl,
+    } = props;
 
     const webappServer = new WebappServer(this, 'WebappServer', {
       appStage,
@@ -52,6 +60,7 @@ export class WorkloadFrontend extends Construct {
     const distributionApiGw = new WebappDistribution(this, 'WebappDistributionApiGw', {
       appStage,
       assetsBucket: assetsBucket.assetsBucket,
+      attachProtectedWebAcl,
       customHostname,
       description: `tanstack-aws ${appLabel} (${appStage})`,
       originBehaviorKind: 'apiGw',
