@@ -2,54 +2,32 @@
   "version": "8",
   "dialect": "postgres",
   "id": "b44d72f9-dfcb-423a-9e5b-95de6c36b59a",
-  "prevIds": [
-    "ef36a6dc-66eb-4df3-b359-83e1a8e66c93"
-  ],
+  "prevIds": ["ef36a6dc-66eb-4df3-b359-83e1a8e66c93"],
   "ddl": [
     {
       "name": "default",
       "entityType": "schemas"
     },
     {
-      "values": [
-        "checking",
-        "savings",
-        "investment"
-      ],
+      "values": ["checking", "savings", "investment"],
       "name": "account_type",
       "entityType": "enums",
       "schema": "default"
     },
     {
-      "values": [
-        "home",
-        "work",
-        "billing",
-        "shipping"
-      ],
+      "values": ["home", "work", "billing", "shipping"],
       "name": "address_type",
       "entityType": "enums",
       "schema": "default"
     },
     {
-      "values": [
-        "email",
-        "phone",
-        "mobile",
-        "linkedin",
-        "twitter"
-      ],
+      "values": ["email", "phone", "mobile", "linkedin", "twitter"],
       "name": "contact_type",
       "entityType": "enums",
       "schema": "default"
     },
     {
-      "values": [
-        "male",
-        "female",
-        "other",
-        "prefer_not_to_say"
-      ],
+      "values": ["male", "female", "other", "prefer_not_to_say"],
       "name": "gender",
       "entityType": "enums",
       "schema": "default"
@@ -606,14 +584,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "personId"
-      ],
+      "columns": ["personId"],
       "schemaTo": "default",
       "tableTo": "persons",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "addresses_personId_persons_id_fkey",
@@ -623,14 +597,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "personId"
-      ],
+      "columns": ["personId"],
       "schemaTo": "default",
       "tableTo": "persons",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "bank_accounts_personId_persons_id_fkey",
@@ -640,14 +610,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "personId"
-      ],
+      "columns": ["personId"],
       "schemaTo": "default",
       "tableTo": "persons",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "contacts_personId_persons_id_fkey",
@@ -657,14 +623,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "personId"
-      ],
+      "columns": ["personId"],
       "schemaTo": "default",
       "tableTo": "persons",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "employments_personId_persons_id_fkey",
@@ -673,9 +635,7 @@
       "table": "employments"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "addresses_pkey",
       "schema": "default",
@@ -683,9 +643,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "bank_accounts_pkey",
       "schema": "default",
@@ -693,9 +651,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "contacts_pkey",
       "schema": "default",
@@ -703,9 +659,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "employments_pkey",
       "schema": "default",
@@ -713,9 +667,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "persons_pkey",
       "schema": "default",
