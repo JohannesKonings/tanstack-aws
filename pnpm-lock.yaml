@@ -211,8 +211,8 @@ importers:
         version: 3.0.2
     devDependencies:
       '@jaykingson/vite-plus-base':
-        specifier: 0.0.4
-        version: 0.0.4(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
+        specifier: 0.0.5
+        version: 0.0.5(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1191,8 +1191,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@jaykingson/vite-plus-base@0.0.4':
-    resolution: {integrity: sha512-KgtDZnDMgiENmz7gM0l5IBq++ZAya22SQuplGu70VT24HGR7Lh/hJpO2z4ab20FskxoYGwZutGbaYfPY75aVxw==}
+  '@jaykingson/vite-plus-base@0.0.5':
+    resolution: {integrity: sha512-IOPR5iuwIWwsxL9ASPNPmGsSzbTzKpBmAgsGsCaFLzPYqjLPKuvbHbQfOnAZQ2dwzf0v5ED2bfG0gxdaF1EHXQ==}
     hasBin: true
     peerDependencies:
       vite-plus: '>=1.0.0'
@@ -7661,7 +7661,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.9.5
 
-  '@jaykingson/vite-plus-base@0.0.4(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))':
+  '@jaykingson/vite-plus-base@0.0.5(bingo-fs@0.6.0)(bingo-systems@0.7.0)(vite-plus@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@29.1.1)(msw@2.15.0(@types/node@25.9.5)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))':
     dependencies:
       bingo: 0.9.3
       bingo-stratum: 0.7.1(bingo-fs@0.6.0)(bingo-systems@0.7.0)(bingo@0.9.3)(zod@3.25.76)
