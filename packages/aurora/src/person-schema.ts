@@ -106,3 +106,56 @@ export const addressSelectSchema = createSelectSchema(addresses);
 export const bankAccountSelectSchema = createSelectSchema(bankAccounts);
 export const contactSelectSchema = createSelectSchema(contacts);
 export const employmentSelectSchema = createSelectSchema(employments);
+
+export const personPageSchema = personSelectSchema.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+  gender: true,
+  dateOfBirth: true,
+});
+
+export const addressPageSchema = addressSelectSchema.pick({
+  id: true,
+  personId: true,
+  type: true,
+  isPrimary: true,
+  street: true,
+  city: true,
+  state: true,
+  postalCode: true,
+  country: true,
+});
+
+export const bankAccountPageSchema = bankAccountSelectSchema.pick({
+  id: true,
+  personId: true,
+  bankName: true,
+  isPrimary: true,
+  accountType: true,
+  accountNumberLast4: true,
+  iban: true,
+  bic: true,
+});
+
+export const contactPageSchema = contactSelectSchema.pick({
+  id: true,
+  personId: true,
+  type: true,
+  isPrimary: true,
+  isVerified: true,
+  value: true,
+});
+
+export const employmentPageSchema = employmentSelectSchema.pick({
+  id: true,
+  personId: true,
+  position: true,
+  isCurrent: true,
+  companyName: true,
+  department: true,
+  startDate: true,
+  endDate: true,
+  salary: true,
+  currency: true,
+});
