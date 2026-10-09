@@ -48,7 +48,7 @@ jobs:
             - args: ['--frozen-lockfile']
 
       - name: Build
-        run: vp -C . build
+        run: vpr build && vp run webapp-admin:build
 
       - name: Resolve stage name
         id: resolve-stage
@@ -78,4 +78,4 @@ jobs:
           STACK_PREFIX: ${{ inputs.stack_prefix }}
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
         # vp exec (not vp run) passes AWS credentials through to CDK; vp run filters them in Vite+ 1.0.
-        run: vp exec cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
+        run: vp -C apps/cdk-app exec cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { DrawerLibraryMark } from '#src/webapp/components/DrawerLibraryMark';
+import { DrawerLibraryMark } from '#apps/webapp/components/DrawerLibraryMark';
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
@@ -21,11 +21,11 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-vi.mock('#src/webapp/components/example-AIAssistant.tsx', () => ({
+vi.mock('#apps/webapp/components/example-AIAssistant.tsx', () => ({
   default: () => <div data-testid="ai-assistant" />,
 }));
 
-import Header from '#src/webapp/components/Header';
+import Header from '#apps/webapp/components/Header';
 
 describe('DrawerLibraryMark', () => {
   it('renders inline icon and short library name with category color', () => {

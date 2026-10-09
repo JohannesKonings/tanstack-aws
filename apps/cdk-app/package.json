@@ -1,0 +1,20 @@
+{
+  "name": "@tanstack-aws/cdk-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1129.0",
+    "aws-cdk-lib": "2.244.0",
+    "cdk-nag": "^2.38.2",
+    "constructs": "^10.6.0",
+    "tsx": "^4.23.0",
+    "typescript": "7.0.2",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

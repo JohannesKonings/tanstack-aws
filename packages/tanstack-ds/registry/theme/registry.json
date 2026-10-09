@@ -10,12 +10,12 @@
         {
           "path": "ds-tokens.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-tokens.css"
+          "target": "apps/webapp/src/styles/ds-tokens.css"
         },
         {
           "path": "ds-fonts.css",
           "type": "registry:file",
-          "target": "src/webapp/styles/ds-fonts.css"
+          "target": "apps/webapp/src/styles/ds-fonts.css"
         },
         {
           "path": "fonts/Inter-latin.woff2",

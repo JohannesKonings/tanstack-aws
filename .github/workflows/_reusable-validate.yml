@@ -26,7 +26,11 @@ jobs:
         run: vp check
 
       - name: Run tests
-        run: mkdir -p test-results && vp test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+        run: |
+          mkdir -p test-results
+          vp test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+          vp -C apps/cdk-app test
+          vp -C apps/webapp test
 
       - name: Publish test report
         if: always() && hashFiles('test-results/vitest.junit.xml') != ''
@@ -46,4 +50,4 @@ jobs:
           if-no-files-found: error
 
       - name: Build application
-        run: vp -C . build
+        run: vpr build && vp run webapp-admin:build

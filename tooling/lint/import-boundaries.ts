@@ -5,27 +5,26 @@ import type { OxlintOverride } from 'vite-plus/lint';
  * resource-tags from root lib until packages/infra-shared is extracted.
  */
 export const accountSetupImportBoundaries = {
-  files: ['apps/account-setup/**'],
+  files: ['apps/cdk-account-setup/**'],
   rules: {
     'no-restricted-imports': [
       'error',
       {
         patterns: [
           {
+            group: ['**/apps/webapp/**'],
+            message: 'Account setup must not import web application source',
+          },
+          {
             group: ['**/src/**'],
             message: 'Account setup must not import web application source',
           },
           {
-            group: ['**/apps/**'],
+            group: ['**/apps/cdk-app/**', '**/apps/webapp-admin/**'],
             message: 'Account setup must not import other workspace apps',
           },
           {
-            group: [
-              '**/lib/constructs/**',
-              '**/lib/tanstack-aws*',
-              '**/lib/stage-name*',
-              '**/lib/aurora-schema*',
-            ],
+            group: ['**/apps/cdk-app/**', '**/lib/aurora-schema*', '**/lib/sse-stream-timeout*'],
             message:
               'Account setup may only import workload-region and resource-tags from root lib (temporary until packages/infra-shared)',
           },
@@ -35,16 +34,98 @@ export const accountSetupImportBoundaries = {
   },
 } satisfies OxlintOverride;
 
-export const applicationImportBoundaries = {
-  files: ['lib/**', 'src/**', 'bin/**', 'scripts/**'],
+export const cdkAppImportBoundaries = {
+  files: ['apps/cdk-app/**'],
   rules: {
     'no-restricted-imports': [
       'error',
       {
         patterns: [
           {
-            group: ['**/apps/account-setup/**'],
-            message: 'Application code must not import account-setup package internals',
+            group: ['**/apps/webapp/**', '**/apps/webapp-admin/**'],
+            message: 'CDK app must not import web application source',
+          },
+          {
+            group: ['**/src/**'],
+            message:
+              'CDK app must not import web application source (use repo-root paths for lambda entries)',
+          },
+          {
+            group: ['**/apps/cdk-account-setup/**'],
+            message: 'CDK app must not import account-setup package internals',
+          },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message: 'CDK app must not import the DS registry package',
+          },
+        ],
+      },
+    ],
+  },
+} satisfies OxlintOverride;
+
+export const webappImportBoundaries = {
+  files: ['apps/webapp/**'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: [
+              '**/apps/cdk-app/**',
+              '**/apps/cdk-account-setup/**',
+              '**/apps/webapp-admin/**',
+            ],
+            message: 'Webapp must not import other workspace apps',
+          },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message:
+              'Webapp must not import the DS registry package — use shadcn add @tanstack-ds/<item> instead',
+          },
+        ],
+      },
+    ],
+  },
+} satisfies OxlintOverride;
+
+export const webappAdminImportBoundaries = {
+  files: ['apps/webapp-admin/**'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['**/apps/webapp/**'],
+            message: 'Webapp admin must not import primary Webapp source',
+          },
+          {
+            group: ['**/apps/cdk-app/**', '**/apps/cdk-account-setup/**'],
+            message: 'Webapp admin must not import other workspace apps',
+          },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message:
+              'Webapp admin must not import the DS registry package — use shadcn add @tanstack-ds/<item> instead',
+          },
+        ],
+      },
+    ],
+  },
+} satisfies OxlintOverride;
+
+export const applicationImportBoundaries = {
+  files: ['lib/**', 'src/**', 'scripts/**'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['**/apps/cdk-account-setup/**', '**/apps/cdk-app/**'],
+            message: 'Application code must not import CDK package internals',
           },
           {
             group: ['**/packages/tanstack-ds/**'],

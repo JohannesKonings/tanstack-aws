@@ -39,7 +39,7 @@ jobs:
             - args: ['--frozen-lockfile']
 
       - name: Build
-        run: vp -C . build
+        run: vpr build && vp run webapp-admin:build
 
       - name: Resolve stage name
         id: resolve-stage
@@ -70,15 +70,15 @@ jobs:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
         run: |
           STACK_NAME="TanstackAwsStack-${APP_STAGE}"
-          if [ -d ".output/server" ] && [ -d ".output/public" ]; then
-            echo "Build artifacts found in .output/"
+          if [ -d ".output/server" ] && [ -d ".output/public" ] && [ -d "apps/webapp-admin/.output/server" ] && [ -d "apps/webapp-admin/.output/public" ]; then
+            echo "Build artifacts found in .output/ and apps/webapp-admin/.output/"
           else
-            echo "Build artifacts are missing from .output/; destroy may fail during synth."
+            echo "Build artifacts are missing from .output/ or apps/webapp-admin/.output/; destroy may fail during synth."
           fi
           echo "Destroying stack: ${STACK_NAME}"
 
           set +e
-          DESTROY_OUTPUT="$(vp exec cdk destroy "${STACK_NAME}" --force 2>&1)"
+          DESTROY_OUTPUT="$(vp -C apps/cdk-app exec cdk destroy "${STACK_NAME}" --force 2>&1)"
           DESTROY_EXIT_CODE=$?
           set -e
 

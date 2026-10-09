@@ -10,7 +10,7 @@ The repository is evolving from a single-package layout into a Vite+ monorepo. A
 
 ## Decision
 
-Move account setup to `apps/account-setup` as the first workspace package with:
+Move account setup to `apps/cdk-account-setup` as the first workspace package with:
 
 - Root Vite+ config governing lint, format, and check with package-specific `lint.overrides`
 - Oxlint import boundaries separating account setup from application code

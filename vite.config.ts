@@ -1,17 +1,11 @@
 import { defineWorkspaceConfig } from '@jaykingson/vite-plus-base';
-import babel from '@rolldown/plugin-babel';
-import tailwindcss from '@tailwindcss/vite';
-import { devtools } from '@tanstack/devtools-vite';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { nitro } from 'nitro/vite';
-import type { PluginOption } from 'vite-plus';
 import {
   accountSetupImportBoundaries,
   applicationImportBoundaries,
+  cdkAppImportBoundaries,
+  webappAdminImportBoundaries,
+  webappImportBoundaries,
 } from './tooling/lint/import-boundaries.ts';
-
-const isVitest = Boolean(process.env.VITEST);
 
 export default defineWorkspaceConfig({
   bingo: {
@@ -24,12 +18,24 @@ export default defineWorkspaceConfig({
           glossary: 'GLOSSARY.md',
           adr: 'docs/adr',
         },
-        'account-setup': {
-          glossary: 'apps/account-setup/GLOSSARY.md',
+        'cdk-account-setup': {
+          glossary: 'apps/cdk-account-setup/GLOSSARY.md',
+          adr: 'docs/adr',
+        },
+        'cdk-app': {
+          glossary: 'GLOSSARY.md',
           adr: 'docs/adr',
         },
         'tanstack-ds': {
           glossary: 'packages/tanstack-ds/GLOSSARY.md',
+          adr: 'docs/adr',
+        },
+        webapp: {
+          glossary: 'GLOSSARY.md',
+          adr: 'docs/adr',
+        },
+        'webapp-admin': {
+          glossary: 'GLOSSARY.md',
           adr: 'docs/adr',
         },
       },
@@ -51,7 +57,8 @@ export default defineWorkspaceConfig({
       '.nitro/**',
       '.tanstack/**',
       'cdk.out/**',
-      'src/webapp/routeTree.gen.ts',
+      'apps/webapp/src/routeTree.gen.ts',
+      'apps/webapp-admin/src/routeTree.gen.ts',
       'packages/tanstack-ds/registry/**/*.tsx',
     ],
     categories: {
@@ -86,7 +93,13 @@ export default defineWorkspaceConfig({
       'sort-keys': 'off',
       'typescript/no-floating-promises': 'error',
     },
-    overrides: [accountSetupImportBoundaries, applicationImportBoundaries],
+    overrides: [
+      accountSetupImportBoundaries,
+      applicationImportBoundaries,
+      cdkAppImportBoundaries,
+      webappAdminImportBoundaries,
+      webappImportBoundaries,
+    ],
   },
   fmt: {
     ignorePatterns: [
@@ -94,9 +107,9 @@ export default defineWorkspaceConfig({
       '.nitro/**',
       '.tanstack/**',
       'cdk.out/**',
-      'docs/PLAN-DB-PERSONS.md',
       'packages/tanstack-ds/public/r/**',
-      'src/webapp/routeTree.gen.ts',
+      'apps/webapp/src/routeTree.gen.ts',
+      'apps/webapp-admin/src/routeTree.gen.ts',
     ],
     singleQuote: true,
     experimentalSortImports: {
@@ -107,7 +120,7 @@ export default defineWorkspaceConfig({
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.{test,spec}.{ts,tsx}'],
+    include: ['tooling/**/*.{test,spec}.{ts,tsx}', 'lib/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
@@ -118,30 +131,4 @@ export default defineWorkspaceConfig({
       'dist/**',
     ],
   },
-  plugins: (isVitest
-    ? []
-    : [
-        devtools({
-          removeDevtoolsOnBuild: true,
-        }),
-        nitro({
-          awsLambda: { streaming: true },
-          // Alias: {
-          //   'mnemonist/lru-cache': 'mnemonist/lru-cache.js',
-          // },
-          preset: 'aws-lambda',
-        }),
-        tailwindcss(),
-        tanstackStart({
-          srcDirectory: 'src/webapp',
-          importProtection: {
-            // Always error, even in dev
-            behavior: 'error',
-          },
-        }),
-        viteReact(),
-        babel({
-          presets: [reactCompilerPreset()],
-        }),
-      ]) as PluginOption[],
 });

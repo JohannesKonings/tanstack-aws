@@ -123,8 +123,6 @@ const buildSseHeaders = (): Record<string, string> => ({
  * Returns current events for clients that don't support streaming.
  * For full streaming support, use streamingHandler with API Gateway
  * response streaming enabled.
- *
- * @see docs/PLAN-DB-PERSONS.md Section 15B for architecture details
  */
 export const handler = async (event: SseEvent): Promise<SseResponse> => {
   const lastEventId = getLastEventId(event);

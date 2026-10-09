@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '#src/webapp/lib/utils';
+import { cn } from '#apps/webapp/lib/utils';
 import {
   PIXEL_SPINNER_FRAMES,
   PIXEL_SPINNER_FRAME_MS,
