@@ -9,6 +9,12 @@
     "check": "vp check",
     "test": "vp test"
   },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "3.1081.0",
+    "@aws-sdk/client-rds-data": "3.1081.0",
+    "drizzle-orm": "1.0.0-rc.4",
+    "zod": "^4.6.5"
+  },
   "devDependencies": {
     "typescript": "7.0.2",
     "vite-plus": "catalog:",
