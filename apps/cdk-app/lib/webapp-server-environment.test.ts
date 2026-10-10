@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 import {
-  webappServerEnvironment,
+  type WebappServerEnvironment,
   webappServerOutputs,
   webappServerStackOutputs,
 } from './webapp-server-environment.ts';
 
-const source = {
+const source: WebappServerEnvironment = {
   AURORA_CLUSTER_ARN: 'arn:aws:rds:us-east-2:123456789012:cluster:shared',
   AURORA_DATABASE_NAME: 'main',
   AURORA_SCHEMA: 'default',
@@ -17,8 +17,7 @@ const source = {
 
 describe('webapp server environment', () => {
   it('publishes one stack output for every Lambda variable', () => {
-    const environment = webappServerEnvironment(source);
-    const outputs = webappServerStackOutputs(environment);
+    const outputs = webappServerStackOutputs(source);
 
     expect(outputs).toEqual([
       { logicalId: webappServerOutputs.AURORA_CLUSTER_ARN, value: source.AURORA_CLUSTER_ARN },
@@ -38,6 +37,6 @@ describe('webapp server environment', () => {
       },
       { logicalId: webappServerOutputs.EVENTS_TABLE, value: source.EVENTS_TABLE },
     ]);
-    expect(outputs).toHaveLength(Object.keys(environment).length);
+    expect(outputs).toHaveLength(Object.keys(source).length);
   });
 });

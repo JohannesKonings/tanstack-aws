@@ -23,25 +23,12 @@ export type WebappServerEnvironment = {
   [Name in (typeof OUTPUT_NAMES)[number]]: string;
 };
 
-/** Environment passed to every workload web server Lambda. */
-export const webappServerEnvironment = (
-  values: WebappServerEnvironment,
-): WebappServerEnvironment => ({
-  AURORA_CLUSTER_ARN: values.AURORA_CLUSTER_ARN,
-  AURORA_SECRET_ARN: values.AURORA_SECRET_ARN,
-  AURORA_DATABASE_NAME: values.AURORA_DATABASE_NAME,
-  AURORA_SCHEMA: values.AURORA_SCHEMA,
-  DDB_TODOS_TABLE_NAME: values.DDB_TODOS_TABLE_NAME,
-  DDB_PERSONS_TABLE_NAME: values.DDB_PERSONS_TABLE_NAME,
-  EVENTS_TABLE: values.EVENTS_TABLE,
-});
-
 export type WebappServerStackOutput = {
   logicalId: string;
   value: string;
 };
 
-/** One stack output per variable `webappServerEnvironment` returns. */
+/** One stack output per variable in `WebappServerEnvironment`. */
 export const webappServerStackOutputs = (
   environment: WebappServerEnvironment,
 ): WebappServerStackOutput[] =>

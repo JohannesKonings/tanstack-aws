@@ -2,7 +2,10 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { SharedWorkloadData } from './constructs/SharedWorkloadData.ts';
 import { WorkloadFrontend } from './constructs/WorkloadFrontend.ts';
-import { webappServerEnvironment, webappServerStackOutputs } from './webapp-server-environment.ts';
+import {
+  type WebappServerEnvironment,
+  webappServerStackOutputs,
+} from './webapp-server-environment.ts';
 
 type TanstackAwsStackProps = cdk.StackProps & {
   appStage: string;
@@ -15,7 +18,7 @@ export class TanstackAwsStack extends cdk.Stack {
     const sharedData = new SharedWorkloadData(this, 'SharedWorkloadData', {
       appStage: props.appStage,
     });
-    const environment = webappServerEnvironment({
+    const environment: WebappServerEnvironment = {
       AURORA_CLUSTER_ARN: sharedData.auroraClusterArn,
       AURORA_SECRET_ARN: sharedData.auroraSecretArn,
       AURORA_DATABASE_NAME: sharedData.stageDatabaseName,
@@ -23,7 +26,7 @@ export class TanstackAwsStack extends cdk.Stack {
       DDB_TODOS_TABLE_NAME: sharedData.dbTodos.tableName,
       DDB_PERSONS_TABLE_NAME: sharedData.dbPersons.tableName,
       EVENTS_TABLE: sharedData.eventsTable.tableName,
-    });
+    };
 
     new WorkloadFrontend(this, 'Webapp', {
       appLabel: 'Webapp',
