@@ -3,6 +3,21 @@ export type StackOutput = {
   OutputValue?: string;
 };
 
+/**
+ * Region for the dev server. An explicit `AWS_REGION` wins.
+ * When it is missing, write `awsRegion` so SDK clients that read the
+ * environment use the same region as stack lookup.
+ */
+export const applyDevServerRegion = (target: NodeJS.ProcessEnv, awsRegion: string): string => {
+  const configured = target.AWS_REGION?.trim();
+  if (configured) {
+    return configured;
+  }
+  const region = awsRegion.trim();
+  target.AWS_REGION = region;
+  return region;
+};
+
 /** Env var name → CloudFormation output key. */
 export type CdkDevServerOutputs = Readonly<Record<string, string>>;
 

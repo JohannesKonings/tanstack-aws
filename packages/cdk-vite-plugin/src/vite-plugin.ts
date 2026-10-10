@@ -1,8 +1,8 @@
 import { execFileSync } from 'node:child_process';
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import type { Plugin } from 'vite-plus';
-import { WORKLOAD_REGION } from '../../../lib/workload-region.ts';
 import {
+  applyDevServerRegion,
   applyStackEnvironment,
   type CdkDevServerOutputs,
   readStackEnvironment,
@@ -25,9 +25,11 @@ const readGitBranch = (cwd: string): string | undefined => {
 type CdkDevServerOptions = {
   /** Env var name → CloudFormation output key on the workload stack. */
   outputs: CdkDevServerOutputs;
+  /** Region used for stack lookup when `AWS_REGION` is unset. */
+  awsRegion: string;
 };
 
-/** Copy stack outputs into the dev server. A failed or incomplete lookup leaves them unset. */
+/** Copy `awsRegion` and stack outputs into the dev server. A failed or incomplete lookup leaves stack outputs unset. */
 export const cdkDevServer = (options: CdkDevServerOptions): Plugin => ({
   name: 'tanstack-aws-cdk-dev-server',
   async config(_config, env) {
@@ -35,6 +37,7 @@ export const cdkDevServer = (options: CdkDevServerOptions): Plugin => ({
       return;
     }
 
+    const region = applyDevServerRegion(process.env, options.awsRegion);
     const resolved = resolveWorkloadStack({
       appStage: process.env.APP_STAGE,
       branch: readGitBranch(process.cwd()),
@@ -44,7 +47,6 @@ export const cdkDevServer = (options: CdkDevServerOptions): Plugin => ({
     }
 
     try {
-      const region = process.env.AWS_REGION?.trim() || WORKLOAD_REGION;
       const client = new CloudFormationClient({ region });
       const response = await client.send(
         new DescribeStacksCommand({ StackName: resolved.stackName }),

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { applyStackEnvironment, readStackEnvironment } from './stack-environment.ts';
+import {
+  applyDevServerRegion,
+  applyStackEnvironment,
+  readStackEnvironment,
+} from './stack-environment.ts';
+
+const awsRegion = 'us-east-2';
 
 const outputMap = {
   API_URL: 'ApiUrl',
@@ -26,6 +32,24 @@ describe('stack environment', () => {
         { OutputKey: 'ApiUrl', OutputValue: 'https://example.test' },
       ]),
     ).toBeUndefined();
+  });
+
+  it('writes awsRegion when AWS_REGION is missing', () => {
+    const target: NodeJS.ProcessEnv = {};
+    expect(applyDevServerRegion(target, awsRegion)).toBe(awsRegion);
+    expect(target.AWS_REGION).toBe(awsRegion);
+  });
+
+  it('keeps an explicit AWS_REGION', () => {
+    const target: NodeJS.ProcessEnv = { AWS_REGION: 'eu-central-1' };
+    expect(applyDevServerRegion(target, awsRegion)).toBe('eu-central-1');
+    expect(target.AWS_REGION).toBe('eu-central-1');
+  });
+
+  it('treats a blank AWS_REGION as missing', () => {
+    const target: NodeJS.ProcessEnv = { AWS_REGION: '   ' };
+    expect(applyDevServerRegion(target, `  ${awsRegion}  `)).toBe(awsRegion);
+    expect(target.AWS_REGION).toBe(awsRegion);
   });
 
   it('writes the mapped variables onto the local environment', () => {
