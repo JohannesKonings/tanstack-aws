@@ -2,11 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
+import { cdkDevServer } from '@tanstack-aws/cdk-vite-plugin';
 import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite-plus';
+import { webappServerOutputs } from '../../apps/cdk-app/lib/webapp-server-environment.ts';
 
 const isVitest = Boolean(process.env.VITEST);
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +25,7 @@ export default defineConfig({
   plugins: isVitest
     ? []
     : [
+        cdkDevServer({ outputs: webappServerOutputs }),
         devtools({
           removeDevtoolsOnBuild: true,
         }),

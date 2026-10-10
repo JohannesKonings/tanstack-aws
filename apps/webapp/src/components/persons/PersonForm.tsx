@@ -7,6 +7,8 @@ import { SelectDropdown } from '#apps/webapp/components/ui/dropdown';
 import { Input } from '#apps/webapp/components/ui/input';
 import { GenderEnum, type Person } from '#apps/webapp/types/person';
 
+export type PersonFormPerson = Pick<Person, 'firstName' | 'lastName' | 'dateOfBirth' | 'gender'>;
+
 const PersonFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(100),
   lastName: z.string().min(1, 'Last name is required').max(100),
@@ -24,7 +26,7 @@ const genderOptions = [
 ];
 
 interface PersonFormProps {
-  person?: Person;
+  person?: PersonFormPerson;
   onSave: (values: PersonFormValues) => void;
   onCancel?: () => void;
   isLoading?: boolean;

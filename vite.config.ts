@@ -5,9 +5,26 @@ import {
   cdkAppImportBoundaries,
   webappAdminImportBoundaries,
   webappImportBoundaries,
+  webappViteConfigImportBoundaries,
 } from './tooling/lint/import-boundaries.ts';
 
 export default defineWorkspaceConfig({
+  run: {
+    tasks: {
+      'drizzle-kit:generate': {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts generate',
+      },
+      'drizzle-kit:migrate': {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts migrate',
+      },
+      'drizzle-kit:studio': {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts studio',
+      },
+    },
+  },
   bingo: {
     blockPackageJson: {
       name: 'tanstack-aws',
@@ -99,6 +116,7 @@ export default defineWorkspaceConfig({
       cdkAppImportBoundaries,
       webappAdminImportBoundaries,
       webappImportBoundaries,
+      webappViteConfigImportBoundaries,
     ],
   },
   fmt: {

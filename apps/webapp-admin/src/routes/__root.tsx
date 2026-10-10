@@ -1,8 +1,15 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
+import type { QueryClient } from '@tanstack/react-query';
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import appCss from '#apps/webapp-admin/styles.css?url';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -40,7 +47,17 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+      <body className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100 antialiased">
+        <header className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
+          <Link to="/" className="text-lg font-semibold tracking-tight">
+            TanStack AWS Examples Admin
+          </Link>
+          <nav>
+            <Link to="/db-aurora" className="text-sm text-zinc-300">
+              DB Aurora
+            </Link>
+          </nav>
+        </header>
         {children}
         <Scripts />
       </body>

@@ -1,0 +1,21 @@
+{
+  "name": "@tanstack-aws/cdk-vite-plugin",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./workload-stack": "./src/workload-stack.ts"
+  },
+  "scripts": {
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "3.1081.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

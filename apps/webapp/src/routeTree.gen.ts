@@ -20,9 +20,12 @@ import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
 import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
 import { Route as ApiPersonsStreamRouteImport } from './routes/api/persons-stream'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
+import { Route as DemoDbPersonsIndexRouteImport } from './routes/demo/db-persons.index'
 import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
+import { Route as DemoDbPersonsDdbRouteImport } from './routes/demo/db-persons.ddb'
+import { Route as DemoDbPersonsAuroraRouteImport } from './routes/demo/db-persons.aurora'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
@@ -91,6 +94,11 @@ const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
   path: '/example/guitars/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoDbPersonsIndexRoute = DemoDbPersonsIndexRouteImport.update({
+  id: '/demo/db-persons/',
+  path: '/demo/db-persons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExampleGuitarsGuitarIdRoute = ExampleGuitarsGuitarIdRouteImport.update({
   id: '/example/guitars/$guitarId',
   path: '/example/guitars/$guitarId',
@@ -104,6 +112,16 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
 const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
   id: '/demo/start/api-request',
   path: '/demo/start/api-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsDdbRoute = DemoDbPersonsDdbRouteImport.update({
+  id: '/demo/db-persons/ddb',
+  path: '/demo/db-persons/ddb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsAuroraRoute = DemoDbPersonsAuroraRouteImport.update({
+  id: '/demo/db-persons/aurora',
+  path: '/demo/db-persons/aurora',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
@@ -186,9 +204,12 @@ export interface FileRoutesByFullPath {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/db-persons/aurora': typeof DemoDbPersonsAuroraRoute
+  '/demo/db-persons/ddb': typeof DemoDbPersonsDdbRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/demo/db-persons/': typeof DemoDbPersonsIndexRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -214,9 +235,12 @@ export interface FileRoutesByTo {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/db-persons/aurora': typeof DemoDbPersonsAuroraRoute
+  '/demo/db-persons/ddb': typeof DemoDbPersonsDdbRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/demo/db-persons': typeof DemoDbPersonsIndexRoute
   '/example/guitars': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -243,9 +267,12 @@ export interface FileRoutesById {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/db-persons/aurora': typeof DemoDbPersonsAuroraRoute
+  '/demo/db-persons/ddb': typeof DemoDbPersonsDdbRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/demo/db-persons/': typeof DemoDbPersonsIndexRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -273,9 +300,12 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
+    | '/demo/db-persons/aurora'
+    | '/demo/db-persons/ddb'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/demo/db-persons/'
     | '/example/guitars/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -301,9 +331,12 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
+    | '/demo/db-persons/aurora'
+    | '/demo/db-persons/ddb'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/demo/db-persons'
     | '/example/guitars'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -329,9 +362,12 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
+    | '/demo/db-persons/aurora'
+    | '/demo/db-persons/ddb'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/demo/db-persons/'
     | '/example/guitars/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -358,9 +394,12 @@ export interface RootRouteChildren {
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTanchatRoute: typeof DemoApiTanchatRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
+  DemoDbPersonsAuroraRoute: typeof DemoDbPersonsAuroraRoute
+  DemoDbPersonsDdbRoute: typeof DemoDbPersonsDdbRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
   ExampleGuitarsGuitarIdRoute: typeof ExampleGuitarsGuitarIdRoute
+  DemoDbPersonsIndexRoute: typeof DemoDbPersonsIndexRoute
   ExampleGuitarsIndexRoute: typeof ExampleGuitarsIndexRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
@@ -447,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/db-persons/': {
+      id: '/demo/db-persons/'
+      path: '/demo/db-persons'
+      fullPath: '/demo/db-persons/'
+      preLoaderRoute: typeof DemoDbPersonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/example/guitars/$guitarId': {
       id: '/example/guitars/$guitarId'
       path: '/example/guitars/$guitarId'
@@ -466,6 +512,20 @@ declare module '@tanstack/react-router' {
       path: '/demo/start/api-request'
       fullPath: '/demo/start/api-request'
       preLoaderRoute: typeof DemoStartApiRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/ddb': {
+      id: '/demo/db-persons/ddb'
+      path: '/demo/db-persons/ddb'
+      fullPath: '/demo/db-persons/ddb'
+      preLoaderRoute: typeof DemoDbPersonsDdbRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/aurora': {
+      id: '/demo/db-persons/aurora'
+      path: '/demo/db-persons/aurora'
+      fullPath: '/demo/db-persons/aurora'
+      preLoaderRoute: typeof DemoDbPersonsAuroraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/api/tq-todos': {
@@ -574,9 +634,12 @@ const rootRouteChildren: RootRouteChildren = {
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTanchatRoute: DemoApiTanchatRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
+  DemoDbPersonsAuroraRoute: DemoDbPersonsAuroraRoute,
+  DemoDbPersonsDdbRoute: DemoDbPersonsDdbRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
   ExampleGuitarsGuitarIdRoute: ExampleGuitarsGuitarIdRoute,
+  DemoDbPersonsIndexRoute: DemoDbPersonsIndexRoute,
   ExampleGuitarsIndexRoute: ExampleGuitarsIndexRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
