@@ -10,6 +10,7 @@ Provisioning of AWS resources is handled using [AWS CDK](https://aws.amazon.com/
 - https://johanneskonings.dev/blog/2025-12-27-tanstack-start-aws-db-multiple-entities/
 - https://johanneskonings.dev/blog/2026-01-08-tanstack-start-aws-db-multiple-entities-sse/
 - https://johanneskonings.dev/blog/2026-02-02-tanstack-ai-bedrock-simple/
+- [Stage database lifecycle and migrations](./docs/stage-database.md)
 
 # Examples
 
