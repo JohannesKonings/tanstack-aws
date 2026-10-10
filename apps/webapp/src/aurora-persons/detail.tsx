@@ -10,8 +10,8 @@ import {
   XIcon,
 } from '@phosphor-icons/react';
 import { type ReactNode, useState } from 'react';
+import type { readAuroraPersons } from '#apps/webapp/aurora-persons/aurora-persons.ts';
 import { useAuroraPersonDetailMutations } from '#apps/webapp/aurora-persons/mutations.ts';
-import type { readAuroraPersons } from '#apps/webapp/aurora-persons/read.ts';
 import { AddressCard } from '#apps/webapp/components/persons/AddressCard';
 import { AddressFormModal } from '#apps/webapp/components/persons/AddressFormModal';
 import { BankAccountCard } from '#apps/webapp/components/persons/BankAccountCard';

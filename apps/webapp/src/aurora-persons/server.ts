@@ -17,7 +17,7 @@ import {
   updateAuroraContact,
   updateAuroraEmployment,
   updateAuroraPerson,
-} from './write.ts';
+} from './aurora-persons.ts';
 
 export const auroraPersonsQueryKey = ['aurora-persons'] as const;
 
@@ -98,16 +98,6 @@ const idInput = z.object({
   id: z.uuid(),
 });
 
-const blankToNull = (value: string | null | undefined) => {
-  const trimmed = value?.trim();
-  if (!trimmed) {
-    return null;
-  }
-  return trimmed;
-};
-
-const writtenAt = () => new Date().toISOString();
-
 const stageClient = () => createStageDatabaseClient();
 
 export type CreateAuroraPersonInput = z.infer<typeof personFields>;
@@ -126,36 +116,14 @@ export const createAuroraPersonFn = createServerFn({ method: 'POST' })
   .validator((input: CreateAuroraPersonInput) => personFields.parse(input))
   .handler(async ({ data }) => {
     const id = crypto.randomUUID();
-    await createAuroraPerson(
-      stageClient(),
-      process.env,
-      {
-        id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: blankToNull(data.dateOfBirth),
-        gender: data.gender ?? null,
-      },
-      writtenAt(),
-    );
+    await createAuroraPerson(stageClient(), process.env, { id, ...data });
     return { id };
   });
 
 export const updateAuroraPersonFn = createServerFn({ method: 'POST' })
   .validator((input: UpdateAuroraPersonInput) => personUpdateInput.parse(input))
   .handler(async ({ data }) => {
-    await updateAuroraPerson(
-      stageClient(),
-      process.env,
-      {
-        id: data.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: blankToNull(data.dateOfBirth),
-        gender: data.gender ?? null,
-      },
-      writtenAt(),
-    );
+    await updateAuroraPerson(stageClient(), process.env, data);
     return { id: data.id };
   });
 
@@ -214,32 +182,14 @@ export const createAuroraBankAccountFn = createServerFn({ method: 'POST' })
   .validator((input: CreateAuroraBankAccountInput) => bankAccountFields.parse(input))
   .handler(async ({ data }) => {
     const id = crypto.randomUUID();
-    await createAuroraBankAccount(stageClient(), process.env, {
-      id,
-      personId: data.personId,
-      bankName: data.bankName,
-      accountType: data.accountType,
-      accountNumberLast4: data.accountNumberLast4,
-      iban: blankToNull(data.iban),
-      bic: blankToNull(data.bic),
-      isPrimary: data.isPrimary,
-    });
+    await createAuroraBankAccount(stageClient(), process.env, { id, ...data });
     return { id };
   });
 
 export const updateAuroraBankAccountFn = createServerFn({ method: 'POST' })
   .validator((input: UpdateAuroraBankAccountInput) => bankAccountUpdateInput.parse(input))
   .handler(async ({ data }) => {
-    await updateAuroraBankAccount(stageClient(), process.env, {
-      id: data.id,
-      personId: data.personId,
-      bankName: data.bankName,
-      accountType: data.accountType,
-      accountNumberLast4: data.accountNumberLast4,
-      iban: blankToNull(data.iban),
-      bic: blankToNull(data.bic),
-      isPrimary: data.isPrimary,
-    });
+    await updateAuroraBankAccount(stageClient(), process.env, data);
     return { id: data.id };
   });
 
@@ -254,36 +204,14 @@ export const createAuroraEmploymentFn = createServerFn({ method: 'POST' })
   .validator((input: CreateAuroraEmploymentInput) => employmentFields.parse(input))
   .handler(async ({ data }) => {
     const id = crypto.randomUUID();
-    await createAuroraEmployment(stageClient(), process.env, {
-      id,
-      personId: data.personId,
-      companyName: data.companyName,
-      position: data.position,
-      department: blankToNull(data.department),
-      startDate: data.startDate,
-      endDate: data.endDate ?? null,
-      isCurrent: data.isCurrent,
-      salary: data.salary ?? null,
-      currency: data.currency,
-    });
+    await createAuroraEmployment(stageClient(), process.env, { id, ...data });
     return { id };
   });
 
 export const updateAuroraEmploymentFn = createServerFn({ method: 'POST' })
   .validator((input: UpdateAuroraEmploymentInput) => employmentUpdateInput.parse(input))
   .handler(async ({ data }) => {
-    await updateAuroraEmployment(stageClient(), process.env, {
-      id: data.id,
-      personId: data.personId,
-      companyName: data.companyName,
-      position: data.position,
-      department: blankToNull(data.department),
-      startDate: data.startDate,
-      endDate: data.endDate ?? null,
-      isCurrent: data.isCurrent,
-      salary: data.salary ?? null,
-      currency: data.currency,
-    });
+    await updateAuroraEmployment(stageClient(), process.env, data);
     return { id: data.id };
   });
 

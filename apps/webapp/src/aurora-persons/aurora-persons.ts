@@ -2,22 +2,28 @@ import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
 import {
   addresses,
+  addressPageSchema,
+  bankAccountPageSchema,
   bankAccounts,
+  contactPageSchema,
   contacts,
+  employmentPageSchema,
   employments,
+  personPageSchema,
   persons,
   readAuroraSettings,
   STAGE_DATABASE_SCHEMA,
 } from '@tanstack-aws/aurora';
 import { eq, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/aws-data-api/pg';
+import type { z } from 'zod';
 
 export type StageDatabaseQueryClient = {
   send: (command: ExecuteStatementCommand) => Promise<ExecuteStatementCommandOutput>;
 };
 
 /**
- * Drizzle's Data API driver types its client as `RDSDataClient`. Writes take a
+ * Drizzle's Data API driver types its client as `RDSDataClient`. Callers pass a
  * narrower sender so tests can record SQL without calling AWS. The instance is
  * still an RDSDataClient; only `send` is delegated.
  */
@@ -36,19 +42,29 @@ const stageDatabase = (client: StageDatabaseQueryClient, env: NodeJS.ProcessEnv)
   });
 };
 
+const blankToNull = (value: string | null | undefined) => {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return null;
+  }
+  return trimmed;
+};
+
+const writtenAt = () => new Date().toISOString();
+
 type AuroraGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 
-export type AuroraPersonWrite = {
+export type AuroraPersonInput = {
   id: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: string | null;
-  gender: AuroraGender | null;
+  dateOfBirth?: string | null;
+  gender?: AuroraGender | null;
 };
 
 type AuroraAddressType = 'home' | 'work' | 'billing' | 'shipping';
 
-export type AuroraAddressWrite = {
+export type AuroraAddressInput = {
   id: string;
   personId: string;
   type: AuroraAddressType;
@@ -62,7 +78,7 @@ export type AuroraAddressWrite = {
 
 type AuroraContactType = 'email' | 'phone' | 'mobile' | 'linkedin' | 'twitter';
 
-export type AuroraContactWrite = {
+export type AuroraContactInput = {
   id: string;
   personId: string;
   type: AuroraContactType;
@@ -73,27 +89,27 @@ export type AuroraContactWrite = {
 
 type AuroraAccountType = 'checking' | 'savings' | 'investment';
 
-export type AuroraBankAccountWrite = {
+export type AuroraBankAccountInput = {
   id: string;
   personId: string;
   bankName: string;
   accountType: AuroraAccountType;
   accountNumberLast4: string;
-  iban: string | null;
-  bic: string | null;
+  iban?: string | null;
+  bic?: string | null;
   isPrimary: boolean;
 };
 
-export type AuroraEmploymentWrite = {
+export type AuroraEmploymentInput = {
   id: string;
   personId: string;
   companyName: string;
   position: string;
-  department: string | null;
+  department?: string | null;
   startDate: string;
-  endDate: string | null;
+  endDate?: string | null;
   isCurrent: boolean;
-  salary: number | null;
+  salary?: number | null;
   currency: string;
 };
 
@@ -104,29 +120,106 @@ export type AuroraEmploymentWrite = {
 const enumValue = (value: string | null, enumName: string) =>
   sql`${value}::${sql.raw(`"${STAGE_DATABASE_SCHEMA}"."${enumName}"`)}`;
 
+type PageColumnSelection<TSchema extends z.ZodType> = {
+  [K in keyof z.infer<TSchema>]: unknown;
+};
+
+export const readAuroraPersons = async (
+  client: StageDatabaseQueryClient,
+  env: NodeJS.ProcessEnv,
+) => {
+  const db = stageDatabase(client, env);
+
+  const personColumns = {
+    id: persons.id,
+    firstName: persons.firstName,
+    lastName: persons.lastName,
+    gender: persons.gender,
+    dateOfBirth: persons.dateOfBirth,
+  } satisfies PageColumnSelection<typeof personPageSchema>;
+  const addressColumns = {
+    id: addresses.id,
+    personId: addresses.personId,
+    type: addresses.type,
+    isPrimary: addresses.isPrimary,
+    street: addresses.street,
+    city: addresses.city,
+    state: addresses.state,
+    postalCode: addresses.postalCode,
+    country: addresses.country,
+  } satisfies PageColumnSelection<typeof addressPageSchema>;
+  const bankAccountColumns = {
+    id: bankAccounts.id,
+    personId: bankAccounts.personId,
+    bankName: bankAccounts.bankName,
+    isPrimary: bankAccounts.isPrimary,
+    accountType: bankAccounts.accountType,
+    accountNumberLast4: bankAccounts.accountNumberLast4,
+    iban: bankAccounts.iban,
+    bic: bankAccounts.bic,
+  } satisfies PageColumnSelection<typeof bankAccountPageSchema>;
+  const contactColumns = {
+    id: contacts.id,
+    personId: contacts.personId,
+    type: contacts.type,
+    isPrimary: contacts.isPrimary,
+    isVerified: contacts.isVerified,
+    value: contacts.value,
+  } satisfies PageColumnSelection<typeof contactPageSchema>;
+  const employmentColumns = {
+    id: employments.id,
+    personId: employments.personId,
+    position: employments.position,
+    isCurrent: employments.isCurrent,
+    companyName: employments.companyName,
+    department: employments.department,
+    startDate: employments.startDate,
+    endDate: employments.endDate,
+    salary: employments.salary,
+    currency: employments.currency,
+  } satisfies PageColumnSelection<typeof employmentPageSchema>;
+
+  const [personRows, addressRows, bankAccountRows, contactRows, employmentRows] = await Promise.all(
+    [
+      db.select(personColumns).from(persons),
+      db.select(addressColumns).from(addresses),
+      db.select(bankAccountColumns).from(bankAccounts),
+      db.select(contactColumns).from(contacts),
+      db.select(employmentColumns).from(employments),
+    ],
+  );
+
+  return {
+    addresses: addressRows,
+    bankAccounts: bankAccountRows,
+    contacts: contactRows,
+    employments: employmentRows,
+    persons: personRows,
+  };
+};
+
 export const createAuroraPerson = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  person: AuroraPersonWrite,
-  writtenAt: string,
+  person: AuroraPersonInput,
 ) => {
   const db = stageDatabase(client, env);
+  const timestamp = writtenAt();
   await db.insert(persons).values({
     id: person.id,
     firstName: person.firstName,
     lastName: person.lastName,
-    dateOfBirth: person.dateOfBirth,
-    gender: enumValue(person.gender, 'gender'),
-    createdAt: writtenAt,
-    updatedAt: writtenAt,
+    dateOfBirth: blankToNull(person.dateOfBirth),
+    gender: enumValue(person.gender ?? null, 'gender'),
+    createdAt: timestamp,
+    updatedAt: timestamp,
   });
 };
 
 export const updateAuroraPerson = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  person: AuroraPersonWrite,
-  writtenAt: string,
+  person: AuroraPersonInput,
 ) => {
   const db = stageDatabase(client, env);
   await db
@@ -134,9 +227,9 @@ export const updateAuroraPerson = async (
     .set({
       firstName: person.firstName,
       lastName: person.lastName,
-      dateOfBirth: person.dateOfBirth,
-      gender: enumValue(person.gender, 'gender'),
-      updatedAt: writtenAt,
+      dateOfBirth: blankToNull(person.dateOfBirth),
+      gender: enumValue(person.gender ?? null, 'gender'),
+      updatedAt: writtenAt(),
     })
     .where(eq(persons.id, person.id));
 };
@@ -157,7 +250,7 @@ export const deleteAuroraPerson = async (
 export const createAuroraAddress = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  address: AuroraAddressWrite,
+  address: AuroraAddressInput,
 ) => {
   const db = stageDatabase(client, env);
   await db.insert(addresses).values({
@@ -176,7 +269,7 @@ export const createAuroraAddress = async (
 export const updateAuroraAddress = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  address: AuroraAddressWrite,
+  address: AuroraAddressInput,
 ) => {
   const db = stageDatabase(client, env);
   await db
@@ -205,7 +298,7 @@ export const deleteAuroraAddress = async (
 export const createAuroraContact = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  contact: AuroraContactWrite,
+  contact: AuroraContactInput,
 ) => {
   const db = stageDatabase(client, env);
   await db.insert(contacts).values({
@@ -221,7 +314,7 @@ export const createAuroraContact = async (
 export const updateAuroraContact = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  contact: AuroraContactWrite,
+  contact: AuroraContactInput,
 ) => {
   const db = stageDatabase(client, env);
   await db
@@ -247,7 +340,7 @@ export const deleteAuroraContact = async (
 export const createAuroraBankAccount = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  bankAccount: AuroraBankAccountWrite,
+  bankAccount: AuroraBankAccountInput,
 ) => {
   const db = stageDatabase(client, env);
   await db.insert(bankAccounts).values({
@@ -256,8 +349,8 @@ export const createAuroraBankAccount = async (
     bankName: bankAccount.bankName,
     accountType: enumValue(bankAccount.accountType, 'account_type'),
     accountNumberLast4: bankAccount.accountNumberLast4,
-    iban: bankAccount.iban,
-    bic: bankAccount.bic,
+    iban: blankToNull(bankAccount.iban),
+    bic: blankToNull(bankAccount.bic),
     isPrimary: bankAccount.isPrimary,
   });
 };
@@ -265,7 +358,7 @@ export const createAuroraBankAccount = async (
 export const updateAuroraBankAccount = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  bankAccount: AuroraBankAccountWrite,
+  bankAccount: AuroraBankAccountInput,
 ) => {
   const db = stageDatabase(client, env);
   await db
@@ -274,8 +367,8 @@ export const updateAuroraBankAccount = async (
       bankName: bankAccount.bankName,
       accountType: enumValue(bankAccount.accountType, 'account_type'),
       accountNumberLast4: bankAccount.accountNumberLast4,
-      iban: bankAccount.iban,
-      bic: bankAccount.bic,
+      iban: blankToNull(bankAccount.iban),
+      bic: blankToNull(bankAccount.bic),
       isPrimary: bankAccount.isPrimary,
     })
     .where(eq(bankAccounts.id, bankAccount.id));
@@ -293,7 +386,7 @@ export const deleteAuroraBankAccount = async (
 export const createAuroraEmployment = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  employment: AuroraEmploymentWrite,
+  employment: AuroraEmploymentInput,
 ) => {
   const db = stageDatabase(client, env);
   await db.insert(employments).values({
@@ -301,11 +394,11 @@ export const createAuroraEmployment = async (
     personId: employment.personId,
     companyName: employment.companyName,
     position: employment.position,
-    department: employment.department,
+    department: blankToNull(employment.department),
     startDate: employment.startDate,
-    endDate: employment.endDate,
+    endDate: blankToNull(employment.endDate),
     isCurrent: employment.isCurrent,
-    salary: employment.salary,
+    salary: employment.salary ?? null,
     currency: employment.currency,
   });
 };
@@ -313,7 +406,7 @@ export const createAuroraEmployment = async (
 export const updateAuroraEmployment = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
-  employment: AuroraEmploymentWrite,
+  employment: AuroraEmploymentInput,
 ) => {
   const db = stageDatabase(client, env);
   await db
@@ -321,11 +414,11 @@ export const updateAuroraEmployment = async (
     .set({
       companyName: employment.companyName,
       position: employment.position,
-      department: employment.department,
+      department: blankToNull(employment.department),
       startDate: employment.startDate,
-      endDate: employment.endDate,
+      endDate: blankToNull(employment.endDate),
       isCurrent: employment.isCurrent,
-      salary: employment.salary,
+      salary: employment.salary ?? null,
       currency: employment.currency,
     })
     .where(eq(employments.id, employment.id));
