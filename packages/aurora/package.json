@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./aurora-resume": "./src/aurora-resume.ts",
     "./lifecycle": "./src/stage-database-lifecycle.ts"
   },
   "scripts": {

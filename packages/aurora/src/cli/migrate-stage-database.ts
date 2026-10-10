@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { withAuroraResumeRetry } from '../aurora-resume.ts';
 import { migrateStageDatabaseSchema } from '../stage-database-drizzle-migrate.ts';
 import { applyStageDatabaseLifecycle } from '../stage-database-lifecycle.ts';
 import { prepareStageDatabaseMigration, type StackOutput } from '../stage-database-migrate.ts';
@@ -44,25 +45,29 @@ const client = new RDSDataClient({ region: prepared.region });
 await applyStageDatabaseLifecycle(
   {
     execute: async (statement) => {
-      await client.send(
-        new ExecuteStatementCommand({
-          database: statement.database,
-          resourceArn: prepared.clusterArn,
-          secretArn: prepared.secretArn,
-          sql: statement.sql,
-        }),
+      await withAuroraResumeRetry(() =>
+        client.send(
+          new ExecuteStatementCommand({
+            database: statement.database,
+            resourceArn: prepared.clusterArn,
+            secretArn: prepared.secretArn,
+            sql: statement.sql,
+          }),
+        ),
       );
     },
   },
   prepared.request,
   {
     migrate: (stageDatabaseName) =>
-      migrateStageDatabaseSchema({
-        client,
-        clusterArn: prepared.clusterArn,
-        migrationsFolder,
-        secretArn: prepared.secretArn,
-        stageDatabaseName,
-      }),
+      withAuroraResumeRetry(() =>
+        migrateStageDatabaseSchema({
+          client,
+          clusterArn: prepared.clusterArn,
+          migrationsFolder,
+          secretArn: prepared.secretArn,
+          stageDatabaseName,
+        }),
+      ),
   },
 );

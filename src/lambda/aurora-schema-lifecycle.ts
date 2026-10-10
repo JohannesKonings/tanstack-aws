@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
+import { withAuroraResumeRetry } from '@tanstack-aws/aurora/aurora-resume';
 import {
   applyStageDatabaseLifecycle,
   migrateStageDatabaseSchema,
@@ -8,21 +9,6 @@ import {
 import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 
 const client = new RDSDataClient({});
-const AURORA_RESUME_RETRY_ATTEMPTS = 4;
-const AURORA_RESUME_RETRY_DELAY_MS = 30_000;
-
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
-const errorText = (error: unknown): string => {
-  if (!(error instanceof Error)) {
-    return String(error);
-  }
-  const cause = error.cause === undefined ? '' : errorText(error.cause);
-  return `${error.message}\n${cause}`;
-};
-
-const isAuroraResumingError = (error: unknown): boolean =>
-  errorText(error).includes('resuming after being auto-paused');
 
 type ConnectionProps = {
   clusterArn: string;
@@ -46,27 +32,6 @@ const requiredProp = (event: CloudFormationCustomResourceEvent, name: string): s
     );
   }
   return value;
-};
-
-const withAuroraResumeRetry = async (operation: () => Promise<void>): Promise<void> => {
-  for (let attempt = 0; attempt <= AURORA_RESUME_RETRY_ATTEMPTS; attempt++) {
-    try {
-      // oxlint-disable-next-line no-await-in-loop -- sequential retries with backoff
-      await operation();
-      return;
-    } catch (error) {
-      const shouldRetry = isAuroraResumingError(error) && attempt < AURORA_RESUME_RETRY_ATTEMPTS;
-      if (!shouldRetry) {
-        throw error;
-      }
-      // oxlint-disable-next-line no-console -- retry attempts are swallowed until the last failure
-      console.log(
-        `aurora-schema-lifecycle: Aurora is resuming after auto-pause; retry ${attempt + 1} of ${AURORA_RESUME_RETRY_ATTEMPTS} in ${AURORA_RESUME_RETRY_DELAY_MS}ms`,
-      );
-      // oxlint-disable-next-line no-await-in-loop -- wait for Aurora to finish resuming
-      await sleep(AURORA_RESUME_RETRY_DELAY_MS);
-    }
-  }
 };
 
 const runSql = async (props: ConnectionProps, database: string, sql: string): Promise<void> => {
