@@ -5,29 +5,14 @@ import type { Table } from 'aws-cdk-lib/aws-dynamodb';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct, type IConstruct } from 'constructs';
 import { resolveStageLifecycle } from '../../../../lib/stage-name.ts';
-import { AuroraSchemaLifecycle } from './AuroraSchemaLifecycle.ts';
 import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
 import { EventsTable } from './EventsTable.ts';
+import { StageDatabaseLifecycle } from './StageDatabaseLifecycle.ts';
 import { StreamToEventsProcessor } from './StreamToEventsProcessor.ts';
 
 /** Logical IDs from when these constructs were children of `Webapp`. */
 const webappLogicalIds: Record<string, string> = {
-  'AuroraSchemaLifecycle/Handler': 'WebappAuroraSchemaLifecycleHandlerB1C21912',
-  'AuroraSchemaLifecycle/Handler/LogGroup': 'WebappAuroraSchemaLifecycleHandlerLogGroupF182201E',
-  'AuroraSchemaLifecycle/Handler/ServiceRole':
-    'WebappAuroraSchemaLifecycleHandlerServiceRoleB038FE51',
-  'AuroraSchemaLifecycle/Handler/ServiceRole/DefaultPolicy':
-    'WebappAuroraSchemaLifecycleHandlerServiceRoleDefaultPolicyB9AA887B',
-  'AuroraSchemaLifecycle/Provider/framework-onEvent':
-    'WebappAuroraSchemaLifecycleProviderframeworkonEvent9B0A88DA',
-  'AuroraSchemaLifecycle/Provider/framework-onEvent/LogGroup':
-    'WebappAuroraSchemaLifecycleProviderframeworkonEventLogGroup310105C0',
-  'AuroraSchemaLifecycle/Provider/framework-onEvent/ServiceRole':
-    'WebappAuroraSchemaLifecycleProviderframeworkonEventServiceRole0F6D4594',
-  'AuroraSchemaLifecycle/Provider/framework-onEvent/ServiceRole/DefaultPolicy':
-    'WebappAuroraSchemaLifecycleProviderframeworkonEventServiceRoleDefaultPolicy91D65903',
-  'AuroraSchemaLifecycle/Resource': 'WebappAuroraSchemaLifecycle85AC824D',
   'DatabasePersons/Persons': 'WebappDatabasePersonsE2E33589',
   'DatabaseTodos/Todos': 'WebappDatabaseTodos39DA962E',
   'EventsTable/Events': 'WebappEventsTableEventsC49DFB5F',
@@ -86,7 +71,7 @@ export class SharedWorkloadData extends Construct {
 
     const appLifecycle = resolveStageLifecycle(props.appStage);
 
-    new AuroraSchemaLifecycle(this, 'AuroraSchemaLifecycle', {
+    new StageDatabaseLifecycle(this, 'StageDatabaseLifecycle', {
       clusterArn: this.auroraClusterArn,
       dropDatabaseOnDelete: appLifecycle === 'ephemeral',
       maintenanceDatabaseName: this.maintenanceDatabaseName,

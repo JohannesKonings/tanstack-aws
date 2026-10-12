@@ -5,8 +5,8 @@ import { Stack } from 'aws-cdk-lib';
 import { describe, expect, it } from 'vite-plus/test';
 import { createCdkApp } from '../cdk-app.ts';
 import { repoPath } from '../repo-root.ts';
-import { AuroraSchemaLifecycle } from './AuroraSchemaLifecycle.ts';
 import { hashStageDatabaseMigrations } from './stage-database-migrations-hash.ts';
+import { StageDatabaseLifecycle } from './StageDatabaseLifecycle.ts';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -54,13 +54,13 @@ describe('stage database migrations hash', () => {
   });
 });
 
-describe('AuroraSchemaLifecycle', () => {
+describe('StageDatabaseLifecycle', () => {
   it('changes the custom resource when stage database migration SQL changes', () => {
     const app = createCdkApp();
     const stack = new Stack(app, 'TanstackAwsStack-aurora-example', {
       env: { account: '123456789012', region: 'us-east-2' },
     });
-    new AuroraSchemaLifecycle(stack, 'AuroraSchemaLifecycle', {
+    new StageDatabaseLifecycle(stack, 'StageDatabaseLifecycle', {
       clusterArn: 'arn:aws:rds:us-east-2:123456789012:cluster:tanstack',
       dropDatabaseOnDelete: true,
       maintenanceDatabaseName: 'tanstackaws',

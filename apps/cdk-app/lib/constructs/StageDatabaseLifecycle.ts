@@ -9,7 +9,7 @@ import { Construct } from 'constructs';
 import { repoPath } from '../repo-root.ts';
 import { hashStageDatabaseMigrations } from './stage-database-migrations-hash.ts';
 
-type AuroraSchemaLifecycleProps = {
+type StageDatabaseLifecycleProps = {
   clusterArn: string;
   dropDatabaseOnDelete: boolean;
   maintenanceDatabaseName: string;
@@ -17,12 +17,12 @@ type AuroraSchemaLifecycleProps = {
   stageDatabaseName: string;
 };
 
-export class AuroraSchemaLifecycle extends Construct {
-  constructor(scope: Construct, id: string, props: AuroraSchemaLifecycleProps) {
+export class StageDatabaseLifecycle extends Construct {
+  constructor(scope: Construct, id: string, props: StageDatabaseLifecycleProps) {
     super(scope, id);
 
     const handler = new NodejsFunction(this, 'Handler', {
-      entry: repoPath('src/lambda/aurora-schema-lifecycle.ts'),
+      entry: repoPath('src/lambda/stage-database-lifecycle.ts'),
       bundling: {
         commandHooks: {
           afterBundling(inputDir: string, outputDir: string): string[] {
@@ -78,7 +78,7 @@ export class AuroraSchemaLifecycle extends Construct {
         },
         {
           id: 'Serverless-LambdaDefaultMemorySize',
-          reason: 'Schema lifecycle runs briefly; 128MB sufficient.',
+          reason: 'Stage database lifecycle runs briefly; 128MB sufficient.',
         },
         {
           id: 'Serverless-LambdaDLQ',
@@ -86,7 +86,7 @@ export class AuroraSchemaLifecycle extends Construct {
         },
         {
           id: 'Serverless-LambdaTracing',
-          reason: 'Schema lifecycle runs infrequently; X-Ray optional.',
+          reason: 'Stage database lifecycle runs infrequently; X-Ray optional.',
         },
       ],
       true,
