@@ -5,18 +5,31 @@ const personId = '11111111-1111-4111-8111-111111111111';
 const bankAccountId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 describe('Aurora person views', () => {
-  it('keeps the list row to id and name', () => {
+  it('keeps the list row to id, name, and gender', () => {
     expect(
       auroraPersonListView.parse({
         id: personId,
         firstName: 'Ada',
         lastName: 'Lovelace',
+        gender: 'female',
       }),
     ).toEqual({
       id: personId,
       firstName: 'Ada',
       lastName: 'Lovelace',
+      gender: 'female',
     });
+  });
+
+  it('maps a missing list gender to undefined', () => {
+    expect(
+      auroraPersonListView.parse({
+        id: personId,
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        gender: null,
+      }).gender,
+    ).toBeUndefined();
   });
 
   it('maps a missing gender and birth date to undefined', () => {

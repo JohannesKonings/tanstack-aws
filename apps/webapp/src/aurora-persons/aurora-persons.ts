@@ -1,23 +1,26 @@
 import { ExecuteStatementCommand, RDSDataClient } from '@aws-sdk/client-rds-data';
 import type { ExecuteStatementCommandOutput } from '@aws-sdk/client-rds-data';
 import {
+  accountTypeEnum,
   addresses,
   addressPageSchema,
+  addressTypeEnum,
   bankAccountPageSchema,
   bankAccounts,
   contactPageSchema,
   contacts,
+  contactTypeEnum,
   employmentPageSchema,
   employments,
+  genderEnum,
   personDetailSchema,
   personListSchema,
   persons,
   readAuroraSettings,
   STAGE_DATABASE_SCHEMA,
 } from '@tanstack-aws/aurora';
-import { eq, sql } from 'drizzle-orm';
+import { eq, getColumns, sql, type Table } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/aws-data-api/pg';
-import type { z } from 'zod';
 
 export type StageDatabaseQueryClient = {
   send: (command: ExecuteStatementCommand) => Promise<ExecuteStatementCommandOutput>;
@@ -53,7 +56,7 @@ const blankToNull = (value: string | null | undefined) => {
 
 const writtenAt = () => new Date().toISOString();
 
-type AuroraGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
+type AuroraGender = (typeof genderEnum.enumValues)[number];
 
 export type AuroraPersonInput = {
   id: string;
@@ -63,7 +66,7 @@ export type AuroraPersonInput = {
   gender?: AuroraGender | null;
 };
 
-type AuroraAddressType = 'home' | 'work' | 'billing' | 'shipping';
+type AuroraAddressType = (typeof addressTypeEnum.enumValues)[number];
 
 export type AuroraAddressInput = {
   id: string;
@@ -77,7 +80,7 @@ export type AuroraAddressInput = {
   isPrimary: boolean;
 };
 
-type AuroraContactType = 'email' | 'phone' | 'mobile' | 'linkedin' | 'twitter';
+type AuroraContactType = (typeof contactTypeEnum.enumValues)[number];
 
 export type AuroraContactInput = {
   id: string;
@@ -88,7 +91,7 @@ export type AuroraContactInput = {
   isVerified: boolean;
 };
 
-type AuroraAccountType = 'checking' | 'savings' | 'investment';
+type AuroraAccountType = (typeof accountTypeEnum.enumValues)[number];
 
 export type AuroraBankAccountInput = {
   id: string;
@@ -118,72 +121,29 @@ export type AuroraEmploymentInput = {
  * Person enums live in schema `default`. Each Data API call is its own session,
  * so a cast has to name that schema instead of relying on search_path.
  */
-const enumValue = (value: string | null, enumName: string) =>
-  sql`${value}::${sql.raw(`"${STAGE_DATABASE_SCHEMA}"."${enumName}"`)}`;
+const enumValue = (value: string | null, pgEnum: { enumName: string }) =>
+  sql`${value}::${sql.raw(`"${STAGE_DATABASE_SCHEMA}"."${pgEnum.enumName}"`)}`;
 
-type PageColumnSelection<TSchema extends z.ZodType> = {
-  [K in keyof z.infer<TSchema>]: unknown;
+type TableColumns<TTable extends Table> = TTable['_']['columns'];
+
+/** The `SELECT` list for one read: the table columns named by its page schema, and no others. */
+const pageColumns = <TTable extends Table, TShape extends Record<string, unknown>>(
+  table: TTable,
+  pageSchema: { shape: TShape },
+) => {
+  const columns: Record<string, unknown> = getColumns(table);
+  // Object.fromEntries widens the keys to string; the keys are exactly the page-schema keys.
+  return Object.fromEntries(
+    Object.keys(pageSchema.shape).map((key) => [key, columns[key]]),
+  ) as Pick<TableColumns<TTable>, keyof TShape & keyof TableColumns<TTable>>;
 };
 
-const personListColumns = {
-  id: persons.id,
-  firstName: persons.firstName,
-  lastName: persons.lastName,
-  gender: persons.gender,
-} satisfies PageColumnSelection<typeof personListSchema>;
-
-const personDetailColumns = {
-  id: persons.id,
-  firstName: persons.firstName,
-  lastName: persons.lastName,
-  gender: persons.gender,
-  dateOfBirth: persons.dateOfBirth,
-} satisfies PageColumnSelection<typeof personDetailSchema>;
-
-const addressColumns = {
-  id: addresses.id,
-  personId: addresses.personId,
-  type: addresses.type,
-  isPrimary: addresses.isPrimary,
-  street: addresses.street,
-  city: addresses.city,
-  state: addresses.state,
-  postalCode: addresses.postalCode,
-  country: addresses.country,
-} satisfies PageColumnSelection<typeof addressPageSchema>;
-
-const bankAccountColumns = {
-  id: bankAccounts.id,
-  personId: bankAccounts.personId,
-  bankName: bankAccounts.bankName,
-  isPrimary: bankAccounts.isPrimary,
-  accountType: bankAccounts.accountType,
-  accountNumberLast4: bankAccounts.accountNumberLast4,
-  iban: bankAccounts.iban,
-  bic: bankAccounts.bic,
-} satisfies PageColumnSelection<typeof bankAccountPageSchema>;
-
-const contactColumns = {
-  id: contacts.id,
-  personId: contacts.personId,
-  type: contacts.type,
-  isPrimary: contacts.isPrimary,
-  isVerified: contacts.isVerified,
-  value: contacts.value,
-} satisfies PageColumnSelection<typeof contactPageSchema>;
-
-const employmentColumns = {
-  id: employments.id,
-  personId: employments.personId,
-  position: employments.position,
-  isCurrent: employments.isCurrent,
-  companyName: employments.companyName,
-  department: employments.department,
-  startDate: employments.startDate,
-  endDate: employments.endDate,
-  salary: employments.salary,
-  currency: employments.currency,
-} satisfies PageColumnSelection<typeof employmentPageSchema>;
+const personListColumns = pageColumns(persons, personListSchema);
+const personDetailColumns = pageColumns(persons, personDetailSchema);
+const addressColumns = pageColumns(addresses, addressPageSchema);
+const bankAccountColumns = pageColumns(bankAccounts, bankAccountPageSchema);
+const contactColumns = pageColumns(contacts, contactPageSchema);
+const employmentColumns = pageColumns(employments, employmentPageSchema);
 
 export const readAuroraPersonList = async (
   client: StageDatabaseQueryClient,
@@ -230,7 +190,7 @@ export const createAuroraPerson = async (
     firstName: person.firstName,
     lastName: person.lastName,
     dateOfBirth: blankToNull(person.dateOfBirth),
-    gender: enumValue(person.gender ?? null, 'gender'),
+    gender: enumValue(person.gender ?? null, genderEnum),
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -248,7 +208,7 @@ export const updateAuroraPerson = async (
       firstName: person.firstName,
       lastName: person.lastName,
       dateOfBirth: blankToNull(person.dateOfBirth),
-      gender: enumValue(person.gender ?? null, 'gender'),
+      gender: enumValue(person.gender ?? null, genderEnum),
       updatedAt: writtenAt(),
     })
     .where(eq(persons.id, person.id));
@@ -260,10 +220,6 @@ export const deleteAuroraPerson = async (
   personId: string,
 ) => {
   const db = stageDatabase(client, env);
-  await db.delete(addresses).where(eq(addresses.personId, personId));
-  await db.delete(contacts).where(eq(contacts.personId, personId));
-  await db.delete(bankAccounts).where(eq(bankAccounts.personId, personId));
-  await db.delete(employments).where(eq(employments.personId, personId));
   await db.delete(persons).where(eq(persons.id, personId));
 };
 
@@ -276,7 +232,7 @@ export const createAuroraAddress = async (
   await db.insert(addresses).values({
     id: address.id,
     personId: address.personId,
-    type: enumValue(address.type, 'address_type'),
+    type: enumValue(address.type, addressTypeEnum),
     street: address.street,
     city: address.city,
     state: address.state,
@@ -295,7 +251,7 @@ export const updateAuroraAddress = async (
   await db
     .update(addresses)
     .set({
-      type: enumValue(address.type, 'address_type'),
+      type: enumValue(address.type, addressTypeEnum),
       street: address.street,
       city: address.city,
       state: address.state,
@@ -324,7 +280,7 @@ export const createAuroraContact = async (
   await db.insert(contacts).values({
     id: contact.id,
     personId: contact.personId,
-    type: enumValue(contact.type, 'contact_type'),
+    type: enumValue(contact.type, contactTypeEnum),
     value: contact.value,
     isPrimary: contact.isPrimary,
     isVerified: contact.isVerified,
@@ -340,7 +296,7 @@ export const updateAuroraContact = async (
   await db
     .update(contacts)
     .set({
-      type: enumValue(contact.type, 'contact_type'),
+      type: enumValue(contact.type, contactTypeEnum),
       value: contact.value,
       isPrimary: contact.isPrimary,
       isVerified: contact.isVerified,
@@ -367,7 +323,7 @@ export const createAuroraBankAccount = async (
     id: bankAccount.id,
     personId: bankAccount.personId,
     bankName: bankAccount.bankName,
-    accountType: enumValue(bankAccount.accountType, 'account_type'),
+    accountType: enumValue(bankAccount.accountType, accountTypeEnum),
     accountNumberLast4: bankAccount.accountNumberLast4,
     iban: blankToNull(bankAccount.iban),
     bic: blankToNull(bankAccount.bic),
@@ -385,7 +341,7 @@ export const updateAuroraBankAccount = async (
     .update(bankAccounts)
     .set({
       bankName: bankAccount.bankName,
-      accountType: enumValue(bankAccount.accountType, 'account_type'),
+      accountType: enumValue(bankAccount.accountType, accountTypeEnum),
       accountNumberLast4: bankAccount.accountNumberLast4,
       iban: blankToNull(bankAccount.iban),
       bic: blankToNull(bankAccount.bic),

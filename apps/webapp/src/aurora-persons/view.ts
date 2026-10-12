@@ -8,13 +8,14 @@ import {
 } from '@tanstack-aws/aurora';
 import type { z } from 'zod';
 
+/** The database speaks `null`, the screen speaks `undefined`. Every nullable column goes through here. */
 const absent = <T>(value: T | null) => value ?? undefined;
 
 export const auroraPersonListView = personListSchema.transform((person) => ({
   id: person.id,
   firstName: person.firstName,
   lastName: person.lastName,
-  gender: person.gender,
+  gender: absent(person.gender),
 }));
 
 export const auroraPersonDetailView = personDetailSchema.transform((person) => ({
@@ -64,7 +65,7 @@ export const auroraEmploymentView = employmentPageSchema.transform((employment) 
   position: employment.position,
   department: absent(employment.department),
   startDate: employment.startDate,
-  endDate: employment.endDate,
+  endDate: absent(employment.endDate),
   isCurrent: employment.isCurrent,
   salary: absent(employment.salary),
   currency: employment.currency,

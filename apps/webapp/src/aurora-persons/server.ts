@@ -1,4 +1,11 @@
-import { AuroraConfigurationError, createStageDatabaseClient } from '@tanstack-aws/aurora';
+import {
+  accountTypeEnum,
+  addressTypeEnum,
+  AuroraConfigurationError,
+  contactTypeEnum,
+  createStageDatabaseClient,
+  genderEnum,
+} from '@tanstack-aws/aurora';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { readAuroraPersonDetail, readAuroraPersonList } from './aurora-persons.ts';
@@ -96,10 +103,10 @@ export const getAuroraPersonDetail = createServerFn({ method: 'GET' })
     }
   });
 
-const genderSchema = z.enum(['male', 'female', 'other', 'prefer_not_to_say']);
-const addressTypeSchema = z.enum(['home', 'work', 'billing', 'shipping']);
-const accountTypeSchema = z.enum(['checking', 'savings', 'investment']);
-const contactTypeSchema = z.enum(['email', 'phone', 'mobile', 'linkedin', 'twitter']);
+const genderSchema = z.enum(genderEnum.enumValues);
+const addressTypeSchema = z.enum(addressTypeEnum.enumValues);
+const accountTypeSchema = z.enum(accountTypeEnum.enumValues);
+const contactTypeSchema = z.enum(contactTypeEnum.enumValues);
 
 const personFields = z.object({
   firstName: z.string().min(1),

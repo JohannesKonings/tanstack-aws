@@ -74,7 +74,7 @@ const parameterValues = (statement: RecordedStatement | undefined) =>
   statement?.parameters?.map((parameter) => parameter.value) ?? [];
 
 describe('Aurora persons', () => {
-  it('loads the person list with id and name columns only', async () => {
+  it('loads the person list with id, name, and gender columns only', async () => {
     const { client, statements } = recordingClient();
 
     const rows = await readAuroraPersonList(client, settings);
@@ -84,7 +84,7 @@ describe('Aurora persons', () => {
     expect(tableOf(statements[0]?.sql)).toBe('persons');
     expect(statements[0]?.sql).toContain('"firstName"');
     expect(statements[0]?.sql).toContain('"lastName"');
-    expect(statements[0]?.sql).not.toContain('"gender"');
+    expect(statements[0]?.sql).toContain('"gender"');
     expect(statements[0]?.sql).not.toContain('"dateOfBirth"');
     expect(statements[0]?.sql).not.toContain('"createdAt"');
     expect(statements[0]?.sql).not.toContain('where');
@@ -174,19 +174,14 @@ describe('Aurora persons', () => {
     expect(statements[0]?.sql).not.toContain('"createdAt"');
   });
 
-  it('deletes related rows before the person', async () => {
+  it('deletes only the person row and leaves related rows to the foreign-key cascade', async () => {
     const { client, statements } = recordingClient();
 
     await deleteAuroraPerson(client, settings, personId);
 
-    expect(statements.map((statement) => tableOf(statement.sql))).toEqual([
-      'addresses',
-      'contacts',
-      'bank_accounts',
-      'employments',
-      'persons',
-    ]);
-    expect(statements.every((statement) => statement.sql?.startsWith('delete from'))).toBe(true);
+    expect(statements.map((statement) => tableOf(statement.sql))).toEqual(['persons']);
+    expect(statements[0]?.sql).toMatch(/^delete from/);
+    expect(parameterValues(statements[0])).toContainEqual({ stringValue: personId });
   });
 
   it('creates, updates, and deletes an address', async () => {
