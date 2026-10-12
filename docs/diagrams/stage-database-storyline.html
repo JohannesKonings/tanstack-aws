@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docs-diagram:source" content="docs/stage-database.md" />
+  <meta name="docs-diagram:kind" content="storyline" />
+  <title>Stage database storyline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #bf4520;
+      --color-rule:    rgba(45,49,66,0.12);
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      padding: 3rem 2rem 4rem;
+    }
+
+    .page { max-width: 1440px; margin: 0 auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3vw + 1rem, 3.25rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: 1rem;
+    }
+
+    .lede {
+      max-width: 62ch;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: var(--color-muted);
+    }
+
+    .spine {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+      margin: 2.5rem 0 3.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--color-rule);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--color-paper);
+      padding-bottom: 1rem;
+    }
+
+    .spine a {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+    }
+
+    .spine a:hover .spine-name { color: var(--color-accent); }
+
+    .spine-index {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      color: var(--color-accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .spine-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .chapter { margin-bottom: 4.5rem; scroll-margin-top: 6.5rem; }
+
+    .chapter-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.6rem;
+    }
+
+    h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 2vw + 0.8rem, 2.25rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.85rem;
+    }
+
+    .chapter p {
+      max-width: 68ch;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .chapter p code,
+    .lede code,
+    .bridge code {
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+
+    .frame {
+      width: 100%;
+      border: 1px solid var(--color-rule);
+      border-radius: 8px;
+      background: var(--color-paper);
+      overflow: hidden;
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 1120px;
+      border: 0;
+      background: var(--color-paper);
+    }
+
+    .bridge {
+      max-width: 68ch;
+      margin: -2.5rem 0 3rem;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.2rem;
+      line-height: 1.45;
+    }
+
+    footer {
+      border-top: 1px solid var(--color-rule);
+      padding-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+    }
+
+    footer a { color: var(--color-accent); }
+
+    @media (max-width: 720px) {
+      body { padding: 2rem 1.25rem 3rem; }
+      .spine { grid-template-columns: 1fr; gap: 0.85rem; position: static; }
+    }
+
+    @media print {
+      .spine { position: static; }
+      iframe { height: 900px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <p class="eyebrow">Storyline · docs/stage-database.md</p>
+    <h1>A stage database, from cluster to migration</h1>
+    <p class="lede">Each workload stage has its own stage database on one shared Aurora cluster. Deploy creates it, migrates it, or drops it. The SQL is generated once and applied three ways.</p>
+
+    <nav class="spine" aria-label="Storyline">
+      <a href="#cluster">
+        <p class="spine-index">01</p>
+        <p class="spine-name">Where it lives</p>
+      </a>
+      <a href="#deploy">
+        <p class="spine-index">02</p>
+        <p class="spine-name">What deploy does</p>
+      </a>
+      <a href="#migrations">
+        <p class="spine-index">03</p>
+        <p class="spine-name">How the SQL arrives</p>
+      </a>
+    </nav>
+
+    <section class="chapter" id="cluster">
+      <p class="chapter-kicker">01 · Containment</p>
+      <h2>Where it lives</h2>
+      <p>The shared Aurora cluster is Data API only. The maintenance database <code>tanstackaws</code> holds no person tables. It runs <code>CREATE DATABASE</code> for every stage database and <code>DROP DATABASE</code> only for ephemeral ones. <code>main</code> and <code>prod</code> stay. Person tables live in schema <code>default</code> inside the stage database, and that schema is never named after the stage.</p>
+      <div class="frame">
+        <iframe title="Stage databases on the shared Aurora cluster" src="./stage-database-containment.html"></iframe>
+      </div>
+    </section>
+
+    <p class="bridge">Deploy is what creates, migrates, or drops one of those stage databases.</p>
+
+    <section class="chapter" id="deploy">
+      <p class="chapter-kicker">02 · Lifecycle</p>
+      <h2>What deploy does</h2>
+      <p><code>AuroraSchemaLifecycle</code> sends a custom resource event to <code>aurora-schema-lifecycle.ts</code>. Create or Update runs <code>CREATE DATABASE</code> on <code>tanstackaws</code>, leaves an existing stage database in place, and applies pending <code>migration.sql</code>. Delete of an ephemeral stage runs <code>DROP DATABASE</code>. Delete of <code>main</code> or <code>prod</code> leaves the stage database in place.</p>
+      <div class="frame">
+        <iframe title="Stage database lifecycle on deploy" src="./stage-database-lifecycle.html"></iframe>
+      </div>
+    </section>
+
+    <p class="bridge">That pending SQL is generated once, then applied three ways.</p>
+
+    <section class="chapter" id="migrations">
+      <p class="chapter-kicker">03 · Migrations</p>
+      <h2>How the SQL arrives</h2>
+      <p><code>drizzle-kit generate</code> writes <code>packages/aurora/migrations</code> from <code>person-schema.ts</code>. <code>drizzle-kit migrate</code> applies that folder only when the stage database already exists. Workload deploy and <code>migrate-stage-database.ts</code> create it first on <code>tanstackaws</code>, then apply with <code>migrateStageDatabaseSchema</code>.</p>
+      <div class="frame">
+        <iframe title="Stage database migrations: generate once, apply three ways" src="./stage-database-migrations.html"></iframe>
+      </div>
+    </section>
+
+    <footer>
+      Sequenced from <a href="https://github.com/JohannesKonings/tanstack-aws/blob/main/docs/stage-database.md">docs/stage-database.md</a>.
+      Each chapter is the redraw of one Mermaid block.
+    </footer>
+  </div>
+  <script>
+    const fit = (frame) => {
+      const doc = frame.contentDocument;
+      if (!doc) return;
+      doc.documentElement.classList.add('embed');
+      frame.style.height = `${doc.body.scrollHeight}px`;
+    };
+
+    const frames = [...document.querySelectorAll('iframe')];
+    for (const frame of frames) {
+      frame.addEventListener('load', () => {
+        fit(frame);
+        frame.contentDocument?.fonts?.ready.then(() => fit(frame));
+      });
+    }
+    window.addEventListener('resize', () => {
+      for (const frame of frames) fit(frame);
+    });
+  </script>
+</body>
+</html>

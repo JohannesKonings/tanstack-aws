@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
+import { resolveStageDatabaseName, STAGE_DATABASE_SCHEMA } from '@tanstack-aws/aurora';
 import { CfnElement, Stack } from 'aws-cdk-lib';
 import type { Table } from 'aws-cdk-lib/aws-dynamodb';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct, type IConstruct } from 'constructs';
 import { resolveStageLifecycle } from '../../../../lib/stage-name.ts';
-import { resolveAuroraSchemaName } from '../aurora-schema.ts';
 import { AuroraSchemaLifecycle } from './AuroraSchemaLifecycle.ts';
 import { DatabasePersons } from './DatabasePersons.ts';
 import { DatabaseTodos } from './DatabaseTodos.ts';
@@ -48,8 +48,10 @@ export class SharedWorkloadData extends Construct {
   readonly dbPersons: Table;
   readonly eventsTable: Table;
   readonly auroraClusterArn: string;
+  readonly auroraSchema: string;
   readonly auroraSecretArn: string;
-  readonly auroraDatabaseName: string;
+  readonly maintenanceDatabaseName: string;
+  readonly stageDatabaseName: string;
 
   constructor(scope: Construct, id: string, props: SharedWorkloadDataProps) {
     super(scope, id);
@@ -75,20 +77,21 @@ export class SharedWorkloadData extends Construct {
       this,
       '/tanstack-aws/shared/aurora/secret-arn',
     );
-    this.auroraDatabaseName = ssm.StringParameter.valueForStringParameter(
+    this.maintenanceDatabaseName = ssm.StringParameter.valueForStringParameter(
       this,
       '/tanstack-aws/shared/aurora/database-name',
     );
+    this.stageDatabaseName = resolveStageDatabaseName(props.appStage);
+    this.auroraSchema = STAGE_DATABASE_SCHEMA;
 
-    const auroraSchema = resolveAuroraSchemaName(props.appStage);
     const appLifecycle = resolveStageLifecycle(props.appStage);
 
     new AuroraSchemaLifecycle(this, 'AuroraSchemaLifecycle', {
       clusterArn: this.auroraClusterArn,
-      databaseName: this.auroraDatabaseName,
-      deleteSchemaOnDelete: appLifecycle === 'ephemeral',
-      schemaName: auroraSchema,
+      dropDatabaseOnDelete: appLifecycle === 'ephemeral',
+      maintenanceDatabaseName: this.maintenanceDatabaseName,
       secretArn: this.auroraSecretArn,
+      stageDatabaseName: this.stageDatabaseName,
     });
 
     for (const [constructPath, logicalId] of Object.entries(webappLogicalIds)) {

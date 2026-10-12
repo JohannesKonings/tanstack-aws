@@ -64,8 +64,14 @@ export const cdkAppImportBoundaries = {
   },
 } satisfies OxlintOverride;
 
+const webappServerEnvironmentImport = {
+  group: ['**/apps/cdk-app/lib/webapp-server-environment.ts'],
+  message:
+    'Only a Vite config may import the web server environment map, and only to pass it to the CDK dev server plugin',
+};
+
 export const webappImportBoundaries = {
-  files: ['apps/webapp/**'],
+  files: ['apps/webapp/**', '!apps/webapp/vite.config.ts'],
   rules: {
     'no-restricted-imports': [
       'error',
@@ -79,6 +85,7 @@ export const webappImportBoundaries = {
             ],
             message: 'Webapp must not import other workspace apps',
           },
+          webappServerEnvironmentImport,
           {
             group: ['**/packages/tanstack-ds/**'],
             message:
@@ -90,8 +97,34 @@ export const webappImportBoundaries = {
   },
 } satisfies OxlintOverride;
 
+export const webappViteConfigImportBoundaries = {
+  files: ['apps/webapp/vite.config.ts', 'apps/webapp-admin/vite.config.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['**/apps/cdk-app/**', '!**/apps/cdk-app/lib/webapp-server-environment.ts'],
+            message: 'Vite config may import only the web server environment map from the CDK app',
+          },
+          {
+            group: ['**/apps/cdk-account-setup/**', '**/apps/webapp/**', '**/apps/webapp-admin/**'],
+            message: 'Vite config must not import other workspace apps',
+          },
+          {
+            group: ['**/packages/tanstack-ds/**'],
+            message:
+              'Vite config must not import the DS registry package — use shadcn add @tanstack-ds/<item> instead',
+          },
+        ],
+      },
+    ],
+  },
+} satisfies OxlintOverride;
+
 export const webappAdminImportBoundaries = {
-  files: ['apps/webapp-admin/**'],
+  files: ['apps/webapp-admin/**', '!apps/webapp-admin/vite.config.ts'],
   rules: {
     'no-restricted-imports': [
       'error',
@@ -105,6 +138,7 @@ export const webappAdminImportBoundaries = {
             group: ['**/apps/cdk-app/**', '**/apps/cdk-account-setup/**'],
             message: 'Webapp admin must not import other workspace apps',
           },
+          webappServerEnvironmentImport,
           {
             group: ['**/packages/tanstack-ds/**'],
             message:

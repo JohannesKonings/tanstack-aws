@@ -26,7 +26,8 @@ Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/cdk-
 Matt Pocock engineering skills live in `.agents/skills/`. Sync with `npx skills update -p` (or `vp dlx skills@latest update -p`). Restore from lockfile: `npx skills experimental_install`.
 
 - **Setup**: run `/setup-matt-pocock-skills` once after changing tracker or domain-doc layout.
-- **Code review**: prefer `/code-review` (standards + spec). Use `/review-security` only for security-focused review.
+- **Code review**: prefer `/code-review` (standards + spec). Use `/review-security` only for security-focused review. When the diff touches `docs/`, also run the review steps of `/docs-diagrams`.
+- **Docs diagrams**: `/docs-diagrams` draws and syncs the GitHub Pages diagrams in `docs/diagrams/` (wraps the third-party `diagram-design` skill, pinned in `skills-lock.json`).
 - **Tests**: prefer `/tdd` for feature work; run `vp check` and `vp test` per global conventions below.
 
 ### Issue tracker

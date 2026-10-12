@@ -1,0 +1,1 @@
+ALTER TABLE "default"."contacts" ADD COLUMN "testjk" boolean NOT NULL;

@@ -37,7 +37,7 @@ describe('applicationImportBoundaries', () => {
 
 describe('webappImportBoundaries', () => {
   it('covers apps/webapp in workspace lint file globs', () => {
-    expect(webappImportBoundaries.files).toEqual(['apps/webapp/**']);
+    expect(webappImportBoundaries.files).toEqual(['apps/webapp/**', '!apps/webapp/vite.config.ts']);
   });
 
   it('blocks imports from other workspace apps', () => {
@@ -60,7 +60,10 @@ describe('webappImportBoundaries', () => {
 
 describe('webappAdminImportBoundaries', () => {
   it('covers apps/webapp-admin in workspace lint file globs', () => {
-    expect(webappAdminImportBoundaries.files).toEqual(['apps/webapp-admin/**']);
+    expect(webappAdminImportBoundaries.files).toEqual([
+      'apps/webapp-admin/**',
+      '!apps/webapp-admin/vite.config.ts',
+    ]);
   });
 
   it('blocks imports from primary Webapp source', () => {

@@ -40,6 +40,12 @@ type DistributionProps = {
   assetsBucket: Bucket;
   originBehaviorKind: 'apiGw' | 'functionUrl';
   customHostname?: string;
+  /**
+   * Protected stages (`main`, `prod`) copy the console-managed WebACL onto the
+   * distribution. A pricing-plan WebACL can belong to only one distribution.
+   * The public webapp keeps it; additional frontends pass `false` permanently.
+   */
+  attachProtectedWebAcl?: boolean;
 };
 export class WebappDistribution extends Construct {
   public readonly distribution: Distribution;
@@ -54,6 +60,7 @@ export class WebappDistribution extends Construct {
       assetsBucket,
       originBehaviorKind,
       customHostname,
+      attachProtectedWebAcl = true,
     } = props;
 
     const baseDomain = 'tanstack-aws-examples.com';
@@ -277,7 +284,7 @@ export class WebappDistribution extends Construct {
       },
     ]);
 
-    if (hasCloudFrontFreePlane) {
+    if (hasCloudFrontFreePlane && attachProtectedWebAcl) {
       const cfnDistribution = this.distribution.node.defaultChild;
       if (!(cfnDistribution instanceof CfnDistribution)) {
         throw new Error('Expected the CloudFront distribution L1 resource.');

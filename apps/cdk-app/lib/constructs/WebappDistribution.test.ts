@@ -68,7 +68,7 @@ const readCacheBehaviorPathPatterns = (template: unknown): string[] => {
   return patterns;
 };
 
-const synthesizeDistribution = (appStage: string): unknown => {
+const synthesizeDistribution = (appStage: string, attachProtectedWebAcl?: boolean): unknown => {
   const app = new App();
   const stack = new Stack(app, 'TestStack', {
     env: { account: '123456789012', region: 'us-east-1' },
@@ -85,6 +85,7 @@ const synthesizeDistribution = (appStage: string): unknown => {
   new WebappDistribution(stack, 'WebappDistribution', {
     appStage,
     assetsBucket,
+    ...(attachProtectedWebAcl === undefined ? {} : { attachProtectedWebAcl }),
     description: `tanstack-aws Webapp (${appStage})`,
     originBehaviorKind: 'apiGw',
     webappServerApi,
@@ -111,5 +112,11 @@ describe('WebappDistribution static asset routing', () => {
         'Fn::GetAtt': [expect.stringContaining('ExistingDistributionWebAclLookup'), 'WebACLId'],
       },
     ]);
+  });
+
+  it('omits the protected-stage WebACL when attachment is disabled', () => {
+    const template = synthesizeDistribution('prod', false);
+
+    expect(readDistributionWebAclIds(template)).toEqual([undefined]);
   });
 });

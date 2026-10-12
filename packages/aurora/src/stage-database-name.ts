@@ -1,11 +1,15 @@
-const SCHEMA_SEPARATOR = '-';
+/** Person tables live in this schema inside every stage database. */
+export const STAGE_DATABASE_SCHEMA = 'default';
+
+const STAGE_SEPARATOR = '-';
 const POSTGRES_SEPARATOR = '_';
 const VALID_IDENTIFIER_START = /^[a-z_]/;
 
-export const resolveAuroraSchemaName = (appStage: string): string => {
+/** PostgreSQL database name for a workload stage (`main`, `prod`, `feature_checkout`). */
+export const resolveStageDatabaseName = (appStage: string): string => {
   const normalized = appStage
     .toLowerCase()
-    .replaceAll(SCHEMA_SEPARATOR, POSTGRES_SEPARATOR)
+    .replaceAll(STAGE_SEPARATOR, POSTGRES_SEPARATOR)
     .replace(/[^a-z0-9_]/g, POSTGRES_SEPARATOR)
     .replace(/_+/g, POSTGRES_SEPARATOR)
     .replace(/^_+|_+$/g, '');

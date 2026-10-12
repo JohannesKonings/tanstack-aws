@@ -1,9 +1,9 @@
 import { Dialog, DialogBody, DialogContent, DialogHeader } from '#apps/webapp/components/ui/dialog';
 import type { Person } from '#apps/webapp/types/person';
-import { PersonForm } from './PersonForm';
+import { PersonForm, type PersonFormPerson } from './PersonForm';
 
 interface PersonEditModalProps {
-  person: Person;
+  person: PersonFormPerson;
   onSave: (updates: Partial<Person>) => void;
   onCancel: () => void;
 }

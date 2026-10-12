@@ -5,17 +5,11 @@ import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { TIMEOUT_IN_SECONDS } from '../../../../lib/sse-stream-timeout.ts';
-import { resolveAuroraSchemaName } from '../aurora-schema.ts';
 import { repoPath } from '../repo-root.ts';
+import type { WebappServerEnvironment } from '../webapp-server-environment.ts';
 
 type WebappServerProps = {
-  appStage: string;
-  auroraClusterArn: string;
-  auroraSecretArn: string;
-  auroraDatabaseName: string;
-  tableNameTodos: string;
-  tableNamePersons: string;
-  tableNameEvents: string;
+  environment: WebappServerEnvironment;
   serverAssetPath?: string;
 };
 export class WebappServer extends Construct {
@@ -24,17 +18,7 @@ export class WebappServer extends Construct {
   constructor(scope: Construct, id: string, props: WebappServerProps) {
     super(scope, id);
 
-    const {
-      appStage,
-      auroraClusterArn,
-      auroraSecretArn,
-      auroraDatabaseName,
-      tableNameTodos,
-      tableNamePersons,
-      tableNameEvents,
-      serverAssetPath = '.output/server',
-    } = props;
-    const auroraSchema = resolveAuroraSchemaName(appStage);
+    const { environment, serverAssetPath = '.output/server' } = props;
 
     this.webappServer = new Function(this, 'WebappServer', {
       code: Code.fromAsset(repoPath(serverAssetPath)),
@@ -46,15 +30,7 @@ export class WebappServer extends Construct {
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(TIMEOUT_IN_SECONDS),
       // timeout: Duration.seconds(60),
-      environment: {
-        AURORA_CLUSTER_ARN: auroraClusterArn,
-        AURORA_SECRET_ARN: auroraSecretArn,
-        AURORA_DATABASE_NAME: auroraDatabaseName,
-        AURORA_SCHEMA: auroraSchema,
-        DDB_TODOS_TABLE_NAME: tableNameTodos,
-        DDB_PERSONS_TABLE_NAME: tableNamePersons,
-        EVENTS_TABLE: tableNameEvents,
-      },
+      environment,
       tracing: Tracing.ACTIVE,
     });
 
@@ -68,11 +44,15 @@ export class WebappServer extends Construct {
           'rds-data:RollbackTransaction',
         ],
         effect: Effect.ALLOW,
-        resources: [auroraClusterArn],
+        resources: [environment.AURORA_CLUSTER_ARN],
       }),
     );
 
-    const auroraSecret = Secret.fromSecretCompleteArn(this, 'AuroraSecret', auroraSecretArn);
+    const auroraSecret = Secret.fromSecretCompleteArn(
+      this,
+      'AuroraSecret',
+      environment.AURORA_SECRET_ARN,
+    );
     auroraSecret.grantRead(this.webappServer);
     Tags.of(this.webappServer).add('IsWebAppServer', 'true');
 

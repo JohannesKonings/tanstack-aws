@@ -84,41 +84,47 @@ export const ContactInfoCard = ({
           </div>
         </div>
 
-        <div className="flex gap-1">
-          {!contact.isPrimary && (
-            <Button
-              variant="icon"
-              color="gray"
-              size="icon-sm"
-              onClick={handleSetPrimary}
-              disabled={isLoading}
-              className="h-8 w-8 cursor-pointer"
-              title="Set as primary"
-            >
-              <StarIcon className="h-4 w-4" />
-            </Button>
-          )}
-          <Button
-            variant="icon"
-            color="gray"
-            size="icon-sm"
-            onClick={() => onEdit?.(contact)}
-            disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="icon"
-            color="red"
-            size="icon-sm"
-            onClick={() => setShowDeleteConfirm(true)}
-            disabled={isLoading}
-            className="h-8 w-8 cursor-pointer"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </Button>
-        </div>
+        {onUpdate || onEdit || onDelete ? (
+          <div className="flex gap-1">
+            {onUpdate && !contact.isPrimary ? (
+              <Button
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                onClick={handleSetPrimary}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+                title="Set as primary"
+              >
+                <StarIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+            {onEdit ? (
+              <Button
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                onClick={() => onEdit(contact)}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button
+                variant="icon"
+                color="red"
+                size="icon-sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isLoading}
+                className="h-8 w-8 cursor-pointer"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <ConfirmationModal

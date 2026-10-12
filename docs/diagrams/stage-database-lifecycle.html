@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docs-diagram:source" content="docs/stage-database.md" />
+  <meta name="docs-diagram:mermaid" content="sha256:5f0df8c6a57de891" />
+  <title>Stage database lifecycle on deploy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #2d3142;   /* jet-black */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #bf4520;   /* burnt-tangerine */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1360px; width: 100%; min-width: 0; }
+    /* The SVG holds its readable width (min-width == the viewBox width, so the
+       type ramp is never silently scaled down). This wrapper lets a narrow
+       screen scroll the diagram instead of the whole page. */
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 1280px; display: block; }
+    /* Paper has no scrollbar, so the local scroller would clip instead of
+       scroll. Let the diagram scale down to the sheet: smaller but whole
+       beats sharp but cut off. Must come after the svg rule above - a media
+       query adds no specificity, so a later plain rule would win. */
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+
+    html.embed body {
+      min-height: 0;
+      display: block;
+      padding: 1.25rem 1.25rem 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sequence · Stage database lifecycle</p>
+    <h1>Stage database lifecycle on deploy</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="stage-database-lifecycle-title stage-database-lifecycle-desc">
+        <title id="stage-database-lifecycle-title">Stage database lifecycle on deploy</title>
+        <desc id="stage-database-lifecycle-desc">The workload stack sends a custom resource event to the lifecycle handler: Create or Update runs CREATE DATABASE on the maintenance database and applies pending migration.sql to the stage database, Delete of an ephemeral stage runs DROP DATABASE, and Delete of main or prod leaves the stage database in place.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- LIFELINES — Workload stack 240 · Lifecycle handler 512 · Maintenance database 784 · Stage database 1056 -->
+        <line x1="240" y1="120" x2="240" y2="624" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="512" y1="120" x2="512" y2="624" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="784" y1="120" x2="784" y2="624" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="1056" y1="120" x2="1056" y2="624" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+
+        <!-- ALT FRAGMENT — three custom resource events, spans all four lifelines -->
+        <rect x="72" y="152" width="1096" height="448" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <rect x="72" y="152" width="40" height="16" rx="2" fill="#f5f5f5" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="92" y="164" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ALT</text>
+
+        <!-- Region dividers -->
+        <line x1="80" y1="328" x2="1160" y2="328" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="80" y1="456" x2="1160" y2="456" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Guards -->
+        <text x="84" y="184" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.04em">[Create or Update]</text>
+        <text x="84" y="352" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.04em">[Delete · ephemeral stage]</text>
+        <text x="84" y="480" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.04em">[Delete · main or prod]</text>
+
+        <!-- ACTIVATION BARS -->
+        <rect x="508" y="208" width="8" height="88" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="780" y="248" width="8" height="16" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="1052" y="288" width="8" height="16" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="508" y="384" width="8" height="48" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="780" y="424" width="8" height="16" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="508" y="512" width="8" height="24" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+
+        <!-- REGION 1 · Create or Update -->
+        <line x1="240" y1="208" x2="508" y2="208" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="324" y="190" width="104" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="376" y="199" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CREATE OR UPDATE</text>
+
+        <line x1="516" y1="248" x2="780" y2="248" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="600" y="230" width="96" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="648" y="239" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CREATE DATABASE</text>
+
+        <text x="804" y="252" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', serif">Existing stage database left in place</text>
+
+        <line x1="516" y1="288" x2="1052" y2="288" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="876" y="270" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="920" y="279" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">APPLY PENDING</text>
+        <rect x="876" y="294" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="920" y="303" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">migration.sql</text>
+
+        <!-- REGION 2 · Delete, ephemeral stage (focal: the one destructive call) -->
+        <line x1="240" y1="384" x2="508" y2="384" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="352" y="366" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="376" y="375" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DELETE</text>
+
+        <line x1="516" y1="424" x2="780" y2="424" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <rect x="604" y="406" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="648" y="415" fill="#bf4520" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DROP DATABASE</text>
+
+        <!-- REGION 3 · Delete, main or prod -->
+        <line x1="240" y1="512" x2="508" y2="512" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="352" y="494" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="376" y="503" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DELETE</text>
+
+        <!-- Note over Lifecycle handler … Stage database -->
+        <rect x="496" y="536" width="576" height="40" rx="4" fill="#f5f5f5"/>
+        <rect x="496" y="536" width="576" height="40" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="504" y="544" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="522" y="553" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NOTE</text>
+        <text x="784" y="560" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Stage database stays</text>
+
+        <!-- ACTOR BOXES — drawn after arrows -->
+        <!-- Workload stack (backend) -->
+        <rect x="144" y="64" width="192" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="144" y="64" width="192" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="152" y="72" width="32" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="168" y="81" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CDK</text>
+        <text x="240" y="96" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Workload stack</text>
+        <text x="240" y="111" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AuroraSchemaLifecycle</text>
+
+        <!-- Lifecycle handler (backend) -->
+        <rect x="416" y="64" width="192" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="416" y="64" width="192" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="424" y="72" width="48" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="448" y="81" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LAMBDA</text>
+        <text x="512" y="96" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Lifecycle handler</text>
+        <text x="512" y="111" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">aurora-schema-lifecycle.ts</text>
+
+        <!-- Maintenance database (store) -->
+        <rect x="688" y="64" width="192" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="688" y="64" width="192" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="696" y="72" width="24" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="708" y="81" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DB</text>
+        <text x="784" y="96" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Maintenance database</text>
+        <text x="784" y="111" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tanstackaws</text>
+
+        <!-- Stage database (store) -->
+        <rect x="960" y="64" width="192" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="960" y="64" width="192" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="968" y="72" width="24" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="980" y="81" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DB</text>
+        <text x="1056" y="96" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Stage database</text>
+        <text x="1056" y="111" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">main · prod · feature_checkout</text>
+
+        <!-- LEGEND -->
+        <line x1="72" y1="648" x2="1168" y2="648" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="72" y="664" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <line x1="72" y1="684" x2="100" y2="684" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="108" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Call</text>
+
+        <line x1="176" y1="684" x2="204" y2="684" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="212" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Destructive call</text>
+
+        <rect x="320" y="676" width="28" height="18" rx="2" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="326" y="688" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace">ALT</text>
+        <text x="356" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Alternative per custom resource event</text>
+
+        <rect x="544" y="678" width="16" height="12" rx="2" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="568" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Note</text>
+
+        <rect x="624" y="676" width="8" height="16" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <text x="640" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Active</text>
+
+        <rect x="704" y="678" width="28" height="12" rx="2" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="740" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Database</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

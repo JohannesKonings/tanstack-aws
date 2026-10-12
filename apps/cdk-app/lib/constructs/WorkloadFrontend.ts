@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import type { WebappServerEnvironment } from '../webapp-server-environment.ts';
 import type { SharedWorkloadData } from './SharedWorkloadData.ts';
 import { WebappApi } from './WebappApi.ts';
 import { WebappAssetsBucket } from './WebappAssetsBucket.ts';
@@ -11,27 +12,31 @@ type WorkloadFrontendProps = {
   appStage: string;
   /** Human-readable app name used in the CloudFront distribution description. */
   appLabel: string;
+  environment: WebappServerEnvironment;
   sharedData: SharedWorkloadData;
   serverAssetPath: string;
   publicAssetPath: string;
   customHostname?: string;
+  attachProtectedWebAcl?: boolean;
 };
 
 export class WorkloadFrontend extends Construct {
   constructor(scope: Construct, id: string, props: WorkloadFrontendProps) {
     super(scope, id);
 
-    const { appStage, appLabel, sharedData, serverAssetPath, publicAssetPath, customHostname } =
-      props;
+    const {
+      appStage,
+      appLabel,
+      environment,
+      sharedData,
+      serverAssetPath,
+      publicAssetPath,
+      customHostname,
+      attachProtectedWebAcl,
+    } = props;
 
     const webappServer = new WebappServer(this, 'WebappServer', {
-      appStage,
-      auroraClusterArn: sharedData.auroraClusterArn,
-      auroraSecretArn: sharedData.auroraSecretArn,
-      auroraDatabaseName: sharedData.auroraDatabaseName,
-      tableNameTodos: sharedData.dbTodos.tableName,
-      tableNamePersons: sharedData.dbPersons.tableName,
-      tableNameEvents: sharedData.eventsTable.tableName,
+      environment,
       serverAssetPath,
     });
 
@@ -52,6 +57,7 @@ export class WorkloadFrontend extends Construct {
     const distributionApiGw = new WebappDistribution(this, 'WebappDistributionApiGw', {
       appStage,
       assetsBucket: assetsBucket.assetsBucket,
+      attachProtectedWebAcl,
       customHostname,
       description: `tanstack-aws ${appLabel} (${appStage})`,
       originBehaviorKind: 'apiGw',

@@ -254,13 +254,54 @@ export default function Header() {
             libraryId="db"
           />
 
-          <DrawerNavLink
-            to="/demo/db-person"
-            onNavigate={close}
-            icon={<UsersIcon size={20} className="shrink-0 text-icon-default" />}
-            label="DB Persons"
-            libraryId="db"
-          />
+          <div className="flex flex-row justify-between">
+            <DrawerNavLink
+              to="/demo/db-persons"
+              onNavigate={close}
+              icon={<UsersIcon size={20} className="shrink-0 text-icon-default" />}
+              label="DB Persons"
+              libraryId="db"
+              className="mb-2 flex flex-1 items-center gap-3 rounded-lg p-3 text-text-primary transition-colors hover:bg-surface-state-hover"
+              activeClassName="mb-2 flex flex-1 items-center gap-3 rounded-lg border border-border-focus/30 bg-action-primary/10 p-3 text-text-primary transition-colors"
+            />
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-md"
+              aria-label="Toggle DB persons"
+              onClick={() =>
+                setGroupedExpanded((prev) => ({
+                  ...prev,
+                  DbPersons: !prev.DbPersons,
+                }))
+              }
+            >
+              {groupedExpanded.DbPersons ? (
+                <CaretDownIcon size={20} />
+              ) : (
+                <CaretRightIcon size={20} />
+              )}
+            </Button>
+          </div>
+          {groupedExpanded.DbPersons ? (
+            <div className="ml-4 flex flex-col">
+              <DrawerNavLink
+                to="/demo/db-persons/ddb"
+                onNavigate={close}
+                icon={<UsersIcon size={20} className="shrink-0 text-icon-default" />}
+                label="DDB"
+                libraryId="db"
+              />
+              <DrawerNavLink
+                to="/demo/db-persons/aurora"
+                onNavigate={close}
+                icon={<UsersIcon size={20} className="shrink-0 text-icon-default" />}
+                label="Aurora"
+                libraryId="db"
+              />
+            </div>
+          ) : null}
 
           {/* Demo Links End */}
         </nav>

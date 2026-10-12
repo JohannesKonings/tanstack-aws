@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docs-diagram:source" content="docs/stage-database.md" />
+  <meta name="docs-diagram:mermaid" content="sha256:dc04525f22618850" />
+  <title>Stage databases on the shared Aurora cluster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #2d3142;   /* jet-black */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #bf4520;   /* burnt-tangerine */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1280px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 1280px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+
+    html.embed body {
+      min-height: 0;
+      display: block;
+      padding: 1.25rem 1.25rem 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Nested · Stage database lifecycle</p>
+    <h1>Stage databases on the shared Aurora cluster</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="stage-database-containment-title stage-database-containment-desc">
+        <title id="stage-database-containment-title">Stage databases on the shared Aurora cluster</title>
+        <desc id="stage-database-containment-desc">The shared Aurora cluster holds the maintenance database tanstackaws, which has no person tables and runs CREATE DATABASE for every stage database and DROP DATABASE for ephemeral ones, plus the stage databases main, prod, and feature_checkout, each holding schema default.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Level 1: shared Aurora cluster (zone, painted first) -->
+        <rect x="40" y="72" width="1200" height="448" rx="8" fill="rgba(45,49,66,0.015)" stroke="rgba(45,49,66,0.40)" stroke-width="1"/>
+        <rect x="56" y="64" width="268" height="16" fill="#f5f5f5"/>
+        <text x="64" y="76" fill="#4f5d75" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">SHARED AURORA CLUSTER · DATA API ONLY</text>
+
+        <!-- Level 2 rings: stage databases (zones, painted before connectors) -->
+        <!-- main: permanent, focal -->
+        <rect x="80" y="272" width="352" height="216" rx="8" fill="rgba(45,49,66,0.025)" stroke="#bf4520" stroke-width="1"/>
+        <!-- prod: permanent -->
+        <rect x="464" y="272" width="352" height="216" rx="8" fill="rgba(45,49,66,0.025)" stroke="#4f5d75" stroke-width="1"/>
+        <!-- feature_checkout: ephemeral, dashed -->
+        <rect x="848" y="272" width="352" height="216" rx="8" fill="rgba(45,49,66,0.02)" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Connectors: maintenance database → stage databases (drawn before nodes) -->
+        <line x1="256" y1="200" x2="256" y2="272" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <rect x="264" y="230" width="40" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="284" y="239" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATE</text>
+
+        <line x1="640" y1="200" x2="640" y2="272" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <rect x="648" y="230" width="40" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="668" y="239" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATE</text>
+
+        <line x1="1000" y1="200" x2="1000" y2="272" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <rect x="952" y="230" width="40" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="972" y="239" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATE</text>
+
+        <line x1="1048" y1="200" x2="1048" y2="272" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="1056" y="230" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="1072" y="239" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DROP</text>
+
+        <!-- Maintenance database tanstackaws -->
+        <rect x="80" y="120" width="1120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="80" y="120" width="1120" height="80" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="88" y="126" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="116" y="135" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MAINT DB</text>
+        <text x="640" y="150" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Maintenance database</text>
+        <text x="640" y="168" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">tanstackaws</text>
+        <text x="640" y="186" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">no person tables · runs CREATE DATABASE and DROP DATABASE</text>
+
+        <!-- Ring labels on paper masks over the top border -->
+        <rect x="96" y="264" width="104" height="16" fill="#f5f5f5"/>
+        <text x="104" y="276" fill="#bf4520" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">STAGE DATABASE</text>
+        <rect x="480" y="264" width="104" height="16" fill="#f5f5f5"/>
+        <text x="488" y="276" fill="#4f5d75" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">STAGE DATABASE</text>
+        <rect x="864" y="264" width="104" height="16" fill="#f5f5f5"/>
+        <text x="872" y="276" fill="#4f5d75" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">STAGE DATABASE</text>
+
+        <!-- Stage database names and lifecycle tags -->
+        <text x="104" y="316" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist Mono', monospace">main</text>
+        <rect x="360" y="288" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="388" y="297" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PERMANENT</text>
+
+        <text x="488" y="316" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist Mono', monospace">prod</text>
+        <rect x="744" y="288" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="772" y="297" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PERMANENT</text>
+
+        <text x="872" y="316" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist Mono', monospace">feature_checkout</text>
+        <rect x="1128" y="288" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8" stroke-dasharray="3,2"/>
+        <text x="1156" y="297" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EPHEMERAL</text>
+
+        <!-- Level 3: schema default inside each stage database -->
+        <!-- main / default: focal -->
+        <rect x="112" y="344" width="288" height="112" rx="6" fill="#f5f5f5"/>
+        <rect x="112" y="344" width="288" height="112" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+        <rect x="120" y="350" width="40" height="12" rx="2" fill="transparent" stroke="rgba(191,69,32,0.40)" stroke-width="0.8"/>
+        <text x="140" y="359" fill="#bf4520" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SCHEMA</text>
+        <text x="256" y="404" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">default</text>
+        <text x="256" y="422" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">person tables</text>
+
+        <!-- prod / default -->
+        <rect x="496" y="344" width="288" height="112" rx="6" fill="#f5f5f5"/>
+        <rect x="496" y="344" width="288" height="112" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="504" y="350" width="40" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="524" y="359" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SCHEMA</text>
+        <text x="640" y="404" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">default</text>
+        <text x="640" y="422" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">person tables</text>
+
+        <!-- feature_checkout / default -->
+        <rect x="880" y="344" width="288" height="112" rx="6" fill="#f5f5f5"/>
+        <rect x="880" y="344" width="288" height="112" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="888" y="350" width="40" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+        <text x="908" y="359" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SCHEMA</text>
+        <text x="1024" y="404" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">default</text>
+        <text x="1024" y="422" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">person tables</text>
+
+        <!-- Editorial callout -->
+        <text x="80" y="564" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', serif">Stage database main and schema default are different identifiers: the schema is never named after the stage.</text>
+
+        <!-- Legend strip -->
+        <line x1="40" y1="616" x2="1240" y2="616" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="40" y="648" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+        <rect x="112" y="638" width="24" height="16" rx="4" fill="rgba(45,49,66,0.025)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="144" y="650" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">permanent stage database</text>
+
+        <rect x="344" y="638" width="24" height="16" rx="4" fill="rgba(45,49,66,0.02)" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="376" y="650" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ephemeral stage database</text>
+
+        <line x1="576" y1="646" x2="604" y2="646" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <text x="612" y="650" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">CREATE DATABASE · every stage</text>
+
+        <line x1="808" y1="646" x2="836" y2="646" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <text x="844" y="650" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">DROP DATABASE · ephemeral only</text>
+
+        <rect x="1040" y="638" width="24" height="16" rx="4" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+        <text x="1072" y="650" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">main vs default</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

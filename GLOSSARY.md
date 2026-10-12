@@ -22,10 +22,40 @@ _Avoid_: main app, customer app, frontend
 The internal admin console — a separate TanStack Start application for operations and administration.
 _Avoid_: admin app, backoffice, dashboard
 
+## Persons demos
+
+**Person**:
+A demo subject with identity fields plus related addresses, bank accounts, contacts, and employment records. **DynamoDB persons** and **Aurora persons** are the same person shape.
+_Avoid_: user, profile, contact
+
+**DB Persons**:
+The webapp demo area that presents **DynamoDB persons** and **Aurora persons** as one navigation group.
+_Avoid_: persons demo, db-person
+
+**DynamoDB persons**:
+The **Person** aggregate stored in the stage DynamoDB persons table.
+_Avoid_: DB persons, ElectroDB persons
+
+**Aurora persons**:
+The **Person** aggregate stored in the **stage database**.
+_Avoid_: Postgres persons, RDS persons
+
+**DB Aurora**:
+The webapp-admin view of how many rows each table in the **stage database** holds.
+_Avoid_: aurora admin, database counts
+
 ## Infrastructure
 
+**Stage database**:
+The PostgreSQL database on the shared Aurora cluster that belongs to one workload stage. Person tables live in its `default` schema.
+_Avoid_: stage schema, per-stage schema
+
+**Maintenance database**:
+The `tanstackaws` database used to create and drop a **stage database**. It does not hold person tables.
+_Avoid_: shared database, cluster database
+
 **Shared workload data**:
-Per-stage data resources shared by all workload webapps — DynamoDB tables, Aurora schema lifecycle, and events infrastructure. Created at the **Workload stack** level and passed to each webapp construct.
+Per-stage data resources shared by all workload webapps — DynamoDB tables, a **stage database**, and events infrastructure. Created at the **Workload stack** level and passed to each webapp construct.
 _Avoid_: per-app database, duplicated tables, isolated data layer
 
 **Workload frontend**:
