@@ -434,6 +434,7 @@ export const personListSchema = personSelectSchema.<span class="hl">pick</span>(
   firstName: true,
   lastName: true,
   gender: true,
+  dateOfBirth: true,
 });</code></pre>
     </section>
 
@@ -484,10 +485,11 @@ const personListColumns = <span class="hl">pageColumns(persons, personListSchema
           the transform output, never the page schema.
         </p>
         <p>
-          The transform is where a field can look different on screen. The database speaks <code>null</code>, the screen
-          speaks <code>undefined</code>: every nullable column goes through <code>absent</code>. A display-only field, such as a single <code>name</code> built
-          from <code>firstName</code> and <code>lastName</code>, belongs here too. It exists only on the view, so it
-          cannot be a query key.
+          The transform is where any view can reformat a field. The database speaks <code>null</code>, the screen
+          speaks <code>undefined</code>: every nullable column goes through <code>absent</code>. The list view derives
+          <code>birthdayYear</code> from <code>dateOfBirth</code> and drops the timestamp. That derived field exists only
+          on the view, so it cannot be a query key. A picked column the transform does not read is a type error naming
+          the key to take off the page schema.
         </p>
       </div>
       <div>
@@ -498,6 +500,7 @@ export const auroraPersonListView = personListSchema.<span class="hl">transform<
   firstName: person.firstName,
   lastName: person.lastName,
   gender: <span class="hl">absent(person.gender)</span>,
+  birthdayYear: <span class="hl">birthdayYear(person.dateOfBirth)</span>,
 }));
 
 export type AuroraPersonListRow = <span class="hl">z.output&lt;typeof auroraPersonListView&gt;</span>;</code></pre>
