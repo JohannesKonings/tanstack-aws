@@ -97,6 +97,34 @@ describe('checkDocsDiagrams', () => {
     expect(check(blocks, pages).map((finding) => finding.kind)).toEqual(['invalid']);
   });
 
+  it('accepts a storyline that sequences redraws without pinning a block', () => {
+    const storyline = page({
+      file: 'doc-storyline.html',
+      title: 'Story',
+      mermaid: undefined,
+      kind: 'storyline',
+    });
+
+    expect(check(blocks, [page(), storyline])).toEqual([]);
+  });
+
+  it('does not count a storyline as a second drawing of a block', () => {
+    const storyline = page({ file: 'doc-storyline.html', kind: 'storyline' });
+
+    expect(check(blocks, [page(), storyline])).toEqual([]);
+  });
+
+  it('reports a storyline without a source doc as invalid', () => {
+    const storyline = page({
+      file: 'doc-storyline.html',
+      source: undefined,
+      mermaid: undefined,
+      kind: 'storyline',
+    });
+
+    expect(check(blocks, [page(), storyline]).map((finding) => finding.kind)).toEqual(['invalid']);
+  });
+
   it('reports an index that does not list the current diagrams', () => {
     const findings = checkDocsDiagrams({
       blocks,

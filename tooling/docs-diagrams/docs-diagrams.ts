@@ -12,6 +12,7 @@ export type DiagramPage = {
   title?: string;
   source?: string;
   mermaid?: string;
+  kind?: string;
 };
 
 export type Finding = {
@@ -56,12 +57,17 @@ export const findMermaidBlocks = (doc: string, markdown: string): MermaidBlock[]
 const metaContent = (html: string, name: string): string | undefined =>
   new RegExp(`<meta\\s+name="${name}"\\s+content="([^"]*)"`).exec(html)?.[1];
 
-export const readDiagramPage = (file: string, html: string): DiagramPage => ({
-  file,
-  title: /<title>([^<]*)<\/title>/.exec(html)?.[1]?.trim(),
-  source: metaContent(html, 'docs-diagram:source'),
-  mermaid: metaContent(html, 'docs-diagram:mermaid'),
-});
+export const readDiagramPage = (file: string, html: string): DiagramPage => {
+  const kind = metaContent(html, 'docs-diagram:kind');
+
+  return {
+    file,
+    title: /<title>([^<]*)<\/title>/.exec(html)?.[1]?.trim(),
+    source: metaContent(html, 'docs-diagram:source'),
+    mermaid: metaContent(html, 'docs-diagram:mermaid'),
+    ...(kind ? { kind } : {}),
+  };
+};
 
 const escapeHtml = (value: string): string =>
   value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -75,6 +81,10 @@ export const renderIndex = (pages: DiagramPage[], repoBlobUrl: string): string =
     .toSorted(([a], [b]) => a.localeCompare(b))
     .map(([source, sourcePages]) => {
       const items = sourcePages
+        .toSorted((a, b) => {
+          const rank = (page: DiagramPage) => (page.kind === 'storyline' ? 0 : 1);
+          return rank(a) - rank(b) || a.file.localeCompare(b.file);
+        })
         .map(
           (page) =>
             `      <li><a href="./${page.file}">${escapeHtml(page.title ?? page.file)}</a></li>`,
@@ -109,7 +119,7 @@ export const renderIndex = (pages: DiagramPage[], repoBlobUrl: string): string =
   <body>
     <main>
       <h1>Docs diagrams</h1>
-      <p>Each diagram redraws one Mermaid block. The Markdown doc stays the source of truth.</p>
+      <p>Each diagram redraws one Mermaid block. A storyline sequences those redraws. The Markdown doc stays the source of truth.</p>
 ${sections}
     </main>
   </body>
@@ -131,6 +141,24 @@ export const checkDocsDiagrams = ({
   const findings: Finding[] = [];
 
   for (const page of pages) {
+    if (page.kind === 'storyline') {
+      if (!page.source) {
+        findings.push({
+          kind: 'invalid',
+          message: `${page.file}: a storyline needs <meta name="docs-diagram:source">.`,
+        });
+      }
+      continue;
+    }
+
+    if (page.kind) {
+      findings.push({
+        kind: 'invalid',
+        message: `${page.file}: docs-diagram:kind must be "storyline".`,
+      });
+      continue;
+    }
+
     if (!page.source || !page.mermaid) {
       findings.push({
         kind: 'invalid',
@@ -150,7 +178,10 @@ export const checkDocsDiagrams = ({
     if (block.skipReason) {
       continue;
     }
-    const drawn = pages.filter((page) => page.source === block.doc && page.mermaid === block.hash);
+    const drawn = pages.filter(
+      (page) =>
+        page.kind !== 'storyline' && page.source === block.doc && page.mermaid === block.hash,
+    );
     if (drawn.length === 0) {
       findings.push({
         kind: 'missing',

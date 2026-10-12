@@ -35,6 +35,8 @@ The hash covers the fence body only. Editing the block makes its redraw **stale*
 
 A block not worth a redraw gets `<!-- docs-diagram: skip <reason> -->` on the line above its fence, with a reason a reviewer can judge.
 
+A **storyline** sequences the redraws of one doc. It is not a redraw: it carries `docs-diagram:source` and `<meta name="docs-diagram:kind" content="storyline" />`, and no mermaid hash. The check lists it first under that doc and does not count it toward missing, stale, or duplicate.
+
 ## Review
 
 Run this for any diff that touches `docs/`, alongside `/code-review`. Report under `## Docs diagrams`.
