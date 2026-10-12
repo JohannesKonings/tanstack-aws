@@ -32,10 +32,6 @@ const columnsByField = {
     header: 'Last Name',
     cell: (info) => info.getValue(),
   }),
-  // gender: columnHelper.accessor('gender', {
-  //   header: 'Gender',
-  //   cell: (info) => info.getValue(),
-  // }),
   birthdayYear: columnHelper.accessor('birthdayYear', {
     header: 'Birth Year',
     cell: (info) => info.getValue(),

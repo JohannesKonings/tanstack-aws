@@ -84,7 +84,7 @@ describe('Aurora persons', () => {
     expect(tableOf(statements[0]?.sql)).toBe('persons');
     expect(statements[0]?.sql).toContain('"firstName"');
     expect(statements[0]?.sql).toContain('"lastName"');
-    expect(statements[0]?.sql).toContain('"gender"');
+    expect(statements[0]?.sql).not.toContain('"gender"');
     expect(statements[0]?.sql).toContain('"dateOfBirth"');
     expect(statements[0]?.sql).not.toContain('"createdAt"');
     expect(statements[0]?.sql).not.toContain('where');

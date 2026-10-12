@@ -11,32 +11,28 @@ describe('Aurora person views', () => {
         id: personId,
         firstName: 'Ada',
         lastName: 'Lovelace',
-        gender: 'female',
         dateOfBirth: '1815-12-10T00:00:00.000Z',
       }),
     ).toEqual({
       id: personId,
       firstName: 'Ada',
       lastName: 'Lovelace',
-      gender: 'female',
       birthdayYear: 1815,
     });
   });
 
-  it('maps a missing list gender and birth date to undefined', () => {
+  it('maps a missing list birth date to undefined', () => {
     expect(
       auroraPersonListView.parse({
         id: personId,
         firstName: 'Ada',
         lastName: 'Lovelace',
-        gender: null,
         dateOfBirth: null,
       }),
     ).toEqual({
       id: personId,
       firstName: 'Ada',
       lastName: 'Lovelace',
-      gender: undefined,
       birthdayYear: undefined,
     });
   });

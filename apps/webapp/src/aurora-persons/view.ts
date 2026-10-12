@@ -41,7 +41,6 @@ export const auroraPersonListView = personListSchema.transform((person) => {
     id,
     firstName,
     lastName,
-    // gender: absent(gender),
     birthdayYear: birthdayYear(dateOfBirth),
   };
 });

@@ -433,7 +433,6 @@ export const personListSchema = personSelectSchema.<span class="hl">pick</span>(
   id: true,
   firstName: true,
   lastName: true,
-  gender: true,
   dateOfBirth: true,
 });</code></pre>
     </section>
@@ -499,7 +498,6 @@ export const auroraPersonListView = personListSchema.<span class="hl">transform<
   id: person.id,
   firstName: person.firstName,
   lastName: person.lastName,
-  gender: <span class="hl">absent(person.gender)</span>,
   birthdayYear: <span class="hl">birthdayYear(person.dateOfBirth)</span>,
 }));
 

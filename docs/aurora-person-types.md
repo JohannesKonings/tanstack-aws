@@ -31,7 +31,7 @@ A page schema is a pick of the select schema. The pick is the field list for tha
 
 | Page schema             | Read                          | Columns                                                |
 | ----------------------- | ----------------------------- | ------------------------------------------------------ |
-| `personListSchema`      | Person list                   | `id`, `firstName`, `lastName`, `gender`, `dateOfBirth` |
+| `personListSchema`      | Person list                   | `id`, `firstName`, `lastName`, `dateOfBirth`           |
 | `personDetailSchema`    | One person                    | `id`, `firstName`, `lastName`, `gender`, `dateOfBirth` |
 | `addressPageSchema`     | Addresses for that person     | address columns, including `personId`                  |
 | `bankAccountPageSchema` | Bank accounts for that person | bank-account columns, including `personId`             |
