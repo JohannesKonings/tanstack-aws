@@ -36,7 +36,7 @@ The **maintenance database** is `tanstackaws`. It does not hold person tables. C
 
 ## Deploy
 
-`SharedWorkloadData` in the workload stack registers a custom resource, `AuroraSchemaLifecycle`. The handler is `src/lambda/aurora-schema-lifecycle.ts`. The bundle includes `packages/aurora/migrations`.
+`SharedWorkloadData` in the workload stack registers a custom resource, `StageDatabaseLifecycle`. The handler is `src/lambda/stage-database-lifecycle.ts`. The bundle includes `packages/aurora/migrations`.
 
 ```mermaid
 sequenceDiagram
@@ -110,5 +110,5 @@ These tasks read the deployed workload stack. Set `APP_STAGE` to select a stack 
 | Stage database name and schema `default`                                            | `packages/aurora/src/stage-database-name.ts`            |
 | Create, drop, and the refusal to treat the maintenance database as a stage database | `packages/aurora/src/stage-database-lifecycle.ts`       |
 | Apply migration SQL                                                                 | `packages/aurora/src/stage-database-drizzle-migrate.ts` |
-| Deploy custom resource and migration hash                                           | `apps/cdk-app/lib/constructs/AuroraSchemaLifecycle.ts`  |
+| Deploy custom resource and migration hash                                           | `apps/cdk-app/lib/constructs/StageDatabaseLifecycle.ts` |
 | Auto-pause retry                                                                    | `packages/aurora/src/aurora-resume.ts`                  |

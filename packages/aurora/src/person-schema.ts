@@ -108,7 +108,7 @@ export const personListSchema = personSelectSchema.pick({
   id: true,
   firstName: true,
   lastName: true,
-  gender: true,
+  dateOfBirth: true,
 });
 
 export const personDetailSchema = personSelectSchema.pick({

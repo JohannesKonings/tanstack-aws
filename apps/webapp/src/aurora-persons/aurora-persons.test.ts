@@ -74,7 +74,7 @@ const parameterValues = (statement: RecordedStatement | undefined) =>
   statement?.parameters?.map((parameter) => parameter.value) ?? [];
 
 describe('Aurora persons', () => {
-  it('loads the person list with id, name, and gender columns only', async () => {
+  it('loads the person list with the columns the list view is derived from', async () => {
     const { client, statements } = recordingClient();
 
     const rows = await readAuroraPersonList(client, settings);
@@ -84,8 +84,8 @@ describe('Aurora persons', () => {
     expect(tableOf(statements[0]?.sql)).toBe('persons');
     expect(statements[0]?.sql).toContain('"firstName"');
     expect(statements[0]?.sql).toContain('"lastName"');
-    expect(statements[0]?.sql).toContain('"gender"');
-    expect(statements[0]?.sql).not.toContain('"dateOfBirth"');
+    expect(statements[0]?.sql).not.toContain('"gender"');
+    expect(statements[0]?.sql).toContain('"dateOfBirth"');
     expect(statements[0]?.sql).not.toContain('"createdAt"');
     expect(statements[0]?.sql).not.toContain('where');
     expect(statements.every(usesStageDatabase)).toBe(true);

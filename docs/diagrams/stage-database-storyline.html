@@ -206,7 +206,7 @@
     <section class="chapter" id="deploy">
       <p class="chapter-kicker">02 · Lifecycle</p>
       <h2>What deploy does</h2>
-      <p><code>AuroraSchemaLifecycle</code> sends a custom resource event to <code>aurora-schema-lifecycle.ts</code>. Create or Update runs <code>CREATE DATABASE</code> on <code>tanstackaws</code>, leaves an existing stage database in place, and applies pending <code>migration.sql</code>. Delete of an ephemeral stage runs <code>DROP DATABASE</code>. Delete of <code>main</code> or <code>prod</code> leaves the stage database in place.</p>
+      <p><code>StageDatabaseLifecycle</code> sends a custom resource event to <code>stage-database-lifecycle.ts</code>. Create or Update runs <code>CREATE DATABASE</code> on <code>tanstackaws</code>, leaves an existing stage database in place, and applies pending <code>migration.sql</code>. Delete of an ephemeral stage runs <code>DROP DATABASE</code>. Delete of <code>main</code> or <code>prod</code> leaves the stage database in place.</p>
       <div class="frame">
         <iframe title="Stage database lifecycle on deploy" src="./stage-database-lifecycle.html"></iframe>
       </div>

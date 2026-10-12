@@ -3,16 +3,19 @@ import { describe, expect, it } from 'vite-plus/test';
 import { createCdkApp } from '../cdk-app.ts';
 import { SharedWorkloadData } from './SharedWorkloadData.ts';
 
+const stageDatabaseLifecycleLogicalIds = [
+  'SharedWorkloadDataStageDatabaseLifecycleFE26ACE7',
+  'SharedWorkloadDataStageDatabaseLifecycleHandler44BC85B2',
+  'SharedWorkloadDataStageDatabaseLifecycleHandlerLogGroupD7138760',
+  'SharedWorkloadDataStageDatabaseLifecycleHandlerServiceRole5D76EB47',
+  'SharedWorkloadDataStageDatabaseLifecycleHandlerServiceRoleDefaultPolicyAEF95E06',
+  'SharedWorkloadDataStageDatabaseLifecycleProviderframeworkonEvent21FAA5EA',
+  'SharedWorkloadDataStageDatabaseLifecycleProviderframeworkonEventLogGroup60647968',
+  'SharedWorkloadDataStageDatabaseLifecycleProviderframeworkonEventServiceRole0D97F7EA',
+  'SharedWorkloadDataStageDatabaseLifecycleProviderframeworkonEventServiceRoleDefaultPolicyB7E02C41',
+];
+
 const pinnedLogicalIds = [
-  'WebappAuroraSchemaLifecycle85AC824D',
-  'WebappAuroraSchemaLifecycleHandlerB1C21912',
-  'WebappAuroraSchemaLifecycleHandlerLogGroupF182201E',
-  'WebappAuroraSchemaLifecycleHandlerServiceRoleB038FE51',
-  'WebappAuroraSchemaLifecycleHandlerServiceRoleDefaultPolicyB9AA887B',
-  'WebappAuroraSchemaLifecycleProviderframeworkonEvent9B0A88DA',
-  'WebappAuroraSchemaLifecycleProviderframeworkonEventLogGroup310105C0',
-  'WebappAuroraSchemaLifecycleProviderframeworkonEventServiceRole0F6D4594',
-  'WebappAuroraSchemaLifecycleProviderframeworkonEventServiceRoleDefaultPolicy91D65903',
   'WebappDatabasePersonsE2E33589',
   'WebappDatabaseTodos39DA962E',
   'WebappEventsTableEventsC49DFB5F',
@@ -45,10 +48,11 @@ const synthesizeSharedData = (app: App): string[] => {
 };
 
 describe('SharedWorkloadData', () => {
-  it('overrides shared data logical IDs with the names from Webapp', () => {
+  it('keeps the Webapp logical IDs and replaces the stage database lifecycle ids', () => {
     const resources = synthesizeSharedData(createCdkApp());
 
-    expect(resources).toEqual(expect.arrayContaining(pinnedLogicalIds));
-    expect(resources.some((logicalId) => logicalId.startsWith('SharedWorkloadData'))).toBe(false);
+    expect(resources.toSorted()).toEqual(
+      [...pinnedLogicalIds, ...stageDatabaseLifecycleLogicalIds].toSorted(),
+    );
   }, 120_000);
 });

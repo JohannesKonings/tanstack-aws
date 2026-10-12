@@ -31,7 +31,7 @@ A page schema is a pick of the select schema. The pick is the field list for tha
 
 | Page schema             | Read                          | Columns                                                |
 | ----------------------- | ----------------------------- | ------------------------------------------------------ |
-| `personListSchema`      | Person list                   | `id`, `firstName`, `lastName`, `gender`                |
+| `personListSchema`      | Person list                   | `id`, `firstName`, `lastName`, `dateOfBirth`           |
 | `personDetailSchema`    | One person                    | `id`, `firstName`, `lastName`, `gender`, `dateOfBirth` |
 | `addressPageSchema`     | Addresses for that person     | address columns, including `personId`                  |
 | `bankAccountPageSchema` | Bank accounts for that person | bank-account columns, including `personId`             |
@@ -64,7 +64,9 @@ export type AuroraPersonListRow = z.output<typeof auroraPersonListView>;
 
 The transform is where a field can look different on the screen. The database speaks `null` and the screen speaks `undefined`: every nullable column goes through `absent`, so an empty value is `undefined` on every screen type. That matches the write inputs in `server.ts`, which take `.optional()` fields, so a row loaded into a form can be sent back unchanged.
 
-A display field can be derived in the same transform, for example a single `name` from `firstName` and `lastName`. That derived field exists only on the view.
+A display field can be derived in the same transform. The person list does this: `personListSchema` still picks `dateOfBirth` so the query returns it, and `auroraPersonListView` replaces that timestamp with `birthdayYear`. The derived field exists only on the view.
+
+Every transform reads its picked columns through `everyColumnRead` and returns its own shape, so any view can reformat a column. A column left unread is a type error naming that key, such as take `dateOfBirth` off the page schema. Deleting `birthdayYear` without still reading `dateOfBirth` fails until `dateOfBirth` comes off `personListSchema`.
 
 ## Link from the list to the detail query
 

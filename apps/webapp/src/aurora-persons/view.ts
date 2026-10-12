@@ -11,86 +11,126 @@ import type { z } from 'zod';
 /** The database speaks `null`, the screen speaks `undefined`. Every nullable column goes through here. */
 const absent = <T>(value: T | null) => value ?? undefined;
 
-/** A view maps every picked column, and only those. A column the screen does not need comes off the pick. */
-type ViewOf<Page extends z.ZodType> = Record<keyof z.output<Page>, unknown>;
+/**
+ * A picked column still in `rest` is selected but unused. The message names the key to take off the page schema.
+ * The transform return value is a separate shape, so any view can reformat a column it has read.
+ */
+type UnreadColumn<Row extends object> = {
+  [Key in keyof Row]: `take "${Key & string}" off the page schema`;
+};
 
-export const auroraPersonListView = personListSchema.transform(
-  (person) =>
-    ({
-      id: person.id,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      gender: absent(person.gender),
-    }) satisfies ViewOf<typeof personListSchema>,
-);
+const everyColumnRead = <Row extends object>(
+  rest: keyof Row extends never ? Row : UnreadColumn<Row>,
+): void => {
+  void rest;
+};
 
-export const auroraPersonDetailView = personDetailSchema.transform(
-  (person) =>
-    ({
-      id: person.id,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      gender: absent(person.gender),
-      dateOfBirth: absent(person.dateOfBirth),
-    }) satisfies ViewOf<typeof personDetailSchema>,
-);
+/** The list shows the year. The stored timestamp stays on the page schema so the query can select it. */
+const birthdayYear = (dateOfBirth: string | null) => {
+  if (dateOfBirth === null) {
+    return undefined;
+  }
+  const year = new Date(dateOfBirth).getUTCFullYear();
+  return Number.isNaN(year) ? undefined : year;
+};
 
-export const auroraAddressView = addressPageSchema.transform(
-  (address) =>
-    ({
-      id: address.id,
-      personId: address.personId,
-      type: address.type,
-      street: address.street,
-      city: address.city,
-      state: address.state,
-      postalCode: address.postalCode,
-      country: address.country,
-      isPrimary: address.isPrimary,
-    }) satisfies ViewOf<typeof addressPageSchema>,
-);
+export const auroraPersonListView = personListSchema.transform((person) => {
+  const { id, firstName, lastName, dateOfBirth, ...rest } = person;
+  everyColumnRead(rest);
+  return {
+    id,
+    firstName,
+    lastName,
+    birthdayYear: birthdayYear(dateOfBirth),
+  };
+});
 
-export const auroraBankAccountView = bankAccountPageSchema.transform(
-  (bankAccount) =>
-    ({
-      id: bankAccount.id,
-      personId: bankAccount.personId,
-      bankName: bankAccount.bankName,
-      accountType: bankAccount.accountType,
-      accountNumberLast4: bankAccount.accountNumberLast4,
-      iban: absent(bankAccount.iban),
-      bic: absent(bankAccount.bic),
-      isPrimary: bankAccount.isPrimary,
-    }) satisfies ViewOf<typeof bankAccountPageSchema>,
-);
+export const auroraPersonDetailView = personDetailSchema.transform((person) => {
+  const { id, firstName, lastName, gender, dateOfBirth, ...rest } = person;
+  everyColumnRead(rest);
+  return {
+    id,
+    firstName,
+    lastName,
+    gender: absent(gender),
+    dateOfBirth: absent(dateOfBirth),
+  };
+});
 
-export const auroraContactView = contactPageSchema.transform(
-  (contact) =>
-    ({
-      id: contact.id,
-      personId: contact.personId,
-      type: contact.type,
-      value: contact.value,
-      isPrimary: contact.isPrimary,
-      isVerified: contact.isVerified,
-    }) satisfies ViewOf<typeof contactPageSchema>,
-);
+export const auroraAddressView = addressPageSchema.transform((address) => {
+  const { id, personId, type, street, city, state, postalCode, country, isPrimary, ...rest } =
+    address;
+  everyColumnRead(rest);
+  return {
+    id,
+    personId,
+    type,
+    street,
+    city,
+    state,
+    postalCode,
+    country,
+    isPrimary,
+  };
+});
 
-export const auroraEmploymentView = employmentPageSchema.transform(
-  (employment) =>
-    ({
-      id: employment.id,
-      personId: employment.personId,
-      companyName: employment.companyName,
-      position: employment.position,
-      department: absent(employment.department),
-      startDate: employment.startDate,
-      endDate: absent(employment.endDate),
-      isCurrent: employment.isCurrent,
-      salary: absent(employment.salary),
-      currency: employment.currency,
-    }) satisfies ViewOf<typeof employmentPageSchema>,
-);
+export const auroraBankAccountView = bankAccountPageSchema.transform((bankAccount) => {
+  const { id, personId, bankName, accountType, accountNumberLast4, iban, bic, isPrimary, ...rest } =
+    bankAccount;
+  everyColumnRead(rest);
+  return {
+    id,
+    personId,
+    bankName,
+    accountType,
+    accountNumberLast4,
+    iban: absent(iban),
+    bic: absent(bic),
+    isPrimary,
+  };
+});
+
+export const auroraContactView = contactPageSchema.transform((contact) => {
+  const { id, personId, type, value, isPrimary, isVerified, ...rest } = contact;
+  everyColumnRead(rest);
+  return {
+    id,
+    personId,
+    type,
+    value,
+    isPrimary,
+    isVerified,
+  };
+});
+
+export const auroraEmploymentView = employmentPageSchema.transform((employment) => {
+  const {
+    id,
+    personId,
+    companyName,
+    position,
+    department,
+    startDate,
+    endDate,
+    isCurrent,
+    salary,
+    currency,
+    ...rest
+  } = employment;
+  everyColumnRead(rest);
+  return {
+    id,
+    personId,
+    companyName,
+    position,
+    department: absent(department),
+    startDate,
+    endDate: absent(endDate),
+    isCurrent,
+    salary: absent(salary),
+    currency,
+  };
+});
 
 export type AuroraPersonListRow = z.output<typeof auroraPersonListView>;
 export type AuroraPersonDetail = z.output<typeof auroraPersonDetailView>;
