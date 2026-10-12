@@ -569,6 +569,358 @@ export const getAuroraPersonList = createServerFn({ method: 'GET' }).handler(asy
   <span class="hl">nickname: absent(person.nickname),</span>
 }));</code></pre>
     </section>
+
+    <section data-motion-root data-motion-mode="step" data-step-count="7" data-step-current="7" data-frame="static" data-static-frame="complete">
+      <h2>Remove a field: follow the checks</h2>
+      <p class="section-lede">
+        Removing a field runs the other way. The example drops <code>gender</code> from the person list read only, and
+        the detail read keeps it. You make one edit, to the pick. Two shapes follow on their own, and
+        <code>tsc</code> and <code>vp test</code> name every other place that still reads the field. The errors below
+        come from running that change on this repo. Step through the frames with the controls.
+      </p>
+
+      <div class="diagram-container">
+        <svg viewBox="0 0 1280 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="aurora-person-types-removal-title aurora-person-types-removal-desc">
+          <title id="aurora-person-types-removal-title">Removing gender from the person list read</title>
+          <desc id="aurora-person-types-removal-desc">Removing gender from personListSchema is the only edit. The column selection and the screen type follow without an edit. tsc reports TS2339 in the view transform at view.ts line 18, then TS2345 in the list table at table.tsx line 32 and TS2339 in view.test.ts line 31. vp test reports two failing tests because the list SQL and the list row no longer contain gender.</desc>
+          <defs>
+            <marker id="aurora-person-types-removal-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          </defs>
+
+          <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+          <text x="40" y="44" fill="#4f5d75" font-size="8" font-weight="500" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">REMOVE GENDER FROM THE LIST READ</text>
+          <text x="1240" y="44" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">checks: vp exec tsc --noEmit · vp test</text>
+          <line x1="40" y1="56" x2="1240" y2="56" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+          <path d="M220,112 H244" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#aurora-person-types-removal-arrow)"/>
+          <path d="M424,112 H448" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#aurora-person-types-removal-arrow)"/>
+          <path d="M628,112 H652" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#aurora-person-types-removal-arrow)"/>
+          <path d="M832,112 H856" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#aurora-person-types-removal-arrow)"/>
+          <line x1="1048" y1="72" x2="1048" y2="264" stroke="rgba(45,49,66,0.40)" stroke-width="0.8" stroke-dasharray="3 3"/>
+
+          <!-- Stage 1: the edit -->
+          <g data-motion-item data-step="1" aria-label="Step 1: edit the page schema, remove gender: true from personListSchema">
+            <rect class="stage-box" x="40" y="72" width="180" height="80" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+            <rect x="48" y="80" width="28" height="12" rx="2" fill="transparent" stroke="rgba(191,69,32,0.50)" stroke-width="0.8"/>
+            <text x="62" y="89" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">ZOD</text>
+            <text x="130" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Page schema</text>
+            <text x="130" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">personListSchema</text>
+            <text x="130" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">person-schema.ts</text>
+            <rect x="40" y="168" width="180" height="96" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+            <text x="210" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">1</text>
+            <text x="52" y="192" fill="#bf4520" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">✎ EDIT</text>
+            <text x="52" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">− gender: true</text>
+            <text x="52" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">pick keeps id and names</text>
+            <text x="52" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">THE CHANGE YOU MAKE</text>
+          </g>
+
+          <!-- Stage 2: column selection follows -->
+          <g data-motion-item data-step="2" aria-label="Step 2: the column selection follows the pick, the SELECT drops gender with no edit">
+            <rect class="stage-box" x="244" y="72" width="180" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+            <rect x="252" y="80" width="44" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+            <text x="274" y="89" fill="rgba(45,49,66,0.80)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SELECT</text>
+            <text x="334" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Column selection</text>
+            <text x="334" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">pageColumns(persons, …)</text>
+            <text x="334" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">aurora-persons.ts</text>
+            <rect x="244" y="168" width="180" height="96" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="414" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">2</text>
+            <text x="256" y="192" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">↳ FOLLOWS</text>
+            <text x="256" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">SELECT drops "gender"</text>
+            <text x="256" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">nothing to edit</text>
+            <text x="256" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">DERIVED FROM THE PICK</text>
+          </g>
+
+          <!-- Stage 3: view transform fails tsc -->
+          <g data-motion-item data-step="3" aria-label="Step 3: the view transform fails tsc with TS2339 at view.ts line 18, delete the gender line">
+            <rect class="stage-box" x="448" y="72" width="180" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+            <rect x="456" y="80" width="28" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+            <text x="470" y="89" fill="rgba(45,49,66,0.80)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">ZOD</text>
+            <text x="538" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">View transform</text>
+            <text x="538" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">auroraPersonListView</text>
+            <text x="538" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">view.ts</text>
+            <rect x="448" y="168" width="180" height="96" rx="6" fill="#ffffff" stroke="#bf4520" stroke-width="1.2"/>
+            <text x="618" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">3</text>
+            <text x="460" y="192" fill="#bf4520" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">✗ TS2339</text>
+            <text x="460" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">view.ts:18 person.gender</text>
+            <text x="460" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">fix: delete the line</text>
+            <text x="460" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">CAUGHT BY TSC</text>
+          </g>
+
+          <!-- Stage 4: screen type follows -->
+          <g data-motion-item data-step="4" aria-label="Step 4: the screen type follows the view, AuroraPersonListRow drops gender with no edit">
+            <rect class="stage-box" x="652" y="72" width="180" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+            <rect x="660" y="80" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+            <text x="678" y="89" fill="rgba(45,49,66,0.80)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">TYPE</text>
+            <text x="742" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Screen type</text>
+            <text x="742" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">AuroraPersonListRow</text>
+            <text x="742" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">view.ts</text>
+            <rect x="652" y="168" width="180" height="96" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="822" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">4</text>
+            <text x="664" y="192" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">↳ FOLLOWS</text>
+            <text x="664" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">z.output drops gender</text>
+            <text x="664" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">nothing to edit</text>
+            <text x="664" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">DERIVED FROM THE VIEW</text>
+          </g>
+
+          <!-- Stage 5: list table fails tsc -->
+          <g data-motion-item data-step="5" aria-label="Step 5: the list table fails tsc with TS2345 at table.tsx line 32, drop the Gender column">
+            <rect class="stage-box" x="856" y="72" width="180" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+            <rect x="864" y="80" width="40" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+            <text x="884" y="89" fill="rgba(45,49,66,0.80)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">REACT</text>
+            <text x="946" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">List table</text>
+            <text x="946" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">accessor('gender')</text>
+            <text x="946" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">table.tsx</text>
+            <rect x="856" y="168" width="180" height="96" rx="6" fill="#ffffff" stroke="#bf4520" stroke-width="1.2"/>
+            <text x="1026" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">5</text>
+            <text x="868" y="192" fill="#bf4520" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">✗ TS2345</text>
+            <text x="868" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">table.tsx:32 not a row key</text>
+            <text x="868" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">fix: drop the column</text>
+            <text x="868" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">CAUGHT BY TSC</text>
+          </g>
+
+          <!-- Stage 6: tests fail -->
+          <g data-motion-item data-step="6" aria-label="Step 6: tests fail, vp test reports the list SQL has no gender, and view.test.ts line 31 fails tsc with TS2339">
+            <rect class="stage-box" x="1060" y="72" width="180" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+            <rect x="1068" y="80" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+            <text x="1086" y="89" fill="rgba(45,49,66,0.80)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">TEST</text>
+            <text x="1150" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Tests</text>
+            <text x="1150" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">list SQL · list view</text>
+            <text x="1150" y="140" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">*.test.ts</text>
+            <rect x="1060" y="168" width="180" height="96" rx="6" fill="#ffffff" stroke="#bf4520" stroke-width="1.2"/>
+            <text x="1230" y="184" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end">6</text>
+            <text x="1072" y="192" fill="#bf4520" font-size="10" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">✗ 2 FAIL · TS2339</text>
+            <text x="1072" y="214" fill="#2d3142" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">SQL has no "gender"</text>
+            <text x="1072" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">view.test.ts:31 row keys</text>
+            <text x="1072" y="252" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.12em">CAUGHT BY VP TEST + TSC</text>
+          </g>
+
+          <!-- Outcome -->
+          <g data-motion-item data-step="7" aria-label="Step 7: done when tsc and vp test are clean">
+            <text x="40" y="304" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif">Done when tsc and vp test are clean: one edit you chose, three places the checks sent you to, two that followed on their own.</text>
+          </g>
+
+          <text x="40" y="360" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">LEGEND</text>
+          <rect x="124" y="352" width="16" height="12" rx="2" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+          <text x="148" y="360" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">✎ Your edit</text>
+          <rect x="244" y="352" width="16" height="12" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="268" y="360" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">↳ Derived, follows on its own</text>
+          <rect x="440" y="352" width="16" height="12" rx="2" fill="#ffffff" stroke="#bf4520" stroke-width="1.2"/>
+          <text x="464" y="360" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">✗ Check fails until you edit it</text>
+          <line x1="640" y1="352" x2="640" y2="364" stroke="rgba(45,49,66,0.40)" stroke-width="0.8" stroke-dasharray="3 3"/>
+          <text x="652" y="360" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace">Code path | tests</text>
+        </svg>
+      </div>
+
+      <div data-motion-controls role="group" aria-label="Removal walkthrough playback controls">
+        <button type="button" data-motion-action="prev">Previous</button>
+        <button type="button" data-motion-action="play" aria-pressed="false">Play</button>
+        <button type="button" data-motion-action="pause" aria-pressed="true">Pause</button>
+        <button type="button" data-motion-action="next">Next</button>
+        <button type="button" data-motion-action="replay">Replay</button>
+        <span class="keyboard-help">←/→ step · Space play/pause · R replay · Home/End jump</span>
+        <span data-motion-status-visible aria-hidden="true">Step <span data-motion-step-label>7</span> of 7</span>
+      </div>
+      <p class="sr-only" data-motion-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <noscript><p>Animation controls require JavaScript. The complete removal walkthrough is shown above.</p></noscript>
+    </section>
   </div>
+
+  <script data-diagram-controls>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const staticOverride = params.get('motion') === 'static' || document.documentElement.dataset.motion === 'static';
+      const requestedStep = params.get('step');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      document.fonts.ready.then(() => { document.documentElement.dataset.fontsReady = 'true'; });
+
+      document.querySelectorAll('[data-motion-root]').forEach((root) => {
+        const count = Number(root.dataset.stepCount);
+        const hold = parseFloat(getComputedStyle(root).getPropertyValue('--motion-hold')) || 720;
+        const parsedStep = requestedStep !== null && /^\d+$/.test(requestedStep) ? Number(requestedStep) : null;
+        const exactStep = params.get('motion') === 'step' && Number.isSafeInteger(parsedStep) && parsedStep >= 0 && parsedStep <= count ? parsedStep : null;
+        const items = [...root.querySelectorAll('[data-motion-item]')];
+        const labels = Array.from({ length: count + 1 }, (_, index) => index === 0
+          ? 'Ready'
+          : items.filter((item) => !item.hasAttribute('data-motion-decorative') && Number(item.dataset.step) === index)
+              .map((item) => item.getAttribute('aria-label')).join('; '));
+        const controls = root.querySelector('[data-motion-controls]');
+        const status = root.querySelector('[data-motion-status]');
+        const visibleStep = root.querySelector('[data-motion-step-label]');
+        let step = count;
+        let timer = 0;
+        let playing = false;
+        let stepBeforeReduce = 0;
+        let resumeAfterReduce = root.dataset.motionMode === 'reveal';
+
+        const buttons = (action) => controls.querySelector(`[data-motion-action="${action}"]`);
+        const clearClock = () => { window.clearTimeout(timer); timer = 0; };
+        const announce = () => { status.textContent = `Step ${step} of ${count}: ${labels[step] || 'Complete'}`; };
+        const setControlsAvailable = (available) => {
+          controls.hidden = !available;
+          controls.setAttribute('aria-hidden', String(!available));
+          controls.dataset.playbackDisabled = String(!available);
+          controls.querySelectorAll('button').forEach((control) => { control.disabled = !available; });
+        };
+
+        function render(next, userInitiated = false) {
+          step = Math.max(0, Math.min(count, next));
+          root.dataset.stepCurrent = String(step);
+          root.dataset.frame = step === count ? 'end' : step === 0 ? 'start' : 'step';
+          items.forEach((item) => {
+            const itemStep = Number(item.dataset.step);
+            item.classList.toggle('is-visible', itemStep <= step);
+            item.classList.toggle('is-current', itemStep === step);
+          });
+          if (visibleStep) visibleStep.textContent = String(step);
+          const unavailable = controls.dataset.playbackDisabled === 'true';
+          buttons('prev').disabled = unavailable || step === 0;
+          buttons('next').disabled = unavailable || step === count;
+          if (userInitiated) announce();
+        }
+
+        function pause(userInitiated = false) {
+          clearClock();
+          playing = false;
+          root.classList.remove('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'false');
+          buttons('pause').setAttribute('aria-pressed', 'true');
+          if (userInitiated) status.textContent = `Paused at step ${step} of ${count}`;
+        }
+
+        function finish() {
+          pause(false);
+          root.dataset.frame = 'end';
+          status.textContent = `Complete · step ${count} of ${count}`;
+        }
+
+        function tick() {
+          if (!playing) return;
+          if (step >= count) { finish(); return; }
+          render(step + 1, false);
+          if (step >= count) { finish(); return; }
+          timer = window.setTimeout(tick, hold);
+        }
+
+        function play(fromStart = false, userInitiated = false) {
+          clearClock();
+          if (fromStart || step >= count) render(0, userInitiated);
+          playing = true;
+          root.classList.add('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'true');
+          buttons('pause').setAttribute('aria-pressed', 'false');
+          timer = window.setTimeout(tick, hold);
+        }
+
+        controls.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-motion-action]');
+          if (!button) return;
+          const action = button.dataset.motionAction;
+          if (action === 'play') play(false, true);
+          if (action === 'pause') pause(true);
+          if (action === 'replay') play(true, true);
+          if (action === 'prev') { pause(false); render(step - 1, true); }
+          if (action === 'next') { pause(false); render(step + 1, true); }
+        });
+
+        root.addEventListener('keydown', (event) => {
+          if (event.target.matches('input, textarea, select, a[href]')) return;
+          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, Home: 0, End: count };
+          if (event.code === 'Space' && !event.target.closest('button')) {
+            event.preventDefault();
+            playing ? pause(true) : play(false, true);
+            return;
+          }
+          if (!event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === 'r') {
+            event.preventDefault();
+            play(true, true);
+            return;
+          }
+          if (!(event.key in keys)) return;
+          event.preventDefault();
+          pause(false);
+          render(keys[event.key], true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden' && playing) pause(false);
+        });
+        reduce.addEventListener('change', (event) => {
+          if (event.matches && root.dataset.motionState !== 'reduced') {
+            stepBeforeReduce = step;
+            resumeAfterReduce = playing;
+          }
+          pause(false);
+          if (event.matches) {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'reduced';
+            status.textContent = 'Reduced motion · complete static frame · playback controls unavailable';
+          } else if (staticOverride || root.dataset.motionMode === 'none') {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'static';
+            status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+          } else {
+            delete root.dataset.motionState;
+            if (exactStep !== null) {
+              setControlsAvailable(false);
+              render(exactStep, false);
+              root.dataset.frame = 'step';
+              root.dataset.motionState = 'test';
+              status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+            } else {
+              setControlsAvailable(true);
+              render(stepBeforeReduce, false);
+              status.textContent = `Ready · step ${step} of ${count}`;
+              if (resumeAfterReduce && root.dataset.motionMode === 'reveal') {
+                play(false, false);
+              }
+            }
+            resumeAfterReduce = false;
+          }
+        });
+
+        if (staticOverride) {
+          document.documentElement.dataset.motion = 'static';
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = 'static';
+          status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+        } else if (reduce.matches || root.dataset.motionMode === 'none') {
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = reduce.matches ? 'reduced' : 'static';
+          status.textContent = reduce.matches
+            ? 'Reduced motion · complete static frame · playback controls unavailable'
+            : 'Static frame · complete diagram · playback controls unavailable';
+        } else if (exactStep !== null) {
+          document.documentElement.dataset.motion = 'step';
+          pause(false);
+          setControlsAvailable(false);
+          render(exactStep, false);
+          root.dataset.frame = 'step';
+          root.dataset.motionState = 'test';
+          status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+        } else if (root.dataset.motionMode === 'reveal') {
+          setControlsAvailable(true);
+          render(0, false);
+          play(false, false);
+        } else {
+          pause(false);
+          setControlsAvailable(true);
+          render(0, false);
+          status.textContent = `Ready · step 0 of ${count}`;
+        }
+        root.classList.add('motion-ready');
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -20,20 +20,25 @@ interface AuroraPersonsTableProps {
 
 const columnHelper = createColumnHelper<AuroraPersonListRow>();
 
-const columns = [
-  columnHelper.accessor('firstName', {
+/** `id` is the row link, not a column. Every other list field needs a column, or comes off `personListSchema`. */
+type ListColumnKey = Exclude<keyof AuroraPersonListRow, 'id'>;
+
+const columnsByField = {
+  firstName: columnHelper.accessor('firstName', {
     header: 'First Name',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('lastName', {
+  lastName: columnHelper.accessor('lastName', {
     header: 'Last Name',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('gender', {
+  gender: columnHelper.accessor('gender', {
     header: 'Gender',
     cell: (info) => info.getValue(),
   }),
-];
+} satisfies Record<ListColumnKey, unknown>;
+
+const columns = Object.values(columnsByField);
 
 const rowClassName = cn(
   'border-b border-border-default cursor-pointer transition-colors hover:bg-surface-state-hover',
