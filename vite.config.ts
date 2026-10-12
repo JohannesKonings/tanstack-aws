@@ -23,6 +23,10 @@ export default defineWorkspaceConfig({
         cache: false,
         command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts studio',
       },
+      'db-aurora:seed': {
+        cache: false,
+        command: 'vp exec tsx packages/aurora/src/cli/seed-persons.ts',
+      },
     },
   },
   bingo: {

@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import {
-  auroraPersonsQueryKey,
+  auroraPersonDetailQueryKey,
+  auroraPersonListQueryKey,
   createAuroraAddressFn,
   type CreateAuroraAddressInput,
   createAuroraBankAccountFn,
@@ -30,13 +31,13 @@ import {
   type UpdateAuroraPersonInput,
 } from './server.ts';
 
-const useInvalidateAuroraPersons = () => {
+const useInvalidateAuroraPersonList = () => {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: auroraPersonsQueryKey });
+  return () => queryClient.invalidateQueries({ queryKey: auroraPersonListQueryKey });
 };
 
 export const useCreateAuroraPerson = () => {
-  const invalidate = useInvalidateAuroraPersons();
+  const invalidate = useInvalidateAuroraPersonList();
   const createPerson = useServerFn(createAuroraPersonFn);
   return useMutation({
     mutationFn: (input: CreateAuroraPersonInput) => createPerson({ data: input }),
@@ -44,8 +45,13 @@ export const useCreateAuroraPerson = () => {
   });
 };
 
-export const useAuroraPersonDetailMutations = () => {
-  const invalidate = useInvalidateAuroraPersons();
+export const useAuroraPersonDetailMutations = (personId: string) => {
+  const queryClient = useQueryClient();
+  const invalidateList = () =>
+    queryClient.invalidateQueries({ queryKey: auroraPersonListQueryKey });
+  const invalidateDetail = () =>
+    queryClient.invalidateQueries({ queryKey: auroraPersonDetailQueryKey(personId) });
+  const invalidatePerson = () => Promise.all([invalidateList(), invalidateDetail()]);
   const updatePerson = useServerFn(updateAuroraPersonFn);
   const deletePerson = useServerFn(deleteAuroraPersonFn);
   const createAddress = useServerFn(createAuroraAddressFn);
@@ -64,59 +70,59 @@ export const useAuroraPersonDetailMutations = () => {
   return {
     updatePerson: useMutation({
       mutationFn: (input: UpdateAuroraPersonInput) => updatePerson({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidatePerson,
     }),
     deletePerson: useMutation({
       mutationFn: (input: DeleteAuroraRowInput) => deletePerson({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidatePerson,
     }),
     createAddress: useMutation({
       mutationFn: (input: CreateAuroraAddressInput) => createAddress({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     updateAddress: useMutation({
       mutationFn: (input: UpdateAuroraAddressInput) => updateAddress({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     deleteAddress: useMutation({
       mutationFn: (input: DeleteAuroraRowInput) => deleteAddress({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     createContact: useMutation({
       mutationFn: (input: CreateAuroraContactInput) => createContact({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     updateContact: useMutation({
       mutationFn: (input: UpdateAuroraContactInput) => updateContact({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     deleteContact: useMutation({
       mutationFn: (input: DeleteAuroraRowInput) => deleteContact({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     createBankAccount: useMutation({
       mutationFn: (input: CreateAuroraBankAccountInput) => createBankAccount({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     updateBankAccount: useMutation({
       mutationFn: (input: UpdateAuroraBankAccountInput) => updateBankAccount({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     deleteBankAccount: useMutation({
       mutationFn: (input: DeleteAuroraRowInput) => deleteBankAccount({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     createEmployment: useMutation({
       mutationFn: (input: CreateAuroraEmploymentInput) => createEmployment({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     updateEmployment: useMutation({
       mutationFn: (input: UpdateAuroraEmploymentInput) => updateEmployment({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
     deleteEmployment: useMutation({
       mutationFn: (input: DeleteAuroraRowInput) => deleteEmployment({ data: input }),
-      onSuccess: invalidate,
+      onSuccess: invalidateDetail,
     }),
   };
 };

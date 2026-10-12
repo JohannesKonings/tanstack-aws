@@ -38,6 +38,7 @@ import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.i
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as DemoDbPersonsAuroraIdRouteImport } from './routes/demo/db-persons.aurora_.$id'
 
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
@@ -184,6 +185,11 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoDbPersonsAuroraIdRoute = DemoDbPersonsAuroraIdRouteImport.update({
+  id: '/demo/db-persons/aurora_/$id',
+  path: '/demo/db-persons/aurora/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/demo/db-persons/': typeof DemoDbPersonsIndexRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
+  '/demo/db-persons/aurora/$id': typeof DemoDbPersonsAuroraIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/demo/db-persons': typeof DemoDbPersonsIndexRoute
   '/example/guitars': typeof ExampleGuitarsIndexRoute
+  '/demo/db-persons/aurora/$id': typeof DemoDbPersonsAuroraIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/demo/db-persons/': typeof DemoDbPersonsIndexRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
+  '/demo/db-persons/aurora_/$id': typeof DemoDbPersonsAuroraIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/example/guitars/$guitarId'
     | '/demo/db-persons/'
     | '/example/guitars/'
+    | '/demo/db-persons/aurora/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/example/guitars/$guitarId'
     | '/demo/db-persons'
     | '/example/guitars'
+    | '/demo/db-persons/aurora/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/example/guitars/$guitarId'
     | '/demo/db-persons/'
     | '/example/guitars/'
+    | '/demo/db-persons/aurora_/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -401,6 +413,7 @@ export interface RootRouteChildren {
   ExampleGuitarsGuitarIdRoute: typeof ExampleGuitarsGuitarIdRoute
   DemoDbPersonsIndexRoute: typeof DemoDbPersonsIndexRoute
   ExampleGuitarsIndexRoute: typeof ExampleGuitarsIndexRoute
+  DemoDbPersonsAuroraIdRoute: typeof DemoDbPersonsAuroraIdRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -612,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/db-persons/aurora_/$id': {
+      id: '/demo/db-persons/aurora_/$id'
+      path: '/demo/db-persons/aurora/$id'
+      fullPath: '/demo/db-persons/aurora/$id'
+      preLoaderRoute: typeof DemoDbPersonsAuroraIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -641,6 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExampleGuitarsGuitarIdRoute: ExampleGuitarsGuitarIdRoute,
   DemoDbPersonsIndexRoute: DemoDbPersonsIndexRoute,
   ExampleGuitarsIndexRoute: ExampleGuitarsIndexRoute,
+  DemoDbPersonsAuroraIdRoute: DemoDbPersonsAuroraIdRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,

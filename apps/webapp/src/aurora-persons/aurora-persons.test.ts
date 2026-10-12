@@ -12,7 +12,8 @@ import {
   deleteAuroraContact,
   deleteAuroraEmployment,
   deleteAuroraPerson,
-  readAuroraPersons,
+  readAuroraPersonDetail,
+  readAuroraPersonList,
   type StageDatabaseQueryClient,
   updateAuroraAddress,
   updateAuroraBankAccount,
@@ -73,17 +74,34 @@ const parameterValues = (statement: RecordedStatement | undefined) =>
   statement?.parameters?.map((parameter) => parameter.value) ?? [];
 
 describe('Aurora persons', () => {
-  it('loads an empty page from the five stage database tables', async () => {
+  it('loads the person list with id and name columns only', async () => {
     const { client, statements } = recordingClient();
 
-    const rows = await readAuroraPersons(client, settings);
+    const rows = await readAuroraPersonList(client, settings);
 
-    expect(rows).toEqual({
+    expect(rows).toEqual([]);
+    expect(statements).toHaveLength(1);
+    expect(tableOf(statements[0]?.sql)).toBe('persons');
+    expect(statements[0]?.sql).toContain('"firstName"');
+    expect(statements[0]?.sql).toContain('"lastName"');
+    expect(statements[0]?.sql).not.toContain('"gender"');
+    expect(statements[0]?.sql).not.toContain('"dateOfBirth"');
+    expect(statements[0]?.sql).not.toContain('"createdAt"');
+    expect(statements[0]?.sql).not.toContain('where');
+    expect(statements.every(usesStageDatabase)).toBe(true);
+  });
+
+  it('loads one person detail and only that person related rows', async () => {
+    const { client, statements } = recordingClient();
+
+    const detail = await readAuroraPersonDetail(client, settings, personId);
+
+    expect(detail).toEqual({
       addresses: [],
       bankAccounts: [],
       contacts: [],
       employments: [],
-      persons: [],
+      person: null,
     });
     expect(statements.map((statement) => tableOf(statement.sql)).sort()).toEqual([
       'addresses',
@@ -92,7 +110,14 @@ describe('Aurora persons', () => {
       'employments',
       'persons',
     ]);
-    expect(statements.every((statement) => statement.sql?.startsWith('select '))).toBe(true);
+    const personStatement = statements.find((statement) => tableOf(statement.sql) === 'persons');
+    expect(personStatement?.sql).toContain('"gender"');
+    expect(personStatement?.sql).toContain('"dateOfBirth"');
+    expect(personStatement?.sql).not.toContain('"createdAt"');
+    expect(statements.every((statement) => statement.sql?.includes('where'))).toBe(true);
+    expect(statements.flatMap((statement) => parameterValues(statement))).toContainEqual({
+      stringValue: personId,
+    });
     expect(statements.every(usesStageDatabase)).toBe(true);
   });
 
@@ -286,7 +311,10 @@ describe('Aurora persons', () => {
   it('reports a configuration error and sends no SQL when Aurora settings are missing', async () => {
     const { client, statements } = recordingClient();
 
-    await expect(readAuroraPersons(client, {})).rejects.toBeInstanceOf(AuroraConfigurationError);
+    await expect(readAuroraPersonList(client, {})).rejects.toBeInstanceOf(AuroraConfigurationError);
+    await expect(readAuroraPersonDetail(client, {}, personId)).rejects.toBeInstanceOf(
+      AuroraConfigurationError,
+    );
     await expect(
       createAuroraPerson(client, {}, { id: personId, firstName: 'Ada', lastName: 'Lovelace' }),
     ).rejects.toBeInstanceOf(AuroraConfigurationError);

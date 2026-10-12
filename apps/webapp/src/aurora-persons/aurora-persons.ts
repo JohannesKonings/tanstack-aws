@@ -9,7 +9,8 @@ import {
   contacts,
   employmentPageSchema,
   employments,
-  personPageSchema,
+  personDetailSchema,
+  personListSchema,
   persons,
   readAuroraSettings,
   STAGE_DATABASE_SCHEMA,
@@ -124,68 +125,87 @@ type PageColumnSelection<TSchema extends z.ZodType> = {
   [K in keyof z.infer<TSchema>]: unknown;
 };
 
-export const readAuroraPersons = async (
+const personListColumns = {
+  id: persons.id,
+  firstName: persons.firstName,
+  lastName: persons.lastName,
+  gender: persons.gender,
+} satisfies PageColumnSelection<typeof personListSchema>;
+
+const personDetailColumns = {
+  id: persons.id,
+  firstName: persons.firstName,
+  lastName: persons.lastName,
+  gender: persons.gender,
+  dateOfBirth: persons.dateOfBirth,
+} satisfies PageColumnSelection<typeof personDetailSchema>;
+
+const addressColumns = {
+  id: addresses.id,
+  personId: addresses.personId,
+  type: addresses.type,
+  isPrimary: addresses.isPrimary,
+  street: addresses.street,
+  city: addresses.city,
+  state: addresses.state,
+  postalCode: addresses.postalCode,
+  country: addresses.country,
+} satisfies PageColumnSelection<typeof addressPageSchema>;
+
+const bankAccountColumns = {
+  id: bankAccounts.id,
+  personId: bankAccounts.personId,
+  bankName: bankAccounts.bankName,
+  isPrimary: bankAccounts.isPrimary,
+  accountType: bankAccounts.accountType,
+  accountNumberLast4: bankAccounts.accountNumberLast4,
+  iban: bankAccounts.iban,
+  bic: bankAccounts.bic,
+} satisfies PageColumnSelection<typeof bankAccountPageSchema>;
+
+const contactColumns = {
+  id: contacts.id,
+  personId: contacts.personId,
+  type: contacts.type,
+  isPrimary: contacts.isPrimary,
+  isVerified: contacts.isVerified,
+  value: contacts.value,
+} satisfies PageColumnSelection<typeof contactPageSchema>;
+
+const employmentColumns = {
+  id: employments.id,
+  personId: employments.personId,
+  position: employments.position,
+  isCurrent: employments.isCurrent,
+  companyName: employments.companyName,
+  department: employments.department,
+  startDate: employments.startDate,
+  endDate: employments.endDate,
+  salary: employments.salary,
+  currency: employments.currency,
+} satisfies PageColumnSelection<typeof employmentPageSchema>;
+
+export const readAuroraPersonList = async (
   client: StageDatabaseQueryClient,
   env: NodeJS.ProcessEnv,
 ) => {
   const db = stageDatabase(client, env);
+  return db.select(personListColumns).from(persons);
+};
 
-  const personColumns = {
-    id: persons.id,
-    firstName: persons.firstName,
-    lastName: persons.lastName,
-    gender: persons.gender,
-    dateOfBirth: persons.dateOfBirth,
-  } satisfies PageColumnSelection<typeof personPageSchema>;
-  const addressColumns = {
-    id: addresses.id,
-    personId: addresses.personId,
-    type: addresses.type,
-    isPrimary: addresses.isPrimary,
-    street: addresses.street,
-    city: addresses.city,
-    state: addresses.state,
-    postalCode: addresses.postalCode,
-    country: addresses.country,
-  } satisfies PageColumnSelection<typeof addressPageSchema>;
-  const bankAccountColumns = {
-    id: bankAccounts.id,
-    personId: bankAccounts.personId,
-    bankName: bankAccounts.bankName,
-    isPrimary: bankAccounts.isPrimary,
-    accountType: bankAccounts.accountType,
-    accountNumberLast4: bankAccounts.accountNumberLast4,
-    iban: bankAccounts.iban,
-    bic: bankAccounts.bic,
-  } satisfies PageColumnSelection<typeof bankAccountPageSchema>;
-  const contactColumns = {
-    id: contacts.id,
-    personId: contacts.personId,
-    type: contacts.type,
-    isPrimary: contacts.isPrimary,
-    isVerified: contacts.isVerified,
-    value: contacts.value,
-  } satisfies PageColumnSelection<typeof contactPageSchema>;
-  const employmentColumns = {
-    id: employments.id,
-    personId: employments.personId,
-    position: employments.position,
-    isCurrent: employments.isCurrent,
-    companyName: employments.companyName,
-    department: employments.department,
-    startDate: employments.startDate,
-    endDate: employments.endDate,
-    salary: employments.salary,
-    currency: employments.currency,
-  } satisfies PageColumnSelection<typeof employmentPageSchema>;
-
+export const readAuroraPersonDetail = async (
+  client: StageDatabaseQueryClient,
+  env: NodeJS.ProcessEnv,
+  personId: string,
+) => {
+  const db = stageDatabase(client, env);
   const [personRows, addressRows, bankAccountRows, contactRows, employmentRows] = await Promise.all(
     [
-      db.select(personColumns).from(persons),
-      db.select(addressColumns).from(addresses),
-      db.select(bankAccountColumns).from(bankAccounts),
-      db.select(contactColumns).from(contacts),
-      db.select(employmentColumns).from(employments),
+      db.select(personDetailColumns).from(persons).where(eq(persons.id, personId)),
+      db.select(addressColumns).from(addresses).where(eq(addresses.personId, personId)),
+      db.select(bankAccountColumns).from(bankAccounts).where(eq(bankAccounts.personId, personId)),
+      db.select(contactColumns).from(contacts).where(eq(contacts.personId, personId)),
+      db.select(employmentColumns).from(employments).where(eq(employments.personId, personId)),
     ],
   );
 
@@ -194,7 +214,7 @@ export const readAuroraPersons = async (
     bankAccounts: bankAccountRows,
     contacts: contactRows,
     employments: employmentRows,
-    persons: personRows,
+    person: personRows[0] ?? null,
   };
 };
 

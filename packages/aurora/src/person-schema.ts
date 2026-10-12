@@ -104,7 +104,14 @@ export const bankAccountSelectSchema = createSelectSchema(bankAccounts);
 export const contactSelectSchema = createSelectSchema(contacts);
 export const employmentSelectSchema = createSelectSchema(employments);
 
-export const personPageSchema = personSelectSchema.pick({
+export const personListSchema = personSelectSchema.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+  gender: true,
+});
+
+export const personDetailSchema = personSelectSchema.pick({
   id: true,
   firstName: true,
   lastName: true,

@@ -10,8 +10,14 @@ import {
   XIcon,
 } from '@phosphor-icons/react';
 import { type ReactNode, useState } from 'react';
-import type { readAuroraPersons } from '#apps/webapp/aurora-persons/aurora-persons.ts';
 import { useAuroraPersonDetailMutations } from '#apps/webapp/aurora-persons/mutations.ts';
+import type {
+  AuroraAddressRow,
+  AuroraBankAccountRow,
+  AuroraContactRow,
+  AuroraEmploymentRow,
+  AuroraPersonDetail,
+} from '#apps/webapp/aurora-persons/view.ts';
 import { AddressCard } from '#apps/webapp/components/persons/AddressCard';
 import { AddressFormModal } from '#apps/webapp/components/persons/AddressFormModal';
 import { BankAccountCard } from '#apps/webapp/components/persons/BankAccountCard';
@@ -27,59 +33,19 @@ import { Card } from '#apps/webapp/components/ui/card';
 import { Tabs, TabsList, TabsPanel, TabsTrigger } from '#apps/webapp/components/ui/tabs';
 import type { Address, BankAccount, ContactInfo, Employment } from '#apps/webapp/types/person';
 
-type AuroraPersonsSnapshot = Awaited<ReturnType<typeof readAuroraPersons>>;
-type AuroraPerson = AuroraPersonsSnapshot['persons'][number];
-type AuroraAddress = AuroraPersonsSnapshot['addresses'][number];
-type AuroraBankAccount = AuroraPersonsSnapshot['bankAccounts'][number];
-type AuroraContact = AuroraPersonsSnapshot['contacts'][number];
-type AuroraEmployment = AuroraPersonsSnapshot['employments'][number];
+const formatDate = (dateString?: string) => {
+  if (!dateString) {
+    return '—';
+  }
+  return new Date(dateString).toLocaleDateString();
+};
 
-const defined = <T,>(value: T | null): T | undefined => (value === null ? undefined : value);
-
-const toAddress = (address: AuroraAddress): Address => ({
-  id: address.id,
-  personId: address.personId,
-  type: address.type,
-  street: address.street,
-  city: address.city,
-  state: address.state,
-  postalCode: address.postalCode,
-  country: address.country,
-  isPrimary: address.isPrimary,
-});
-
-const toContact = (contact: AuroraContact): ContactInfo => ({
-  id: contact.id,
-  personId: contact.personId,
-  type: contact.type,
-  value: contact.value,
-  isPrimary: contact.isPrimary,
-  isVerified: contact.isVerified,
-});
-
-const toBankAccount = (bankAccount: AuroraBankAccount): BankAccount => ({
-  id: bankAccount.id,
-  personId: bankAccount.personId,
-  bankName: bankAccount.bankName,
-  accountType: bankAccount.accountType,
-  accountNumberLast4: bankAccount.accountNumberLast4,
-  iban: defined(bankAccount.iban),
-  bic: defined(bankAccount.bic),
-  isPrimary: bankAccount.isPrimary,
-});
-
-const toEmployment = (employment: AuroraEmployment): Employment => ({
-  id: employment.id,
-  personId: employment.personId,
-  companyName: employment.companyName,
-  position: employment.position,
-  department: defined(employment.department),
-  startDate: employment.startDate,
-  endDate: employment.endDate,
-  isCurrent: employment.isCurrent,
-  salary: defined(employment.salary),
-  currency: employment.currency,
-});
+const formatGender = (gender?: string) => {
+  if (!gender) {
+    return '—';
+  }
+  return gender.charAt(0).toUpperCase() + gender.slice(1).replace(/_/g, ' ');
+};
 
 export function AuroraPersonDetail({
   person,
@@ -89,11 +55,11 @@ export function AuroraPersonDetail({
   employments,
   onClose,
 }: {
-  person: AuroraPerson;
-  addresses: AuroraAddress[];
-  contacts: AuroraContact[];
-  bankAccounts: AuroraBankAccount[];
-  employments: AuroraEmployment[];
+  person: AuroraPersonDetail;
+  addresses: AuroraAddressRow[];
+  contacts: AuroraContactRow[];
+  bankAccounts: AuroraBankAccountRow[];
+  employments: AuroraEmploymentRow[];
   onClose: () => void;
 }) {
   const {
@@ -111,7 +77,7 @@ export function AuroraPersonDetail({
     createEmployment,
     updateEmployment,
     deleteEmployment,
-  } = useAuroraPersonDetailMutations();
+  } = useAuroraPersonDetailMutations(person.id);
   const [editingPerson, setEditingPerson] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [addingAddress, setAddingAddress] = useState(false);
@@ -121,10 +87,6 @@ export function AuroraPersonDetail({
   const [addingBankAccount, setAddingBankAccount] = useState(false);
   const [editingEmployment, setEditingEmployment] = useState<Employment | null>(null);
   const [addingEmployment, setAddingEmployment] = useState(false);
-  const addressRows = addresses.map(toAddress);
-  const contactRows = contacts.map(toContact);
-  const bankAccountRows = bankAccounts.map(toBankAccount);
-  const employmentRows = employments.map(toEmployment);
   const saveFailed =
     updatePerson.isError ||
     deletePerson.isError ||
@@ -149,7 +111,7 @@ export function AuroraPersonDetail({
 
   return (
     <>
-      <Card className="overflow-hidden max-h-[calc(100vh-300px)] flex flex-col bg-background-surface/95 backdrop-blur-sm">
+      <Card className="overflow-hidden max-h-[calc(100vh-8rem)] flex flex-col bg-background-surface/95 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4 border-b border-border-default bg-background-subtle shrink-0">
           <div className="flex items-center gap-3">
             <UserIcon className="h-6 w-6 text-lib-start" />
@@ -157,6 +119,9 @@ export function AuroraPersonDetail({
               <h2 className="text-xl font-semibold text-text-primary">
                 {person.firstName} {person.lastName}
               </h2>
+              <p className="text-sm text-text-secondary">
+                {formatGender(person.gender)} · {formatDate(person.dateOfBirth)}
+              </p>
               <p className="text-sm text-text-muted">ID: {person.id}</p>
             </div>
           </div>
@@ -179,7 +144,13 @@ export function AuroraPersonDetail({
             >
               <TrashIcon className="h-5 w-5" />
             </Button>
-            <Button variant="icon" color="gray" size="icon-md" onClick={onClose} title="Close">
+            <Button
+              variant="icon"
+              color="gray"
+              size="icon-md"
+              onClick={onClose}
+              title="Back to list"
+            >
               <XIcon className="h-5 w-5" />
             </Button>
           </div>
@@ -195,28 +166,28 @@ export function AuroraPersonDetail({
             <TabsList aria-label="Person detail sections">
               <TabsTrigger value="addresses" icon={<MapPinIcon className="size-4" />}>
                 Addresses
-                <Badge variant="default">{addressRows.length}</Badge>
+                <Badge variant="default">{addresses.length}</Badge>
               </TabsTrigger>
               <TabsTrigger value="contacts" icon={<EnvelopeIcon className="size-4" />}>
                 Contacts
-                <Badge variant="default">{contactRows.length}</Badge>
+                <Badge variant="default">{contacts.length}</Badge>
               </TabsTrigger>
               <TabsTrigger value="employment" icon={<BriefcaseIcon className="size-4" />}>
                 Employment
-                <Badge variant="default">{employmentRows.length}</Badge>
+                <Badge variant="default">{employments.length}</Badge>
               </TabsTrigger>
               <TabsTrigger value="banking" icon={<BankIcon className="size-4" />}>
                 Banking
-                <Badge variant="default">{bankAccountRows.length}</Badge>
+                <Badge variant="default">{bankAccounts.length}</Badge>
               </TabsTrigger>
             </TabsList>
 
             <TabsPanel value="addresses">
               <DetailSection title="Addresses" onAdd={() => setAddingAddress(true)}>
-                {addressRows.length === 0 ? (
+                {addresses.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No addresses</p>
                 ) : (
-                  addressRows.map((address) => (
+                  addresses.map((address) => (
                     <AddressCard
                       key={address.id}
                       address={address}
@@ -230,10 +201,10 @@ export function AuroraPersonDetail({
 
             <TabsPanel value="contacts">
               <DetailSection title="Contact Info" onAdd={() => setAddingContact(true)}>
-                {contactRows.length === 0 ? (
+                {contacts.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No contacts</p>
                 ) : (
-                  contactRows.map((contact) => (
+                  contacts.map((contact) => (
                     <ContactInfoCard
                       key={contact.id}
                       contact={contact}
@@ -247,10 +218,10 @@ export function AuroraPersonDetail({
 
             <TabsPanel value="employment">
               <DetailSection title="Employment" onAdd={() => setAddingEmployment(true)}>
-                {employmentRows.length === 0 ? (
+                {employments.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No employment records</p>
                 ) : (
-                  employmentRows.map((employment) => (
+                  employments.map((employment) => (
                     <EmploymentCard
                       key={employment.id}
                       employment={employment}
@@ -264,10 +235,10 @@ export function AuroraPersonDetail({
 
             <TabsPanel value="banking">
               <DetailSection title="Bank Accounts" onAdd={() => setAddingBankAccount(true)}>
-                {bankAccountRows.length === 0 ? (
+                {bankAccounts.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No bank accounts</p>
                 ) : (
-                  bankAccountRows.map((bankAccount) => (
+                  bankAccounts.map((bankAccount) => (
                     <BankAccountCard
                       key={bankAccount.id}
                       bankAccount={bankAccount}
@@ -287,8 +258,8 @@ export function AuroraPersonDetail({
           person={{
             firstName: person.firstName,
             lastName: person.lastName,
-            dateOfBirth: defined(person.dateOfBirth),
-            gender: defined(person.gender),
+            dateOfBirth: person.dateOfBirth,
+            gender: person.gender,
           }}
           onSave={(updates) => {
             if (!updates.firstName || !updates.lastName) {

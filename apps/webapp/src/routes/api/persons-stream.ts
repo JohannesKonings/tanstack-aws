@@ -17,6 +17,15 @@ const RETRY_MS = 1000;
 const POLL_INTERVAL_MS = 500;
 const HEARTBEAT_INTERVAL_MS = 15000; // Send heartbeat every 15 seconds to prevent connection timeout
 const EVENTS_TABLE = process.env.EVENTS_TABLE ?? '';
+const sseTraceEnabled = process.env.LOG_LEVEL === 'trace';
+
+/** Poll diagnostics. `console.log` is rewritten into a terminal line on every call. */
+const traceSse = (...args: readonly unknown[]) => {
+  if (!sseTraceEnabled) {
+    return;
+  }
+  console.debug(...args);
+};
 
 // =============================================================================
 // DynamoDB Client
@@ -33,7 +42,7 @@ const queryEventsSince = async (
   lastEventSk: string | null,
 ): Promise<Array<Record<string, unknown>>> => {
   if (!EVENTS_TABLE) {
-    console.log('Persons SSE: EVENTS_TABLE not configured');
+    traceSse('Persons SSE: EVENTS_TABLE not configured');
     return [];
   }
 
@@ -47,9 +56,9 @@ const queryEventsSince = async (
     Limit: 100,
   };
 
-  console.log('Persons SSE: Querying events table:', EVENTS_TABLE, 'cursor:', lastEventSk);
+  traceSse('Persons SSE: Querying events table:', EVENTS_TABLE, 'cursor:', lastEventSk);
   const result = await ddbClient.send(new QueryCommand(params));
-  console.log('Persons SSE: Query returned', result.Items?.length ?? 0, 'events');
+  traceSse('Persons SSE: Query returned', result.Items?.length ?? 0, 'events');
   return (result.Items ?? []) as Array<Record<string, unknown>>;
 };
 
@@ -91,50 +100,120 @@ export const Route = createFileRoute('/api/persons-stream')({
         let lastSk = lastEventId;
 
         const encoder = new TextEncoder();
-        let pollIntervalId: ReturnType<typeof setInterval>;
-        let heartbeatIntervalId: ReturnType<typeof setInterval>;
-        let timeoutId: ReturnType<typeof setTimeout>;
+        let pollIntervalId: ReturnType<typeof setInterval> | undefined;
+        let heartbeatIntervalId: ReturnType<typeof setInterval> | undefined;
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        let streamController: ReadableStreamDefaultController<Uint8Array> | undefined;
+        let closed = false;
+
+        const clearTimers = (): void => {
+          clearInterval(pollIntervalId);
+          clearInterval(heartbeatIntervalId);
+          clearTimeout(timeoutId);
+          pollIntervalId = undefined;
+          heartbeatIntervalId = undefined;
+          timeoutId = undefined;
+        };
+
+        const closeController = (): void => {
+          try {
+            streamController?.close();
+          } catch {
+            // The runtime already closed the controller when the client left.
+          }
+        };
+
+        const stop = (): void => {
+          if (closed) {
+            return;
+          }
+          closed = true;
+          clearTimers();
+          closeController();
+        };
+
+        request.signal.addEventListener('abort', stop, { once: true });
 
         const stream = new ReadableStream({
           async start(controller) {
+            streamController = controller;
+            if (closed || request.signal.aborted) {
+              closeController();
+              return;
+            }
+
+            const enqueue = (chunk: Uint8Array): boolean => {
+              if (closed || request.signal.aborted || controller.desiredSize === null) {
+                stop();
+                return false;
+              }
+              try {
+                controller.enqueue(chunk);
+                return true;
+              } catch (error) {
+                stop();
+                const alreadyClosed =
+                  error instanceof TypeError && error.message.includes('already closed');
+                if (!alreadyClosed) {
+                  console.error('Persons SSE: Enqueue error:', error);
+                }
+                return false;
+              }
+            };
+
             // Send retry directive so EventSource knows how long to wait before reconnecting
-            controller.enqueue(encoder.encode(`retry: ${RETRY_MS}\n\n`));
+            if (!enqueue(encoder.encode(`retry: ${RETRY_MS}\n\n`))) {
+              return;
+            }
 
             // Send initial connected event
-            controller.enqueue(
-              encoder.encode('event: connected\ndata: {"status":"connected"}\n\n'),
-            );
-            console.log('Persons SSE: Client connected, EVENTS_TABLE:', EVENTS_TABLE);
+            if (!enqueue(encoder.encode('event: connected\ndata: {"status":"connected"}\n\n'))) {
+              return;
+            }
+            traceSse('Persons SSE: Client connected, EVENTS_TABLE:', EVENTS_TABLE);
 
             // Define the poll function
             const poll = async (): Promise<void> => {
+              if (closed || request.signal.aborted) {
+                stop();
+                return;
+              }
               try {
                 // Query for new events
                 const events = await queryEventsSince(lastSk);
+                if (closed || request.signal.aborted) {
+                  stop();
+                  return;
+                }
 
                 // Send each event
                 for (const event of events) {
-                  controller.enqueue(encoder.encode(formatSseEvent(event)));
+                  if (!enqueue(encoder.encode(formatSseEvent(event)))) {
+                    return;
+                  }
                   lastSk = event.sk as string;
-                  console.log('Persons SSE: Sent event:', event.eventType, event.entityType);
+                  traceSse('Persons SSE: Sent event:', event.eventType, event.entityType);
                 }
               } catch (error) {
-                console.error('Persons SSE: Poll error:', error);
+                if (!closed) {
+                  console.error('Persons SSE: Poll error:', error);
+                }
               }
             };
 
             // Define the heartbeat function
             const sendHeartbeat = (): void => {
-              try {
-                controller.enqueue(encoder.encode(': heartbeat\n\n'));
-                console.log('Persons SSE: Heartbeat sent');
-              } catch (error) {
-                console.error('Persons SSE: Heartbeat error:', error);
+              if (!enqueue(encoder.encode(': heartbeat\n\n'))) {
+                return;
               }
+              traceSse('Persons SSE: Heartbeat sent');
             };
 
             // Do an immediate first poll
             await poll();
+            if (closed) {
+              return;
+            }
 
             // Then poll at regular intervals
             pollIntervalId = setInterval(() => {
@@ -147,21 +226,23 @@ export const Route = createFileRoute('/api/persons-stream')({
             // Gracefully close the stream before Lambda timeout
             // EventSource will automatically reconnect
             timeoutId = setTimeout(() => {
-              clearInterval(pollIntervalId);
-              clearInterval(heartbeatIntervalId);
-              // Send a final event to signal graceful close
-              controller.enqueue(
+              if (closed) {
+                return;
+              }
+              clearTimers();
+              const signaled = enqueue(
                 encoder.encode('event: reconnect\ndata: {"reason":"timeout"}\n\n'),
               );
-              controller.close();
-              console.log('Persons SSE: Stream closed gracefully before timeout');
+              closed = true;
+              if (signaled) {
+                closeController();
+              }
+              traceSse('Persons SSE: Stream closed gracefully before timeout');
             }, STREAM_DURATION_MS);
           },
           cancel() {
-            clearInterval(pollIntervalId);
-            clearInterval(heartbeatIntervalId);
-            clearTimeout(timeoutId);
-            console.log('Persons SSE: Client disconnected');
+            stop();
+            traceSse('Persons SSE: Client disconnected');
           },
         });
 

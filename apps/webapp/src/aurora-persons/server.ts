@@ -1,6 +1,7 @@
-import { createStageDatabaseClient } from '@tanstack-aws/aurora';
+import { AuroraConfigurationError, createStageDatabaseClient } from '@tanstack-aws/aurora';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
+import { readAuroraPersonDetail, readAuroraPersonList } from './aurora-persons.ts';
 import {
   createAuroraAddress,
   createAuroraBankAccount,
@@ -18,8 +19,82 @@ import {
   updateAuroraEmployment,
   updateAuroraPerson,
 } from './aurora-persons.ts';
+import {
+  auroraAddressView,
+  auroraBankAccountView,
+  auroraContactView,
+  auroraEmploymentView,
+  auroraPersonDetailView,
+  auroraPersonListView,
+} from './view.ts';
 
-export const auroraPersonsQueryKey = ['aurora-persons'] as const;
+export const auroraPersonListQueryKey = ['aurora-persons'] as const;
+
+export const auroraPersonDetailQueryKey = (personId: string) =>
+  ['aurora-person', personId] as const;
+
+export const auroraPersonQueryStaleTime = 30_000;
+
+export const auroraPersonListQuery = <T>(queryFn: () => Promise<T>) => ({
+  queryFn,
+  queryKey: auroraPersonListQueryKey,
+  staleTime: auroraPersonQueryStaleTime,
+});
+
+export const auroraPersonDetailQuery = <T>(personId: string, queryFn: () => Promise<T>) => ({
+  queryFn,
+  queryKey: auroraPersonDetailQueryKey(personId),
+  staleTime: auroraPersonQueryStaleTime,
+});
+
+const personIdInput = z.object({
+  personId: z.uuid(),
+});
+
+const configurationError = (error: unknown) => error instanceof AuroraConfigurationError;
+
+export const getAuroraPersonList = createServerFn({ method: 'GET' }).handler(async () => {
+  try {
+    const rows = await readAuroraPersonList(createStageDatabaseClient(), process.env);
+    return {
+      persons: rows.map((row) => auroraPersonListView.parse(row)),
+      status: 'ready' as const,
+    };
+  } catch (error) {
+    if (configurationError(error)) {
+      return { status: 'configuration-error' as const };
+    }
+    throw error;
+  }
+});
+
+export const getAuroraPersonDetail = createServerFn({ method: 'GET' })
+  .validator((input: { personId: string }) => personIdInput.parse(input))
+  .handler(async ({ data }) => {
+    try {
+      const detail = await readAuroraPersonDetail(
+        createStageDatabaseClient(),
+        process.env,
+        data.personId,
+      );
+      if (!detail.person) {
+        return { status: 'missing' as const };
+      }
+      return {
+        addresses: detail.addresses.map((row) => auroraAddressView.parse(row)),
+        bankAccounts: detail.bankAccounts.map((row) => auroraBankAccountView.parse(row)),
+        contacts: detail.contacts.map((row) => auroraContactView.parse(row)),
+        employments: detail.employments.map((row) => auroraEmploymentView.parse(row)),
+        person: auroraPersonDetailView.parse(detail.person),
+        status: 'ready' as const,
+      };
+    } catch (error) {
+      if (configurationError(error)) {
+        return { status: 'configuration-error' as const };
+      }
+      throw error;
+    }
+  });
 
 const genderSchema = z.enum(['male', 'female', 'other', 'prefer_not_to_say']);
 const addressTypeSchema = z.enum(['home', 'work', 'billing', 'shipping']);

@@ -17,7 +17,8 @@ export {
   employmentPageSchema,
   employmentSelectSchema,
   employments,
-  personPageSchema,
+  personDetailSchema,
+  personListSchema,
   personSelectSchema,
   persons,
 } from './person-schema.ts';
