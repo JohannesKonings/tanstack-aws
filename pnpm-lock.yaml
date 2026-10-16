@@ -269,7 +269,7 @@ importers:
         version: 6.25.0
       node:
         specifier: runtime:^24.0.0
-        version: runtime:24.21.0
+        version: runtime:24.22.0
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -511,7 +511,7 @@ importers:
         version: 0.8.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0))
       '@tanstack/react-ai-devtools':
         specifier: ^0.2.65
-        version: 0.2.65(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(solid-js@1.9.14)
+        version: 0.2.71(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(solid-js@1.9.14)(zod@4.6.5)
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
@@ -668,8 +668,13 @@ packages:
   '@ag-ui/core@0.0.49':
     resolution: {integrity: sha512-9ywypwjUGtIvTxJ2eKQjhPZgLnSFAfNK7vZUcT7Bz4ur4yAIB+lAFtzvu7VDYe6jsUx/6N/71Dh4R0zX5woNVw==}
 
-  '@ag-ui/core@0.0.52':
-    resolution: {integrity: sha512-Xo0bUaNV56EqylzcrAuhUkQX7et7+SZIrqZZtEByGwEq/I1EHny6ZMkWHLkKR7UNi0FJZwJyhKYmKJS3B2SEgA==}
+  '@ag-ui/core@1.0.0':
+    resolution: {integrity: sha512-yCRhsQvb4+lmGMrDsi4TOJxqKpm/kb3H64wwL+Z90jNVrkhy17RErfzsNgybfbjNKLM0nenEDYDVJsZHJJSigQ==}
+    peerDependencies:
+      zod: ^3.25.18 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
@@ -2888,16 +2893,16 @@ packages:
   '@tanstack/ai-client@0.7.14':
     resolution: {integrity: sha512-/MzRKILuZRK/3LVX6PP1gJcTyEpP0k6+9NdhYSEQk/ReA5Ol4+H3sRHsuTRBbYPFCztEkvVSCIBSLO+xq/0vSA==}
 
-  '@tanstack/ai-devtools-core@0.4.22':
-    resolution: {integrity: sha512-MdhQe6o6y5lB1G48qDtjTJyEINEbX6baMStdL2wgs/UhmzW0UieFPLzCshRBKay+aSd7HRPkKl9/n+gLEyNT4w==}
+  '@tanstack/ai-devtools-core@0.5.28':
+    resolution: {integrity: sha512-uV9Weyi0Ac6P6pLwZgV5JzePHbWg1Ll3lpaWyxMY1A32b0uCK9ebgrpdyg091VmKVW1AsiBXRgPmjuMQ+Iwb3Q==}
+
+  '@tanstack/ai-event-client@0.13.1':
+    resolution: {integrity: sha512-lCPcshu6Sd4tFNeMSr+HXgdqCGupYU2cpJZVUent4GkFx41dXzrBaKkwOgkji6olDBT99OBagWCce1NZ15XeJA==}
 
   '@tanstack/ai-event-client@0.2.7':
     resolution: {integrity: sha512-DcdDNrt1T2ng8CVo0pTx1172CEdGzFg4w/azLFFc/z5WHGAAMkw2ZD/ucSc1VlYlCWCNxwSO6otUqxmJDi9gJQ==}
     peerDependencies:
       '@tanstack/ai': 0.13.0
-
-  '@tanstack/ai-event-client@0.6.8':
-    resolution: {integrity: sha512-h7/HLz9u2LF9ba6uKFMnSZkFlkzQONJ5u3Hi+4qGxpsHyvcGRtW6v186jaFLoklndhEwyC49ytkC4eafi7Qq8w==}
 
   '@tanstack/ai-react@0.7.15':
     resolution: {integrity: sha512-uvi0XgIYMKi75cr8Gsq//Y0ay5Bw5sPogv0/UnjCo6bqgwewc7vDGOuBfCFPgnbIaLWlfJnEB6NlUBqnn74nmg==}
@@ -2906,15 +2911,15 @@ packages:
       '@types/react': '>=18.0.0'
       react: '>=18.0.0'
 
-  '@tanstack/ai-utils@0.3.1':
-    resolution: {integrity: sha512-fgbjd5DohL3k5rTWr/KInauLVYMiHVm0cnmTsNrzL3cr4wWhEld5vmFSrjiwUWACAuONjZa+uBXuS+ZSO8fwDQ==}
+  '@tanstack/ai-utils@0.4.2':
+    resolution: {integrity: sha512-ucSgSK9kLloInqr/7s0VZlp1IFtbpgPnskISvnLXti/hc8koqXc4Zv9pfTTc8V80WzIKYWMf+ZgSIDeFM50eCw==}
 
   '@tanstack/ai@0.13.0':
     resolution: {integrity: sha512-4M0wBvi4Mhc50mpQmmJuT31C5ROGfh8FOQIAzHzc8qQs14ziHDh9Wx1hjDeezGnlqjCTJVGTExFpPGOFOLRz1A==}
     engines: {node: '>=18'}
 
-  '@tanstack/ai@0.40.0':
-    resolution: {integrity: sha512-7942RQkjHccHRL9lTuqAjcgt5z+281HJEvWSSEIX9ZDgntSj5Xt9cOK8SL5tXtGrjj2ZpGnzaFdog5lE4QD07A==}
+  '@tanstack/ai@0.69.0':
+    resolution: {integrity: sha512-Y018M4Cg3LPr1meRoVG/ePDB1mdazL9cPBA7bnm8WJm2LT0cN2LoUEXRimKSZjyYY7G+9BtQeNiKlaLJkbqHKQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': '>=1.9.0'
@@ -2966,17 +2971,21 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/devtools-utils@0.4.0':
-    resolution: {integrity: sha512-KsGzYhA8L/fCNgyyMyoUy+TKtx+DjNbzWwqH6wXL48Llzo7kvV9RynYJlaO8Qkzwm+NdHXSgsljQNjQ3CKPpZA==}
+  '@tanstack/devtools-utils@0.7.1':
+    resolution: {integrity: sha512-puLUXJJRPXXU9AOclG5CqLt8hgs7ZdaE7JvJtxnQszEYN2Hja1zsyvGcdalkhdGhgekWTG1ev3oQ3jL/aeQAtw==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
+      '@angular/core': '>=19.0.0'
       '@types/react': '>=17.0.0'
       preact: '>=10.0.0'
       react: '>=17.0.0'
       solid-js: '>=1.9.7'
+      svelte: '>=5.0.0'
       vue: '>=3.2.0'
     peerDependenciesMeta:
+      '@angular/core':
+        optional: true
       '@types/react':
         optional: true
       preact:
@@ -2984,6 +2993,8 @@ packages:
       react:
         optional: true
       solid-js:
+        optional: true
+      svelte:
         optional: true
       vue:
         optional: true
@@ -3033,8 +3044,8 @@ packages:
   '@tanstack/query-devtools@5.101.2':
     resolution: {integrity: sha512-o+wHcqgN7Pp0s8v1i0UGq/ZrrEKrxdIiMQmKRdYb2w7NPtylYSJ4+wg/tIn71m9DLstwUwdEGAvROdly6HXP6w==}
 
-  '@tanstack/react-ai-devtools@0.2.65':
-    resolution: {integrity: sha512-N6fafIGThuK6jDib0+bP5ENRBa0mBiP5RDE188hMLdOqM/Zy4UleoP/lFPGBkRNeaH4qQMNlgv8A8e0BxSJhmA==}
+  '@tanstack/react-ai-devtools@0.2.71':
+    resolution: {integrity: sha512-awKoR/m32QzIUq1xdXMcRtq7e9RVAQ5qUwDb1EYE78Kz0VNHlNUpG42u5mnRnCXyx7nt/ARuHYSaxm4I7LG1pA==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4966,6 +4977,9 @@ packages:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
 
+  fast-json-patch@3.1.1:
+    resolution: {integrity: sha512-vf6IHUX2SBcA+5/+4883dsIjpBTqmfBjmYiWK1savxQmFk4JfBMLa7ynTYOs1Rolp/T1betJxHiGD3g1Mn8lUQ==}
+
   fast-string-truncated-width@3.0.3:
     resolution: {integrity: sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g==}
 
@@ -5987,7 +6001,7 @@ packages:
     resolution: {integrity: sha512-wRNIrw4DmVLKQlbgOMdkMx27Wrpzes2hh5Jtbi2bjPd+4wJstWIqP5A+lscnqbm0xxmT5Bpg8Lec5ItEBwx6BQ==}
     engines: {node: '>=18'}
 
-  node@runtime:24.21.0:
+  node@runtime:24.22.0:
     resolution:
       type: variations
       variants:
@@ -5995,9 +6009,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-rseyRkr7mfB4wZywbSAdVDvTsxHLoHEoK84bF8l+WLs=
+            integrity: sha256-y7HWJfv6YbI/1KlJ6kHJsIu3kF+8dUA7sR1LzKc6VWY=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-aix-ppc64.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-aix-ppc64.tar.gz
           targets:
             - cpu: ppc64
               os: aix
@@ -6005,9 +6019,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-vtfupTJeEQjzLOUijd1qXw8IpJnuQqp0Qq6lg3AvYFc=
+            integrity: sha256-apck2bUKXyK0gWze1EG1qNndrlRhkaXlt++lpeLuJtU=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-darwin-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-darwin-arm64.tar.gz
           targets:
             - cpu: arm64
               os: darwin
@@ -6015,9 +6029,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-FGLLOzBGuBXPjqQ209pFDsGp8R2sflpGsK2lMF1+gJc=
+            integrity: sha256-SV4/JzxkXzxGd9Q4MEzfxwFynqXexXKPXI52ot7OS5E=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-darwin-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-darwin-x64.tar.gz
           targets:
             - cpu: x64
               os: darwin
@@ -6025,9 +6039,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-ckKCw7Q67JmKqVJzgEZbRdIp4CG1gDX19PYwleq/5dU=
+            integrity: sha256-t+eZHVQHgVrfp0oqnNTbaDVSyM4y/0opXCLpcoScP10=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-arm64.tar.gz
           targets:
             - cpu: arm64
               os: linux
@@ -6035,9 +6049,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-UcXVMGbukpILYXg7A7Buy5nzZhFg97Fcp36EdBFaZ7w=
+            integrity: sha256-jLp7v2iam1imXlgRFG6o0B5J0H5x97hGLk9v/NfS5/0=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-ppc64le.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-ppc64le.tar.gz
           targets:
             - cpu: ppc64le
               os: linux
@@ -6045,9 +6059,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-Xy+jdCLgx13jXBaG/lHXgyTywqj+LMI5pB2cAAop2Tg=
+            integrity: sha256-WQFxj1Uf+qduJQny1hLVvhb6ic3fvi1gEyXBDify0rY=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-s390x.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-s390x.tar.gz
           targets:
             - cpu: s390x
               os: linux
@@ -6055,9 +6069,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-PWNAX8ZaDS0pdsHwvC/Se7C9ByEkaecFqsPwOuWrTJw=
+            integrity: sha256-qVoPryjW98STA28FWdbTK3uMeaoG5BWxJ4L5aUaERIQ=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64-musl.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-x64-musl.tar.gz
           targets:
             - cpu: x64
               os: linux
@@ -6066,9 +6080,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-bh24fvWLiBnl1UAu/xU2SRsY7djre+5e94l4duiNxf8=
+            integrity: sha256-KOoKQ43poTvXiR/XWO7mx4Ge6K9UQt/Y1FvWXlbUIow=
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-x64.tar.gz
           targets:
             - cpu: x64
               os: linux
@@ -6076,10 +6090,10 @@ packages:
             archive: zip
             bin:
               node: node.exe
-            integrity: sha256-h3mxveHTn41CDjtXqmV7OYka9DTT3kSpGQRM7AZ4WSE=
-            prefix: node-v24.21.0-win-arm64
+            integrity: sha256-OlwgmlvFnmWzvA+hPtXhZqJr09VTMoR/SYt2sDdAjWE=
+            prefix: node-v24.22.0-win-arm64
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-win-arm64.zip
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-win-arm64.zip
           targets:
             - cpu: arm64
               os: win32
@@ -6087,10 +6101,10 @@ packages:
             archive: zip
             bin:
               node: node.exe
-            integrity: sha256-FY92hbRN5R9sDfHRU1JsvNPhvHOajfxgdyHO913p5UE=
-            prefix: node-v24.21.0-win-x64
+            integrity: sha256-+Wg6GYd+EqmxZzBcjbcQQNgSh2NZ3iHw0ul8PzIfgMM=
+            prefix: node-v24.22.0-win-x64
             type: binary
-            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-win-x64.zip
+            url: https://nodejs.org/download/release/v24.22.0/node-v24.22.0-win-x64.zip
           targets:
             - cpu: x64
               os: win32
@@ -6098,9 +6112,9 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-MEiwgR4VjKDYZytZyDmGF2PhREkpgNjSmzad/uRXR+Q=
+            integrity: sha256-aBKlPls3+8MkdtbDURA40rw7vRs7s0jWwE3Sxwocj0o=
             type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-arm64-musl.tar.gz
+            url: https://unofficial-builds.nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-arm64-musl.tar.gz
           targets:
             - cpu: arm64
               os: linux
@@ -6109,14 +6123,14 @@ packages:
             archive: tarball
             bin:
               node: bin/node
-            integrity: sha256-AacT402pjntNKjGR7nyj+T3QOE0aLvI8N5shYe5uEzo=
+            integrity: sha256-cs0lP74MJTnVIgjtCY1Ht4/ywyunYpXY5rWwzgZ9y6U=
             type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64-musl.tar.gz
+            url: https://unofficial-builds.nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-x64-musl.tar.gz
           targets:
             - cpu: x64
               os: linux
               libc: musl
-    version: 24.21.0
+    version: 24.22.0
     hasBin: true
 
   normalize-package-data@8.0.0:
@@ -7350,9 +7364,9 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  '@ag-ui/core@0.0.52':
-    dependencies:
-      zod: 3.25.76
+  '@ag-ui/core@1.0.0(zod@4.6.5)':
+    optionalDependencies:
+      zod: 4.6.5
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
@@ -9285,29 +9299,32 @@ snapshots:
       '@tanstack/ai': 0.13.0
       '@tanstack/ai-event-client': 0.2.7(@tanstack/ai@0.13.0)
 
-  '@tanstack/ai-devtools-core@0.4.22(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)':
+  '@tanstack/ai-devtools-core@0.5.28(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(zod@4.6.5)':
     dependencies:
-      '@tanstack/ai': 0.40.0
-      '@tanstack/ai-event-client': 0.6.8
+      '@tanstack/ai': 0.69.0(zod@4.6.5)
+      '@tanstack/ai-event-client': 0.13.1
       '@tanstack/devtools-ui': 0.5.3(csstype@3.2.3)(solid-js@1.9.14)
-      '@tanstack/devtools-utils': 0.4.0(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)
+      '@tanstack/devtools-utils': 0.7.1(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)
       goober: 2.1.19(csstype@3.2.3)
       solid-js: 1.9.14
     transitivePeerDependencies:
+      - '@angular/core'
       - '@opentelemetry/api'
       - '@types/react'
       - csstype
       - preact
       - react
+      - svelte
       - vue
+      - zod
+
+  '@tanstack/ai-event-client@0.13.1':
+    dependencies:
+      '@tanstack/devtools-event-client': 0.4.4
 
   '@tanstack/ai-event-client@0.2.7(@tanstack/ai@0.13.0)':
     dependencies:
       '@tanstack/ai': 0.13.0
-      '@tanstack/devtools-event-client': 0.4.4
-
-  '@tanstack/ai-event-client@0.6.8':
-    dependencies:
       '@tanstack/devtools-event-client': 0.4.4
 
   '@tanstack/ai-react@0.7.15(@tanstack/ai@0.13.0)(@types/react@19.2.17)(react@19.2.7)':
@@ -9317,7 +9334,7 @@ snapshots:
       '@types/react': 19.2.17
       react: 19.2.7
 
-  '@tanstack/ai-utils@0.3.1': {}
+  '@tanstack/ai-utils@0.4.2': {}
 
   '@tanstack/ai@0.13.0':
     dependencies:
@@ -9325,13 +9342,16 @@ snapshots:
       '@tanstack/ai-event-client': 0.2.7(@tanstack/ai@0.13.0)
       partial-json: 0.1.7
 
-  '@tanstack/ai@0.40.0':
+  '@tanstack/ai@0.69.0(zod@4.6.5)':
     dependencies:
-      '@ag-ui/core': 0.0.52
+      '@ag-ui/core': 1.0.0(zod@4.6.5)
       '@standard-schema/spec': 1.1.0
-      '@tanstack/ai-event-client': 0.6.8
-      '@tanstack/ai-utils': 0.3.1
+      '@tanstack/ai-event-client': 0.13.1
+      '@tanstack/ai-utils': 0.4.2
+      fast-json-patch: 3.1.1
       partial-json: 0.1.7
+    transitivePeerDependencies:
+      - zod
 
   '@tanstack/db-ivm@0.1.18(typescript@7.0.2)':
     dependencies:
@@ -9394,7 +9414,7 @@ snapshots:
     transitivePeerDependencies:
       - csstype
 
-  '@tanstack/devtools-utils@0.4.0(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)':
+  '@tanstack/devtools-utils@0.7.1(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)':
     optionalDependencies:
       '@types/react': 19.2.17
       react: 19.2.7
@@ -9459,18 +9479,21 @@ snapshots:
 
   '@tanstack/query-devtools@5.101.2': {}
 
-  '@tanstack/react-ai-devtools@0.2.65(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(solid-js@1.9.14)':
+  '@tanstack/react-ai-devtools@0.2.71(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(solid-js@1.9.14)(zod@4.6.5)':
     dependencies:
-      '@tanstack/ai-devtools-core': 0.4.22(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)
-      '@tanstack/devtools-utils': 0.4.0(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)
+      '@tanstack/ai-devtools-core': 0.5.28(@types/react@19.2.17)(csstype@3.2.3)(react@19.2.7)(zod@4.6.5)
+      '@tanstack/devtools-utils': 0.7.1(@types/react@19.2.17)(react@19.2.7)(solid-js@1.9.14)
       '@types/react': 19.2.17
       react: 19.2.7
     transitivePeerDependencies:
+      - '@angular/core'
       - '@opentelemetry/api'
       - csstype
       - preact
       - solid-js
+      - svelte
       - vue
+      - zod
 
   '@tanstack/react-db@0.1.92(react@19.2.7)(typescript@7.0.2)':
     dependencies:
@@ -11244,6 +11267,8 @@ snapshots:
       merge2: 1.4.1
       micromatch: 4.0.8
 
+  fast-json-patch@3.1.1: {}
+
   fast-string-truncated-width@3.0.3: {}
 
   fast-string-width@3.0.2:
@@ -12449,7 +12474,7 @@ snapshots:
 
   node-releases@2.0.51: {}
 
-  node@runtime:24.21.0: {}
+  node@runtime:24.22.0: {}
 
   normalize-package-data@8.0.0:
     dependencies:
