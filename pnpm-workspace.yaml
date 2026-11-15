@@ -2,6 +2,8 @@ minimumReleaseAge: 2880
 minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
   - '@jaykingson/vite-plus-base'
+  # Renovate security update: aws-cdk-lib@2.260.0
+  - aws-cdk-lib@2.260.0
 
 packages:
   - .
