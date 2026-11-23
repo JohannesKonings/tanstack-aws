@@ -9,6 +9,15 @@ import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup
 const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
 const DEVOPS_AGENT_SOURCE_ARN = `arn:aws:aidevops:${WORKLOAD_REGION}:${ACCOUNT_ID}:agentspace/*`;
+const ACCOUNT_LOG_RETENTION_POLICY_NAME = 'account-log-retention';
+const ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT =
+  '{"retentionInDays":30,"enforcementMode":"RETROACTIVE"}';
+
+type AccountPolicySdkCall = {
+  service: string;
+  action: string;
+  parameters: Record<string, unknown>;
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -60,6 +69,84 @@ function iamRolesByLogicalId(template: Template): Map<string, Record<string, unk
   }
 
   return roles;
+}
+
+function readAccountPolicySdkCall(value: unknown): AccountPolicySdkCall | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const parsed: unknown = JSON.parse(value);
+  if (!isRecord(parsed)) {
+    return undefined;
+  }
+
+  const { service, action, parameters } = parsed;
+  if (typeof service !== 'string' || typeof action !== 'string' || !isRecord(parameters)) {
+    return undefined;
+  }
+
+  return { service, action, parameters };
+}
+
+function accountPolicySdkCalls(template: Template): AccountPolicySdkCall[] {
+  const calls: AccountPolicySdkCall[] = [];
+
+  for (const resource of Object.values(template.findResources('Custom::AWS'))) {
+    if (!isRecord(resource) || !isRecord(resource.Properties)) {
+      continue;
+    }
+
+    for (const eventName of ['Create', 'Update', 'Delete']) {
+      const call = readAccountPolicySdkCall(resource.Properties[eventName]);
+      if (call) {
+        calls.push(call);
+      }
+    }
+  }
+
+  return calls;
+}
+
+function expectAccountLogRetentionPolicy(template: Template) {
+  template.resourceCountIs('Custom::AWS', 1);
+
+  const calls = accountPolicySdkCalls(template);
+  const putCalls = calls.filter((call) => call.action === 'putAccountPolicy');
+  const deleteCalls = calls.filter((call) => call.action === 'deleteAccountPolicy');
+
+  expect(putCalls).toEqual([
+    {
+      service: 'CloudWatchLogs',
+      action: 'putAccountPolicy',
+      parameters: {
+        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
+        policyType: 'RETENTION_POLICY',
+        policyDocument: ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT,
+      },
+    },
+    {
+      service: 'CloudWatchLogs',
+      action: 'putAccountPolicy',
+      parameters: {
+        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
+        policyType: 'RETENTION_POLICY',
+        policyDocument: ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT,
+      },
+    },
+  ]);
+  expect(deleteCalls).toEqual([
+    {
+      service: 'CloudWatchLogs',
+      action: 'deleteAccountPolicy',
+      parameters: {
+        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
+        policyType: 'RETENTION_POLICY',
+      },
+    },
+  ]);
+  expect(JSON.stringify(calls)).not.toContain('selectionCriteria');
+  expect(JSON.stringify(calls)).not.toContain('LogGroupNamePrefix');
 }
 
 describe('resolveAccountSetupEnv', () => {
@@ -201,6 +288,18 @@ describe('AccountSetupStack', () => {
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 
+  it('sets an account-level log retention policy for every log group in us-east-1', () => {
+    const app = createAccountSetupApp();
+    const stack = new AccountSetupStack(app, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+
+    expectAccountLogRetentionPolicy(Template.fromStack(stack));
+  });
+
   it('does not create agent spaces', () => {
     const app = createAccountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
@@ -275,6 +374,18 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraSecretArn');
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraDatabaseName');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
+  });
+
+  it('sets an account-level log retention policy for every log group in us-east-2', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    expectAccountLogRetentionPolicy(Template.fromStack(stack));
   });
 
   it('creates a Security Agent space named tanstack-aws-security and nothing else', () => {
