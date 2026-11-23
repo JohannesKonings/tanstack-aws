@@ -56,7 +56,7 @@
     "ulid": "^3.0.2"
   },
   "devDependencies": {
-    "@jaykingson/vite-plus-base": "0.0.5",
+    "@jaykingson/vite-plus-base": "0.0.6",
     "@phosphor-icons/react": "^2.1.10",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tanstack/intent": "0.0.23",
@@ -74,6 +74,7 @@
     "knip": "6.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "tsrs": "7.1.0-beta.tsrs2",
     "tsx": "^4.23.0",
     "typescript": "catalog:",
     "vite": "catalog:",
@@ -83,12 +84,12 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.9.1",
+      "version": "12.21.0",
       "onFail": "download"
     },
     "runtime": {
       "name": "node",
-      "version": "^24.0.0",
+      "version": "^26.13.1",
       "onFail": "download"
     }
   },
