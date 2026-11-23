@@ -144,6 +144,25 @@ describe('AccountSetupStack', () => {
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsOidcProviderArn');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
+
+  it('does not create a CloudWatch Omni domain, space, or space operator role', () => {
+    const app = createAccountSetupApp();
+    const stack = new AccountSetupStack(app, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::CloudWatch::Domain', 0);
+    template.resourceCountIs('AWS::CloudWatch::Space', 0);
+    template.resourceCountIs('AWS::ObservabilityAdmin::DatasetIntegration', 0);
+    const templateJson = JSON.stringify(template.toJSON());
+    expect(templateJson).not.toContain('CloudWatchOmniSpaceAccessPolicy');
+    expect(templateJson).not.toContain('CloudWatchOmniAWSIntegrationPolicyV2');
+    expect(templateJson).not.toContain('cloudwatch.amazonaws.com');
+  });
 });
 
 describe('WorkloadRegionAccountSetupStack', () => {
@@ -205,4 +224,214 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraDatabaseName');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
+
+  it('creates a CloudWatch Omni domain named tanstack-aws with IAM as the only sign-in method', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::CloudWatch::Domain', 1);
+    template.hasResourceProperties('AWS::CloudWatch::Domain', {
+      Name: 'tanstack-aws',
+      IdentityProviders: ['IAM'],
+    });
+
+    const [domain] = Object.values(template.findResources('AWS::CloudWatch::Domain'));
+    expect(domain?.Properties?.IdentityProviderConfiguration).toBeUndefined();
+  });
+
+  it('creates a CloudWatch Omni space named tanstack-aws in that domain without evaluation or a customer-managed key', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    const [domainLogicalId] = Object.keys(template.findResources('AWS::CloudWatch::Domain'));
+    template.resourceCountIs('AWS::CloudWatch::Space', 1);
+    template.hasResourceProperties('AWS::CloudWatch::Space', {
+      Name: 'tanstack-aws',
+      DomainId: { 'Fn::GetAtt': [domainLogicalId, 'DomainId'] },
+    });
+
+    const [space] = Object.values(template.findResources('AWS::CloudWatch::Space'));
+    expect(space?.Properties?.AgentCoreEvaluationRoleArn).toBeUndefined();
+    expect(space?.Properties?.EncryptionConfiguration).toBeUndefined();
+    expect(space?.Properties?.DataAccessRoleArn).toBeDefined();
+  });
+
+  it('makes the space data-access role the space operator role for this account only', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    const [space] = Object.values(template.findResources('AWS::CloudWatch::Space'));
+    const dataAccessRoleArn = space?.Properties?.DataAccessRoleArn;
+    const roleLogicalId = roleLogicalIdFromArn(dataAccessRoleArn);
+    const role = template.findResources('AWS::IAM::Role')[roleLogicalId];
+    expect(role).toBeDefined();
+
+    const statements = assumeRoleStatements(role?.Properties?.AssumeRolePolicyDocument);
+    const cloudWatchStatements = statements.filter((statement) =>
+      trustsService(statement, 'cloudwatch.amazonaws.com'),
+    );
+    expect(cloudWatchStatements.length).toBeGreaterThan(0);
+    for (const statement of cloudWatchStatements) {
+      expect(statement.Condition).toEqual({
+        StringEquals: { 'aws:SourceAccount': '123456789012' },
+      });
+    }
+    expect(
+      cloudWatchStatements.flatMap((statement) => statementActions(statement.Action)).sort(),
+    ).toEqual(
+      ['sts:AssumeRole', 'sts:SetContext', 'sts:SetSourceIdentity', 'sts:TagSession'].sort(),
+    );
+
+    expect(role?.Properties?.ManagedPolicyArns).toEqual([
+      {
+        'Fn::Join': [
+          '',
+          ['arn:', { Ref: 'AWS::Partition' }, ':iam::aws:policy/CloudWatchOmniSpaceAccessPolicy'],
+        ],
+      },
+      {
+        'Fn::Join': [
+          '',
+          [
+            'arn:',
+            { Ref: 'AWS::Partition' },
+            ':iam::aws:policy/CloudWatchOmniAWSIntegrationPolicyV2',
+          ],
+        ],
+      },
+    ]);
+    expect(JSON.stringify(template.toJSON())).not.toContain('CloudWatchOmniModelInferencePolicy');
+  });
+
+  it('forwards logs and traces into the CloudWatch Dataset and leaves OTel enrichment and span ingestion off', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::ObservabilityAdmin::DatasetIntegration', 1);
+    template.resourceCountIs('AWS::CloudWatch::OTelEnrichment', 0);
+    template.resourceCountIs('AWS::XRay::TransactionSearchConfig', 0);
+
+    const [integration] = Object.values(
+      template.findResources('AWS::ObservabilityAdmin::DatasetIntegration'),
+    );
+    const roleLogicalId = roleLogicalIdFromArn(integration?.Properties?.RoleArn);
+    const role = template.findResources('AWS::IAM::Role')[roleLogicalId];
+    const statements = assumeRoleStatements(role?.Properties?.AssumeRolePolicyDocument);
+    const logsStatements = statements.filter((statement) =>
+      trustsService(statement, 'logs.amazonaws.com'),
+    );
+    expect(logsStatements).toEqual([
+      expect.objectContaining({
+        Effect: 'Allow',
+        Action: 'sts:AssumeRole',
+        Condition: {
+          StringEquals: { 'aws:SourceAccount': '123456789012' },
+          ArnLike: {
+            'aws:SourceArn':
+              'arn:aws:observabilityadmin:us-east-2:123456789012:dataset-integration/default',
+          },
+        },
+      }),
+    ]);
+
+    template.hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Effect: 'Allow',
+            Action: 'logs:IntegrateWithDataset',
+            Resource: 'arn:aws:logs:us-east-2:123456789012:log-group:*',
+          }),
+          Match.objectLike({
+            Effect: 'Allow',
+            Action: 'cloudwatch:PutRecords',
+            Resource: '*',
+          }),
+        ]),
+      },
+      Roles: [{ Ref: roleLogicalId }],
+    });
+  });
 });
+
+function roleLogicalIdFromArn(roleArn: unknown): string {
+  if (
+    typeof roleArn === 'object' &&
+    roleArn !== null &&
+    'Fn::GetAtt' in roleArn &&
+    Array.isArray(roleArn['Fn::GetAtt']) &&
+    typeof roleArn['Fn::GetAtt'][0] === 'string'
+  ) {
+    return roleArn['Fn::GetAtt'][0];
+  }
+
+  throw new Error('Space DataAccessRoleArn does not reference an IAM role in this template');
+}
+
+function assumeRoleStatements(policyDocument: unknown): Array<{
+  Action?: unknown;
+  Condition?: unknown;
+  Principal?: unknown;
+}> {
+  if (
+    typeof policyDocument !== 'object' ||
+    policyDocument === null ||
+    !('Statement' in policyDocument) ||
+    !Array.isArray(policyDocument.Statement)
+  ) {
+    return [];
+  }
+
+  return policyDocument.Statement.flatMap((statement) => {
+    if (typeof statement !== 'object' || statement === null) {
+      return [];
+    }
+    return [statement];
+  });
+}
+
+function trustsService(statement: { Principal?: unknown }, service: string): boolean {
+  const principal = statement.Principal;
+  if (typeof principal !== 'object' || principal === null || !('Service' in principal)) {
+    return false;
+  }
+  const servicePrincipal = principal.Service;
+  return (
+    servicePrincipal === service ||
+    (Array.isArray(servicePrincipal) && servicePrincipal.includes(service))
+  );
+}
+
+function statementActions(action: unknown): string[] {
+  if (typeof action === 'string') {
+    return [action];
+  }
+  if (Array.isArray(action) && action.every((item) => typeof item === 'string')) {
+    return action;
+  }
+  return [];
+}

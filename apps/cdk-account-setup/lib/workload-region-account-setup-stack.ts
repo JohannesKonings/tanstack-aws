@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { CloudWatchOmniSetup } from './constructs/CloudWatchOmniSetup.ts';
 import { SharedAuroraPostgresServerlessV2 } from './constructs/SharedAuroraPostgresServerlessV2.ts';
 
 export class WorkloadRegionAccountSetupStack extends cdk.Stack {
@@ -44,5 +45,7 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
       value: sharedAurora.databaseName,
       description: 'Shared Aurora default database name.',
     });
+
+    new CloudWatchOmniSetup(this, 'CloudWatchOmniSetup');
   }
 }

@@ -454,6 +454,175 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
   },
   "Resources": {
+    "CloudWatchOmniSetupDatasetIntegration64B98BCC": {
+      "Properties": {
+        "RoleArn": "<redacted-name>",
+      },
+      "Type": "AWS::ObservabilityAdmin::DatasetIntegration",
+    },
+    "CloudWatchOmniSetupDatasetIntegrationRole011CE620": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Dataset integration forwards every non-delivery log group in this account and region. AWS requires logs:IntegrateWithDataset on log-group:* and cloudwatch:PutRecords on *.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": "<arn>",
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "logs.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Execution role CloudWatch Logs assumes to forward logs and traces into the CloudWatch Dataset.",
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CloudWatchOmniSetupDatasetIntegrationRoleDefaultPolicy5CEBDBC8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Dataset integration forwards every non-delivery log group in this account and region. AWS requires logs:IntegrateWithDataset on log-group:* and cloudwatch:PutRecords on *.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "logs:IntegrateWithDataset",
+              "Effect": "Allow",
+              "Resource": "<arn>",
+            },
+            {
+              "Action": "cloudwatch:PutRecords",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CloudWatchOmniSetupDatasetIntegrationRoleDefaultPolicy5CEBDBC8",
+        "Roles": [
+          {
+            "Ref": "CloudWatchOmniSetupDatasetIntegrationRole011CE620",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CloudWatchOmniSetupDomain729F7004": {
+      "Properties": {
+        "IdentityProviders": [
+          "IAM",
+        ],
+        "Name": "tanstack-aws",
+      },
+      "Type": "AWS::CloudWatch::Domain",
+    },
+    "CloudWatchOmniSetupSpace3B0D40C6": {
+      "Properties": {
+        "DataAccessRoleArn": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupSpaceOperatorRole196004DC",
+            "Arn",
+          ],
+        },
+        "DomainId": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupDomain729F7004",
+            "DomainId",
+          ],
+        },
+        "Name": "tanstack-aws",
+      },
+      "Type": "AWS::CloudWatch::Space",
+    },
+    "CloudWatchOmniSetupSpaceOperatorRole196004DC": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole",
+                "sts:TagSession",
+                "sts:SetSourceIdentity",
+                "sts:SetContext",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudwatch.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Space operator role assumed by CloudWatch Omni for this account.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/CloudWatchOmniSpaceAccessPolicy",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/CloudWatchOmniAWSIntegrationPolicyV2",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
       "DependsOn": [
         "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",

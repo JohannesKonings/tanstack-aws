@@ -1,0 +1,137 @@
+import { CfnResource, Stack } from 'aws-cdk-lib';
+import {
+  CfnRole,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam';
+import { NagSuppressions } from 'cdk-nag';
+import { Construct } from 'constructs';
+
+const OMNI_NAME = 'tanstack-aws';
+
+/** CloudWatch Omni domain and space for this account in the workload region. */
+export class CloudWatchOmniSetup extends Construct {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const unknownCloudFormationResourceReason =
+      'aws-cdk-lib 2.272.0 has no L1 for this published CloudFormation resource, so account setup declares it directly.';
+    this.node.addMetadata('aws:cdk:acknowledged-rules', {
+      'CloudFormation-Validate::F3006': unknownCloudFormationResourceReason,
+    });
+
+    const domain = new CfnResource(this, 'Domain', {
+      type: 'AWS::CloudWatch::Domain',
+      properties: {
+        Name: OMNI_NAME,
+        IdentityProviders: ['IAM'],
+      },
+    });
+
+    const spaceOperatorRole = new Role(this, 'SpaceOperatorRole', {
+      assumedBy: new ServicePrincipal('cloudwatch.amazonaws.com'),
+      description: 'Space operator role assumed by CloudWatch Omni for this account.',
+    });
+    const spaceOperator = spaceOperatorRole.node.defaultChild;
+    if (!(spaceOperator instanceof CfnRole)) {
+      throw new Error('Space operator role is not an IAM role.');
+    }
+    spaceOperator.assumeRolePolicyDocument = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: { Service: 'cloudwatch.amazonaws.com' },
+          Action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity', 'sts:SetContext'],
+          Condition: {
+            StringEquals: {
+              'aws:SourceAccount': Stack.of(this).account,
+            },
+          },
+        },
+      ],
+    };
+    spaceOperatorRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('CloudWatchOmniSpaceAccessPolicy'),
+    );
+    spaceOperatorRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('CloudWatchOmniAWSIntegrationPolicyV2'),
+    );
+    NagSuppressions.addResourceSuppressions(spaceOperatorRole, [
+      {
+        id: 'AwsSolutions-IAM4',
+        reason:
+          'CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.',
+      },
+    ]);
+
+    new CfnResource(this, 'Space', {
+      type: 'AWS::CloudWatch::Space',
+      properties: {
+        Name: OMNI_NAME,
+        DomainId: domain.getAtt('DomainId'),
+        DataAccessRoleArn: spaceOperatorRole.roleArn,
+      },
+    });
+
+    const account = Stack.of(this).account;
+    const region = Stack.of(this).region;
+    const datasetIntegrationRole = new Role(this, 'DatasetIntegrationRole', {
+      assumedBy: new ServicePrincipal('logs.amazonaws.com'),
+      description:
+        'Execution role CloudWatch Logs assumes to forward logs and traces into the CloudWatch Dataset.',
+    });
+    const datasetIntegrationRoleResource = datasetIntegrationRole.node.defaultChild;
+    if (!(datasetIntegrationRoleResource instanceof CfnRole)) {
+      throw new Error('Dataset integration role is not an IAM role.');
+    }
+    datasetIntegrationRoleResource.assumeRolePolicyDocument = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: { Service: 'logs.amazonaws.com' },
+          Action: 'sts:AssumeRole',
+          Condition: {
+            StringEquals: { 'aws:SourceAccount': account },
+            ArnLike: {
+              'aws:SourceArn': `arn:aws:observabilityadmin:${region}:${account}:dataset-integration/default`,
+            },
+          },
+        },
+      ],
+    };
+    datasetIntegrationRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['logs:IntegrateWithDataset'],
+        resources: [`arn:aws:logs:${region}:${account}:log-group:*`],
+      }),
+    );
+    datasetIntegrationRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['cloudwatch:PutRecords'],
+        resources: ['*'],
+      }),
+    );
+    NagSuppressions.addResourceSuppressions(
+      datasetIntegrationRole,
+      [
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'Dataset integration forwards every non-delivery log group in this account and region. AWS requires logs:IntegrateWithDataset on log-group:* and cloudwatch:PutRecords on *.',
+        },
+      ],
+      true,
+    );
+
+    new CfnResource(this, 'DatasetIntegration', {
+      type: 'AWS::ObservabilityAdmin::DatasetIntegration',
+      properties: {
+        RoleArn: datasetIntegrationRole.roleArn,
+      },
+    });
+  }
+}
