@@ -868,6 +868,123 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       },
       "Type": "AWS::IAM::Policy",
     },
+    "AgentSpacesAssumableRole4C0632B1": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/AIDevOpsAgentAccessPolicy",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWS DevOps Agent requires the AWS-managed AIDevOpsAgentAccessPolicy so investigation permissions stay current as AWS adds resource types.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": "<arn>",
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "aidevops.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Role AWS DevOps Agent assumes to monitor this account.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AIDevOpsAgentAccessPolicy",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AgentSpacesDevOpsAgentSpace97E8766B": {
+      "Properties": {
+        "Name": "tanstack-aws-devops",
+        "OperatorApp": {
+          "Iam": {
+            "OperatorAppRoleArn": {
+              "Fn::GetAtt": [
+                "AgentSpacesOperatorRoleEF0F6160",
+                "Arn",
+              ],
+            },
+          },
+        },
+      },
+      "Type": "AWS::DevOpsAgent::AgentSpace",
+    },
+    "AgentSpacesMonitorAssociation3544C161": {
+      "Properties": {
+        "AgentSpaceId": {
+          "Fn::GetAtt": [
+            "AgentSpacesDevOpsAgentSpace97E8766B",
+            "AgentSpaceId",
+          ],
+        },
+        "Configuration": {
+          "Aws": {
+            "AccountId": "<redacted-name>",
+            "AccountType": "monitor",
+            "AssumableRoleArn": {
+              "Fn::GetAtt": [
+                "AgentSpacesAssumableRole4C0632B1",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "ServiceId": "aws",
+      },
+      "Type": "AWS::DevOpsAgent::Association",
+    },
+    "AgentSpacesOperatorRoleEF0F6160": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "<arn>",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Lets principals in this account open the DevOps Agent web app.",
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AgentSpacesSecurityAgentSpace5FCFD0D4": {
+      "Properties": {
+        "Name": "tanstack-aws-security",
+      },
+      "Type": "AWS::SecurityAgent::AgentSpace",
+    },
     "CloudWatchOmniSetupDatasetIntegration64B98BCC": {
       "Properties": {
         "RoleArn": "<redacted-name>",
