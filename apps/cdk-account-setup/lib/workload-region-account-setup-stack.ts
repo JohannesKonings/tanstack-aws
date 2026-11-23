@@ -1,11 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { AccountLogRetentionPolicy } from './constructs/AccountLogRetentionPolicy.ts';
 import { SharedAuroraPostgresServerlessV2 } from './constructs/SharedAuroraPostgresServerlessV2.ts';
 
 export class WorkloadRegionAccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
 
     const sharedAurora = new SharedAuroraPostgresServerlessV2(
       this,
