@@ -11,8 +11,8 @@
     "@tanstack-aws/aurora": "workspace:*"
   },
   "devDependencies": {
-    "aws-cdk": "2.1129.0",
-    "aws-cdk-lib": "2.244.0",
+    "aws-cdk": "2.1149.0",
+    "aws-cdk-lib": "2.278.0",
     "cdk-nag": "^2.38.2",
     "constructs": "^10.6.0",
     "tsx": "^4.23.0",
