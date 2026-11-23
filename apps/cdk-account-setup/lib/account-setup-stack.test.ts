@@ -8,7 +8,6 @@ import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup
 
 const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
-const DEVOPS_AGENT_SOURCE_ARN = `arn:aws:aidevops:${WORKLOAD_REGION}:${ACCOUNT_ID}:agentspace/*`;
 const ACCOUNT_LOG_RETENTION_POLICY_NAME = 'account-log-retention';
 const ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT =
   '{"retentionInDays":30,"enforcementMode":"RETROACTIVE"}';
@@ -147,6 +146,9 @@ function expectAccountLogRetentionPolicy(template: Template) {
   ]);
   expect(JSON.stringify(calls)).not.toContain('selectionCriteria');
   expect(JSON.stringify(calls)).not.toContain('LogGroupNamePrefix');
+
+  const retentionActions = accountLogRetentionPolicyActions(template);
+  expect(retentionActions).toEqual(['logs:DeleteAccountPolicy', 'logs:PutAccountPolicy']);
 }
 
 describe('resolveAccountSetupEnv', () => {
@@ -447,6 +449,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(iamRolesByLogicalId(template).size).toBe(
       iamRolesByLogicalId(Template.fromStack(workloadRegionStack())).size,
     );
+    expectSharedWorkloadResources(template);
   });
 
   it('omits the DevOps Agent space, association, and roles when devopsAgent is false', () => {
@@ -468,6 +471,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
       expect(document).not.toContain(':root');
     }
     expect(JSON.stringify(template.toJSON())).not.toContain('AIDevOpsAgentAccessPolicy');
+    expectSharedWorkloadResources(template);
   });
 
   it('creates a DevOps Agent space with IAM operator sign-in and a monitor association', () => {
@@ -499,6 +503,9 @@ describe('WorkloadRegionAccountSetupStack', () => {
       },
     });
 
+    const [agentSpaceLogicalId] = Object.keys(
+      template.findResources('AWS::DevOpsAgent::AgentSpace'),
+    );
     const roles = iamRolesByLogicalId(template);
     const configuration = isRecord(association?.Configuration)
       ? association.Configuration
@@ -518,8 +525,8 @@ describe('WorkloadRegionAccountSetupStack', () => {
             StringEquals: {
               'aws:SourceAccount': ACCOUNT_ID,
             },
-            ArnLike: {
-              'aws:SourceArn': DEVOPS_AGENT_SOURCE_ARN,
+            ArnEquals: {
+              'aws:SourceArn': { 'Fn::GetAtt': [agentSpaceLogicalId, 'Arn'] },
             },
           },
         },
@@ -680,6 +687,47 @@ describe('WorkloadRegionAccountSetupStack', () => {
     });
   });
 });
+
+function expectSharedWorkloadResources(template: Template) {
+  expectAccountLogRetentionPolicy(template);
+  template.resourceCountIs('AWS::CloudWatch::Domain', 1);
+  template.hasResourceProperties('AWS::CloudWatch::Domain', {
+    Name: 'tanstack-aws',
+  });
+  template.resourceCountIs('AWS::CloudWatch::Space', 1);
+  template.hasResourceProperties('AWS::CloudWatch::Space', {
+    Name: 'tanstack-aws',
+  });
+  template.resourceCountIs('AWS::RDS::DBCluster', 1);
+  template.hasResourceProperties('AWS::RDS::DBCluster', {
+    Engine: 'aurora-postgresql',
+    DatabaseName: 'tanstackaws',
+  });
+}
+
+function accountLogRetentionPolicyActions(template: Template): string[] {
+  for (const properties of resourceProperties(template, 'AWS::IAM::Policy')) {
+    const document = properties.PolicyDocument;
+    if (!isRecord(document) || !Array.isArray(document.Statement)) {
+      continue;
+    }
+
+    for (const statement of document.Statement) {
+      if (!isRecord(statement)) {
+        continue;
+      }
+      const actions = statementActions(statement.Action);
+      if (
+        actions.includes('logs:PutAccountPolicy') ||
+        actions.includes('logs:PutRetentionPolicy')
+      ) {
+        return [...actions].sort();
+      }
+    }
+  }
+
+  return [];
+}
 
 function assumeRoleStatements(policyDocument: unknown): Array<{
   Action?: unknown;

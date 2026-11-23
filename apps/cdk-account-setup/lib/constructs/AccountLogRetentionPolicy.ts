@@ -46,12 +46,7 @@ export class AccountLogRetentionPolicy extends Construct {
       },
       policy: AwsCustomResourcePolicy.fromStatements([
         new PolicyStatement({
-          actions: [
-            'logs:PutAccountPolicy',
-            'logs:PutRetentionPolicy',
-            'logs:DeleteAccountPolicy',
-            'logs:DeleteRetentionPolicy',
-          ],
+          actions: ['logs:PutAccountPolicy', 'logs:DeleteAccountPolicy'],
           resources: ['*'],
         }),
       ]),

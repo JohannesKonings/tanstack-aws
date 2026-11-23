@@ -215,9 +215,7 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
             {
               "Action": [
                 "logs:DeleteAccountPolicy",
-                "logs:DeleteRetentionPolicy",
                 "logs:PutAccountPolicy",
-                "logs:PutRetentionPolicy",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -849,9 +847,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             {
               "Action": [
                 "logs:DeleteAccountPolicy",
-                "logs:DeleteRetentionPolicy",
                 "logs:PutAccountPolicy",
-                "logs:PutRetentionPolicy",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -888,8 +884,13 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
             {
               "Action": "sts:AssumeRole",
               "Condition": {
-                "ArnLike": {
-                  "aws:SourceArn": "<arn>",
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "AgentSpacesDevOpsAgentSpace97E8766B",
+                      "Arn",
+                    ],
+                  },
                 },
                 "StringEquals": {
                   "aws:SourceAccount": "<account-id>",

@@ -1,4 +1,4 @@
-import { CfnResource, Stack } from 'aws-cdk-lib';
+import { CfnResource, Stack, Validations } from 'aws-cdk-lib';
 import {
   CfnRole,
   ManagedPolicy,
@@ -10,17 +10,13 @@ import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 const OMNI_NAME = 'tanstack-aws';
+const unknownCloudFormationResourceReason =
+  'aws-cdk-lib 2.272.0 has no L1 for this published CloudFormation resource, so account setup declares it directly.';
 
 /** CloudWatch Omni domain and space for this account in the workload region. */
 export class CloudWatchOmniSetup extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
-
-    const unknownCloudFormationResourceReason =
-      'aws-cdk-lib 2.272.0 has no L1 for this published CloudFormation resource, so account setup declares it directly.';
-    this.node.addMetadata('aws:cdk:acknowledged-rules', {
-      'CloudFormation-Validate::F3006': unknownCloudFormationResourceReason,
-    });
 
     const domain = new CfnResource(this, 'Domain', {
       type: 'AWS::CloudWatch::Domain',
@@ -29,30 +25,31 @@ export class CloudWatchOmniSetup extends Construct {
         IdentityProviders: ['IAM'],
       },
     });
+    acknowledgeUnknownCloudFormationResource(domain);
 
     const spaceOperatorRole = new Role(this, 'SpaceOperatorRole', {
       assumedBy: new ServicePrincipal('cloudwatch.amazonaws.com'),
       description: 'Space operator role assumed by CloudWatch Omni for this account.',
     });
-    const spaceOperator = spaceOperatorRole.node.defaultChild;
-    if (!(spaceOperator instanceof CfnRole)) {
-      throw new Error('Space operator role is not an IAM role.');
-    }
-    spaceOperator.assumeRolePolicyDocument = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Effect: 'Allow',
-          Principal: { Service: 'cloudwatch.amazonaws.com' },
-          Action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity', 'sts:SetContext'],
-          Condition: {
-            StringEquals: {
-              'aws:SourceAccount': Stack.of(this).account,
+    replaceAssumeRoleTrust(
+      spaceOperatorRole,
+      {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: { Service: 'cloudwatch.amazonaws.com' },
+            Action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity', 'sts:SetContext'],
+            Condition: {
+              StringEquals: {
+                'aws:SourceAccount': Stack.of(this).account,
+              },
             },
           },
-        },
-      ],
-    };
+        ],
+      },
+      'Space operator role is not an IAM role.',
+    );
     spaceOperatorRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('CloudWatchOmniSpaceAccessPolicy'),
     );
@@ -67,7 +64,7 @@ export class CloudWatchOmniSetup extends Construct {
       },
     ]);
 
-    new CfnResource(this, 'Space', {
+    const space = new CfnResource(this, 'Space', {
       type: 'AWS::CloudWatch::Space',
       properties: {
         Name: OMNI_NAME,
@@ -75,6 +72,7 @@ export class CloudWatchOmniSetup extends Construct {
         DataAccessRoleArn: spaceOperatorRole.roleArn,
       },
     });
+    acknowledgeUnknownCloudFormationResource(space);
 
     const account = Stack.of(this).account;
     const region = Stack.of(this).region;
@@ -83,26 +81,26 @@ export class CloudWatchOmniSetup extends Construct {
       description:
         'Execution role CloudWatch Logs assumes to forward logs and traces into the CloudWatch Dataset.',
     });
-    const datasetIntegrationRoleResource = datasetIntegrationRole.node.defaultChild;
-    if (!(datasetIntegrationRoleResource instanceof CfnRole)) {
-      throw new Error('Dataset integration role is not an IAM role.');
-    }
-    datasetIntegrationRoleResource.assumeRolePolicyDocument = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Effect: 'Allow',
-          Principal: { Service: 'logs.amazonaws.com' },
-          Action: 'sts:AssumeRole',
-          Condition: {
-            StringEquals: { 'aws:SourceAccount': account },
-            ArnLike: {
-              'aws:SourceArn': `arn:aws:observabilityadmin:${region}:${account}:dataset-integration/default`,
+    replaceAssumeRoleTrust(
+      datasetIntegrationRole,
+      {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: { Service: 'logs.amazonaws.com' },
+            Action: 'sts:AssumeRole',
+            Condition: {
+              StringEquals: { 'aws:SourceAccount': account },
+              ArnLike: {
+                'aws:SourceArn': `arn:aws:observabilityadmin:${region}:${account}:dataset-integration/default`,
+              },
             },
           },
-        },
-      ],
-    };
+        ],
+      },
+      'Dataset integration role is not an IAM role.',
+    );
     datasetIntegrationRole.addToPolicy(
       new PolicyStatement({
         actions: ['logs:IntegrateWithDataset'],
@@ -127,11 +125,41 @@ export class CloudWatchOmniSetup extends Construct {
       true,
     );
 
-    new CfnResource(this, 'DatasetIntegration', {
+    const datasetIntegration = new CfnResource(this, 'DatasetIntegration', {
       type: 'AWS::ObservabilityAdmin::DatasetIntegration',
       properties: {
         RoleArn: datasetIntegrationRole.roleArn,
       },
     });
+    acknowledgeUnknownCloudFormationResource(datasetIntegration);
   }
+}
+
+type AssumeRoleTrustDocument = {
+  Version: '2012-10-17';
+  Statement: Array<{
+    Effect: 'Allow';
+    Principal: { Service: string };
+    Action: string | string[];
+    Condition: Record<string, Record<string, string>>;
+  }>;
+};
+
+function replaceAssumeRoleTrust(
+  role: Role,
+  assumeRolePolicyDocument: AssumeRoleTrustDocument,
+  missingRoleMessage: string,
+): void {
+  const resource = role.node.defaultChild;
+  if (!(resource instanceof CfnRole)) {
+    throw new Error(missingRoleMessage);
+  }
+  resource.assumeRolePolicyDocument = assumeRolePolicyDocument;
+}
+
+function acknowledgeUnknownCloudFormationResource(resource: CfnResource): void {
+  Validations.of(resource).acknowledge({
+    id: 'CloudFormation-Validate::F3006',
+    reason: unknownCloudFormationResourceReason,
+  });
 }

@@ -31,10 +31,18 @@ export class AgentSpaces extends Construct {
       return;
     }
 
-    const { account, region, partition } = Stack.of(this);
+    const { account, partition } = Stack.of(this);
     const operatorRole = new Role(this, 'OperatorRole', {
       assumedBy: new ArnPrincipal(`arn:${partition}:iam::${account}:root`),
       description: 'Lets principals in this account open the DevOps Agent web app.',
+    });
+    const agentSpace = new devopsagent.CfnAgentSpace(this, 'DevOpsAgentSpace', {
+      name: DEVOPS_AGENT_SPACE_NAME,
+      operatorApp: {
+        iam: {
+          operatorAppRoleArn: operatorRole.roleArn,
+        },
+      },
     });
     const assumableRole = new Role(this, 'AssumableRole', {
       assumedBy: new ServicePrincipal(DEVOPS_AGENT_SERVICE_PRINCIPAL, {
@@ -42,8 +50,8 @@ export class AgentSpaces extends Construct {
           StringEquals: {
             'aws:SourceAccount': account,
           },
-          ArnLike: {
-            'aws:SourceArn': `arn:${partition}:aidevops:${region}:${account}:agentspace/*`,
+          ArnEquals: {
+            'aws:SourceArn': agentSpace.attrArn,
           },
         },
       }),
@@ -61,14 +69,6 @@ export class AgentSpaces extends Construct {
       },
     ]);
 
-    const agentSpace = new devopsagent.CfnAgentSpace(this, 'DevOpsAgentSpace', {
-      name: DEVOPS_AGENT_SPACE_NAME,
-      operatorApp: {
-        iam: {
-          operatorAppRoleArn: operatorRole.roleArn,
-        },
-      },
-    });
     const monitorAssociation = new devopsagent.CfnAssociation(this, 'MonitorAssociation', {
       agentSpaceId: agentSpace.attrAgentSpaceId,
       serviceId: 'aws',
