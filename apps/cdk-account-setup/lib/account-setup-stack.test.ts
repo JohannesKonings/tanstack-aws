@@ -6,6 +6,62 @@ import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts
 import { createAccountSetupApp } from './cdk-app.ts';
 import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
 
+const ACCOUNT_ID = '123456789012';
+const WORKLOAD_REGION = 'us-east-2';
+const DEVOPS_AGENT_SOURCE_ARN = `arn:aws:aidevops:${WORKLOAD_REGION}:${ACCOUNT_ID}:agentspace/*`;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function resourceProperties(template: Template, type: string): Record<string, unknown>[] {
+  return Object.values(template.findResources(type)).flatMap((resource) => {
+    if (!isRecord(resource) || !isRecord(resource.Properties)) {
+      return [];
+    }
+
+    return [resource.Properties];
+  });
+}
+
+function workloadRegionStack(
+  props: { securityAgent?: boolean; devopsAgent?: boolean } = {},
+): WorkloadRegionAccountSetupStack {
+  const app = createAccountSetupApp();
+  return new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+    env: {
+      account: ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+    ...props,
+  });
+}
+
+function roleLogicalId(value: unknown): string | undefined {
+  if (!isRecord(value) || !Array.isArray(value['Fn::GetAtt'])) {
+    return undefined;
+  }
+
+  const [logicalId, attribute] = value['Fn::GetAtt'];
+  if (typeof logicalId !== 'string' || attribute !== 'Arn') {
+    return undefined;
+  }
+
+  return logicalId;
+}
+
+function iamRolesByLogicalId(template: Template): Map<string, Record<string, unknown>> {
+  const roles = new Map<string, Record<string, unknown>>();
+
+  for (const [logicalId, resource] of Object.entries(template.findResources('AWS::IAM::Role'))) {
+    if (isRecord(resource) && isRecord(resource.Properties)) {
+      roles.set(logicalId, resource.Properties);
+    }
+  }
+
+  return roles;
+}
+
 describe('resolveAccountSetupEnv', () => {
   it('uses AWS account and region from environment variables', () => {
     expect(
@@ -144,6 +200,21 @@ describe('AccountSetupStack', () => {
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsOidcProviderArn');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
+
+  it('does not create agent spaces', () => {
+    const app = createAccountSetupApp();
+    const stack = new AccountSetupStack(app, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 0);
+    template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 0);
+    template.resourceCountIs('AWS::DevOpsAgent::Association', 0);
+  });
 });
 
 describe('WorkloadRegionAccountSetupStack', () => {
@@ -204,5 +275,151 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraSecretArn');
     expect(templateJson.Outputs).toHaveProperty('SharedAuroraDatabaseName');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
+  });
+
+  it('creates a Security Agent space named tanstack-aws-security and nothing else', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 1);
+    template.hasResource('AWS::SecurityAgent::AgentSpace', {
+      Properties: {
+        Name: 'tanstack-aws-security',
+        AwsResources: Match.absent(),
+        CodeReviewSettings: Match.absent(),
+        IntegratedResources: Match.absent(),
+        KmsKeyId: Match.absent(),
+        TargetDomainIds: Match.absent(),
+      },
+    });
+  });
+
+  it('omits the Security Agent space when securityAgent is false', () => {
+    const app = createAccountSetupApp();
+    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-2',
+      },
+      securityAgent: false,
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 0);
+    template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 1);
+    template.resourceCountIs('AWS::DevOpsAgent::Association', 1);
+    expect(iamRolesByLogicalId(template).size).toBe(
+      iamRolesByLogicalId(Template.fromStack(workloadRegionStack())).size,
+    );
+  });
+
+  it('omits the DevOps Agent space, association, and roles when devopsAgent is false', () => {
+    const template = Template.fromStack(workloadRegionStack({ devopsAgent: false }));
+    const defaultRoles = iamRolesByLogicalId(Template.fromStack(workloadRegionStack()));
+
+    template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 0);
+    template.resourceCountIs('AWS::DevOpsAgent::Association', 0);
+    template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 1);
+    template.hasResourceProperties('AWS::SecurityAgent::AgentSpace', {
+      Name: 'tanstack-aws-security',
+    });
+
+    const roles = iamRolesByLogicalId(template);
+    expect(roles.size).toBe(defaultRoles.size - 2);
+    for (const role of roles.values()) {
+      const document = JSON.stringify(role.AssumeRolePolicyDocument);
+      expect(document).not.toContain('aidevops.amazonaws.com');
+      expect(document).not.toContain(':root');
+    }
+    expect(JSON.stringify(template.toJSON())).not.toContain('AIDevOpsAgentAccessPolicy');
+  });
+
+  it('creates a DevOps Agent space with IAM operator sign-in and a monitor association', () => {
+    const template = Template.fromStack(workloadRegionStack());
+
+    template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 1);
+    template.hasResource('AWS::DevOpsAgent::AgentSpace', {
+      Properties: {
+        Name: 'tanstack-aws-devops',
+        OperatorApp: {
+          Iam: {
+            OperatorAppRoleArn: Match.anyValue(),
+          },
+          Idc: Match.absent(),
+          Idp: Match.absent(),
+        },
+        KmsKeyArn: Match.absent(),
+      },
+    });
+
+    template.resourceCountIs('AWS::DevOpsAgent::Association', 1);
+    const [association] = resourceProperties(template, 'AWS::DevOpsAgent::Association');
+    expect(association?.ServiceId).toBe('aws');
+    expect(association?.Configuration).toEqual({
+      Aws: {
+        AccountId: ACCOUNT_ID,
+        AccountType: 'monitor',
+        AssumableRoleArn: expect.any(Object),
+      },
+    });
+
+    const roles = iamRolesByLogicalId(template);
+    const configuration = isRecord(association?.Configuration)
+      ? association.Configuration
+      : undefined;
+    const awsConfiguration = isRecord(configuration?.Aws) ? configuration.Aws : undefined;
+    const assumableRole = roles.get(roleLogicalId(awsConfiguration?.AssumableRoleArn) ?? '');
+    expect(assumableRole?.AssumeRolePolicyDocument).toEqual({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Action: 'sts:AssumeRole',
+          Principal: {
+            Service: 'aidevops.amazonaws.com',
+          },
+          Condition: {
+            StringEquals: {
+              'aws:SourceAccount': ACCOUNT_ID,
+            },
+            ArnLike: {
+              'aws:SourceArn': DEVOPS_AGENT_SOURCE_ARN,
+            },
+          },
+        },
+      ],
+    });
+    expect(assumableRole?.ManagedPolicyArns).toEqual([
+      {
+        'Fn::Join': [
+          '',
+          ['arn:', { Ref: 'AWS::Partition' }, ':iam::aws:policy/AIDevOpsAgentAccessPolicy'],
+        ],
+      },
+    ]);
+    expect(assumableRole).not.toHaveProperty('Policies');
+
+    const [agentSpace] = resourceProperties(template, 'AWS::DevOpsAgent::AgentSpace');
+    const operatorApp = isRecord(agentSpace?.OperatorApp) ? agentSpace.OperatorApp : undefined;
+    const iamSignIn = isRecord(operatorApp?.Iam) ? operatorApp.Iam : undefined;
+    const operatorRole = roles.get(roleLogicalId(iamSignIn?.OperatorAppRoleArn) ?? '');
+    expect(operatorRole?.AssumeRolePolicyDocument).toEqual({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Action: 'sts:AssumeRole',
+          Principal: {
+            AWS: `arn:aws:iam::${ACCOUNT_ID}:root`,
+          },
+        },
+      ],
+    });
   });
 });
