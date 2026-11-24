@@ -1,4 +1,5 @@
-import { CfnResource, Stack, Validations } from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
+import { CfnAccessGrant, CfnDomain, CfnSpace } from 'aws-cdk-lib/aws-cloudwatch';
 import {
   CfnRole,
   ManagedPolicy,
@@ -6,26 +7,26 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import { CfnDatasetIntegration } from 'aws-cdk-lib/aws-observabilityadmin';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 const OMNI_NAME = 'tanstack-aws';
-const unknownCloudFormationResourceReason =
-  'aws-cdk-lib 2.272.0 has no L1 for this published CloudFormation resource, so account setup declares it directly.';
+const ADDITIONAL_ADMIN_GRANT_NAME = 'additional-admin';
+
+export type CloudWatchOmniSetupProps = {
+  readonly adminRoleArn: string;
+};
 
 /** CloudWatch Omni domain and space for this account in the workload region. */
 export class CloudWatchOmniSetup extends Construct {
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: CloudWatchOmniSetupProps) {
     super(scope, id);
 
-    const domain = new CfnResource(this, 'Domain', {
-      type: 'AWS::CloudWatch::Domain',
-      properties: {
-        Name: OMNI_NAME,
-        IdentityProviders: ['IAM'],
-      },
+    const domain = new CfnDomain(this, 'Domain', {
+      name: OMNI_NAME,
+      identityProviders: ['IAM'],
     });
-    acknowledgeUnknownCloudFormationResource(domain);
 
     const spaceOperatorRole = new Role(this, 'SpaceOperatorRole', {
       assumedBy: new ServicePrincipal('cloudwatch.amazonaws.com'),
@@ -56,26 +57,52 @@ export class CloudWatchOmniSetup extends Construct {
     spaceOperatorRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('CloudWatchOmniAWSIntegrationPolicyV2'),
     );
-    NagSuppressions.addResourceSuppressions(spaceOperatorRole, [
-      {
-        id: 'AwsSolutions-IAM4',
-        reason:
-          'CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.',
-      },
-    ]);
-
-    const space = new CfnResource(this, 'Space', {
-      type: 'AWS::CloudWatch::Space',
-      properties: {
-        Name: OMNI_NAME,
-        DomainId: domain.getAtt('DomainId'),
-        DataAccessRoleArn: spaceOperatorRole.roleArn,
-      },
-    });
-    acknowledgeUnknownCloudFormationResource(space);
-
     const account = Stack.of(this).account;
     const region = Stack.of(this).region;
+    // The managed space-access policy allows this action only when
+    // cloudwatch:HasAccessGrant is true. CloudWatch assumes this role without that
+    // condition, so reading the space is denied until the role allows it directly.
+    spaceOperatorRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['cloudwatch:GetSpaceDataAccess'],
+        resources: [`arn:aws:cloudwatch:${region}:${account}:space/*`],
+      }),
+    );
+    NagSuppressions.addResourceSuppressions(
+      spaceOperatorRole,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason:
+            'CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.',
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'GetSpaceDataAccess applies to this account’s space. The space uses this role, so the policy cannot name that space ARN without a circular dependency.',
+          appliesTo: [`Resource::arn:aws:cloudwatch:${region}:${account}:space/*`],
+        },
+      ],
+      true,
+    );
+
+    const space = new CfnSpace(this, 'Space', {
+      name: OMNI_NAME,
+      domainId: domain.attrDomainId,
+      dataAccessRoleArn: spaceOperatorRole.roleArn,
+    });
+
+    new CfnAccessGrant(this, 'AdminAccessGrant', {
+      domainId: domain.attrDomainId,
+      spaceId: space.attrSpaceId,
+      name: ADDITIONAL_ADMIN_GRANT_NAME,
+      permission: 'SPACE_ADMIN',
+      principal: {
+        principalType: 'IAM_ROLE',
+        principalId: props.adminRoleArn,
+      },
+    });
+
     const datasetIntegrationRole = new Role(this, 'DatasetIntegrationRole', {
       assumedBy: new ServicePrincipal('logs.amazonaws.com'),
       description:
@@ -125,13 +152,9 @@ export class CloudWatchOmniSetup extends Construct {
       true,
     );
 
-    const datasetIntegration = new CfnResource(this, 'DatasetIntegration', {
-      type: 'AWS::ObservabilityAdmin::DatasetIntegration',
-      properties: {
-        RoleArn: datasetIntegrationRole.roleArn,
-      },
+    new CfnDatasetIntegration(this, 'DatasetIntegration', {
+      roleArn: datasetIntegrationRole.roleArn,
     });
-    acknowledgeUnknownCloudFormationResource(datasetIntegration);
   }
 }
 
@@ -155,11 +178,4 @@ function replaceAssumeRoleTrust(
     throw new Error(missingRoleMessage);
   }
   resource.assumeRolePolicyDocument = assumeRolePolicyDocument;
-}
-
-function acknowledgeUnknownCloudFormationResource(resource: CfnResource): void {
-  Validations.of(resource).acknowledge({
-    id: 'CloudFormation-Validate::F3006',
-    reason: unknownCloudFormationResourceReason,
-  });
 }

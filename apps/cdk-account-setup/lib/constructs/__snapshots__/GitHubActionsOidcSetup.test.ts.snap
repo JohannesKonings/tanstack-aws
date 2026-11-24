@@ -82,8 +82,25 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "applies_to": [
+                "Resource::*",
+              ],
               "id": "AwsSolutions-IAM5",
               "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:secretsmanager:us-east-2:<AWS::AccountId>:secret:envs-*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:kms:us-east-2:<AWS::AccountId>:key/*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.",
             },
           ],
         },
@@ -121,8 +138,25 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "applies_to": [
+                "Resource::*",
+              ],
               "id": "AwsSolutions-IAM5",
               "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:secretsmanager:us-east-2:<AWS::AccountId>:secret:envs-*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:kms:us-east-2:<AWS::AccountId>:key/*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.",
             },
           ],
         },
@@ -340,6 +374,54 @@ exports[`GitHubActionsOidcSetup > creates the GitHub OIDC provider and a repo-sc
               "Action": "kms:ListAliases",
               "Effect": "Allow",
               "Resource": "*",
+            },
+            {
+              "Action": "secretsmanager:GetSecretValue",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:envs-*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Condition": {
+                "ForAnyValue:StringEquals": {
+                  "kms:ResourceAliases": "alias/account",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":kms:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":key/*",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",

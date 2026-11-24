@@ -7,7 +7,10 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
+import { WORKLOAD_REGION } from '../../../../lib/workload-region.ts';
 import type { GitHubActionsOidcConfig } from '../app-config.ts';
+import { ACCOUNT_KEY_ALIAS } from './AccountKey.ts';
+import { ENVS_SECRET_NAME } from './EnvsSecret.ts';
 const BOOTSTRAP_QUALIFIER = 'hnb659fds';
 const BOOTSTRAP_ROLE_NAMES = [
   'deploy-role',
@@ -68,6 +71,28 @@ export class GitHubActionsOidcSetup extends Construct {
         resources: ['*'],
       }),
     );
+    const envsSecretArn = `arn:${Aws.PARTITION}:secretsmanager:${WORKLOAD_REGION}:${Aws.ACCOUNT_ID}:secret:${ENVS_SECRET_NAME}-*`;
+    const accountKeyArn = `arn:${Aws.PARTITION}:kms:${WORKLOAD_REGION}:${Aws.ACCOUNT_ID}:key/*`;
+    this.deployRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [envsSecretArn],
+      }),
+    );
+    this.deployRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['kms:Decrypt', 'kms:DescribeKey'],
+        resources: [accountKeyArn],
+        conditions: {
+          'ForAnyValue:StringEquals': {
+            'kms:ResourceAliases': ACCOUNT_KEY_ALIAS,
+          },
+        },
+      }),
+    );
+    // cdk-nag flattens Fn::Join ARNs before matching appliesTo, so these stay literal strings.
+    const envsSecretFinding = `Resource::arn:<AWS::Partition>:secretsmanager:${WORKLOAD_REGION}:<AWS::AccountId>:secret:${ENVS_SECRET_NAME}-*`;
+    const accountKeyFinding = `Resource::arn:<AWS::Partition>:kms:${WORKLOAD_REGION}:<AWS::AccountId>:key/*`;
 
     NagSuppressions.addResourceSuppressions(
       this.deployRole,
@@ -76,6 +101,19 @@ export class GitHubActionsOidcSetup extends Construct {
           id: 'AwsSolutions-IAM5',
           reason:
             'kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.',
+          appliesTo: ['Resource::*'],
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.',
+          appliesTo: [envsSecretFinding],
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason:
+            'The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.',
+          appliesTo: [accountKeyFinding],
         },
       ],
       true,

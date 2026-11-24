@@ -1,25 +1,28 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { AgentSpaces } from './constructs/AgentSpaces.ts';
+import { AccountKey } from './constructs/AccountKey.ts';
 import { CloudWatchOmniSetup } from './constructs/CloudWatchOmniSetup.ts';
+import { EnvsSecret } from './constructs/EnvsSecret.ts';
 import { SharedAuroraPostgresServerlessV2 } from './constructs/SharedAuroraPostgresServerlessV2.ts';
 
 export type WorkloadRegionAccountSetupStackProps = cdk.StackProps & {
   readonly securityAgent?: boolean;
   readonly devopsAgent?: boolean;
+  readonly cloudWatchOmniAdminRoleArn: string;
 };
 
 export class WorkloadRegionAccountSetupStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: WorkloadRegionAccountSetupStackProps = {}) {
+  constructor(scope: Construct, id: string, props: WorkloadRegionAccountSetupStackProps) {
     super(scope, id, props);
 
     // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
     // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
-    new AgentSpaces(this, 'AgentSpaces', {
-      securityAgent: props.securityAgent ?? true,
-      devopsAgent: props.devopsAgent ?? true,
-    });
+
+    // new AgentSpaces(this, 'AgentSpaces', {
+    //   securityAgent: props.securityAgent ?? true,
+    //   devopsAgent: props.devopsAgent ?? true,
+    // });
 
     const sharedAurora = new SharedAuroraPostgresServerlessV2(
       this,
@@ -59,6 +62,13 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
       description: 'Shared Aurora default database name.',
     });
 
-    new CloudWatchOmniSetup(this, 'CloudWatchOmniSetup');
+    const accountKey = new AccountKey(this, 'AccountKey');
+    new EnvsSecret(this, 'EnvsSecret', {
+      encryptionKey: accountKey.key,
+    });
+
+    new CloudWatchOmniSetup(this, 'CloudWatchOmniSetup', {
+      adminRoleArn: props.cloudWatchOmniAdminRoleArn,
+    });
   }
 }

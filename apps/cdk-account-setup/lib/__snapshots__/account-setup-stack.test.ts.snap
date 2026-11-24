@@ -97,8 +97,25 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "applies_to": [
+                "Resource::*",
+              ],
               "id": "AwsSolutions-IAM5",
               "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:secretsmanager:us-east-2:<AWS::AccountId>:secret:envs-*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:kms:us-east-2:<AWS::AccountId>:key/*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.",
             },
           ],
         },
@@ -136,8 +153,25 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "applies_to": [
+                "Resource::*",
+              ],
               "id": "AwsSolutions-IAM5",
               "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:secretsmanager:us-east-2:<AWS::AccountId>:secret:envs-*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.",
+            },
+            {
+              "applies_to": [
+                "Resource::arn:<AWS::Partition>:kms:us-east-2:<AWS::AccountId>:key/*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.",
             },
           ],
         },
@@ -356,6 +390,54 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
               "Effect": "Allow",
               "Resource": "*",
             },
+            {
+              "Action": "secretsmanager:GetSecretValue",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:envs-*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Condition": {
+                "ForAnyValue:StringEquals": {
+                  "kms:ResourceAliases": "alias/account",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":kms:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":key/*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -454,127 +536,59 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
   },
   "Resources": {
-    "AgentSpacesAssumableRole4C0632B1": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                "Policy::arn:<AWS::Partition>:iam::aws:policy/AIDevOpsAgentAccessPolicy",
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "AWS DevOps Agent requires the AWS-managed AIDevOpsAgentAccessPolicy so investigation permissions stay current as AWS adds resource types.",
-            },
-          ],
-        },
-      },
+    "AccountKeyA70E2A1C": {
+      "DeletionPolicy": "Retain",
       "Properties": {
-        "AssumeRolePolicyDocument": {
+        "Description": "Account key for this workload region.",
+        "EnableKeyRotation": true,
+        "KeyPolicy": {
           "Statement": [
             {
-              "Action": "sts:AssumeRole",
-              "Condition": {
-                "ArnEquals": {
-                  "aws:SourceArn": {
-                    "Fn::GetAtt": [
-                      "AgentSpacesDevOpsAgentSpace97E8766B",
-                      "Arn",
-                    ],
-                  },
-                },
-                "StringEquals": {
-                  "aws:SourceAccount": "<account-id>",
-                },
-              },
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "aidevops.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Description": "Role AWS DevOps Agent assumes to monitor this account.",
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/AIDevOpsAgentAccessPolicy",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "AgentSpacesDevOpsAgentSpace97E8766B": {
-      "Properties": {
-        "Name": "tanstack-aws-devops",
-        "OperatorApp": {
-          "Iam": {
-            "OperatorAppRoleArn": {
-              "Fn::GetAtt": [
-                "AgentSpacesOperatorRoleEF0F6160",
-                "Arn",
-              ],
-            },
-          },
-        },
-      },
-      "Type": "AWS::DevOpsAgent::AgentSpace",
-    },
-    "AgentSpacesMonitorAssociation3544C161": {
-      "Properties": {
-        "AgentSpaceId": {
-          "Fn::GetAtt": [
-            "AgentSpacesDevOpsAgentSpace97E8766B",
-            "AgentSpaceId",
-          ],
-        },
-        "Configuration": {
-          "Aws": {
-            "AccountId": "<redacted-name>",
-            "AccountType": "monitor",
-            "AssumableRoleArn": {
-              "Fn::GetAtt": [
-                "AgentSpacesAssumableRole4C0632B1",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "ServiceId": "aws",
-      },
-      "Type": "AWS::DevOpsAgent::Association",
-    },
-    "AgentSpacesOperatorRoleEF0F6160": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
+              "Action": "kms:*",
               "Effect": "Allow",
               "Principal": {
                 "AWS": "<arn>",
               },
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "kms:CreateGrant",
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:GenerateDataKey*",
+                "kms:ReEncrypt*",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "kms:ViaService": "secretsmanager.us-east-2.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "<arn>",
+              },
+              "Resource": "*",
             },
           ],
           "Version": "2012-10-17",
         },
-        "Description": "Lets principals in this account open the DevOps Agent web app.",
       },
-      "Type": "AWS::IAM::Role",
+      "Type": "AWS::KMS::Key",
+      "UpdateReplacePolicy": "Retain",
     },
-    "AgentSpacesSecurityAgentSpace5FCFD0D4": {
+    "AccountKeyAlias7BF6A84E": {
       "Properties": {
-        "Name": "tanstack-aws-security",
+        "AliasName": "alias/account",
+        "TargetKeyId": {
+          "Fn::GetAtt": [
+            "AccountKeyA70E2A1C",
+            "Arn",
+          ],
+        },
       },
-      "Type": "AWS::SecurityAgent::AgentSpace",
+      "Type": "AWS::KMS::Alias",
     },
     "CloudWatchOmniSetupDatasetIntegration64B98BCC": {
       "Properties": {
@@ -689,6 +703,14 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
               "id": "AwsSolutions-IAM4",
               "reason": "CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.",
             },
+            {
+              "applies_to": [
+                "Resource::<arn>",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "is_reason_encoded": true,
+              "reason": "R2V0U3BhY2VEYXRhQWNjZXNzIGFwcGxpZXMgdG8gdGhpcyBhY2NvdW504oCZcyBzcGFjZS4gVGhlIHNwYWNlIHVzZXMgdGhpcyByb2xlLCBzbyB0aGUgcG9saWN5IGNhbm5vdCBuYW1lIHRoYXQgc3BhY2UgQVJOIHdpdGhvdXQgYSBjaXJjdWxhciBkZXBlbmRlbmN5Lg==",
+            },
           ],
         },
       },
@@ -744,6 +766,45 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "CloudWatchOmniSetupSpaceOperatorRoleDefaultPolicy07FE9E0B": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.",
+            },
+            {
+              "applies_to": [
+                "Resource::<arn>",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "is_reason_encoded": true,
+              "reason": "R2V0U3BhY2VEYXRhQWNjZXNzIGFwcGxpZXMgdG8gdGhpcyBhY2NvdW504oCZcyBzcGFjZS4gVGhlIHNwYWNlIHVzZXMgdGhpcyByb2xlLCBzbyB0aGUgcG9saWN5IGNhbm5vdCBuYW1lIHRoYXQgc3BhY2UgQVJOIHdpdGhvdXQgYSBjaXJjdWxhciBkZXBlbmRlbmN5Lg==",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "cloudwatch:GetSpaceDataAccess",
+              "Effect": "Allow",
+              "Resource": "<arn>",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CloudWatchOmniSetupSpaceOperatorRoleDefaultPolicy07FE9E0B",
+        "Roles": [
+          {
+            "Ref": "CloudWatchOmniSetupSpaceOperatorRole196004DC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
       "DependsOn": [
@@ -824,6 +885,35 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "EnvsSecretE0264FA1": {
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-SMG4",
+              "reason": "The envs secret stores account configuration, not a rotating credential. Values change by an explicit put, not on a schedule.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Description": "Account environment values. JSON object keyed by variable name.",
+        "GenerateSecretString": {
+          "GenerateStringKey": "initial",
+          "SecretStringTemplate": "{}",
+        },
+        "KmsKeyId": {
+          "Fn::GetAtt": [
+            "AccountKeyA70E2A1C",
+            "Arn",
+          ],
+        },
+        "Name": "envs",
+      },
+      "Type": "AWS::SecretsManager::Secret",
+      "UpdateReplacePolicy": "Retain",
     },
     "SharedAuroraClusterArnParameterD7B51CC3": {
       "Properties": {

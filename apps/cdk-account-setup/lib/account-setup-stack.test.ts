@@ -8,6 +8,8 @@ import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup
 
 const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
+const OMNI_ADMIN_ROLE_NAME = 'AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672';
+const OMNI_ADMIN_ROLE_ARN = `arn:aws:iam::${ACCOUNT_ID}:role/aws-reserved/sso.amazonaws.com/${OMNI_ADMIN_ROLE_NAME}`;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -24,7 +26,11 @@ function resourceProperties(template: Template, type: string): Record<string, un
 }
 
 function workloadRegionStack(
-  props: { securityAgent?: boolean; devopsAgent?: boolean } = {},
+  props: {
+    securityAgent?: boolean;
+    devopsAgent?: boolean;
+    cloudWatchOmniAdminRoleArn?: string;
+  } = {},
 ): WorkloadRegionAccountSetupStack {
   const app = createAccountSetupApp();
   return new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
@@ -72,10 +78,12 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         AWS_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
+      CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
     });
   });
 
@@ -92,10 +100,12 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         CDK_DEFAULT_ACCOUNT: '123456789012',
         CDK_DEFAULT_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
+      CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
     });
   });
 
@@ -104,10 +114,12 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         AWS_DEFAULT_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
+      CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
     });
   });
 
@@ -115,11 +127,52 @@ describe('resolveAccountSetupEnv', () => {
     expect(
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: undefined,
+      CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
     });
+  });
+
+  it('grants the AWSReservedSSO role named by CLOUDWATCH_OMNI_ADMIN_ROLE', () => {
+    expect(
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '412827817239',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: 'AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672',
+      }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
+    ).toBe(
+      'arn:aws:iam::412827817239:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672',
+    );
+  });
+
+  it('keeps a full IAM role ARN in CLOUDWATCH_OMNI_ADMIN_ROLE', () => {
+    const roleArn = 'arn:aws:iam::412827817239:role/aws-reserved/sso.amazonaws.com/ExampleRole';
+    expect(
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '412827817239',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: roleArn,
+      }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
+    ).toBe(roleArn);
+  });
+
+  it('throws when CLOUDWATCH_OMNI_ADMIN_ROLE is missing', () => {
+    expect(() =>
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '123456789012',
+        AWS_REGION: 'us-east-2',
+      }),
+    ).toThrow('Missing required environment variable: CLOUDWATCH_OMNI_ADMIN_ROLE');
+  });
+
+  it('throws when CLOUDWATCH_OMNI_ADMIN_ROLE is neither a role ARN nor an SSO role name', () => {
+    expect(() =>
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '123456789012',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: 'not-a-role',
+      }),
+    ).toThrow('CLOUDWATCH_OMNI_ADMIN_ROLE must be an IAM role ARN or an AWSReservedSSO role name');
   });
 
   it('throws when AWS_ACCOUNT_ID is not a 12-digit account id', () => {
@@ -127,6 +180,7 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '12345',
         AWS_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toThrow('AWS_ACCOUNT_ID must be a 12-digit AWS account ID');
   });
@@ -136,6 +190,7 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         AWS_REGION: 'invalid-region',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
       }),
     ).toThrow('AWS_REGION must look like an AWS region, for example us-east-2');
   });
@@ -500,6 +555,53 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(space?.AgentCoreEvaluationRoleArn).toBeUndefined();
     expect(space?.EncryptionConfiguration).toBeUndefined();
     expect(space?.DataAccessRoleArn).toBeDefined();
+    template.resourceCountIs('AWS::CloudWatch::AccessGrant', 0);
+  });
+
+  it('creates an account KMS key and an envs secret whose value is not managed by CloudFormation', () => {
+    const template = Template.fromStack(workloadRegionStack());
+    template.hasResourceProperties('AWS::KMS::Key', {
+      EnableKeyRotation: true,
+      Description: 'Account key for this workload region.',
+    });
+    const [keyLogicalId] = Object.keys(template.findResources('AWS::KMS::Key'));
+    template.hasResourceProperties('AWS::KMS::Alias', {
+      AliasName: 'alias/account',
+      TargetKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
+    });
+    template.hasResource('AWS::SecretsManager::Secret', {
+      Properties: {
+        Name: 'envs',
+        Description: 'Account environment values. JSON object keyed by variable name.',
+        KmsKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
+        SecretString: Match.absent(),
+        GenerateSecretString: {
+          SecretStringTemplate: '{}',
+          GenerateStringKey: 'initial',
+        },
+      },
+    });
+  });
+
+  it('grants SPACE_ADMIN to the CloudWatch Omni admin role', () => {
+    const adminRoleArn =
+      'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672';
+    const template = Template.fromStack(
+      workloadRegionStack({ cloudWatchOmniAdminRoleArn: adminRoleArn }),
+    );
+    const [domainLogicalId] = Object.keys(template.findResources('AWS::CloudWatch::Domain'));
+    const [spaceLogicalId] = Object.keys(template.findResources('AWS::CloudWatch::Space'));
+    template.resourceCountIs('AWS::CloudWatch::AccessGrant', 1);
+    template.hasResourceProperties('AWS::CloudWatch::AccessGrant', {
+      Name: 'additional-admin',
+      Permission: 'SPACE_ADMIN',
+      DomainId: { 'Fn::GetAtt': [domainLogicalId, 'DomainId'] },
+      SpaceId: { 'Fn::GetAtt': [spaceLogicalId, 'SpaceId'] },
+      Principal: {
+        PrincipalType: 'IAM_ROLE',
+        PrincipalId: adminRoleArn,
+      },
+    });
   });
 
   it('makes the space data-access role the space operator role for this account only', () => {
@@ -547,6 +649,19 @@ describe('WorkloadRegionAccountSetupStack', () => {
       },
     ]);
     expect(JSON.stringify(template.toJSON())).not.toContain('CloudWatchOmniModelInferencePolicy');
+
+    template.hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Effect: 'Allow',
+            Action: 'cloudwatch:GetSpaceDataAccess',
+            Resource: `arn:aws:cloudwatch:${WORKLOAD_REGION}:${ACCOUNT_ID}:space/*`,
+          }),
+        ]),
+      },
+      Roles: [{ Ref: dataAccessRoleId }],
+    });
   });
 
   it('forwards logs and traces into the CloudWatch Dataset and leaves OTel enrichment and span ingestion off', () => {
