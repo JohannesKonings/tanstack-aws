@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Aspects, Tags } from 'aws-cdk-lib';
+import { Aspects, Tags, Validations } from 'aws-cdk-lib';
 import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
   ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,
@@ -67,5 +67,5 @@ function loadRepoEnv(path: string): void {
   }
 }
 
-Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
-Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app, { verbose: true }));
+Validations.of(app).addPlugins(new ServerlessChecks(app, { verbose: true }));

@@ -1,4 +1,4 @@
-import { Stack } from 'aws-cdk-lib';
+import { Stack, Validations } from 'aws-cdk-lib';
 import { CfnAccessGrant, CfnDomain, CfnSpace } from 'aws-cdk-lib/aws-cloudwatch';
 import {
   CfnRole,
@@ -8,7 +8,6 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { CfnDatasetIntegration } from 'aws-cdk-lib/aws-observabilityadmin';
-import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 const OMNI_NAME = 'tanstack-aws';
@@ -68,22 +67,17 @@ export class CloudWatchOmniSetup extends Construct {
         resources: [`arn:aws:cloudwatch:${region}:${account}:space/*`],
       }),
     );
-    NagSuppressions.addResourceSuppressions(
-      spaceOperatorRole,
-      [
-        {
-          id: 'AwsSolutions-IAM4',
-          reason:
-            'CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.',
-        },
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'GetSpaceDataAccess applies to this account’s space. The space uses this role, so the policy cannot name that space ARN without a circular dependency.',
-          appliesTo: [`Resource::arn:aws:cloudwatch:${region}:${account}:space/*`],
-        },
-      ],
-      true,
+    Validations.of(spaceOperatorRole).acknowledge(
+      {
+        id: `AwsSolutions-IAM4`,
+        reason:
+          'CloudWatch Omni requires the AWS-managed CloudWatchOmniSpaceAccessPolicy and CloudWatchOmniAWSIntegrationPolicyV2 on the space operator role.',
+      },
+      {
+        id: `AwsSolutions-IAM5[Resource::arn:aws:cloudwatch:${region}:${account}:space/*]`,
+        reason:
+          'GetSpaceDataAccess applies to this account’s space. The space uses this role, so the policy cannot name that space ARN without a circular dependency.',
+      },
     );
 
     const space = new CfnSpace(this, 'Space', {
@@ -140,17 +134,11 @@ export class CloudWatchOmniSetup extends Construct {
         resources: ['*'],
       }),
     );
-    NagSuppressions.addResourceSuppressions(
-      datasetIntegrationRole,
-      [
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'Dataset integration forwards every non-delivery log group in this account and region. AWS requires logs:IntegrateWithDataset on log-group:* and cloudwatch:PutRecords on *.',
-        },
-      ],
-      true,
-    );
+    Validations.of(datasetIntegrationRole).acknowledge({
+      id: 'AwsSolutions-IAM5',
+      reason:
+        'Dataset integration forwards every non-delivery log group in this account and region. AWS requires logs:IntegrateWithDataset on log-group:* and cloudwatch:PutRecords on *.',
+    });
 
     new CfnDatasetIntegration(this, 'DatasetIntegration', {
       roleArn: datasetIntegrationRole.roleArn,

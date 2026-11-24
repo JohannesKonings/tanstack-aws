@@ -1,7 +1,7 @@
-import { RemovalPolicy } from 'aws-cdk-lib';
+import { RemovalPolicy, Validations } from 'aws-cdk-lib';
 import type { IKey } from 'aws-cdk-lib/aws-kms';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-import { NagSuppressions } from 'cdk-nag';
+import {} from 'cdk-nag';
 import { Construct } from 'constructs';
 
 export const ENVS_SECRET_NAME = 'envs';
@@ -31,12 +31,10 @@ export class EnvsSecret extends Construct {
         generateStringKey: 'initial',
       },
     });
-    NagSuppressions.addResourceSuppressions(this.secret, [
-      {
-        id: 'AwsSolutions-SMG4',
-        reason:
-          'The envs secret stores account configuration, not a rotating credential. Values change by an explicit put, not on a schedule.',
-      },
-    ]);
+    Validations.of(this.secret).acknowledge({
+      id: 'AwsSolutions-SMG4',
+      reason:
+        'The envs secret stores account configuration, not a rotating credential. Values change by an explicit put, not on a schedule.',
+    });
   }
 }

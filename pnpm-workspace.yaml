@@ -24,6 +24,6 @@ catalog:
   typescript: 7.0.2
   vite: npm:@voidzero-dev/vite-plus-core@8.3.8001
   vite-plus: 1.8.0
-  zod: 4.6.5
+  zod: 4.6.7
 overrides:
   vite@*: 'catalog:'
