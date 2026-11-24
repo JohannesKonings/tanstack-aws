@@ -19,3 +19,4 @@ cdk.out
 .oxc-inspector
 
 cdk.context.json
+.vitest/

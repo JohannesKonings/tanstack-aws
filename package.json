@@ -25,8 +25,8 @@
     "check:fix": "vp check --fix",
     "generate:robots": "node scripts/generate-robots-txt.ts",
     "test": "vp test",
-    "test:bedrock": "tsx scripts/test-bedrock-chat.ts",
-    "test:bedrock-budget": "tsx scripts/test-bedrock-budget.ts",
+    "test:bedrock": "vpx scripts/test-bedrock-chat.ts",
+    "test:bedrock-budget": "vpx scripts/test-bedrock-budget.ts",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "format": "vp fmt . --write",
@@ -41,7 +41,8 @@
     "intent:list:json": "intent list --json",
     "intent:install": "intent install",
     "ds:build": "vp -C packages/tanstack-ds run registry:build",
-    "ds:add": "vp dlx shadcn@latest add -c apps/webapp"
+    "ds:add": "vp dlx shadcn@latest add -c apps/webapp",
+    "prepare": "vp config"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1081.0",
@@ -78,8 +79,7 @@
     "tsx": "^4.23.0",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "vite-plus": "catalog:"
   },
   "devEngines": {
     "packageManager": {
