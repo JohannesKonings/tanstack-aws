@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { AccountLogRetentionPolicy } from './constructs/AccountLogRetentionPolicy.ts';
 import { AgentSpaces } from './constructs/AgentSpaces.ts';
 import { CloudWatchOmniSetup } from './constructs/CloudWatchOmniSetup.ts';
 import { SharedAuroraPostgresServerlessV2 } from './constructs/SharedAuroraPostgresServerlessV2.ts';
@@ -15,7 +14,8 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: WorkloadRegionAccountSetupStackProps = {}) {
     super(scope, id, props);
 
-    new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
+    // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
+    // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
     new AgentSpaces(this, 'AgentSpaces', {
       securityAgent: props.securityAgent ?? true,
       devopsAgent: props.devopsAgent ?? true,

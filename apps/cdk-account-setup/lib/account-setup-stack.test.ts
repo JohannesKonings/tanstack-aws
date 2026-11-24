@@ -8,15 +8,6 @@ import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup
 
 const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
-const ACCOUNT_LOG_RETENTION_POLICY_NAME = 'account-log-retention';
-const ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT =
-  '{"retentionInDays":30,"enforcementMode":"RETROACTIVE"}';
-
-type AccountPolicySdkCall = {
-  service: string;
-  action: string;
-  parameters: Record<string, unknown>;
-};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -70,85 +61,9 @@ function iamRolesByLogicalId(template: Template): Map<string, Record<string, unk
   return roles;
 }
 
-function readAccountPolicySdkCall(value: unknown): AccountPolicySdkCall | undefined {
-  if (typeof value !== 'string') {
-    return undefined;
-  }
-
-  const parsed: unknown = JSON.parse(value);
-  if (!isRecord(parsed)) {
-    return undefined;
-  }
-
-  const { service, action, parameters } = parsed;
-  if (typeof service !== 'string' || typeof action !== 'string' || !isRecord(parameters)) {
-    return undefined;
-  }
-
-  return { service, action, parameters };
-}
-
-function accountPolicySdkCalls(template: Template): AccountPolicySdkCall[] {
-  const calls: AccountPolicySdkCall[] = [];
-
-  for (const resource of Object.values(template.findResources('Custom::AWS'))) {
-    if (!isRecord(resource) || !isRecord(resource.Properties)) {
-      continue;
-    }
-
-    for (const eventName of ['Create', 'Update', 'Delete']) {
-      const call = readAccountPolicySdkCall(resource.Properties[eventName]);
-      if (call) {
-        calls.push(call);
-      }
-    }
-  }
-
-  return calls;
-}
-
-function expectAccountLogRetentionPolicy(template: Template) {
-  template.resourceCountIs('Custom::AWS', 1);
-
-  const calls = accountPolicySdkCalls(template);
-  const putCalls = calls.filter((call) => call.action === 'putAccountPolicy');
-  const deleteCalls = calls.filter((call) => call.action === 'deleteAccountPolicy');
-
-  expect(putCalls).toEqual([
-    {
-      service: 'CloudWatchLogs',
-      action: 'putAccountPolicy',
-      parameters: {
-        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
-        policyType: 'RETENTION_POLICY',
-        policyDocument: ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT,
-      },
-    },
-    {
-      service: 'CloudWatchLogs',
-      action: 'putAccountPolicy',
-      parameters: {
-        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
-        policyType: 'RETENTION_POLICY',
-        policyDocument: ACCOUNT_LOG_RETENTION_POLICY_DOCUMENT,
-      },
-    },
-  ]);
-  expect(deleteCalls).toEqual([
-    {
-      service: 'CloudWatchLogs',
-      action: 'deleteAccountPolicy',
-      parameters: {
-        policyName: ACCOUNT_LOG_RETENTION_POLICY_NAME,
-        policyType: 'RETENTION_POLICY',
-      },
-    },
-  ]);
-  expect(JSON.stringify(calls)).not.toContain('selectionCriteria');
-  expect(JSON.stringify(calls)).not.toContain('LogGroupNamePrefix');
-
-  const retentionActions = accountLogRetentionPolicyActions(template);
-  expect(retentionActions).toEqual(['logs:DeleteAccountPolicy', 'logs:PutAccountPolicy']);
+function expectAccountLogRetentionPolicyDeferred(template: Template) {
+  template.resourceCountIs('Custom::AWS', 0);
+  expect(JSON.stringify(template.toJSON())).not.toContain('putAccountPolicy');
 }
 
 describe('resolveAccountSetupEnv', () => {
@@ -290,7 +205,7 @@ describe('AccountSetupStack', () => {
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 
-  it('sets an account-level log retention policy for every log group in us-east-1', () => {
+  it('defers the account-level log retention policy until CloudFormation supports it', () => {
     const app = createAccountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
@@ -299,7 +214,7 @@ describe('AccountSetupStack', () => {
       },
     });
 
-    expectAccountLogRetentionPolicy(Template.fromStack(stack));
+    expectAccountLogRetentionPolicyDeferred(Template.fromStack(stack));
   });
 
   it('does not create agent spaces', () => {
@@ -397,7 +312,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 
-  it('sets an account-level log retention policy for every log group in us-east-2', () => {
+  it('defers the account-level log retention policy until CloudFormation supports it', () => {
     const app = createAccountSetupApp();
     const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
       env: {
@@ -406,7 +321,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
       },
     });
 
-    expectAccountLogRetentionPolicy(Template.fromStack(stack));
+    expectAccountLogRetentionPolicyDeferred(Template.fromStack(stack));
   });
 
   it('creates a Security Agent space named tanstack-aws-security and nothing else', () => {
@@ -689,7 +604,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
 });
 
 function expectSharedWorkloadResources(template: Template) {
-  expectAccountLogRetentionPolicy(template);
+  expectAccountLogRetentionPolicyDeferred(template);
   template.resourceCountIs('AWS::CloudWatch::Domain', 1);
   template.hasResourceProperties('AWS::CloudWatch::Domain', {
     Name: 'tanstack-aws',
@@ -703,30 +618,6 @@ function expectSharedWorkloadResources(template: Template) {
     Engine: 'aurora-postgresql',
     DatabaseName: 'tanstackaws',
   });
-}
-
-function accountLogRetentionPolicyActions(template: Template): string[] {
-  for (const properties of resourceProperties(template, 'AWS::IAM::Policy')) {
-    const document = properties.PolicyDocument;
-    if (!isRecord(document) || !Array.isArray(document.Statement)) {
-      continue;
-    }
-
-    for (const statement of document.Statement) {
-      if (!isRecord(statement)) {
-        continue;
-      }
-      const actions = statementActions(statement.Action);
-      if (
-        actions.includes('logs:PutAccountPolicy') ||
-        actions.includes('logs:PutRetentionPolicy')
-      ) {
-        return [...actions].sort();
-      }
-    }
-  }
-
-  return [];
 }
 
 function assumeRoleStatements(policyDocument: unknown): Array<{

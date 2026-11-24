@@ -1,14 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { githubActionsOidcConfig } from './app-config.ts';
-import { AccountLogRetentionPolicy } from './constructs/AccountLogRetentionPolicy.ts';
 import { GitHubActionsOidcSetup } from './constructs/GitHubActionsOidcSetup.ts';
 
 export class AccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
+    // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
+    // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
 
     const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(this, 'GitHubActionsOidcSetup', {
       config: githubActionsOidcConfig,

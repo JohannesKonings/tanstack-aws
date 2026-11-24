@@ -1,3 +1,10 @@
+/**
+ * Deferred until CloudFormation AWS::Logs::AccountPolicy supports PolicyType RETENTION_POLICY.
+ * The Logs API already accepts this through PutAccountPolicy. Restore the custom resource
+ * below when CloudFormation can express it, then wire it back into AccountSetupStack and
+ * WorkloadRegionAccountSetupStack.
+ */
+/*
 import { Stack } from 'aws-cdk-lib';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import {
@@ -12,10 +19,8 @@ const POLICY_NAME = 'account-log-retention';
 const POLICY_TYPE = 'RETENTION_POLICY';
 const POLICY_DOCUMENT = '{"retentionInDays":30,"enforcementMode":"RETROACTIVE"}';
 
-/**
- * Account-level log retention policy for every log group in this stack's region.
- * CloudFormation AWS::Logs::AccountPolicy cannot express RETENTION_POLICY.
- */
+// Account-level log retention for every log group in this stack's region.
+// CloudFormation AWS::Logs::AccountPolicy cannot express RETENTION_POLICY.
 export class AccountLogRetentionPolicy extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -97,3 +102,4 @@ export class AccountLogRetentionPolicy extends Construct {
     );
   }
 }
+*/
