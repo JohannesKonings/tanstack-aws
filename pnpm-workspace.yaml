@@ -12,6 +12,8 @@ minimumReleaseAgeExclude:
   - '@oxfmt/*'
   - vitest
   - '@vitest/*'
+  # Renovate security update: @tanstack/react-start@1.168.60
+  - "@tanstack/react-start@1.168.60"
 
 packages:
   - .
