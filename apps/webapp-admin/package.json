@@ -18,10 +18,10 @@
     "@tanstack/react-router-ssr-query": "^1.167.3",
     "@tanstack/react-start": "^1.169.7",
     "drizzle-orm": "1.0.0-rc.4",
-    "nitro": "3.0.260610-beta",
+    "nitro": "3.0.261103-rc",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "^0.3.1",
