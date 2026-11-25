@@ -83,7 +83,7 @@ export function usePersons() {
   return {
     persons: query.data ?? [],
     isLoading: query.isLoading,
-    isError: query.isError,
+    isLoadingError: query.isLoadingError,
     isEntitiesReady: entitiesPrefetch.isReady,
     addPerson,
     updatePerson,
@@ -210,46 +210,36 @@ function createEmploymentMutations(personId: string) {
  */
 export function usePersonDetail(personId: string) {
   // Query person by ID using eq() from global collection
-  const personQuery = useLiveQuery(
-    (query) =>
-      query.from({ persons: personsCollection }).where(({ persons }) => eq(persons.id, personId)),
-    [personId],
+  const personQuery = useLiveQuery((query) =>
+    query.from({ persons: personsCollection }).where(({ persons }) => eq(persons.id, personId)),
   );
 
   // Query addresses for this person from global collection
-  const addressesQuery = useLiveQuery(
-    (query) =>
-      query
-        .from({ addresses: addressesCollection })
-        .where(({ addresses }) => eq(addresses.personId, personId)),
-    [personId],
+  const addressesQuery = useLiveQuery((query) =>
+    query
+      .from({ addresses: addressesCollection })
+      .where(({ addresses }) => eq(addresses.personId, personId)),
   );
 
   // Query bank accounts for this person from global collection
-  const bankAccountsQuery = useLiveQuery(
-    (query) =>
-      query
-        .from({ bankAccounts: bankAccountsCollection })
-        .where(({ bankAccounts }) => eq(bankAccounts.personId, personId)),
-    [personId],
+  const bankAccountsQuery = useLiveQuery((query) =>
+    query
+      .from({ bankAccounts: bankAccountsCollection })
+      .where(({ bankAccounts }) => eq(bankAccounts.personId, personId)),
   );
 
   // Query contacts for this person from global collection
-  const contactsQuery = useLiveQuery(
-    (query) =>
-      query
-        .from({ contacts: contactsCollection })
-        .where(({ contacts }) => eq(contacts.personId, personId)),
-    [personId],
+  const contactsQuery = useLiveQuery((query) =>
+    query
+      .from({ contacts: contactsCollection })
+      .where(({ contacts }) => eq(contacts.personId, personId)),
   );
 
   // Query employments for this person from global collection
-  const employmentsQuery = useLiveQuery(
-    (query) =>
-      query
-        .from({ employments: employmentsCollection })
-        .where(({ employments }) => eq(employments.personId, personId)),
-    [personId],
+  const employmentsQuery = useLiveQuery((query) =>
+    query
+      .from({ employments: employmentsCollection })
+      .where(({ employments }) => eq(employments.personId, personId)),
   );
 
   const isLoading =

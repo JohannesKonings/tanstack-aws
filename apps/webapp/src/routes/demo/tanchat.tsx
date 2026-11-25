@@ -1,8 +1,8 @@
 import { CaretDownIcon, CaretRightIcon, PaperPlaneRightIcon } from '@phosphor-icons/react';
-import type { AGUIEvent, UIMessage } from '@tanstack/ai';
-import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
+import { type AGUIEvent, type ContentPart, fromSpecTokenUsage } from '@tanstack/ai';
+import { fetchServerSentEvents, type UIMessage, useChat } from '@tanstack/ai-react';
 import { createFileRoute } from '@tanstack/react-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import GuitarRecommendation from '#apps/webapp/components/example-GuitarRecommendation';
 import { Badge } from '#apps/webapp/components/ui/badge';
@@ -90,7 +90,7 @@ function ChattingLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Messages({ messages }: { messages: Array<UIMessage> }) {
+function Messages({ messages }: { messages: ReadonlyArray<UIMessage> }) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -153,8 +153,10 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
                         p.type === 'tool-call' && p.id === part.toolCallId,
                     );
                     if (toolCall?.name === 'recommendGuitar') {
+                      const rawContent = toolResultText(part.content);
+                      if (rawContent == null) return null;
                       try {
-                        const parsed = JSON.parse(part.content) as { id?: string };
+                        const parsed = JSON.parse(rawContent) as { id?: string };
                         if (parsed?.id) {
                           return (
                             <div key={index} className="max-w-[80%] mx-auto">
@@ -296,6 +298,24 @@ type BudgetState = {
 
 const BUDGET_TIMEOUT_MS = 20_000;
 
+function toolResultText(content: string | Array<ContentPart>): string | undefined {
+  if (typeof content === 'string') return content;
+  return content.find((part) => part.type === 'text')?.content;
+}
+
+function toRunLogUsage(
+  usage: Extract<AGUIEvent, { type: 'RUN_FINISHED' }>['usage'],
+): RunLogEntry['usage'] {
+  if (usage == null) return undefined;
+  const normalized = Array.isArray(usage) ? fromSpecTokenUsage(usage) : usage;
+  if (normalized == null) return undefined;
+  return {
+    promptTokens: normalized.promptTokens,
+    completionTokens: normalized.completionTokens,
+    totalTokens: normalized.totalTokens,
+  };
+}
+
 async function requestBudget(): Promise<BudgetState> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), BUDGET_TIMEOUT_MS);
@@ -387,9 +407,10 @@ function ChatPage() {
       if (chunk.type === 'RUN_STARTED') {
         setRunLog((prev) => [
           ...prev,
-          { model: chunk.model ?? 'unknown', timestamp: chunk.timestamp ?? Date.now() },
+          { model: 'unknown', timestamp: chunk.timestamp ?? Date.now() },
         ]);
       } else if (chunk.type === 'RUN_FINISHED') {
+        const usage = toRunLogUsage(chunk.usage);
         setRunLog((prev) => {
           if (prev.length === 0) return prev;
           const last = prev[prev.length - 1]!;
@@ -397,8 +418,9 @@ function ChatPage() {
             ...prev.slice(0, -1),
             {
               ...last,
+              model: chunk.model ?? last.model,
               finishReason: chunk.finishReason ?? undefined,
-              usage: chunk.usage,
+              usage,
             },
           ];
         });
@@ -408,7 +430,9 @@ function ChatPage() {
     [fetchBudget],
   );
 
+  const threadId = useId();
   const { messages, sendMessage, isLoading, error } = useChat({
+    threadId,
     connection: fetchServerSentEvents('/demo/api/tanchat'),
     onChunk,
   });

@@ -17,7 +17,7 @@ import {
   type ToolUseBlock,
 } from '@aws-sdk/client-bedrock-runtime';
 import type { ContentPart, ModelMessage, StreamChunk, TextOptions, Tool } from '@tanstack/ai';
-import { EventType } from '@tanstack/ai';
+import { EventType, normalizeSystemPrompts } from '@tanstack/ai';
 import type { JSONSchema } from '@tanstack/ai';
 import { BaseTextAdapter } from '@tanstack/ai/adapters';
 import type { StructuredOutputOptions, StructuredOutputResult } from '@tanstack/ai/adapters';
@@ -41,6 +41,14 @@ function getTextFromContent(content: string | null | Array<ContentPart>): string
 
 function textBlock(text: string): ContentBlock {
   return { text };
+}
+
+function readSamplingNumber(
+  modelOptions: Record<string, unknown> | undefined,
+  key: string,
+): number | undefined {
+  const value = modelOptions?.[key];
+  return typeof value === 'number' ? value : undefined;
 }
 
 function toolUseBlock(toolUseId: string, name: string, input: object): ContentBlock {
@@ -201,22 +209,24 @@ export class BedrockTextAdapter extends BaseTextAdapter<
       messages,
       tools,
       systemPrompts,
-      temperature,
-      topP,
-      maxTokens,
+      modelOptions,
       request,
       threadId: optionsThreadId,
       runId: optionsRunId,
     } = options;
 
     const bedrockMessages = modelMessagesToBedrockMessages(messages);
-    const systemBlock =
-      systemPrompts?.length && systemPrompts.some((s) => s.trim().length > 0)
-        ? [{ text: systemPrompts.join('\n\n') }]
-        : undefined;
+    const systemText = normalizeSystemPrompts(systemPrompts)
+      .map((prompt) => prompt.content)
+      .filter((content) => content.trim().length > 0)
+      .join('\n\n');
+    const systemBlock = systemText.length > 0 ? [{ text: systemText }] : undefined;
 
     const toolConfig = toolsToBedrockToolConfig(tools);
 
+    const temperature = readSamplingNumber(modelOptions, 'temperature');
+    const topP = readSamplingNumber(modelOptions, 'topP');
+    const maxTokens = readSamplingNumber(modelOptions, 'maxTokens');
     const inferenceConfig: Record<string, number> = {};
     if (temperature != null) inferenceConfig.temperature = temperature;
     if (topP != null) inferenceConfig.topP = topP;
@@ -265,7 +275,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             type: EventType.RUN_STARTED,
             threadId,
             runId,
-            model,
             timestamp,
           };
         }
@@ -283,11 +292,8 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             type: EventType.TOOL_CALL_START,
             toolCallId,
             toolCallName: tu.name ?? '',
-            toolName: tu.name ?? '',
             parentMessageId: messageId,
-            model,
             timestamp,
-            index: idx,
           };
         }
 
@@ -299,7 +305,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               yield {
                 type: EventType.TEXT_MESSAGE_START,
                 messageId,
-                model,
                 timestamp,
                 role: 'assistant',
               };
@@ -307,7 +312,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             yield {
               type: EventType.TEXT_MESSAGE_CONTENT,
               messageId,
-              model,
               timestamp,
               delta,
             };
@@ -321,7 +325,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           yield {
             type: EventType.TOOL_CALL_ARGS,
             toolCallId: toolCallIds.get(idx)?.id ?? '',
-            model,
             timestamp,
             delta,
           };
@@ -341,8 +344,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             yield {
               type: EventType.TOOL_CALL_END,
               toolCallId: meta.id,
-              toolName: meta.name,
-              model,
               timestamp,
               input,
             };
@@ -356,7 +357,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             yield {
               type: EventType.TEXT_MESSAGE_END,
               messageId,
-              model,
               timestamp,
             };
           }
@@ -456,7 +456,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
             type: EventType.RUN_STARTED,
             threadId,
             runId,
-            model,
             timestamp,
           };
         }
@@ -470,7 +469,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
                 yield {
                   type: EventType.TEXT_MESSAGE_START,
                   messageId,
-                  model,
                   timestamp,
                   role: 'assistant',
                 };
@@ -478,7 +476,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               yield {
                 type: EventType.TEXT_MESSAGE_CONTENT,
                 messageId,
-                model,
                 timestamp,
                 delta: text,
               };
@@ -494,24 +491,18 @@ export class BedrockTextAdapter extends BaseTextAdapter<
               type: EventType.TOOL_CALL_START,
               toolCallId,
               toolCallName: toolName,
-              toolName,
               parentMessageId: messageId,
-              model,
               timestamp,
-              index: 0,
             };
             yield {
               type: EventType.TOOL_CALL_ARGS,
               toolCallId,
-              model,
               timestamp,
               delta: typeof inputObj === 'string' ? inputObj : JSON.stringify(inputObj),
             };
             yield {
               type: EventType.TOOL_CALL_END,
               toolCallId,
-              toolName,
-              model,
               timestamp,
               input:
                 typeof inputObj === 'object' && inputObj !== null ? inputObj : { value: inputObj },
@@ -523,7 +514,6 @@ export class BedrockTextAdapter extends BaseTextAdapter<
           yield {
             type: EventType.TEXT_MESSAGE_END,
             messageId,
-            model,
             timestamp,
           };
         }

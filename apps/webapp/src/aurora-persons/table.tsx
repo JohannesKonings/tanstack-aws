@@ -2,11 +2,13 @@ import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
 import {
   createColumnHelper,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
+  rowSortingFeature,
+  sortFn_alphanumeric,
   type SortingState,
-  useReactTable,
+  tableFeatures,
+  useTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import type { AuroraPersonListRow } from '#apps/webapp/aurora-persons/view.ts';
@@ -18,7 +20,15 @@ interface AuroraPersonsTableProps {
   loading?: boolean;
 }
 
-const columnHelper = createColumnHelper<AuroraPersonListRow>();
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+  },
+});
+
+const columnHelper = createColumnHelper<typeof features, AuroraPersonListRow>();
 
 /** `id` is the row link, not a column. Every other list-view field needs a column. */
 type ListColumnKey = Exclude<keyof AuroraPersonListRow, 'id'>;
@@ -38,7 +48,11 @@ const columnsByField = {
   }),
 } satisfies Record<ListColumnKey, unknown>;
 
-const columns = Object.values(columnsByField);
+const columns = columnHelper.columns([
+  columnsByField.firstName,
+  columnsByField.lastName,
+  columnsByField.birthdayYear,
+]);
 
 const rowClassName = cn(
   'border-b border-border-default cursor-pointer transition-colors hover:bg-surface-state-hover',
@@ -48,15 +62,14 @@ export const AuroraPersonsTable = ({ data, loading }: AuroraPersonsTableProps) =
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable function refs by design
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
     state: {
       sorting,
     },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
   if (loading) {
@@ -120,7 +133,7 @@ export const AuroraPersonsTable = ({ data, loading }: AuroraPersonsTableProps) =
               const personLabelText = `${row.original.firstName} ${row.original.lastName}`;
               return (
                 <tr key={row.id} className={rowClassName}>
-                  {row.getVisibleCells().map((cell, index) => (
+                  {row.getAllCells().map((cell, index) => (
                     <td key={cell.id} className="p-0 text-sm text-text-primary">
                       <Link
                         to="/demo/db-persons/aurora/$id"
