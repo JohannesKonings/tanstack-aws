@@ -82,7 +82,7 @@ export const preserveProtectedStageWebAcl = (
       externalModules: ['@aws-sdk/*'],
     },
     entry: repoPath('src/lambda/distribution-webacl-lookup.ts'),
-    runtime: Runtime.NODEJS_24_X,
+    runtime: Runtime.NODEJS_26_X,
     timeout: Duration.seconds(30),
   });
   handler.addToRolePolicy(

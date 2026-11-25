@@ -38,7 +38,7 @@ export class StageDatabaseLifecycle extends Construct {
         },
         externalModules: ['@aws-sdk/*'],
       },
-      runtime: Runtime.NODEJS_24_X,
+      runtime: Runtime.NODEJS_26_X,
       timeout: Duration.seconds(180),
     });
 

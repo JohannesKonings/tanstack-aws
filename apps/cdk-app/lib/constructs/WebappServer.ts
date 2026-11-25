@@ -25,7 +25,7 @@ export class WebappServer extends Construct {
       // functionName: PhysicalName.GENERATE_IF_NEEDED,
       handler: 'index.handler',
       memorySize: 2048,
-      runtime: Runtime.NODEJS_24_X,
+      runtime: Runtime.NODEJS_26_X,
       // oxlint-disable-next-line no-magic-numbers
       timeout: Duration.seconds(TIMEOUT_IN_SECONDS),
       // timeout: Duration.seconds(60),

@@ -34,7 +34,7 @@ export class StreamToEventsProcessor extends Construct {
 
     this.processor = new NodejsFunction(this, 'Processor', {
       entry: repoPath('src/lambda/stream-to-events.ts'),
-      runtime: Runtime.NODEJS_24_X,
+      runtime: Runtime.NODEJS_26_X,
       handler: 'handler',
       environment: {
         EVENTS_TABLE: props.eventsTable.tableName,
