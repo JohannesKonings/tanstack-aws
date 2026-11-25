@@ -16,11 +16,11 @@
     "@aws-sdk/client-rds-data": "3.1175.0",
     "@aws-sdk/client-ssm": "3.1175.0",
     "@tanstack-aws/cdk-vite-plugin": "workspace:*",
-    "drizzle-orm": "1.0.0-rc.4",
+    "drizzle-orm": "1.0.0-rc.5-5935859",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "drizzle-kit": "1.0.0-rc.4",
+    "drizzle-kit": "1.0.0-rc.5-5935859",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   }

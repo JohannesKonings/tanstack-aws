@@ -44,7 +44,7 @@
     "@trpc/tanstack-react-query": "^11.29.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "drizzle-orm": "1.0.0-rc.4",
+    "drizzle-orm": "1.0.0-rc.5-5935859",
     "electrodb": "^3.9.3",
     "highlight.js": "^11.12.0",
     "nitro": "3.0.261103-rc",
