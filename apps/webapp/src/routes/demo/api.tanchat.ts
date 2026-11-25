@@ -1,6 +1,9 @@
-import type { ModelMessage, UIMessage } from '@tanstack/ai';
-import { chat, convertMessagesToModelMessages, toServerSentEventsResponse } from '@tanstack/ai';
-import { maxIterations } from '@tanstack/ai';
+import {
+  chat,
+  chatParamsFromRequest,
+  maxIterations,
+  toServerSentEventsResponse,
+} from '@tanstack/ai';
 import { createFileRoute } from '@tanstack/react-router';
 import { bedrockText } from '#apps/webapp/integrations/bedrock-adapter';
 import { getBedrockBudgetStatus, TANCHAT_MODEL_ID } from '#apps/webapp/lib/bedrock-budget';
@@ -52,14 +55,7 @@ export const Route = createFileRoute('/demo/api/tanchat')({
             );
           }
 
-          const body = (await request.json()) as {
-            messages: unknown[];
-            data?: { conversationId?: string };
-          };
-          const messages = convertMessagesToModelMessages(
-            body.messages as Array<ModelMessage | UIMessage>,
-          );
-          const conversationId = body.data?.conversationId;
+          const { messages, threadId, runId } = await chatParamsFromRequest(request);
 
           const tools = await getTools();
 
@@ -68,19 +64,22 @@ export const Route = createFileRoute('/demo/api/tanchat')({
 
           const stream = chat({
             adapter: bedrockText(TANCHAT_MODEL_ID),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- messages from client are valid at runtime
-            messages: messages as any,
+            messages,
             systemPrompts: [SYSTEM_PROMPT],
-            temperature: 0.7,
-            maxTokens: 4096,
+            modelOptions: {
+              temperature: 0.7,
+              maxTokens: 4096,
+            },
             tools,
             agentLoopStrategy: maxIterations(5),
-            conversationId,
+            threadId,
+            runId,
             abortController,
           });
 
           return toServerSentEventsResponse(stream, { abortController });
         } catch (error) {
+          if (error instanceof Response) return error;
           const message = error instanceof Error ? error.message : String(error);
           // oxlint-disable-next-line no-console
           console.error('Chat API error:', error);

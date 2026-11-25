@@ -1,9 +1,9 @@
 import { CaretRightIcon, PaperPlaneRightIcon, XIcon } from '@phosphor-icons/react';
 import type { UIMessage } from '@tanstack/ai';
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react';
-import { useStore } from '@tanstack/react-store';
+import { useSelector } from '@tanstack/react-store';
 import { Store } from '@tanstack/store';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { Badge } from '#apps/webapp/components/ui/badge';
 import { Button } from '#apps/webapp/components/ui/button';
@@ -12,7 +12,7 @@ import GuitarRecommendation from './example-GuitarRecommendation';
 
 export const showAIAssistant = new Store(false);
 
-function Messages({ messages }: { messages: Array<UIMessage> }) {
+function Messages({ messages }: { messages: ReadonlyArray<UIMessage> }) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,8 +76,10 @@ function Messages({ messages }: { messages: Array<UIMessage> }) {
 }
 
 export default function AIAssistant() {
-  const isOpen = useStore(showAIAssistant, (state: boolean) => state);
+  const isOpen = useSelector(showAIAssistant);
+  const threadId = useId();
   const { messages, sendMessage } = useChat({
+    threadId,
     connection: fetchServerSentEvents('/demo/api/tanchat'),
   });
   const [input, setInput] = useState('');

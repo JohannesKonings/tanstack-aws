@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useStore } from '@tanstack/react-store';
+import { useSelector } from '@tanstack/react-store';
 import { Badge } from '#apps/webapp/components/ui/badge';
 import { Card } from '#apps/webapp/components/ui/card';
 import { Input } from '#apps/webapp/components/ui/input';
@@ -11,10 +11,7 @@ export const Route = createFileRoute('/demo/store')({
 });
 
 function FirstName() {
-  const firstName = useStore(
-    store,
-    (state: { firstName: string; lastName: string }) => state.firstName,
-  );
+  const firstName = useSelector(store, (state) => state.firstName);
   return (
     <Input
       type="text"
@@ -30,10 +27,7 @@ function FirstName() {
 }
 
 function LastName() {
-  const lastName = useStore(
-    store,
-    (state: { firstName: string; lastName: string }) => state.lastName,
-  );
+  const lastName = useSelector(store, (state) => state.lastName);
   return (
     <Input
       type="text"
@@ -49,7 +43,7 @@ function LastName() {
 }
 
 function FullName() {
-  const fName = useStore(fullName, (state: string) => state);
+  const fName = useSelector(fullName);
   return (
     <div className="rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-text-primary">
       {fName}

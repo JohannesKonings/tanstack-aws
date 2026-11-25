@@ -3,11 +3,13 @@ import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 // oxlint-disable no-magic-numbers
 import {
   createColumnHelper,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
+  rowSortingFeature,
+  sortFn_alphanumeric,
   type SortingState,
-  useReactTable,
+  tableFeatures,
+  useTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import { Card } from '#apps/webapp/components/ui/card';
@@ -28,7 +30,15 @@ interface PersonsTableProps {
   onRowSelect?: (person: PersonTableRow) => void;
 }
 
-const columnHelper = createColumnHelper<PersonTableRow>();
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+  },
+});
+
+const columnHelper = createColumnHelper<typeof features, PersonTableRow>();
 
 const formatDate = (dateString?: string) => {
   if (!dateString) {
@@ -45,7 +55,7 @@ const formatGender = (gender?: string) => {
   return gender.charAt(0).toUpperCase() + gender.slice(1).replace(/_/g, ' ');
 };
 
-const columns = [
+const columns = columnHelper.columns([
   columnHelper.accessor('firstName', {
     header: 'First Name',
     cell: (info) => info.getValue(),
@@ -62,7 +72,7 @@ const columns = [
     header: 'Birth Date',
     cell: (info) => formatDate(info.getValue()),
   }),
-];
+]);
 
 const getRowClassName = (isSelected: boolean) =>
   cn(
@@ -74,15 +84,14 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable function refs by design
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
     state: {
       sorting,
     },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
   if (loading) {
@@ -148,7 +157,7 @@ export const PersonsTable = ({ data, loading, selectedId, onRowSelect }: Persons
                   onClick={() => onRowSelect?.(row.original)}
                   className={getRowClassName(isSelected)}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getAllCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3 text-sm text-text-primary">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>

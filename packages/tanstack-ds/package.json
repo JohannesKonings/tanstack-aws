@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "shadcn": "^3.0.0",
+    "shadcn": "^4.23.0",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   }
