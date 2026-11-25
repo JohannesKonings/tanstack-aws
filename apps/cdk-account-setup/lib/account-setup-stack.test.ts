@@ -379,16 +379,8 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expectAccountLogRetentionPolicyDeferred(Template.fromStack(stack));
   });
 
-  it('creates a Security Agent space named tanstack-aws-security and nothing else', () => {
-    const app = createAccountSetupApp();
-    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
-      env: {
-        account: '123456789012',
-        region: 'us-east-2',
-      },
-    });
-
-    const template = Template.fromStack(stack);
+  it('creates a Security Agent application and a space named tanstack-aws-security', () => {
+    const template = Template.fromStack(workloadRegionStack());
     template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 1);
     template.hasResource('AWS::SecurityAgent::AgentSpace', {
       Properties: {
@@ -400,6 +392,126 @@ describe('WorkloadRegionAccountSetupStack', () => {
         TargetDomainIds: Match.absent(),
       },
     });
+
+    template.resourceCountIs('AWS::SecurityAgent::Application', 1);
+    const [applicationLogicalId, application] = Object.entries(
+      template.findResources('AWS::SecurityAgent::Application'),
+    )[0] ?? ['', undefined];
+    expect(isRecord(application) ? application.Properties : undefined).toEqual({
+      RoleArn: { 'Fn::GetAtt': [expect.any(String), 'Arn'] },
+    });
+    const applicationProperties = isRecord(application) ? application.Properties : undefined;
+    const applicationRoleLogicalId = roleLogicalId(
+      isRecord(applicationProperties) ? applicationProperties.RoleArn : undefined,
+    );
+    const applicationRole = iamRolesByLogicalId(template).get(applicationRoleLogicalId ?? '');
+    expect(applicationRole?.AssumeRolePolicyDocument).toEqual({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Sid: 'AllowServiceAssumeRole',
+          Effect: 'Allow',
+          Action: 'sts:AssumeRole',
+          Principal: { Service: 'securityagent.amazonaws.com' },
+          Condition: {
+            StringEquals: { 'aws:SourceAccount': ACCOUNT_ID },
+            ArnLike: {
+              'aws:SourceArn': [
+                `arn:aws:securityagent:${WORKLOAD_REGION}:${ACCOUNT_ID}:application/*`,
+                `arn:aws:securityagent:${WORKLOAD_REGION}:${ACCOUNT_ID}:agent-space/*`,
+              ],
+            },
+          },
+        },
+        {
+          Sid: 'AllowServiceSetContext',
+          Effect: 'Allow',
+          Action: 'sts:SetContext',
+          Principal: { Service: 'securityagent.amazonaws.com' },
+          Condition: {
+            StringEquals: { 'aws:SourceAccount': ACCOUNT_ID },
+            'ForAllValues:ArnEquals': {
+              'sts:RequestContextProviders': 'arn:aws:iam::aws:contextProvider/IdentityCenter',
+            },
+            ArnLike: {
+              'aws:SourceArn': [
+                `arn:aws:securityagent:${WORKLOAD_REGION}:${ACCOUNT_ID}:application/*`,
+                `arn:aws:securityagent:${WORKLOAD_REGION}:${ACCOUNT_ID}:agent-space/*`,
+              ],
+            },
+          },
+        },
+      ],
+    });
+    expect(applicationRole?.ManagedPolicyArns).toEqual([
+      {
+        'Fn::Join': [
+          '',
+          [
+            'arn:',
+            { Ref: 'AWS::Partition' },
+            ':iam::aws:policy/service-role/AWSSecurityAgentWebAppPolicy',
+          ],
+        ],
+      },
+    ]);
+
+    const applicationPolicy = Object.values(template.findResources('AWS::IAM::Policy')).find(
+      (resource) => {
+        if (!isRecord(resource) || !isRecord(resource.Properties)) {
+          return false;
+        }
+        const roles = resource.Properties.Roles;
+        return (
+          Array.isArray(roles) &&
+          roles.some((role) => isRecord(role) && role.Ref === applicationRoleLogicalId)
+        );
+      },
+    );
+    expect(isRecord(applicationPolicy) ? applicationPolicy.Properties : undefined).toMatchObject({
+      PolicyDocument: {
+        Statement: [
+          {
+            Sid: 'CloudWatchLogsRead',
+            Effect: 'Allow',
+            Action: 'logs:GetLogEvents',
+            Resource: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  { Ref: 'AWS::Partition' },
+                  `:logs:${WORKLOAD_REGION}:`,
+                  { Ref: 'AWS::AccountId' },
+                  ':log-group:*:log-stream:*',
+                ],
+              ],
+            },
+          },
+          {
+            Sid: 'SecretsManagerCreate',
+            Effect: 'Allow',
+            Action: 'secretsmanager:CreateSecret',
+            Resource: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  { Ref: 'AWS::Partition' },
+                  `:secretsmanager:${WORKLOAD_REGION}:`,
+                  { Ref: 'AWS::AccountId' },
+                  ':secret:*',
+                ],
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    const applicationResource = template.toJSON().Resources[applicationLogicalId];
+    const dependsOn = isRecord(applicationResource) ? applicationResource.DependsOn : undefined;
+    expect(dependsOn).toEqual(expect.arrayContaining([expect.stringMatching(/DefaultPolicy/)]));
   });
 
   it('omits the Security Agent space when securityAgent is false', () => {
@@ -414,11 +526,14 @@ describe('WorkloadRegionAccountSetupStack', () => {
 
     const template = Template.fromStack(stack);
     template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 0);
+    template.resourceCountIs('AWS::SecurityAgent::Application', 0);
     template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 1);
     template.resourceCountIs('AWS::DevOpsAgent::Association', 1);
     expect(iamRolesByLogicalId(template).size).toBe(
-      iamRolesByLogicalId(Template.fromStack(workloadRegionStack())).size,
+      iamRolesByLogicalId(Template.fromStack(workloadRegionStack())).size - 1,
     );
+    expect(JSON.stringify(template.toJSON())).not.toContain('securityagent.amazonaws.com');
+    expect(JSON.stringify(template.toJSON())).not.toContain('AWSSecurityAgentWebAppPolicy');
     expectSharedWorkloadResources(template);
   });
 
@@ -429,6 +544,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
     template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 0);
     template.resourceCountIs('AWS::DevOpsAgent::Association', 0);
     template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 1);
+    template.resourceCountIs('AWS::SecurityAgent::Application', 1);
     template.hasResourceProperties('AWS::SecurityAgent::AgentSpace', {
       Name: 'tanstack-aws-security',
     });
@@ -441,6 +557,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
       expect(document).not.toContain(':root');
     }
     expect(JSON.stringify(template.toJSON())).not.toContain('AIDevOpsAgentAccessPolicy');
+    expect(JSON.stringify(template.toJSON())).not.toContain('AIDevOpsOperatorAppAccessPolicy');
     expectSharedWorkloadResources(template);
   });
 
@@ -521,13 +638,29 @@ describe('WorkloadRegionAccountSetupStack', () => {
       Statement: [
         {
           Effect: 'Allow',
-          Action: 'sts:AssumeRole',
+          Action: ['sts:AssumeRole', 'sts:TagSession'],
           Principal: {
-            AWS: `arn:aws:iam::${ACCOUNT_ID}:root`,
+            Service: 'aidevops.amazonaws.com',
+          },
+          Condition: {
+            StringEquals: {
+              'aws:SourceAccount': ACCOUNT_ID,
+            },
+            ArnLike: {
+              'aws:SourceArn': `arn:aws:aidevops:${WORKLOAD_REGION}:${ACCOUNT_ID}:agentspace/*`,
+            },
           },
         },
       ],
     });
+    expect(operatorRole?.ManagedPolicyArns).toEqual([
+      {
+        'Fn::Join': [
+          '',
+          ['arn:', { Ref: 'AWS::Partition' }, ':iam::aws:policy/AIDevOpsOperatorAppAccessPolicy'],
+        ],
+      },
+    ]);
   });
 
   it('creates a CloudWatch Omni domain named tanstack-aws with IAM as the only sign-in method', () => {
