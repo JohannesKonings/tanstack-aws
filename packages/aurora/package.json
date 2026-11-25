@@ -12,8 +12,8 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudformation": "3.1081.0",
-    "@aws-sdk/client-rds-data": "3.1081.0",
+    "@aws-sdk/client-cloudformation": "3.1175.0",
+    "@aws-sdk/client-rds-data": "3.1175.0",
     "@aws-sdk/client-ssm": "3.1081.0",
     "@tanstack-aws/cdk-vite-plugin": "workspace:*",
     "drizzle-orm": "1.0.0-rc.4",

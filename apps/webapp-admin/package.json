@@ -10,8 +10,8 @@
     "serve": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@aws-sdk/client-rds-data": "3.1081.0",
-    "@tailwindcss/vite": "^4.3.2",
+    "@aws-sdk/client-rds-data": "3.1175.0",
+    "@tailwindcss/vite": "^4.3.5",
     "@tanstack-aws/aurora": "workspace:*",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.17",
