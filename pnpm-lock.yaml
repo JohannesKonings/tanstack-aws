@@ -473,8 +473,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       drizzle-orm:
-        specifier: 1.0.0-rc.5-5935859
-        version: 1.0.0-rc.5-5935859(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
+        specifier: 1.0.0-rc.5-ab785fc
+        version: 1.0.0-rc.5-ab785fc(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
       electrodb:
         specifier: ^3.9.3
         version: 3.9.3(@aws-sdk/client-dynamodb@3.1175.0)
@@ -570,8 +570,8 @@ importers:
         specifier: ^1.169.7
         version: 1.169.7(@types/react@19.3.0)(@voidzero-dev/vite-plus-core@8.3.8001(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1))(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.12)(supports-color@7.2.0)
       drizzle-orm:
-        specifier: 1.0.0-rc.5-5935859
-        version: 1.0.0-rc.5-5935859(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
+        specifier: 1.0.0-rc.5-ab785fc
+        version: 1.0.0-rc.5-ab785fc(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
       nitro:
         specifier: 3.0.261103-rc
         version: 3.0.261103-rc
@@ -619,8 +619,8 @@ importers:
         specifier: workspace:*
         version: link:../cdk-vite-plugin
       drizzle-orm:
-        specifier: 1.0.0-rc.5-5935859
-        version: 1.0.0-rc.5-5935859(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
+        specifier: 1.0.0-rc.5-ab785fc
+        version: 1.0.0-rc.5-ab785fc(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7)
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -4243,12 +4243,11 @@ packages:
     resolution: {integrity: sha512-p//MvJbSeDFxa3pODv0ebNVJmk/5aAHHaCyQTtDGFlCYX4e7eY9rrSX/liBJ7098Ei9WUi9VT65JQkSFDuG1ng==}
     hasBin: true
 
-  drizzle-orm@1.0.0-rc.5-5935859:
-    resolution: {integrity: sha512-PkVjyxhamD7IOVfpDMn3BmV9afyvj3eeLvIPind3NmPv+cfv6/jh6GN0fHP0zzgrprGx/jGE4mkE0ttRFlzHwA==}
+  drizzle-orm@1.0.0-rc.5-ab785fc:
+    resolution: {integrity: sha512-28PVt0PS/+4kPa8eKr4mqP8y/YcbdOgdVcGUa6LGl2Kd2bykNWuf/WUOFoSCoynagblbcRgMO1zChLvRcWD6Tg==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
-      '@drizzle-team/minipg': '>=0.3.2'
       '@effect/sql-d1': '>=4.0.0-beta.105 || >=4.0.0'
       '@effect/sql-libsql': '>=4.0.0-beta.105 || >=4.0.0'
       '@effect/sql-mysql2': '>=4.0.0-beta.105 || >=4.0.0'
@@ -4285,6 +4284,7 @@ packages:
       bun-types: '*'
       effect: '>=4.0.0-beta.105 || >=4.0.0'
       expo-sqlite: '>=14.0.0'
+      minipg: '>=0.2.0'
       mssql: ^11.0.1
       mysql2: '>=2'
       pg: '>=8'
@@ -4298,8 +4298,6 @@ packages:
       '@aws-sdk/client-rds-data':
         optional: true
       '@cloudflare/workers-types':
-        optional: true
-      '@drizzle-team/minipg':
         optional: true
       '@effect/sql-d1':
         optional: true
@@ -4372,6 +4370,8 @@ packages:
       effect:
         optional: true
       expo-sqlite:
+        optional: true
+      minipg:
         optional: true
       mssql:
         optional: true
@@ -9609,7 +9609,7 @@ snapshots:
       get-tsconfig: 4.14.3
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.5-5935859(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7):
+  drizzle-orm@1.0.0-rc.5-ab785fc(@aws-sdk/client-rds-data@3.1175.0)(zod@4.6.7):
     optionalDependencies:
       '@aws-sdk/client-rds-data': 3.1175.0
       zod: 4.6.7
