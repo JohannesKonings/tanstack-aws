@@ -1,13 +1,15 @@
-import { Aws } from 'aws-cdk-lib';
+import { Aws, Validations } from 'aws-cdk-lib';
 import {
   OpenIdConnectProvider,
   PolicyStatement,
   Role,
   WebIdentityPrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
+import { WORKLOAD_REGION } from '../../../../lib/workload-region.ts';
 import type { GitHubActionsOidcConfig } from '../app-config.ts';
+import { ACCOUNT_KEY_ALIAS } from './AccountKey.ts';
+import { ENVS_SECRET_NAME } from './EnvsSecret.ts';
 const BOOTSTRAP_QUALIFIER = 'hnb659fds';
 const BOOTSTRAP_ROLE_NAMES = [
   'deploy-role',
@@ -68,17 +70,47 @@ export class GitHubActionsOidcSetup extends Construct {
         resources: ['*'],
       }),
     );
-
-    NagSuppressions.addResourceSuppressions(
-      this.deployRole,
-      [
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.',
+    const envsSecretArn = `arn:${Aws.PARTITION}:secretsmanager:${WORKLOAD_REGION}:${Aws.ACCOUNT_ID}:secret:${ENVS_SECRET_NAME}-*`;
+    const accountKeyArn = `arn:${Aws.PARTITION}:kms:${WORKLOAD_REGION}:${Aws.ACCOUNT_ID}:key/*`;
+    this.deployRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [envsSecretArn],
+      }),
+    );
+    this.deployRole.addToPolicy(
+      new PolicyStatement({
+        actions: ['kms:Decrypt', 'kms:DescribeKey'],
+        resources: [accountKeyArn],
+        conditions: {
+          'ForAnyValue:StringEquals': {
+            'kms:ResourceAliases': ACCOUNT_KEY_ALIAS,
+          },
         },
-      ],
-      true,
+      }),
+    );
+    // cdk-nag flattens Fn::Join ARNs before matching appliesTo, so these stay literal strings.
+    const envsSecretFinding = `Resource::arn:<AWS::Partition>:secretsmanager:${WORKLOAD_REGION}:<AWS::AccountId>:secret:${ENVS_SECRET_NAME}-*`;
+    const accountKeyFinding = `Resource::arn:<AWS::Partition>:kms:${WORKLOAD_REGION}:<AWS::AccountId>:key/*`;
+
+    // IAM5 is reported on the role's default policy. cdk-nag treats an
+    // acknowledgment on an ancestor as applying to that child.
+    Validations.of(this.deployRole).acknowledge(
+      {
+        id: 'AwsSolutions-IAM5[Resource::*]',
+        reason:
+          'kms:ListAliases does not support a resource ARN. The deploy role lists aliases to resolve the account key.',
+      },
+      {
+        id: `AwsSolutions-IAM5[${envsSecretFinding}]`,
+        reason:
+          'Varlock reads the envs secret while synthesizing account setup. Secrets Manager appends a random suffix to the secret ARN.',
+      },
+      {
+        id: `AwsSolutions-IAM5[${accountKeyFinding}]`,
+        reason:
+          'The account key id is created in the workload region. Decrypt is limited to the alias/account key by kms:ResourceAliases.',
+      },
     );
   }
 }

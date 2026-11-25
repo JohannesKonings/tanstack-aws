@@ -89,7 +89,7 @@ jobs:
           if [ -n "${RESOLVED_STAGE}" ]; then
             export APP_STAGE="${RESOLVED_STAGE}"
           fi
-          vp -C "${{ inputs.cdk_package }}" exec cdk diff 2>&1 | tee cdk-diff.log || true
+          vp -C "${{ inputs.cdk_package }}" exec -- varlock run -- cdk diff 2>&1 | tee cdk-diff.log || true
           cdk-notifier \
             --vcs github \
             --owner "${{ github.repository_owner }}" \

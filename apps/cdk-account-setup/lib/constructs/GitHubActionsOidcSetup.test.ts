@@ -61,6 +61,8 @@ describe('GitHubActionsOidcSetup', () => {
     expect(resourcesJson).toContain('cdk-hnb659fds-image-publishing-role-');
     expect(resourcesJson).toContain('cdk-hnb659fds-lookup-role-');
     expect(resourcesJson).toContain('cdk-hnb659fds-cfn-exec-role-');
+    expect(resourcesJson).toContain('secret:envs-*');
+    expect(resourcesJson).toContain('alias/account');
     expect(resourcesJson).not.toContain('AdministratorAccess');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });

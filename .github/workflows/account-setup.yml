@@ -111,4 +111,4 @@ jobs:
       - name: Deploy all account setup stacks
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
-        run: vp -C apps/cdk-account-setup exec cdk deploy --all --require-approval never
+        run: vp -C apps/cdk-account-setup exec -- varlock run -- cdk deploy --all --require-approval never

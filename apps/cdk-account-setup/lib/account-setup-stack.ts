@@ -7,6 +7,9 @@ export class AccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
+    // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
+
     const gitHubActionsOidcSetup = new GitHubActionsOidcSetup(this, 'GitHubActionsOidcSetup', {
       config: githubActionsOidcConfig,
     });

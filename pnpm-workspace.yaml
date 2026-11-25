@@ -2,6 +2,16 @@ minimumReleaseAge: 2880
 minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
   - '@jaykingson/vite-plus-base'
+  - vite-plus
+  - '@voidzero-dev/*'
+  - oxlint
+  - '@oxlint/*'
+  - tsrs
+  - '@tsrs/*'
+  - oxfmt
+  - '@oxfmt/*'
+  - vitest
+  - '@vitest/*'
 
 packages:
   - .
@@ -12,15 +22,8 @@ allowBuilds:
   msw: true
 catalog:
   typescript: 7.0.2
-  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vite-plus: 1.0.0
-  vitest: 5.0.3
-  zod: 4.6.5
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8001
+  vite-plus: 1.8.0
+  zod: 4.6.7
 overrides:
   vite@*: 'catalog:'
-  vitest@*: 'catalog:'
-peerDependencyRules:
-  allowAny:
-    - vite
-  allowedVersions:
-    vite: '*'

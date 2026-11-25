@@ -93,16 +93,6 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRole65CF1EFE": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-IAM5",
-              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -132,16 +122,6 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
       "Type": "AWS::IAM::Role",
     },
     "GitHubActionsOidcSetupDeployRoleDefaultPolicyCED56BAA": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-IAM5",
-              "reason": "kms:ListAliases with * required for CDK bootstrap cross-region deploy; CDK design.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -356,6 +336,54 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
               "Effect": "Allow",
               "Resource": "*",
             },
+            {
+              "Action": "secretsmanager:GetSecretValue",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:envs-*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Condition": {
+                "ForAnyValue:StringEquals": {
+                  "kms:ResourceAliases": "alias/account",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":kms:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":key/*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -454,6 +482,510 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
   },
   "Resources": {
+    "AccountKeyA70E2A1C": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Description": "Account key for this workload region.",
+        "EnableKeyRotation": true,
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Action": "kms:*",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "<arn>",
+              },
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "kms:CreateGrant",
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:GenerateDataKey*",
+                "kms:ReEncrypt*",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "kms:ViaService": "secretsmanager.us-east-2.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "<arn>",
+              },
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::KMS::Key",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "AccountKeyAlias7BF6A84E": {
+      "Properties": {
+        "AliasName": "alias/account",
+        "TargetKeyId": {
+          "Fn::GetAtt": [
+            "AccountKeyA70E2A1C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::KMS::Alias",
+    },
+    "AgentSpacesApplication6072E980": {
+      "DependsOn": [
+        "AgentSpacesApplicationRoleDefaultPolicyA0431784",
+      ],
+      "Properties": {
+        "RoleArn": "<redacted-name>",
+      },
+      "Type": "AWS::SecurityAgent::Application",
+    },
+    "AgentSpacesApplicationRoleAF26C5E8": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": [
+                    "<arn>",
+                    "<arn>",
+                  ],
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "securityagent.amazonaws.com",
+              },
+              "Sid": "AllowServiceAssumeRole",
+            },
+            {
+              "Action": "sts:SetContext",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": [
+                    "<arn>",
+                    "<arn>",
+                  ],
+                },
+                "ForAllValues:ArnEquals": {
+                  "sts:RequestContextProviders": "arn:aws:iam::aws:contextProvider/IdentityCenter",
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "securityagent.amazonaws.com",
+              },
+              "Sid": "AllowServiceSetContext",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Role AWS Security Agent assumes for the web application.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSSecurityAgentWebAppPolicy",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AgentSpacesApplicationRoleDefaultPolicyA0431784": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "logs:GetLogEvents",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":logs:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":log-group:*:log-stream:*",
+                  ],
+                ],
+              },
+              "Sid": "CloudWatchLogsRead",
+            },
+            {
+              "Action": "secretsmanager:CreateSecret",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:us-east-2:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:*",
+                  ],
+                ],
+              },
+              "Sid": "SecretsManagerCreate",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentSpacesApplicationRoleDefaultPolicyA0431784",
+        "Roles": [
+          {
+            "Ref": "AgentSpacesApplicationRoleAF26C5E8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "AgentSpacesAssumableRole4C0632B1": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "AgentSpacesDevOpsAgentSpace97E8766B",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "aidevops.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Role AWS DevOps Agent assumes to monitor this account.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AIDevOpsAgentAccessPolicy",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AgentSpacesDevOpsAgentSpace97E8766B": {
+      "Properties": {
+        "Name": "tanstack-aws-devops",
+        "OperatorApp": {
+          "Iam": {
+            "OperatorAppRoleArn": {
+              "Fn::GetAtt": [
+                "AgentSpacesOperatorRoleEF0F6160",
+                "Arn",
+              ],
+            },
+          },
+        },
+      },
+      "Type": "AWS::DevOpsAgent::AgentSpace",
+    },
+    "AgentSpacesMonitorAssociation3544C161": {
+      "Properties": {
+        "AgentSpaceId": {
+          "Fn::GetAtt": [
+            "AgentSpacesDevOpsAgentSpace97E8766B",
+            "AgentSpaceId",
+          ],
+        },
+        "Configuration": {
+          "Aws": {
+            "AccountId": "<redacted-name>",
+            "AccountType": "monitor",
+            "AssumableRoleArn": {
+              "Fn::GetAtt": [
+                "AgentSpacesAssumableRole4C0632B1",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "ServiceId": "aws",
+      },
+      "Type": "AWS::DevOpsAgent::Association",
+    },
+    "AgentSpacesOperatorRoleEF0F6160": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole",
+                "sts:TagSession",
+              ],
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": "<arn>",
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "aidevops.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Role AWS DevOps Agent assumes for the operator web app.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AIDevOpsOperatorAppAccessPolicy",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AgentSpacesSecurityAgentSpace5FCFD0D4": {
+      "Properties": {
+        "Name": "tanstack-aws-security",
+      },
+      "Type": "AWS::SecurityAgent::AgentSpace",
+    },
+    "CloudWatchOmniSetupAdminAccessGrantAF02E79D": {
+      "Properties": {
+        "DomainId": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupDomain729F7004",
+            "DomainId",
+          ],
+        },
+        "Name": "additional-admin",
+        "Permission": "SPACE_ADMIN",
+        "Principal": {
+          "PrincipalId": "<arn>",
+          "PrincipalType": "IAM_ROLE",
+        },
+        "SpaceId": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupSpace3B0D40C6",
+            "SpaceId",
+          ],
+        },
+      },
+      "Type": "AWS::CloudWatch::AccessGrant",
+    },
+    "CloudWatchOmniSetupDatasetIntegration64B98BCC": {
+      "Properties": {
+        "RoleArn": "<redacted-name>",
+      },
+      "Type": "AWS::ObservabilityAdmin::DatasetIntegration",
+    },
+    "CloudWatchOmniSetupDatasetIntegrationRole011CE620": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": "<arn>",
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "logs.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Execution role CloudWatch Logs assumes to forward logs and traces into the CloudWatch Dataset.",
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CloudWatchOmniSetupDatasetIntegrationRoleDefaultPolicy5CEBDBC8": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "logs:IntegrateWithDataset",
+              "Effect": "Allow",
+              "Resource": "<arn>",
+            },
+            {
+              "Action": "cloudwatch:PutRecords",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CloudWatchOmniSetupDatasetIntegrationRoleDefaultPolicy5CEBDBC8",
+        "Roles": [
+          {
+            "Ref": "CloudWatchOmniSetupDatasetIntegrationRole011CE620",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CloudWatchOmniSetupDomain729F7004": {
+      "Properties": {
+        "IdentityProviders": [
+          "IAM",
+        ],
+        "Name": "tanstack-aws",
+      },
+      "Type": "AWS::CloudWatch::Domain",
+    },
+    "CloudWatchOmniSetupSpace3B0D40C6": {
+      "Properties": {
+        "DataAccessRoleArn": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupSpaceOperatorRole196004DC",
+            "Arn",
+          ],
+        },
+        "DomainId": {
+          "Fn::GetAtt": [
+            "CloudWatchOmniSetupDomain729F7004",
+            "DomainId",
+          ],
+        },
+        "Name": "tanstack-aws",
+      },
+      "Type": "AWS::CloudWatch::Space",
+    },
+    "CloudWatchOmniSetupSpaceOperatorRole196004DC": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole",
+                "sts:TagSession",
+                "sts:SetSourceIdentity",
+                "sts:SetContext",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:SourceAccount": "<account-id>",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudwatch.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Space operator role assumed by CloudWatch Omni for this account.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/CloudWatchOmniSpaceAccessPolicy",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/CloudWatchOmniAWSIntegrationPolicyV2",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CloudWatchOmniSetupSpaceOperatorRoleDefaultPolicy07FE9E0B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "cloudwatch:GetSpaceDataAccess",
+              "Effect": "Allow",
+              "Resource": "<arn>",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CloudWatchOmniSetupSpaceOperatorRoleDefaultPolicy07FE9E0B",
+        "Roles": [
+          {
+            "Ref": "CloudWatchOmniSetupSpaceOperatorRole196004DC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
       "DependsOn": [
         "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
@@ -534,6 +1066,25 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       },
       "Type": "AWS::IAM::Role",
     },
+    "EnvsSecretE0264FA1": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Description": "Account environment values. JSON object keyed by variable name.",
+        "GenerateSecretString": {
+          "GenerateStringKey": "initial",
+          "SecretStringTemplate": "{}",
+        },
+        "KmsKeyId": {
+          "Fn::GetAtt": [
+            "AccountKeyA70E2A1C",
+            "Arn",
+          ],
+        },
+        "Name": "envs",
+      },
+      "Type": "AWS::SecretsManager::Secret",
+      "UpdateReplacePolicy": "Retain",
+    },
     "SharedAuroraClusterArnParameterD7B51CC3": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/cluster-arn",
@@ -562,28 +1113,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
     "SharedAuroraPostgresServerlessV2ClusterAD3BDD49": {
       "DeletionPolicy": "Snapshot",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-RDS11",
-              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
-            },
-            {
-              "id": "AwsSolutions-RDS6",
-              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
-            },
-            {
-              "id": "AwsSolutions-RDS16",
-              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
-            },
-            {
-              "id": "AwsSolutions-SMG4",
-              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "BackupRetentionPeriod": 7,
         "CopyTagsToSnapshot": true,
@@ -632,28 +1161,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "UpdateReplacePolicy": "Snapshot",
     },
     "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-RDS11",
-              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
-            },
-            {
-              "id": "AwsSolutions-RDS6",
-              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
-            },
-            {
-              "id": "AwsSolutions-RDS16",
-              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
-            },
-            {
-              "id": "AwsSolutions-SMG4",
-              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "SecretId": {
           "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb",
@@ -682,28 +1189,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "Type": "AWS::EC2::SecurityGroup",
     },
     "SharedAuroraPostgresServerlessV2ClusterSubnetsFBE4330F": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-RDS11",
-              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
-            },
-            {
-              "id": "AwsSolutions-RDS6",
-              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
-            },
-            {
-              "id": "AwsSolutions-RDS16",
-              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
-            },
-            {
-              "id": "AwsSolutions-SMG4",
-              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "DBSubnetGroupDescription": "Subnets for Cluster database",
         "SubnetIds": [
@@ -723,28 +1208,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet1RouteTableAssociationE50448E1",
         "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet2RouteTableAssociation4CD012A8",
       ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-RDS11",
-              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
-            },
-            {
-              "id": "AwsSolutions-RDS6",
-              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
-            },
-            {
-              "id": "AwsSolutions-RDS16",
-              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
-            },
-            {
-              "id": "AwsSolutions-SMG4",
-              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "DBClusterIdentifier": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
@@ -759,16 +1222,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       "UpdateReplacePolicy": "Delete",
     },
     "SharedAuroraPostgresServerlessV2VpcCF03BE53": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-VPC7",
-              "reason": "VPC Flow Logs add cost; account-setup stack for shared Aurora.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "CidrBlock": "10.0.0.0/16",
         "EnableDnsHostnames": true,
@@ -915,28 +1368,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
     "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb": {
       "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-RDS11",
-              "reason": "Port obfuscation adds operational complexity; Aurora in private subnets.",
-            },
-            {
-              "id": "AwsSolutions-RDS6",
-              "reason": "This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.",
-            },
-            {
-              "id": "AwsSolutions-RDS16",
-              "reason": "Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.",
-            },
-            {
-              "id": "AwsSolutions-SMG4",
-              "reason": "Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.",
-            },
-          ],
-        },
-      },
       "Properties": {
         "Description": {
           "Fn::Join": [

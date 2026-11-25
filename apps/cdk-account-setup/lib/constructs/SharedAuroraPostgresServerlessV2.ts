@@ -1,7 +1,6 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Validations } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
-import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 
 type SharedAuroraPostgresServerlessV2Props = {
@@ -73,35 +72,29 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
 
     this.cluster.applyRemovalPolicy(RemovalPolicy.SNAPSHOT);
 
-    NagSuppressions.addResourceSuppressions(this.vpc, [
+    Validations.of(this.vpc).acknowledge({
+      id: 'AwsSolutions-VPC7',
+      reason: 'VPC Flow Logs add cost; account-setup stack for shared Aurora.',
+    });
+    Validations.of(this.cluster).acknowledge(
       {
-        id: 'AwsSolutions-VPC7',
-        reason: 'VPC Flow Logs add cost; account-setup stack for shared Aurora.',
+        id: 'AwsSolutions-RDS11',
+        reason: 'Port obfuscation adds operational complexity; Aurora in private subnets.',
       },
-    ]);
-    NagSuppressions.addResourceSuppressions(
-      this.cluster,
-      [
-        {
-          id: 'AwsSolutions-RDS11',
-          reason: 'Port obfuscation adds operational complexity; Aurora in private subnets.',
-        },
-        {
-          id: 'AwsSolutions-RDS6',
-          reason:
-            'This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.',
-        },
-        {
-          id: 'AwsSolutions-RDS16',
-          reason: 'Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.',
-        },
-        {
-          id: 'AwsSolutions-SMG4',
-          reason:
-            'Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.',
-        },
-      ],
-      true,
+      {
+        id: 'AwsSolutions-RDS6',
+        reason:
+          'This cluster is accessed via RDS Data API with Secrets Manager auth; IAM DB auth is not used.',
+      },
+      {
+        id: 'AwsSolutions-RDS16',
+        reason: 'Aurora PostgreSQL exports postgresql logs; RDS16 targets MySQL log types.',
+      },
+      {
+        id: 'AwsSolutions-SMG4',
+        reason:
+          'Shared bootstrap secret rotation is handled out-of-band to avoid automatic credential churn.',
+      },
     );
   }
 }
