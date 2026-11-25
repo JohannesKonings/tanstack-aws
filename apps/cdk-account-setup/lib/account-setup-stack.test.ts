@@ -8,7 +8,7 @@ import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup
 
 const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
-const OMNI_ADMIN_ROLE_NAME = 'AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672';
+const OMNI_ADMIN_ROLE_NAME = 'AWSReservedSSO_AdministratorAccess_example';
 const OMNI_ADMIN_ROLE_ARN = `arn:aws:iam::${ACCOUNT_ID}:role/aws-reserved/sso.amazonaws.com/${OMNI_ADMIN_ROLE_NAME}`;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -141,19 +141,19 @@ describe('resolveAccountSetupEnv', () => {
   it('grants the AWSReservedSSO role named by CLOUDWATCH_OMNI_ADMIN_ROLE', () => {
     expect(
       resolveAccountSetupEnv({
-        AWS_ACCOUNT_ID: '412827817239',
-        CLOUDWATCH_OMNI_ADMIN_ROLE: 'AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672',
+        AWS_ACCOUNT_ID: '123456789012',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: 'AWSReservedSSO_AdministratorAccess_example',
       }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
     ).toBe(
-      'arn:aws:iam::412827817239:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672',
+      'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_example',
     );
   });
 
   it('keeps a full IAM role ARN in CLOUDWATCH_OMNI_ADMIN_ROLE', () => {
-    const roleArn = 'arn:aws:iam::412827817239:role/aws-reserved/sso.amazonaws.com/ExampleRole';
+    const roleArn = 'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/ExampleRole';
     expect(
       resolveAccountSetupEnv({
-        AWS_ACCOUNT_ID: '412827817239',
+        AWS_ACCOUNT_ID: '123456789012',
         CLOUDWATCH_OMNI_ADMIN_ROLE: roleArn,
       }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
     ).toBe(roleArn);
@@ -723,7 +723,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
 
   it('grants SPACE_ADMIN to the CloudWatch Omni admin role', () => {
     const adminRoleArn =
-      'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d1ad7bdc4e645672';
+      'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_example';
     const template = Template.fromStack(
       workloadRegionStack({ cloudWatchOmniAdminRoleArn: adminRoleArn }),
     );
