@@ -693,7 +693,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
     expect(space?.AgentCoreEvaluationRoleArn).toBeUndefined();
     expect(space?.EncryptionConfiguration).toBeUndefined();
     expect(space?.DataAccessRoleArn).toBeDefined();
-    template.resourceCountIs('AWS::CloudWatch::AccessGrant', 0);
+    template.resourceCountIs('AWS::CloudWatch::AccessGrant', 1);
   });
 
   it('creates an account KMS key and an envs secret whose value is not managed by CloudFormation', () => {
