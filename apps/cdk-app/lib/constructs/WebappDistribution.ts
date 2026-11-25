@@ -1,3 +1,4 @@
+import { Validations } from 'aws-cdk-lib';
 // oxlint-disable max-statements
 import type { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -16,7 +17,6 @@ import type { IFunctionUrl } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { preserveProtectedStageWebAcl } from './ProtectedStageWebAcl.ts';
 
@@ -88,50 +88,42 @@ export class WebappDistribution extends Construct {
         // For CloudFront the certificate must places in us-east-1
         region: 'us-east-1',
       });
-      NagSuppressions.addResourceSuppressions(
-        certificate,
-        [
-          {
-            id: 'AwsSolutions-L1',
-            reason:
-              'DnsValidatedCertificate requestor Lambda is framework-managed by aws-cdk-lib and updated through CDK upgrades.',
-          },
-          {
-            id: 'Serverless-LambdaDefaultMemorySize',
-            reason:
-              'Certificate requestor runs briefly during provisioning; framework default memory is sufficient.',
-          },
-          {
-            id: 'Serverless-LambdaDLQ',
-            reason:
-              'CloudFormation deployment events capture custom resource failures and retries for certificate provisioning.',
-          },
-          {
-            id: 'Serverless-LambdaLatestVersion',
-            reason:
-              'Certificate requestor runtime lifecycle is owned by aws-cdk-lib internals, not application code.',
-          },
-          {
-            id: 'Serverless-LambdaTracing',
-            reason:
-              'Certificate requestor executes only during deploy-time certificate orchestration; active tracing is optional.',
-          },
-          {
-            id: 'AwsSolutions-IAM4',
-            reason:
-              'Certificate requestor role uses AWSLambdaBasicExecutionRole as part of CDK-managed custom resource implementation.',
-            appliesTo: [
-              'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-            ],
-          },
-          {
-            id: 'AwsSolutions-IAM5',
-            reason:
-              'Certificate DNS validation provider requires wildcard-scoped permissions because Route53 and ACM operations are resolved dynamically.',
-            appliesTo: ['Resource::*'],
-          },
-        ],
-        true,
+      Validations.of(certificate).acknowledge(
+        {
+          id: 'AwsSolutions-L1',
+          reason:
+            'DnsValidatedCertificate requestor Lambda is framework-managed by aws-cdk-lib and updated through CDK upgrades.',
+        },
+        {
+          id: 'Serverless-LambdaDefaultMemorySize',
+          reason:
+            'Certificate requestor runs briefly during provisioning; framework default memory is sufficient.',
+        },
+        {
+          id: 'Serverless-LambdaDLQ',
+          reason:
+            'CloudFormation deployment events capture custom resource failures and retries for certificate provisioning.',
+        },
+        {
+          id: 'Serverless-LambdaLatestVersion',
+          reason:
+            'Certificate requestor runtime lifecycle is owned by aws-cdk-lib internals, not application code.',
+        },
+        {
+          id: 'Serverless-LambdaTracing',
+          reason:
+            'Certificate requestor executes only during deploy-time certificate orchestration; active tracing is optional.',
+        },
+        {
+          id: 'AwsSolutions-IAM4[Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole]',
+          reason:
+            'Certificate requestor role uses AWSLambdaBasicExecutionRole as part of CDK-managed custom resource implementation.',
+        },
+        {
+          id: 'AwsSolutions-IAM5[Resource::*]',
+          reason:
+            'Certificate DNS validation provider requires wildcard-scoped permissions because Route53 and ACM operations are resolved dynamically.',
+        },
       );
 
       domainConfig = {
@@ -264,7 +256,7 @@ export class WebappDistribution extends Construct {
       httpVersion: HttpVersion.HTTP3,
     });
 
-    NagSuppressions.addResourceSuppressions(this.distribution, [
+    Validations.of(this.distribution).acknowledge(
       {
         id: 'AwsSolutions-CFR1',
         reason: 'Geo restrictions not required for demo.',
@@ -282,7 +274,7 @@ export class WebappDistribution extends Construct {
         reason:
           'Dev uses default CloudFront cert; prod uses ACM with TLS 1.2. Default cert cannot enforce minimum protocol.',
       },
-    ]);
+    );
 
     if (hasCloudFrontFreePlane && attachProtectedWebAcl) {
       const cfnDistribution = this.distribution.node.defaultChild;

@@ -38,6 +38,8 @@ function workloadRegionStack(
       account: ACCOUNT_ID,
       region: WORKLOAD_REGION,
     },
+    cloudWatchOmniAdminRoleArn:
+      props.cloudWatchOmniAdminRoleArn ?? 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
     ...props,
   });
 }
@@ -315,6 +317,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
         account: '123456789012',
         region: 'us-east-2',
       },
+      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
     });
 
     const template = Template.fromStack(stack);
@@ -374,6 +377,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
         account: '123456789012',
         region: 'us-east-2',
       },
+      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
     });
 
     expectAccountLogRetentionPolicyDeferred(Template.fromStack(stack));
@@ -522,6 +526,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
         region: 'us-east-2',
       },
       securityAgent: false,
+      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
     });
 
     const template = Template.fromStack(stack);

@@ -1,10 +1,9 @@
-import { Stack } from 'aws-cdk-lib';
+import { Stack, Validations } from 'aws-cdk-lib';
 import type { Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Alias } from 'aws-cdk-lib/aws-kms';
 import { SingletonFunction } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import { NagSuppressions } from 'cdk-nag';
 import { Construct } from 'constructs';
 import { repoPath } from '../repo-root.ts';
 
@@ -51,42 +50,35 @@ export class WebappAssetsDeployment extends Construct {
       );
     }
 
-    NagSuppressions.addResourceSuppressions(
-      deploymentLambda,
-      [
-        {
-          id: 'AwsSolutions-L1',
-          reason:
-            'CDK BucketDeployment uses framework-managed Lambda runtime; version follows aws-cdk-lib releases.',
-        },
-        {
-          id: 'AwsSolutions-IAM4',
-          reason:
-            'CDK BucketDeployment handler uses AWS managed execution role policy from the framework.',
-          appliesTo: [
-            'Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-          ],
-        },
-        {
-          id: 'AwsSolutions-IAM5',
-          reason:
-            'BucketDeployment requires broad S3 and CloudFront permissions for asset sync per CDK s3-deployment design.',
-        },
-        {
-          id: 'Serverless-LambdaDLQ',
-          reason:
-            'CDK BucketDeployment custom resource; failures surface in CloudFormation stack events.',
-        },
-        {
-          id: 'Serverless-LambdaLatestVersion',
-          reason: 'CDK BucketDeployment runtime is owned by aws-cdk-lib aws-s3-deployment.',
-        },
-        {
-          id: 'Serverless-LambdaTracing',
-          reason: 'CDK BucketDeployment runs during deploy only; active tracing not required.',
-        },
-      ],
-      true,
+    Validations.of(deploymentLambda).acknowledge(
+      {
+        id: 'AwsSolutions-L1',
+        reason:
+          'CDK BucketDeployment uses framework-managed Lambda runtime; version follows aws-cdk-lib releases.',
+      },
+      {
+        id: 'AwsSolutions-IAM4[Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole]',
+        reason:
+          'CDK BucketDeployment handler uses AWS managed execution role policy from the framework.',
+      },
+      {
+        id: 'AwsSolutions-IAM5',
+        reason:
+          'BucketDeployment requires broad S3 and CloudFront permissions for asset sync per CDK s3-deployment design.',
+      },
+      {
+        id: 'Serverless-LambdaDLQ',
+        reason:
+          'CDK BucketDeployment custom resource; failures surface in CloudFormation stack events.',
+      },
+      {
+        id: 'Serverless-LambdaLatestVersion',
+        reason: 'CDK BucketDeployment runtime is owned by aws-cdk-lib aws-s3-deployment.',
+      },
+      {
+        id: 'Serverless-LambdaTracing',
+        reason: 'CDK BucketDeployment runs during deploy only; active tracing not required.',
+      },
     );
   }
 }

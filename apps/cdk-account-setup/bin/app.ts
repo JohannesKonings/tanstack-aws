@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Aspects, Tags, Validations } from 'aws-cdk-lib';
+import { Tags, Validations } from 'aws-cdk-lib';
 import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
   ACCOUNT_RESOURCE_SCOPE_TAG_VALUE,

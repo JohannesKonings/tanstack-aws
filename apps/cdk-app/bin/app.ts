@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process';
-import { Aspects, Mixins, RemovalPolicies, Tags } from 'aws-cdk-lib';
+import { Mixins, RemovalPolicies, Tags, Validations } from 'aws-cdk-lib';
 import { mixins as s3Mixins } from 'aws-cdk-lib/aws-s3';
 import { AwsSolutionsChecks, ServerlessChecks } from 'cdk-nag';
 import {
@@ -49,8 +49,10 @@ new TanstackAwsStack(app, `TanstackAwsStack-${appStage}`, {
   env: { account: workloadAccount, region: WORKLOAD_REGION },
 });
 
-Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
-Aspects.of(app).add(new ServerlessChecks({ verbose: true }));
+Validations.of(app).addPlugins(
+  new AwsSolutionsChecks(app, { verbose: true }),
+  new ServerlessChecks(app, { verbose: true }),
+);
 
 if (appLifecycle === 'ephemeral') {
   RemovalPolicies.of(app).destroy();
