@@ -28,7 +28,7 @@
     "@tanstack/ai-react": "^0.7.15",
     "@tanstack/query-db-collection": "^1.0.47",
     "@tanstack/react-db": "0.1.92",
-    "@tanstack/react-devtools": "0.10.13",
+    "@tanstack/react-devtools": "0.10.15",
     "@tanstack/react-form": "1.33.0",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-query-devtools": "^5.101.2",
