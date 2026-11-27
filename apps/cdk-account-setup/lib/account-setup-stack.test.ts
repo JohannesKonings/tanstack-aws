@@ -2,7 +2,11 @@ import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../../../tooling/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
-import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
+import {
+  githubActionsOidcConfig,
+  resolveAccountSetupEnv,
+  resolveCursorOidcSubject,
+} from './app-config.ts';
 import { createAccountSetupApp } from './cdk-app.ts';
 import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
 
@@ -198,6 +202,34 @@ describe('resolveAccountSetupEnv', () => {
   });
 });
 
+describe('resolveCursorOidcSubject', () => {
+  it('defaults to the ops assistant subject', () => {
+    expect(resolveCursorOidcSubject({})).toBe('user:155323293');
+  });
+
+  it('uses CDK context when the stack prop is omitted', () => {
+    expect(resolveCursorOidcSubject({ context: 'team_id:42' })).toBe('team_id:42');
+  });
+
+  it('lets the stack prop override context', () => {
+    expect(resolveCursorOidcSubject({ prop: 'user:7', context: 'team_id:42' })).toBe('user:7');
+  });
+
+  it('rejects wildcard, empty, and non-string subjects', () => {
+    expect(() => resolveCursorOidcSubject({ prop: 'user:*' })).toThrow(
+      'cursorOidcSubject must be an exact OIDC sub with no whitespace or wildcards. Received "user:*".',
+    );
+    expect(() => resolveCursorOidcSubject({ context: 'user:1?' })).toThrow(
+      'CDK context cursorOidcSubject must be an exact OIDC sub with no whitespace or wildcards. Received "user:1?".',
+    );
+    expect(() => resolveCursorOidcSubject({ prop: ' user:1' })).toThrow(/wildcards/);
+    expect(() => resolveCursorOidcSubject({ context: '' })).toThrow(/wildcards/);
+    expect(() => resolveCursorOidcSubject({ context: 155323293 })).toThrow(
+      'CDK context cursorOidcSubject must be a string. Received number.',
+    );
+  });
+});
+
 describe('AccountSetupStack', () => {
   it('creates GitHub OIDC deployment resources for this repository only', () => {
     const app = createAccountSetupApp();
@@ -259,7 +291,91 @@ describe('AccountSetupStack', () => {
     expect(resourcesJson).not.toContain('AdministratorAccess');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsDeployRoleArn');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsOidcProviderArn');
+    expect(templateJson.Outputs).toHaveProperty('GrokBotOpsReadOnlyRoleArn');
+    expect(templateJson.Outputs).toHaveProperty('GrokBotOpsOidcProviderArn');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
+  });
+
+  it('trusts the default Cursor subject and can override it from context or a prop', () => {
+    const app = createAccountSetupApp();
+    const stack = new AccountSetupStack(app, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs('Custom::AWSCDKOpenIdConnectProvider', 2);
+    template.hasResourceProperties('Custom::AWSCDKOpenIdConnectProvider', {
+      Url: 'https://api.cursor.com',
+      ClientIDList: ['sts.amazonaws.com'],
+    });
+    template.hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      MaxSessionDuration: 3600,
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'sts:AssumeRoleWithWebIdentity',
+            Effect: 'Allow',
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:aud': 'sts.amazonaws.com',
+                'api.cursor.com:sub': 'user:155323293',
+              },
+            },
+          }),
+        ]),
+      },
+    });
+
+    const contextApp = createAccountSetupApp();
+    contextApp.node.setContext('cursorOidcSubject', 'team_id:42');
+    const contextStack = new AccountSetupStack(contextApp, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+    Template.fromStack(contextStack).hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:sub': 'team_id:42',
+              },
+            },
+          }),
+        ]),
+      },
+    });
+
+    const propApp = createAccountSetupApp();
+    propApp.node.setContext('cursorOidcSubject', 'team_id:42');
+    const propStack = new AccountSetupStack(propApp, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+      cursorOidcSubject: 'user:7',
+    });
+    Template.fromStack(propStack).hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:sub': 'user:7',
+              },
+            },
+          }),
+        ]),
+      },
+    });
   });
 
   it('defers the account-level log retention policy until CloudFormation supports it', () => {

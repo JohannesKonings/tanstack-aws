@@ -8,6 +8,8 @@ this repository can rely on.
 - GitHub Actions OIDC provider for AWS
 - A deploy role that only workflows from `JohannesKonings/tanstack-aws` can
   assume
+- Cursor OIDC provider and `GrokBotOpsReadOnlyRole` for the Grok Bot ops
+  assistant
 - Shared Aurora PostgreSQL Serverless v2 cluster (workload-region stack in
   `us-east-2`)
 - Account KMS key (`alias/account`) and Secrets Manager secret `envs` in
@@ -15,6 +17,69 @@ this repository can rely on.
 - Mandatory account-wide resource tagging (`ResourceScope=account-wide`)
 
 This package intentionally does not contain application resources.
+
+### Grok Bot ops role
+
+`AccountSetupStack` (`us-east-1`) creates an IAM OIDC provider for issuer
+`https://api.cursor.com` and the role `GrokBotOpsReadOnlyRole`. Discovery is
+`https://api.cursor.com/.well-known/openid-configuration`. JWKS is
+`https://api.cursor.com/keys`.
+
+Johannes's ops assistant, a Grok Bot on Cursor-managed infrastructure, assumes
+this role with `AssumeRoleWithWebIdentity` and a Cursor OIDC token. There is no
+long-lived access key. The bot mints a token with audience `sts.amazonaws.com`
+([Cursor OIDC docs](https://cursor.com/docs/cloud-agent/identity)) and exchanges
+it with STS. The maximum session is 1 hour.
+
+Trust is an exact match. There is no wildcard:
+
+- `api.cursor.com:aud` = `sts.amazonaws.com`
+- `api.cursor.com:sub` = `user:155323293`
+
+Override the subject with stack prop `cursorOidcSubject`, or with CDK context
+`-c cursorOidcSubject=user:123`. The prop wins. Synth rejects a subject that
+contains `*`, `?`, or whitespace. Outputs are `GrokBotOpsReadOnlyRoleArn` and
+`GrokBotOpsOidcProviderArn`.
+
+```sh
+aws sts assume-role-with-web-identity \
+  --role-arn "$GROK_BOT_OPS_READ_ONLY_ROLE_ARN" \
+  --role-session-name grok-bot-ops \
+  --web-identity-token "$CURSOR_OIDC_TOKEN" \
+  --duration-seconds 3600
+```
+
+Permissions are AWS managed `ReadOnlyAccess`, plus Cost Explorer reads
+(`ce:Get*`, `ce:Describe*`, `ce:List*`). Cost Explorer does not support
+resource-level permissions, so those actions use `Resource: *`.
+
+An explicit deny blocks secret and data-plane reads that `ReadOnlyAccess`
+includes. Describe and list calls stay allowed. That includes Secrets Manager
+`DescribeSecret` and `ListSecrets`, SSM parameter names, S3 bucket listings,
+CloudWatch logs, metrics, and alarms, CloudFormation describe and drift-status
+reads, RDS describe, and X-Ray reads.
+
+The deny also covers the obvious bypasses of those reads: `BatchGetSecretValue`,
+`ssm:GetParameter*` (values and history), `kms:Decrypt`, `ec2:GetPasswordData`,
+`ecr:GetAuthorizationToken`, S3 object bytes (`GetObject` plus version,
+attributes, torrent, and `SelectObjectContent`), DynamoDB item reads (`GetItem`,
+`BatchGetItem`, `Query`, `Scan`, PartiQL, and `Execute*`) and stream records,
+RDS Data API statements, Redshift Data API statements and results, and Lambda code or environment
+(`GetFunction`, `GetFunctionConfiguration`, `GetLayerVersion`).
+
+`cloudformation:DetectStackDrift` and `DetectStackResourceDrift` are allowed on
+every stack in the account. Those calls start a drift check. They leave stack
+resources unchanged. `ReadOnlyAccess` already includes the describe calls that
+read drift status.
+
+Log groups in this repository use default CloudWatch Logs encryption, so the
+role can read them without `kms:Decrypt`. A log group that uses a
+customer-managed key would require `kms:Decrypt`, which this role denies.
+
+The role deploys with `AccountSetupStack` through the Account Setup workflow
+(`cdk deploy --all` on merge to `main`). For this repository that workflow
+targets the examples-tanstack account `412827817239`. Local deploys use the
+commands in Usage below.
 
 ### Shared Aurora SSM Parameters
 

@@ -86,6 +86,56 @@ export const githubActionsOidcConfig = {
   allowedRepositorySub: 'repo:JohannesKonings/tanstack-aws:*',
 } as const;
 export type GitHubActionsOidcConfig = typeof githubActionsOidcConfig;
+
+/**
+ * Cursor OIDC issuer for Cloud Agent tokens.
+ * Discovery: https://api.cursor.com/.well-known/openid-configuration
+ * JWKS: https://api.cursor.com/keys
+ */
+export const cursorOidcConfig = {
+  oidcUrl: 'https://api.cursor.com',
+  oidcAudience: 'sts.amazonaws.com',
+  /** Cursor user id of the ops assistant owner. Exact `sub`, no wildcard. */
+  allowedSubject: 'user:155323293',
+} as const;
+
+export type CursorOidcConfig = {
+  readonly oidcUrl: string;
+  readonly oidcAudience: string;
+  readonly allowedSubject: string;
+};
+
+/** CDK context key (`-c cursorOidcSubject=...`) that overrides {@link cursorOidcConfig.allowedSubject}. */
+export const CURSOR_OIDC_SUBJECT_CONTEXT_KEY = 'cursorOidcSubject';
+
+const EXACT_OIDC_SUBJECT_PATTERN = /^[^\s*?]+$/;
+
+export function resolveCursorOidcSubject(input: {
+  readonly prop?: string;
+  readonly context?: unknown;
+}): string {
+  if (input.prop !== undefined) {
+    return exactCursorOidcSubject(input.prop, 'cursorOidcSubject');
+  }
+  if (input.context === undefined) {
+    return cursorOidcConfig.allowedSubject;
+  }
+  if (typeof input.context !== 'string') {
+    throw new Error(
+      `CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY} must be a string. Received ${typeof input.context}.`,
+    );
+  }
+  return exactCursorOidcSubject(input.context, `CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}`);
+}
+
+function exactCursorOidcSubject(subject: string, source: string): string {
+  if (!EXACT_OIDC_SUBJECT_PATTERN.test(subject)) {
+    throw new Error(
+      `${source} must be an exact OIDC sub with no whitespace or wildcards. Received ${JSON.stringify(subject)}.`,
+    );
+  }
+  return subject;
+}
 type AccountSetupEnvFallbackSource =
   | 'CDK_DEFAULT_ACCOUNT'
   | 'CDK_DEFAULT_REGION'

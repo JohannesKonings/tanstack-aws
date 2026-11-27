@@ -5,12 +5,16 @@ Account-wide bootstrap CDK package: OIDC, deploy role, shared Aurora, log retent
 ## Infrastructure
 
 **Account setup**:
-Account-wide bootstrap infrastructure deployed once per AWS account: GitHub Actions OIDC provider, deploy role, shared Aurora PostgreSQL cluster, account-level log retention, CloudWatch Omni, and agent spaces.
+Account-wide bootstrap infrastructure deployed once per AWS account: GitHub Actions OIDC provider, deploy role, Cursor OIDC provider, Grok Bot ops role, shared Aurora PostgreSQL cluster, account-level log retention, CloudWatch Omni, and agent spaces.
 _Avoid_: Bootstrap stack, foundation stack, platform stack
 
 **Account setup stack**:
-The global account setup stack (`AccountSetupStack`) deployed in `us-east-1` for OIDC, the GitHub Actions deploy role, and the account-level log retention policy in that region.
+The global account setup stack (`AccountSetupStack`) deployed in `us-east-1` for the GitHub Actions OIDC provider and deploy role, the Cursor OIDC provider, the Grok Bot ops role, and the account-level log retention policy in that region.
 _Avoid_: Global stack, OIDC stack
+
+**Grok Bot ops role**:
+The read-only IAM role the Cursor Grok Bot ops assistant assumes with a Cursor OIDC token.
+_Avoid_: Ops bot role, assistant role, Grok deploy role
 
 **Workload region account setup stack**:
 The workload-region account setup stack (`WorkloadRegionAccountSetupStack`) deployed in `us-east-2` for shared Aurora, SSM connection metadata, the account-level log retention policy in that region, CloudWatch Omni, and agent spaces.
