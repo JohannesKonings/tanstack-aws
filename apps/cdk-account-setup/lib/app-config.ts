@@ -86,6 +86,89 @@ export const githubActionsOidcConfig = {
   allowedRepositorySub: 'repo:JohannesKonings/tanstack-aws:*',
 } as const;
 export type GitHubActionsOidcConfig = typeof githubActionsOidcConfig;
+
+/**
+ * Cursor OIDC issuer for Cloud Agent tokens.
+ * Discovery: https://api.cursor.com/.well-known/openid-configuration
+ * JWKS: https://api.cursor.com/keys
+ */
+export const cursorOidcConfig = {
+  oidcUrl: 'https://api.cursor.com',
+  oidcAudience: 'sts.amazonaws.com',
+} as const;
+
+export type CursorOidcConfig = {
+  readonly oidcUrl: string;
+  readonly oidcAudience: string;
+  readonly allowedSubject: string;
+};
+
+/** Required CDK context key (`-c cursorOidcSubject=...`). There is no default. */
+export const CURSOR_OIDC_SUBJECT_CONTEXT_KEY = 'cursorOidcSubject';
+
+const MISSING_CURSOR_OIDC_SUBJECT_MESSAGE = `Missing CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}. Pass -c ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}=<exact OIDC sub>. The Account Setup workflow reads API_CURSOR_SUB from the envs secret in us-east-2.`;
+
+const EXACT_OIDC_SUBJECT_PATTERN = /^[^\s*?]+$/;
+
+export function resolveCursorOidcSubject(input: {
+  readonly prop?: string;
+  readonly context?: unknown;
+}): string {
+  if (input.prop !== undefined) {
+    return exactCursorOidcSubject(input.prop, 'cursorOidcSubject');
+  }
+  if (input.context === undefined) {
+    throw new Error(MISSING_CURSOR_OIDC_SUBJECT_MESSAGE);
+  }
+  if (typeof input.context !== 'string') {
+    throw new Error(
+      `CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY} must be a string. Received ${typeof input.context}.`,
+    );
+  }
+  return exactCursorOidcSubject(input.context, `CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}`);
+}
+
+function exactCursorOidcSubject(subject: string, source: string): string {
+  if (!EXACT_OIDC_SUBJECT_PATTERN.test(subject)) {
+    throw new Error(
+      `${source} must be an exact OIDC sub with no whitespace or wildcards. Received ${JSON.stringify(subject)}.`,
+    );
+  }
+  return subject;
+}
+
+/** Required CDK context key (`-c grokBotAlarmWebhookUrl=...`). There is no default. */
+export const GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY = 'grokBotAlarmWebhookUrl';
+
+const HTTPS_URL_PATTERN = /^https:\/\/\S+$/;
+const MISSING_GROK_BOT_ALARM_WEBHOOK_URL_MESSAGE = `Missing CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}. Pass -c ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}=<https url>. The Account Setup workflow reads GROK_BOT_ALARM_WEBHOOK_URL from the envs secret in us-east-2.`;
+
+export function resolveGrokBotAlarmWebhookUrl(input: {
+  readonly prop?: string;
+  readonly context?: unknown;
+}): string {
+  if (input.prop !== undefined) {
+    return exactHttpsUrl(input.prop, GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY);
+  }
+  if (input.context === undefined) {
+    throw new Error(MISSING_GROK_BOT_ALARM_WEBHOOK_URL_MESSAGE);
+  }
+  if (typeof input.context !== 'string') {
+    throw new Error(
+      `CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY} must be a string. Received ${typeof input.context}.`,
+    );
+  }
+  return exactHttpsUrl(input.context, `CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}`);
+}
+
+function exactHttpsUrl(value: string, source: string): string {
+  if (!HTTPS_URL_PATTERN.test(value)) {
+    throw new Error(
+      `${source} must be an https URL with no whitespace. Received ${JSON.stringify(value)}.`,
+    );
+  }
+  return value;
+}
 type AccountSetupEnvFallbackSource =
   | 'CDK_DEFAULT_ACCOUNT'
   | 'CDK_DEFAULT_REGION'

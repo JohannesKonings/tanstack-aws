@@ -8,6 +8,10 @@ this repository can rely on.
 - GitHub Actions OIDC provider for AWS
 - A deploy role that only workflows from `JohannesKonings/tanstack-aws` can
   assume
+- Cursor OIDC provider and `GrokBotOpsReadOnlyRole` for the Grok Bot ops
+  assistant
+- EventBridge forwarding of CloudWatch `ALARM` events in `us-east-2` to the
+  Grok Bot ops webhook
 - Shared Aurora PostgreSQL Serverless v2 cluster (workload-region stack in
   `us-east-2`)
 - Account KMS key (`alias/account`) and Secrets Manager secret `envs` in
@@ -15,6 +19,110 @@ this repository can rely on.
 - Mandatory account-wide resource tagging (`ResourceScope=account-wide`)
 
 This package intentionally does not contain application resources.
+
+### Grok Bot ops role
+
+`AccountSetupStack` (`us-east-1`) creates an IAM OIDC provider for issuer
+`https://api.cursor.com` and the role `GrokBotOpsReadOnlyRole`. Discovery is
+`https://api.cursor.com/.well-known/openid-configuration`. JWKS is
+`https://api.cursor.com/keys`.
+
+Johannes's ops assistant, a Grok Bot on Cursor-managed infrastructure, assumes
+this role with `AssumeRoleWithWebIdentity` and a Cursor OIDC token. There is no
+long-lived access key. The bot mints a token with audience `sts.amazonaws.com`
+([Cursor OIDC docs](https://cursor.com/docs/cloud-agent/identity)) and exchanges
+it with STS. The maximum session is 1 hour.
+
+Trust is an exact match. There is no wildcard:
+
+- `api.cursor.com:aud` = `sts.amazonaws.com`
+- `api.cursor.com:sub` = the `cursorOidcSubject` context value
+
+`cursorOidcSubject` has no default. Synth fails when it is missing, and when
+the value contains `*`, `?`, or whitespace. Set it with stack prop
+`cursorOidcSubject` or CDK context `-c cursorOidcSubject=...`. The prop wins.
+The subject is not stored in this repository. It lives in the `envs` secret in
+`us-east-2` under the JSON key `API_CURSOR_SUB`. The Account Setup workflow
+reads that key from `us-east-2` at deploy time and passes
+`-c cursorOidcSubject=...`. The workflow masks the value in logs and redacts it
+from the CDK diff comment. Outputs are `GrokBotOpsReadOnlyRoleArn` and
+`GrokBotOpsOidcProviderArn`.
+
+```sh
+aws sts assume-role-with-web-identity \
+  --role-arn "$GROK_BOT_OPS_READ_ONLY_ROLE_ARN" \
+  --role-session-name grok-bot-ops \
+  --web-identity-token "$CURSOR_OIDC_TOKEN" \
+  --duration-seconds 3600
+```
+
+Permissions are AWS managed `ReadOnlyAccess`, plus Cost Explorer reads
+(`ce:Get*`, `ce:Describe*`, `ce:List*`). Cost Explorer does not support
+resource-level permissions, so those actions use `Resource: *`.
+
+An explicit deny blocks secret and data-plane reads that `ReadOnlyAccess`
+includes. Describe and list calls stay allowed. That includes Secrets Manager
+`DescribeSecret` and `ListSecrets`, SSM parameter names, S3 bucket listings,
+CloudWatch logs, metrics, and alarms, CloudFormation describe and drift-status
+reads, RDS describe, and X-Ray reads.
+
+The deny also covers the obvious bypasses of those reads: `BatchGetSecretValue`,
+`ssm:GetParameter*` (values and history), `kms:Decrypt`, `ec2:GetPasswordData`,
+`ecr:GetAuthorizationToken`, S3 object bytes (`GetObject` plus version,
+attributes, torrent, and `SelectObjectContent`), DynamoDB item reads (`GetItem`,
+`BatchGetItem`, `Query`, `Scan`, PartiQL, and `Execute*`) and stream records,
+RDS Data API statements, Redshift Data API statements and results, and Lambda code or environment
+(`GetFunction`, `GetFunctionConfiguration`, `GetLayerVersion`).
+
+`cloudformation:DetectStackDrift` and `DetectStackResourceDrift` are allowed on
+every stack in the account. Those calls start a drift check. They leave stack
+resources unchanged. `ReadOnlyAccess` already includes the describe calls that
+read drift status.
+
+Log groups in this repository use default CloudWatch Logs encryption, so the
+role can read them without `kms:Decrypt`. A log group that uses a
+customer-managed key would require `kms:Decrypt`, which this role denies.
+
+The role deploys with `AccountSetupStack` through the Account Setup workflow
+(`cdk deploy --all` on merge to `main`). For this repository that workflow
+targets the examples-tanstack account `412827817239`. Deploy reads
+`API_CURSOR_SUB` from the `envs` secret before it synths. Local deploys use
+the commands in Usage below, with your own `-c cursorOidcSubject=` value.
+
+### Grok Bot alarm forwarding
+
+`GrokBotAlarmForwardingStack` deploys in `us-east-2`, the workload region.
+Workload stacks (`TanstackAwsStack-*`) are in that region. This repository
+does not define CloudWatch alarms yet. The rule matches every CloudWatch alarm
+in `us-east-2` that enters `ALARM`.
+
+CloudWatch publishes alarm state changes on the event bus in the alarm's
+region. An alarm in `us-east-1` (for example a billing alarm) is not forwarded
+by this rule.
+
+```text
+CloudWatch alarm in us-east-2 enters ALARM
+  EventBridge rule GrokBotAlarmStateChange
+    retry up to 185 times within 24 hours
+    then GrokBotAlarmForwardingDlq
+  API destination POST, 1 request/second
+    body = the full event
+    Authorization: Bearer <token>
+```
+
+The webhook URL and the bearer token are not in this repository. Both are keys
+in the `envs` secret in `us-east-2`:
+
+| Key                            | How it is used                                                                                                                            |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `GROK_BOT_ALARM_WEBHOOK_URL`   | Passed at deploy as `-c grokBotAlarmWebhookUrl=...`. Synth fails when it is missing or is not an https URL.                               |
+| `GROK_BOT_ALARM_WEBHOOK_TOKEN` | CloudFormation dynamic reference on the EventBridge connection. The header value is `Bearer <token>`. The token is not a synth parameter. |
+
+Create both keys before deploying. The Account Setup workflow reads the URL,
+checks that the token key exists, masks the URL, and redacts it from the CDK
+diff comment. CloudFormation resolves the token in `us-east-2`, the same region
+as the secret and the rule. `GrokBotAlarmForwardingStack` deploys with the
+other account setup stacks.
 
 ### Shared Aurora SSM Parameters
 
@@ -34,7 +142,8 @@ environments for Data API access.
 
 Account setup stacks deploy through the dedicated
 [Account Setup workflow](https://github.com/JohannesKonings/tanstack-aws/blob/main/.github/workflows/account-setup.yml).
-Both stacks always deploy together.
+`AccountSetupStack`, `WorkloadRegionAccountSetupStack`, and
+`GrokBotAlarmForwardingStack` always deploy together.
 
 | Event                                 | CI (check + test) | CDK diff comment | Deploy                            |
 | ------------------------------------- | ----------------- | ---------------- | --------------------------------- |
@@ -50,8 +159,10 @@ Required deployment order across the repository:
 
 1. Global account setup stack (`AccountSetupStack`, `us-east-1`)
 2. Workload region account setup stack (`WorkloadRegionAccountSetupStack`,
-   `us-east-2`)
-3. Application workload stacks (`TanstackAwsStack-*`, automated through main
+   `us-east-2`), which creates the `envs` secret
+3. Grok Bot alarm forwarding stack (`GrokBotAlarmForwardingStack`,
+   `us-east-2`), which reads that secret
+4. Application workload stacks (`TanstackAwsStack-*`, automated through main
    application deploy workflows)
 
 ### Bootstrap for net-new accounts
@@ -94,19 +205,23 @@ repository `.env`, or the GitHub Actions variable `CLOUDWATCH_OMNI_ADMIN_ROLE`.
 From the repository root:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk synth
+AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk synth -c cursorOidcSubject=user:000000000 -c grokBotAlarmWebhookUrl=https://example.com/grok-bot-alarms
 ```
 
-Deploy both account setup stacks locally:
+`user:000000000` and `https://example.com/grok-bot-alarms` are placeholders.
+Pass the exact subject and the https webhook URL. Synth fails if either
+context value is omitted.
+
+Deploy the account setup stacks locally:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk deploy --all
+AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk deploy --all -c cursorOidcSubject=user:000000000 -c grokBotAlarmWebhookUrl=https://example.com/grok-bot-alarms
 ```
 
 Or via the root script alias:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vp run cdk:account -- deploy --all
+AWS_ACCOUNT_ID=123456789012 vp run cdk:account -- deploy --all -c cursorOidcSubject=user:000000000 -c grokBotAlarmWebhookUrl=https://example.com/grok-bot-alarms
 ```
 
 Run package-scoped validation:

@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      fetch_account_setup_context:
+        description: Read account-setup deploy context from the envs secret in us-east-2. Values are masked and redacted from the diff comment.
+        required: false
+        default: false
+        type: boolean
     secrets:
       aws_role_to_assume:
         required: true
@@ -89,7 +94,23 @@ jobs:
           if [ -n "${RESOLVED_STAGE}" ]; then
             export APP_STAGE="${RESOLVED_STAGE}"
           fi
-          vp -C "${{ inputs.cdk_package }}" exec -- varlock run -- cdk diff 2>&1 | tee cdk-diff.log || true
+          CDK_ARGS=()
+          if [ "${{ inputs.fetch_account_setup_context }}" = "true" ]; then
+            CURSOR_OIDC_SUBJECT="$(bash scripts/read-envs-secret-key.sh API_CURSOR_SUB)" || exit 1
+            GROK_BOT_ALARM_WEBHOOK_URL="$(bash scripts/read-envs-secret-key.sh GROK_BOT_ALARM_WEBHOOK_URL)" || exit 1
+            bash scripts/read-envs-secret-key.sh GROK_BOT_ALARM_WEBHOOK_TOKEN >/dev/null || exit 1
+            echo "::add-mask::${CURSOR_OIDC_SUBJECT}"
+            echo "::add-mask::${GROK_BOT_ALARM_WEBHOOK_URL}"
+            export CURSOR_OIDC_SUBJECT GROK_BOT_ALARM_WEBHOOK_URL
+            CDK_ARGS+=(
+              -c "cursorOidcSubject=${CURSOR_OIDC_SUBJECT}"
+              -c "grokBotAlarmWebhookUrl=${GROK_BOT_ALARM_WEBHOOK_URL}"
+            )
+          fi
+          vp -C "${{ inputs.cdk_package }}" exec -- varlock run -- cdk diff "${CDK_ARGS[@]}" 2>&1 | tee cdk-diff.log || true
+          if [ -n "${CURSOR_OIDC_SUBJECT:-}${GROK_BOT_ALARM_WEBHOOK_URL:-}" ]; then
+            node --input-type=module -e 'import { readFileSync, writeFileSync } from "node:fs"; const path = "cdk-diff.log"; let text = readFileSync(path, "utf8"); for (const secret of [process.env.CURSOR_OIDC_SUBJECT, process.env.GROK_BOT_ALARM_WEBHOOK_URL]) { if (secret) text = text.split(secret).join("[redacted]"); } writeFileSync(path, text);'
+          fi
           cdk-notifier \
             --vcs github \
             --owner "${{ github.repository_owner }}" \

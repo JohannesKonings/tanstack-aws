@@ -2,7 +2,11 @@ import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../../../tooling/cdk-snapshot.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
-import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
+import {
+  githubActionsOidcConfig,
+  resolveAccountSetupEnv,
+  resolveCursorOidcSubject,
+} from './app-config.ts';
 import { createAccountSetupApp } from './cdk-app.ts';
 import { WorkloadRegionAccountSetupStack } from './workload-region-account-setup-stack.ts';
 
@@ -198,9 +202,47 @@ describe('resolveAccountSetupEnv', () => {
   });
 });
 
+const TEST_CURSOR_OIDC_SUBJECT = 'user:000000000';
+
+function accountSetupApp(subject: string = TEST_CURSOR_OIDC_SUBJECT) {
+  const app = createAccountSetupApp();
+  app.node.setContext('cursorOidcSubject', subject);
+  return app;
+}
+
+describe('resolveCursorOidcSubject', () => {
+  it('throws when the subject is missing', () => {
+    expect(() => resolveCursorOidcSubject({})).toThrow(
+      'Missing CDK context cursorOidcSubject. Pass -c cursorOidcSubject=<exact OIDC sub>. The Account Setup workflow reads API_CURSOR_SUB from the envs secret in us-east-2.',
+    );
+  });
+
+  it('uses CDK context when the stack prop is omitted', () => {
+    expect(resolveCursorOidcSubject({ context: 'team_id:42' })).toBe('team_id:42');
+  });
+
+  it('lets the stack prop override context', () => {
+    expect(resolveCursorOidcSubject({ prop: 'user:7', context: 'team_id:42' })).toBe('user:7');
+  });
+
+  it('rejects wildcard, empty, and non-string subjects', () => {
+    expect(() => resolveCursorOidcSubject({ prop: 'user:*' })).toThrow(
+      'cursorOidcSubject must be an exact OIDC sub with no whitespace or wildcards. Received "user:*".',
+    );
+    expect(() => resolveCursorOidcSubject({ context: 'user:1?' })).toThrow(
+      'CDK context cursorOidcSubject must be an exact OIDC sub with no whitespace or wildcards. Received "user:1?".',
+    );
+    expect(() => resolveCursorOidcSubject({ prop: ' user:1' })).toThrow(/wildcards/);
+    expect(() => resolveCursorOidcSubject({ context: '' })).toThrow(/wildcards/);
+    expect(() => resolveCursorOidcSubject({ context: 42 })).toThrow(
+      'CDK context cursorOidcSubject must be a string. Received number.',
+    );
+  });
+});
+
 describe('AccountSetupStack', () => {
   it('creates GitHub OIDC deployment resources for this repository only', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -259,11 +301,108 @@ describe('AccountSetupStack', () => {
     expect(resourcesJson).not.toContain('AdministratorAccess');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsDeployRoleArn');
     expect(templateJson.Outputs).toHaveProperty('GitHubActionsOidcProviderArn');
+    expect(templateJson.Outputs).toHaveProperty('GrokBotOpsReadOnlyRoleArn');
+    expect(templateJson.Outputs).toHaveProperty('GrokBotOpsOidcProviderArn');
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 
-  it('defers the account-level log retention policy until CloudFormation supports it', () => {
+  it('trusts the Cursor subject from context and lets a prop override it', () => {
+    const app = accountSetupApp();
+    const stack = new AccountSetupStack(app, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs('Custom::AWSCDKOpenIdConnectProvider', 2);
+    template.hasResourceProperties('Custom::AWSCDKOpenIdConnectProvider', {
+      Url: 'https://api.cursor.com',
+      ClientIDList: ['sts.amazonaws.com'],
+    });
+    template.hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      MaxSessionDuration: 3600,
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'sts:AssumeRoleWithWebIdentity',
+            Effect: 'Allow',
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:aud': 'sts.amazonaws.com',
+                'api.cursor.com:sub': TEST_CURSOR_OIDC_SUBJECT,
+              },
+            },
+          }),
+        ]),
+      },
+    });
+
+    const contextApp = createAccountSetupApp();
+    contextApp.node.setContext('cursorOidcSubject', 'team_id:42');
+    const contextStack = new AccountSetupStack(contextApp, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+    });
+    Template.fromStack(contextStack).hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:sub': 'team_id:42',
+              },
+            },
+          }),
+        ]),
+      },
+    });
+
+    const propApp = createAccountSetupApp();
+    propApp.node.setContext('cursorOidcSubject', 'team_id:42');
+    const propStack = new AccountSetupStack(propApp, 'AccountSetupStack', {
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
+      cursorOidcSubject: 'user:7',
+    });
+    Template.fromStack(propStack).hasResourceProperties('AWS::IAM::Role', {
+      RoleName: 'GrokBotOpsReadOnlyRole',
+      AssumeRolePolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Condition: {
+              StringEquals: {
+                'api.cursor.com:sub': 'user:7',
+              },
+            },
+          }),
+        ]),
+      },
+    });
+  });
+
+  it('fails when cursorOidcSubject is missing', () => {
     const app = createAccountSetupApp();
+    expect(
+      () =>
+        new AccountSetupStack(app, 'AccountSetupStack', {
+          env: {
+            account: '123456789012',
+            region: 'us-east-1',
+          },
+        }),
+    ).toThrow(/Missing CDK context cursorOidcSubject/);
+  });
+
+  it('defers the account-level log retention policy until CloudFormation supports it', () => {
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -275,7 +414,7 @@ describe('AccountSetupStack', () => {
   });
 
   it('does not create agent spaces', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -290,7 +429,7 @@ describe('AccountSetupStack', () => {
   });
 
   it('does not create a CloudWatch Omni domain, space, or space operator role', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: ACCOUNT_ID,

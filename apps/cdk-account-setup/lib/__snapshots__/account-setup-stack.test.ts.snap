@@ -18,6 +18,21 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
         "Ref": "GitHubActionsOidcSetupProvider281BF7BC",
       },
     },
+    "GrokBotOpsOidcProviderArn": {
+      "Description": "Cursor OIDC provider ARN for the Grok Bot ops role.",
+      "Value": {
+        "Ref": "GrokBotOpsReadOnlySetupProvider68173A2A",
+      },
+    },
+    "GrokBotOpsReadOnlyRoleArn": {
+      "Description": "Assume this role from the Cursor Grok Bot ops assistant via OIDC.",
+      "Value": {
+        "Fn::GetAtt": [
+          "GrokBotOpsReadOnlySetupRole0E392F47",
+          "Arn",
+        ],
+      },
+    },
   },
   "Parameters": {
     "BootstrapVersion": {
@@ -414,6 +429,155 @@ exports[`AccountSetupStack > creates GitHub OIDC deployment resources for this r
       },
       "Type": "Custom::AWSCDKOpenIdConnectProvider",
       "UpdateReplacePolicy": "Delete",
+    },
+    "GrokBotOpsReadOnlySetupProvider68173A2A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ClientIDList": [
+          "sts.amazonaws.com",
+        ],
+        "CodeHash": "<hash>",
+        "RejectUnauthorized": true,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderHandlerF2C543E0",
+            "Arn",
+          ],
+        },
+        "Url": "https://api.cursor.com",
+      },
+      "Type": "Custom::AWSCDKOpenIdConnectProvider",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "GrokBotOpsReadOnlySetupRole0E392F47": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "api.cursor.com:aud": "sts.amazonaws.com",
+                  "api.cursor.com:sub": "user:000000000",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Ref": "GrokBotOpsReadOnlySetupProvider68173A2A",
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Read-only operations monitoring for the Cursor Grok Bot ops assistant.",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/ReadOnlyAccess",
+              ],
+            ],
+          },
+        ],
+        "MaxSessionDuration": 3600,
+        "RoleName": "GrokBotOpsReadOnlyRole",
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GrokBotOpsReadOnlySetupRoleDefaultPolicyA59E9514": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ce:Describe*",
+                "ce:Get*",
+                "ce:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "CostExplorerRead",
+            },
+            {
+              "Action": [
+                "cloudformation:DetectStackDrift",
+                "cloudformation:DetectStackResourceDrift",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":cloudformation:*:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":stack/*",
+                  ],
+                ],
+              },
+              "Sid": "CloudFormationDriftDetection",
+            },
+            {
+              "Action": [
+                "dynamodb:BatchExecuteStatement",
+                "dynamodb:BatchGetItem",
+                "dynamodb:ExecuteStatement",
+                "dynamodb:ExecuteTransaction",
+                "dynamodb:GetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:PartiQLSelect",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "ec2:GetPasswordData",
+                "ecr:GetAuthorizationToken",
+                "kms:Decrypt",
+                "lambda:GetFunction",
+                "lambda:GetFunctionConfiguration",
+                "lambda:GetLayerVersion",
+                "rds-data:BatchExecuteStatement",
+                "rds-data:ExecuteSql",
+                "rds-data:ExecuteStatement",
+                "redshift-data:BatchExecuteStatement",
+                "redshift-data:ExecuteStatement",
+                "redshift-data:GetStatementResult",
+                "s3:GetObject",
+                "s3:GetObjectAttributes",
+                "s3:GetObjectTorrent",
+                "s3:GetObjectVersion",
+                "s3:GetObjectVersionAttributes",
+                "s3:SelectObjectContent",
+                "secretsmanager:BatchGetSecretValue",
+                "secretsmanager:GetSecretValue",
+                "ssm:GetParameter*",
+              ],
+              "Effect": "Deny",
+              "Resource": "*",
+              "Sid": "DenySecretAndDataPlaneReads",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GrokBotOpsReadOnlySetupRoleDefaultPolicyA59E9514",
+        "Roles": [
+          {
+            "Ref": "GrokBotOpsReadOnlySetupRole0E392F47",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
   },
   "Rules": {

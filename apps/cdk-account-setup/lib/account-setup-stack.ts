@@ -1,10 +1,24 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { githubActionsOidcConfig } from './app-config.ts';
+import {
+  CURSOR_OIDC_SUBJECT_CONTEXT_KEY,
+  cursorOidcConfig,
+  githubActionsOidcConfig,
+  resolveCursorOidcSubject,
+} from './app-config.ts';
 import { GitHubActionsOidcSetup } from './constructs/GitHubActionsOidcSetup.ts';
+import { GrokBotOpsReadOnlySetup } from './constructs/GrokBotOpsReadOnlySetup.ts';
+
+export interface AccountSetupStackProps extends cdk.StackProps {
+  /**
+   * Exact Cursor OIDC `sub` allowed to assume the Grok Bot ops role.
+   * Overrides CDK context `cursorOidcSubject`. Synth fails when both are omitted.
+   */
+  readonly cursorOidcSubject?: string;
+}
 
 export class AccountSetupStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: AccountSetupStackProps) {
     super(scope, id, props);
 
     // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
@@ -22,6 +36,27 @@ export class AccountSetupStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'GitHubActionsOidcProviderArn', {
       value: gitHubActionsOidcSetup.oidcProvider.openIdConnectProviderArn,
       description: 'GitHub Actions OIDC provider ARN.',
+    });
+
+    const grokBotOpsReadOnlySetup = new GrokBotOpsReadOnlySetup(this, 'GrokBotOpsReadOnlySetup', {
+      config: {
+        oidcUrl: cursorOidcConfig.oidcUrl,
+        oidcAudience: cursorOidcConfig.oidcAudience,
+        allowedSubject: resolveCursorOidcSubject({
+          prop: props?.cursorOidcSubject,
+          context: this.node.tryGetContext(CURSOR_OIDC_SUBJECT_CONTEXT_KEY),
+        }),
+      },
+    });
+
+    new cdk.CfnOutput(this, 'GrokBotOpsReadOnlyRoleArn', {
+      value: grokBotOpsReadOnlySetup.role.roleArn,
+      description: 'Assume this role from the Cursor Grok Bot ops assistant via OIDC.',
+    });
+
+    new cdk.CfnOutput(this, 'GrokBotOpsOidcProviderArn', {
+      value: grokBotOpsReadOnlySetup.oidcProvider.openIdConnectProviderArn,
+      description: 'Cursor OIDC provider ARN for the Grok Bot ops role.',
     });
   }
 }
