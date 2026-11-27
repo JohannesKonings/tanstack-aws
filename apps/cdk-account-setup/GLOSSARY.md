@@ -16,6 +16,10 @@ _Avoid_: Global stack, OIDC stack
 The read-only IAM role the Cursor Grok Bot ops assistant assumes with a Cursor OIDC token.
 _Avoid_: Ops bot role, assistant role, Grok deploy role
 
+**Grok Bot alarm forwarding**:
+The EventBridge rule in the workload region that posts CloudWatch ALARM events to the ops assistant webhook.
+_Avoid_: Alarm webhook, notification lambda
+
 **Workload region account setup stack**:
 The workload-region account setup stack (`WorkloadRegionAccountSetupStack`) deployed in `us-east-2` for shared Aurora, SSM connection metadata, the account-level log retention policy in that region, CloudWatch Omni, and agent spaces.
 _Avoid_: Regional stack, Aurora stack

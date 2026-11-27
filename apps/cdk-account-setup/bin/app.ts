@@ -12,6 +12,7 @@ import { GLOBAL_SERVICES_REGION, WORKLOAD_REGION } from '../../../lib/workload-r
 import { AccountSetupStack } from '../lib/account-setup-stack.ts';
 import { resolveAccountSetupEnv } from '../lib/app-config.ts';
 import { createAccountSetupApp } from '../lib/cdk-app.ts';
+import { GrokBotAlarmForwardingStack } from '../lib/grok-bot-alarm-forwarding-stack.ts';
 import { WorkloadRegionAccountSetupStack } from '../lib/workload-region-account-setup-stack.ts';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -28,13 +29,31 @@ new AccountSetupStack(app, 'AccountSetupStack', {
   },
 });
 
-new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
-  env: {
-    account: accountSetupEnv.AWS_ACCOUNT_ID,
-    region: WORKLOAD_REGION,
+const workloadRegionAccountSetupStack = new WorkloadRegionAccountSetupStack(
+  app,
+  'WorkloadRegionAccountSetupStack',
+  {
+    env: {
+      account: accountSetupEnv.AWS_ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+    cloudWatchOmniAdminRoleArn: accountSetupEnv.CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
   },
-  cloudWatchOmniAdminRoleArn: accountSetupEnv.CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
-});
+);
+
+const grokBotAlarmForwardingStack = new GrokBotAlarmForwardingStack(
+  app,
+  'GrokBotAlarmForwardingStack',
+  {
+    env: {
+      account: accountSetupEnv.AWS_ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+  },
+);
+// The envs secret is created by the workload-region stack. The alarm stack
+// resolves that secret with a dynamic reference, which is not a CDK reference.
+grokBotAlarmForwardingStack.addDependency(workloadRegionAccountSetupStack);
 
 function loadRepoEnv(path: string): void {
   let contents: string;

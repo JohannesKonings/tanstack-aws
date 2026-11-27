@@ -1,0 +1,239 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GrokBotAlarmForwardingStack > forwards CloudWatch ALARM events to the webhook with a bearer token reference 1`] = `
+{
+  "Outputs": {
+    "GrokBotAlarmDlqArn": {
+      "Description": "Dead-letter queue for failed Grok Bot alarm webhook posts.",
+      "Value": {
+        "Fn::GetAtt": [
+          "ForwardingDeadLetterQueue0A02553D",
+          "Arn",
+        ],
+      },
+    },
+    "GrokBotAlarmRuleArn": {
+      "Description": "EventBridge rule that forwards CloudWatch ALARM events.",
+      "Value": {
+        "Fn::GetAtt": [
+          "ForwardingAlarmRule75D702D6",
+          "Arn",
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ForwardingAlarmRule75D702D6": {
+      "Properties": {
+        "Description": "Post CloudWatch ALARM state changes to the Grok Bot ops webhook.",
+        "EventPattern": {
+          "detail": {
+            "state": {
+              "value": [
+                "ALARM",
+              ],
+            },
+          },
+          "detail-type": [
+            "CloudWatch Alarm State Change",
+          ],
+          "source": [
+            "aws.cloudwatch",
+          ],
+        },
+        "Name": "GrokBotAlarmStateChange",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": "<redacted-name>",
+            "DeadLetterConfig": {
+              "Arn": "<redacted-name>",
+            },
+            "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 86400,
+              "MaximumRetryAttempts": 185,
+            },
+            "RoleArn": "<redacted-name>",
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "ForwardingConnection33BF1195": {
+      "Properties": {
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "Authorization",
+            "ApiKeyValue": "Bearer {{resolve:secretsmanager:envs:SecretString:GROK_BOT_ALARM_WEBHOOK_TOKEN::}}",
+          },
+        },
+        "AuthorizationType": "API_KEY",
+        "Description": "Bearer token for the Grok Bot alarm webhook. The token is resolved from the envs secret at deploy time.",
+        "Name": "GrokBotAlarmWebhook",
+      },
+      "Type": "AWS::Events::Connection",
+    },
+    "ForwardingDeadLetterQueue0A02553D": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "QueueName": "GrokBotAlarmForwardingDlq",
+        "SqsManagedSseEnabled": true,
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ForwardingDeadLetterQueuePolicy39BBD169": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sqs:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ForwardingDeadLetterQueue0A02553D",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "sqs:SendMessage",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "ForwardingAlarmRule75D702D6",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ForwardingDeadLetterQueue0A02553D",
+                  "Arn",
+                ],
+              },
+              "Sid": "AllowEventRuleGrokBotAlarmForwardingStackForwardingAlarmRule30F05E6A",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Queues": [
+          {
+            "Ref": "ForwardingDeadLetterQueue0A02553D",
+          },
+        ],
+      },
+      "Type": "AWS::SQS::QueuePolicy",
+    },
+    "ForwardingDestinationApiDestination2CE278F8": {
+      "Properties": {
+        "ConnectionArn": {
+          "Fn::GetAtt": [
+            "ForwardingConnection33BF1195",
+            "Arn",
+          ],
+        },
+        "Description": "POST CloudWatch alarm events to the Grok Bot ops webhook.",
+        "HttpMethod": "POST",
+        "InvocationEndpoint": "https://example.com/grok-bot-alarms",
+        "InvocationRateLimitPerSecond": 1,
+        "Name": "GrokBotAlarmWebhook",
+      },
+      "Type": "AWS::Events::ApiDestination",
+    },
+    "ForwardingDestinationEventsRole9AEB4AF1": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ForwardingDestinationEventsRoleDefaultPolicy76D510DA": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "events:InvokeApiDestination",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ForwardingDestinationApiDestination2CE278F8",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ForwardingDestinationEventsRoleDefaultPolicy76D510DA",
+        "Roles": [
+          {
+            "Ref": "ForwardingDestinationEventsRole9AEB4AF1",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

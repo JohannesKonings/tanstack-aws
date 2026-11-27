@@ -6,7 +6,7 @@ on:
       - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
       - '.github/workflows/_reusable-cdk-diff.yml'
-      - 'scripts/read-api-cursor-sub.sh'
+      - 'scripts/read-envs-secret-key.sh'
   push:
     branches:
       - main
@@ -14,7 +14,7 @@ on:
       - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
       - '.github/workflows/_reusable-cdk-diff.yml'
-      - 'scripts/read-api-cursor-sub.sh'
+      - 'scripts/read-envs-secret-key.sh'
   workflow_dispatch:
 
 concurrency:
@@ -31,7 +31,7 @@ jobs:
       cdk_package: apps/cdk-account-setup
       tag_id: account-setup
       aws_region: us-east-1
-      fetch_cursor_oidc_subject: true
+      fetch_account_setup_context: true
     secrets:
       aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:
@@ -115,6 +115,9 @@ jobs:
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
         run: |
-          CURSOR_OIDC_SUBJECT="$(bash scripts/read-api-cursor-sub.sh)" || exit 1
+          CURSOR_OIDC_SUBJECT="$(bash scripts/read-envs-secret-key.sh API_CURSOR_SUB)" || exit 1
+          GROK_BOT_ALARM_WEBHOOK_URL="$(bash scripts/read-envs-secret-key.sh GROK_BOT_ALARM_WEBHOOK_URL)" || exit 1
+          bash scripts/read-envs-secret-key.sh GROK_BOT_ALARM_WEBHOOK_TOKEN >/dev/null || exit 1
           echo "::add-mask::${CURSOR_OIDC_SUBJECT}"
-          vp -C apps/cdk-account-setup exec -- varlock run -- cdk deploy --all --require-approval never -c "cursorOidcSubject=${CURSOR_OIDC_SUBJECT}"
+          echo "::add-mask::${GROK_BOT_ALARM_WEBHOOK_URL}"
+          vp -C apps/cdk-account-setup exec -- varlock run -- cdk deploy --all --require-approval never -c "cursorOidcSubject=${CURSOR_OIDC_SUBJECT}" -c "grokBotAlarmWebhookUrl=${GROK_BOT_ALARM_WEBHOOK_URL}"

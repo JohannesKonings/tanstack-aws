@@ -136,6 +136,39 @@ function exactCursorOidcSubject(subject: string, source: string): string {
   }
   return subject;
 }
+
+/** Required CDK context key (`-c grokBotAlarmWebhookUrl=...`). There is no default. */
+export const GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY = 'grokBotAlarmWebhookUrl';
+
+const HTTPS_URL_PATTERN = /^https:\/\/\S+$/;
+const MISSING_GROK_BOT_ALARM_WEBHOOK_URL_MESSAGE = `Missing CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}. Pass -c ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}=<https url>. The Account Setup workflow reads GROK_BOT_ALARM_WEBHOOK_URL from the envs secret in us-east-2.`;
+
+export function resolveGrokBotAlarmWebhookUrl(input: {
+  readonly prop?: string;
+  readonly context?: unknown;
+}): string {
+  if (input.prop !== undefined) {
+    return exactHttpsUrl(input.prop, GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY);
+  }
+  if (input.context === undefined) {
+    throw new Error(MISSING_GROK_BOT_ALARM_WEBHOOK_URL_MESSAGE);
+  }
+  if (typeof input.context !== 'string') {
+    throw new Error(
+      `CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY} must be a string. Received ${typeof input.context}.`,
+    );
+  }
+  return exactHttpsUrl(input.context, `CDK context ${GROK_BOT_ALARM_WEBHOOK_URL_CONTEXT_KEY}`);
+}
+
+function exactHttpsUrl(value: string, source: string): string {
+  if (!HTTPS_URL_PATTERN.test(value)) {
+    throw new Error(
+      `${source} must be an https URL with no whitespace. Received ${JSON.stringify(value)}.`,
+    );
+  }
+  return value;
+}
 type AccountSetupEnvFallbackSource =
   | 'CDK_DEFAULT_ACCOUNT'
   | 'CDK_DEFAULT_REGION'
