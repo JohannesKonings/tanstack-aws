@@ -34,11 +34,16 @@ it with STS. The maximum session is 1 hour.
 Trust is an exact match. There is no wildcard:
 
 - `api.cursor.com:aud` = `sts.amazonaws.com`
-- `api.cursor.com:sub` = `user:155323293`
+- `api.cursor.com:sub` = the `cursorOidcSubject` context value
 
-Override the subject with stack prop `cursorOidcSubject`, or with CDK context
-`-c cursorOidcSubject=user:123`. The prop wins. Synth rejects a subject that
-contains `*`, `?`, or whitespace. Outputs are `GrokBotOpsReadOnlyRoleArn` and
+`cursorOidcSubject` has no default. Synth fails when it is missing, and when
+the value contains `*`, `?`, or whitespace. Set it with stack prop
+`cursorOidcSubject` or CDK context `-c cursorOidcSubject=...`. The prop wins.
+The subject is not stored in this repository. It lives in the `envs` secret in
+`us-east-2` under the JSON key `API_CURSOR_SUB`. The Account Setup workflow
+reads that key from `us-east-2` at deploy time and passes
+`-c cursorOidcSubject=...`. The workflow masks the value in logs and redacts it
+from the CDK diff comment. Outputs are `GrokBotOpsReadOnlyRoleArn` and
 `GrokBotOpsOidcProviderArn`.
 
 ```sh
@@ -78,8 +83,9 @@ customer-managed key would require `kms:Decrypt`, which this role denies.
 
 The role deploys with `AccountSetupStack` through the Account Setup workflow
 (`cdk deploy --all` on merge to `main`). For this repository that workflow
-targets the examples-tanstack account `412827817239`. Local deploys use the
-commands in Usage below.
+targets the examples-tanstack account `412827817239`. Deploy reads
+`API_CURSOR_SUB` from the `envs` secret before it synths. Local deploys use
+the commands in Usage below, with your own `-c cursorOidcSubject=` value.
 
 ### Shared Aurora SSM Parameters
 
@@ -159,19 +165,22 @@ repository `.env`, or the GitHub Actions variable `CLOUDWATCH_OMNI_ADMIN_ROLE`.
 From the repository root:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk synth
+AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk synth -c cursorOidcSubject=user:000000000
 ```
+
+`user:000000000` is a placeholder. Pass the exact subject that may assume the
+role. Synth fails if `-c cursorOidcSubject` is omitted.
 
 Deploy both account setup stacks locally:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk deploy --all
+AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk deploy --all -c cursorOidcSubject=user:000000000
 ```
 
 Or via the root script alias:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vp run cdk:account -- deploy --all
+AWS_ACCOUNT_ID=123456789012 vp run cdk:account -- deploy --all -c cursorOidcSubject=user:000000000
 ```
 
 Run package-scoped validation:

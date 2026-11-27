@@ -12,7 +12,7 @@ import { GrokBotOpsReadOnlySetup } from './constructs/GrokBotOpsReadOnlySetup.ts
 export interface AccountSetupStackProps extends cdk.StackProps {
   /**
    * Exact Cursor OIDC `sub` allowed to assume the Grok Bot ops role.
-   * Overrides CDK context `cursorOidcSubject`. Defaults to `user:155323293`.
+   * Overrides CDK context `cursorOidcSubject`. Synth fails when both are omitted.
    */
   readonly cursorOidcSubject?: string;
 }

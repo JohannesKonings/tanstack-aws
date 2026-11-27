@@ -6,6 +6,7 @@ on:
       - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
       - '.github/workflows/_reusable-cdk-diff.yml'
+      - 'scripts/read-api-cursor-sub.sh'
   push:
     branches:
       - main
@@ -13,6 +14,7 @@ on:
       - 'apps/cdk-account-setup/**'
       - '.github/workflows/account-setup.yml'
       - '.github/workflows/_reusable-cdk-diff.yml'
+      - 'scripts/read-api-cursor-sub.sh'
   workflow_dispatch:
 
 concurrency:
@@ -29,6 +31,7 @@ jobs:
       cdk_package: apps/cdk-account-setup
       tag_id: account-setup
       aws_region: us-east-1
+      fetch_cursor_oidc_subject: true
     secrets:
       aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
     permissions:
@@ -111,4 +114,7 @@ jobs:
       - name: Deploy all account setup stacks
         env:
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
-        run: vp -C apps/cdk-account-setup exec -- varlock run -- cdk deploy --all --require-approval never
+        run: |
+          CURSOR_OIDC_SUBJECT="$(bash scripts/read-api-cursor-sub.sh)" || exit 1
+          echo "::add-mask::${CURSOR_OIDC_SUBJECT}"
+          vp -C apps/cdk-account-setup exec -- varlock run -- cdk deploy --all --require-approval never -c "cursorOidcSubject=${CURSOR_OIDC_SUBJECT}"

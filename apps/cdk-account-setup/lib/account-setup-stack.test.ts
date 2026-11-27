@@ -202,9 +202,19 @@ describe('resolveAccountSetupEnv', () => {
   });
 });
 
+const TEST_CURSOR_OIDC_SUBJECT = 'user:000000000';
+
+function accountSetupApp(subject: string = TEST_CURSOR_OIDC_SUBJECT) {
+  const app = createAccountSetupApp();
+  app.node.setContext('cursorOidcSubject', subject);
+  return app;
+}
+
 describe('resolveCursorOidcSubject', () => {
-  it('defaults to the ops assistant subject', () => {
-    expect(resolveCursorOidcSubject({})).toBe('user:155323293');
+  it('throws when the subject is missing', () => {
+    expect(() => resolveCursorOidcSubject({})).toThrow(
+      'Missing CDK context cursorOidcSubject. Pass -c cursorOidcSubject=<exact OIDC sub>. The Account Setup workflow reads API_CURSOR_SUB from the envs secret in us-east-2.',
+    );
   });
 
   it('uses CDK context when the stack prop is omitted', () => {
@@ -224,7 +234,7 @@ describe('resolveCursorOidcSubject', () => {
     );
     expect(() => resolveCursorOidcSubject({ prop: ' user:1' })).toThrow(/wildcards/);
     expect(() => resolveCursorOidcSubject({ context: '' })).toThrow(/wildcards/);
-    expect(() => resolveCursorOidcSubject({ context: 155323293 })).toThrow(
+    expect(() => resolveCursorOidcSubject({ context: 42 })).toThrow(
       'CDK context cursorOidcSubject must be a string. Received number.',
     );
   });
@@ -232,7 +242,7 @@ describe('resolveCursorOidcSubject', () => {
 
 describe('AccountSetupStack', () => {
   it('creates GitHub OIDC deployment resources for this repository only', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -296,8 +306,8 @@ describe('AccountSetupStack', () => {
     expect(snapshotSafeTemplate(templateJson)).toMatchSnapshot();
   });
 
-  it('trusts the default Cursor subject and can override it from context or a prop', () => {
-    const app = createAccountSetupApp();
+  it('trusts the Cursor subject from context and lets a prop override it', () => {
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -322,7 +332,7 @@ describe('AccountSetupStack', () => {
             Condition: {
               StringEquals: {
                 'api.cursor.com:aud': 'sts.amazonaws.com',
-                'api.cursor.com:sub': 'user:155323293',
+                'api.cursor.com:sub': TEST_CURSOR_OIDC_SUBJECT,
               },
             },
           }),
@@ -378,8 +388,21 @@ describe('AccountSetupStack', () => {
     });
   });
 
-  it('defers the account-level log retention policy until CloudFormation supports it', () => {
+  it('fails when cursorOidcSubject is missing', () => {
     const app = createAccountSetupApp();
+    expect(
+      () =>
+        new AccountSetupStack(app, 'AccountSetupStack', {
+          env: {
+            account: '123456789012',
+            region: 'us-east-1',
+          },
+        }),
+    ).toThrow(/Missing CDK context cursorOidcSubject/);
+  });
+
+  it('defers the account-level log retention policy until CloudFormation supports it', () => {
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -391,7 +414,7 @@ describe('AccountSetupStack', () => {
   });
 
   it('does not create agent spaces', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: '123456789012',
@@ -406,7 +429,7 @@ describe('AccountSetupStack', () => {
   });
 
   it('does not create a CloudWatch Omni domain, space, or space operator role', () => {
-    const app = createAccountSetupApp();
+    const app = accountSetupApp();
     const stack = new AccountSetupStack(app, 'AccountSetupStack', {
       env: {
         account: ACCOUNT_ID,

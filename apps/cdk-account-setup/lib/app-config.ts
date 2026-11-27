@@ -95,8 +95,6 @@ export type GitHubActionsOidcConfig = typeof githubActionsOidcConfig;
 export const cursorOidcConfig = {
   oidcUrl: 'https://api.cursor.com',
   oidcAudience: 'sts.amazonaws.com',
-  /** Cursor user id of the ops assistant owner. Exact `sub`, no wildcard. */
-  allowedSubject: 'user:155323293',
 } as const;
 
 export type CursorOidcConfig = {
@@ -105,8 +103,10 @@ export type CursorOidcConfig = {
   readonly allowedSubject: string;
 };
 
-/** CDK context key (`-c cursorOidcSubject=...`) that overrides {@link cursorOidcConfig.allowedSubject}. */
+/** Required CDK context key (`-c cursorOidcSubject=...`). There is no default. */
 export const CURSOR_OIDC_SUBJECT_CONTEXT_KEY = 'cursorOidcSubject';
+
+const MISSING_CURSOR_OIDC_SUBJECT_MESSAGE = `Missing CDK context ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}. Pass -c ${CURSOR_OIDC_SUBJECT_CONTEXT_KEY}=<exact OIDC sub>. The Account Setup workflow reads API_CURSOR_SUB from the envs secret in us-east-2.`;
 
 const EXACT_OIDC_SUBJECT_PATTERN = /^[^\s*?]+$/;
 
@@ -118,7 +118,7 @@ export function resolveCursorOidcSubject(input: {
     return exactCursorOidcSubject(input.prop, 'cursorOidcSubject');
   }
   if (input.context === undefined) {
-    return cursorOidcConfig.allowedSubject;
+    throw new Error(MISSING_CURSOR_OIDC_SUBJECT_MESSAGE);
   }
   if (typeof input.context !== 'string') {
     throw new Error(

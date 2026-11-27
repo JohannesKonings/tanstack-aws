@@ -105,7 +105,7 @@ exports[`GrokBotOpsReadOnlySetup > trusts one Cursor subject and grants read-onl
               "Condition": {
                 "StringEquals": {
                   "api.cursor.com:aud": "sts.amazonaws.com",
-                  "api.cursor.com:sub": "user:155323293",
+                  "api.cursor.com:sub": "user:000000000",
                 },
               },
               "Effect": "Allow",
@@ -118,7 +118,7 @@ exports[`GrokBotOpsReadOnlySetup > trusts one Cursor subject and grants read-onl
           ],
           "Version": "2012-10-17",
         },
-        "Description": "Read-only operations monitoring for the Cursor Grok Bot ops assistant (user:155323293).",
+        "Description": "Read-only operations monitoring for the Cursor Grok Bot ops assistant.",
         "ManagedPolicyArns": [
           {
             "Fn::Join": [

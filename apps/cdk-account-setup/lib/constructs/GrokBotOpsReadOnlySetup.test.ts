@@ -58,7 +58,7 @@ const METADATA_READS_THAT_STAY_ALLOWED = [
   'lambda:ListFunctions',
 ];
 
-function setupStack(allowedSubject: string = cursorOidcConfig.allowedSubject): {
+function setupStack(allowedSubject: string = 'user:000000000'): {
   stack: Stack;
   setup: GrokBotOpsReadOnlySetup;
 } {
@@ -100,8 +100,7 @@ describe('GrokBotOpsReadOnlySetup', () => {
 
     template.hasResourceProperties('AWS::IAM::Role', {
       RoleName: 'GrokBotOpsReadOnlyRole',
-      Description:
-        'Read-only operations monitoring for the Cursor Grok Bot ops assistant (user:155323293).',
+      Description: 'Read-only operations monitoring for the Cursor Grok Bot ops assistant.',
       MaxSessionDuration: 3600,
       ManagedPolicyArns: [
         {
@@ -119,7 +118,7 @@ describe('GrokBotOpsReadOnlySetup', () => {
             Condition: {
               StringEquals: {
                 'api.cursor.com:aud': 'sts.amazonaws.com',
-                'api.cursor.com:sub': 'user:155323293',
+                'api.cursor.com:sub': 'user:000000000',
               },
             },
           },

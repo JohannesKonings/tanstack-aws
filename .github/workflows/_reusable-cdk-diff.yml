@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      fetch_cursor_oidc_subject:
+        description: Read API_CURSOR_SUB from the envs secret in us-east-2 and pass it as CDK context cursorOidcSubject. The value is masked and redacted from the diff comment.
+        required: false
+        default: false
+        type: boolean
     secrets:
       aws_role_to_assume:
         required: true
@@ -89,7 +94,17 @@ jobs:
           if [ -n "${RESOLVED_STAGE}" ]; then
             export APP_STAGE="${RESOLVED_STAGE}"
           fi
-          vp -C "${{ inputs.cdk_package }}" exec -- varlock run -- cdk diff 2>&1 | tee cdk-diff.log || true
+          CDK_ARGS=()
+          if [ "${{ inputs.fetch_cursor_oidc_subject }}" = "true" ]; then
+            CURSOR_OIDC_SUBJECT="$(bash scripts/read-api-cursor-sub.sh)" || exit 1
+            echo "::add-mask::${CURSOR_OIDC_SUBJECT}"
+            export CURSOR_OIDC_SUBJECT
+            CDK_ARGS+=(-c "cursorOidcSubject=${CURSOR_OIDC_SUBJECT}")
+          fi
+          vp -C "${{ inputs.cdk_package }}" exec -- varlock run -- cdk diff "${CDK_ARGS[@]}" 2>&1 | tee cdk-diff.log || true
+          if [ -n "${CURSOR_OIDC_SUBJECT:-}" ]; then
+            node --input-type=module -e 'import { readFileSync, writeFileSync } from "node:fs"; const secret = process.env.CURSOR_OIDC_SUBJECT ?? ""; const path = "cdk-diff.log"; writeFileSync(path, readFileSync(path, "utf8").split(secret).join("[redacted]"));'
+          fi
           cdk-notifier \
             --vcs github \
             --owner "${{ github.repository_owner }}" \

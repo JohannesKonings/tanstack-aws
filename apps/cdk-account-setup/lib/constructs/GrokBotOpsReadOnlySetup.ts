@@ -81,7 +81,7 @@ export class GrokBotOpsReadOnlySetup extends Construct {
 
     this.role = new Role(this, 'Role', {
       roleName: ROLE_NAME,
-      description: `Read-only operations monitoring for the Cursor Grok Bot ops assistant (${allowedSubject}).`,
+      description: 'Read-only operations monitoring for the Cursor Grok Bot ops assistant.',
       maxSessionDuration: MAX_SESSION,
       assumedBy: new WebIdentityPrincipal(this.oidcProvider.openIdConnectProviderArn, {
         StringEquals: {
