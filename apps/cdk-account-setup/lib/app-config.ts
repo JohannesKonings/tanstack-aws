@@ -12,7 +12,9 @@ function optionalEnvString(value: unknown): unknown {
 const DB_CLUSTER_SNAPSHOT_ARN_PATTERN =
   /^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\d{12}:cluster-snapshot:\S+$/;
 
-function requiredEnv(name: 'AWS_ACCOUNT_ID' | 'CLOUDWATCH_OMNI_ADMIN_ROLE' | 'DB_FROM_SNAPSHOT_ARN') {
+function requiredEnv(
+  name: 'AWS_ACCOUNT_ID' | 'CLOUDWATCH_OMNI_ADMIN_ROLE' | 'DB_FROM_SNAPSHOT_ARN',
+) {
   return z.preprocess(
     (value) => value ?? '',
     z.string().trim().min(1, `Missing required environment variable: ${name}`),
