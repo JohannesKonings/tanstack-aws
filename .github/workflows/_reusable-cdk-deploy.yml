@@ -56,13 +56,13 @@ jobs:
           STAGE_SOURCE: ${{ inputs.stage_source }}
           STAGE_LIFECYCLE: ${{ inputs.lifecycle }}
         run: |
-          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
+          STAGE="$(vpx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle "${STAGE_LIFECYCLE}")"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Resolve workload region
         id: resolve-workload-region
         run: |
-          WORKLOAD_REGION="$(node --import tsx scripts/resolve-workload-region.ts)"
+          WORKLOAD_REGION="$(vpx scripts/resolve-workload-region.ts)"
           echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
@@ -78,4 +78,4 @@ jobs:
           STACK_PREFIX: ${{ inputs.stack_prefix }}
           CDK_DEFAULT_ACCOUNT: ${{ steps.aws-credentials.outputs.aws-account-id }}
         # vp exec (not vp run) passes AWS credentials through to CDK; vp run filters them in Vite+ 1.0.
-        run: vp -C apps/cdk-app exec cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never
+        run: vp -C apps/cdk-app exec -- varlock run -- cdk deploy "${STACK_PREFIX}-${APP_STAGE}" --require-approval never

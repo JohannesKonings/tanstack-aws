@@ -46,13 +46,13 @@ jobs:
         env:
           STAGE_SOURCE: ${{ github.event.pull_request.head.ref }}
         run: |
-          STAGE="$(node --import tsx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
+          STAGE="$(vpx scripts/resolve-stage.ts --stage "${STAGE_SOURCE}" --lifecycle ephemeral)"
           echo "stage=${STAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Resolve workload region
         id: resolve-workload-region
         run: |
-          WORKLOAD_REGION="$(node --import tsx scripts/resolve-workload-region.ts)"
+          WORKLOAD_REGION="$(vpx scripts/resolve-workload-region.ts)"
           echo "workload_region=${WORKLOAD_REGION}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
@@ -78,7 +78,7 @@ jobs:
           echo "Destroying stack: ${STACK_NAME}"
 
           set +e
-          DESTROY_OUTPUT="$(vp -C apps/cdk-app exec cdk destroy "${STACK_NAME}" --force 2>&1)"
+          DESTROY_OUTPUT="$(vp -C apps/cdk-app exec -- varlock run -- cdk destroy "${STACK_NAME}" --force 2>&1)"
           DESTROY_EXIT_CODE=$?
           set -e
 

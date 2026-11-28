@@ -5,7 +5,7 @@
  * for the whole current UTC day (midnight to midnight). Verifies the request in isolation.
  *
  * Usage: vp run test:bedrock-budget
- *        vp exec tsx scripts/test-bedrock-budget.ts
+ *        vpx scripts/test-bedrock-budget.ts
  *
  * Requires: AWS credentials (same as app) and network access.
  */

@@ -1114,6 +1114,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     "SharedAuroraPostgresServerlessV2ClusterAD3BDD49": {
       "DeletionPolicy": "Snapshot",
       "Properties": {
+        "AutoMinorVersionUpgrade": false,
         "BackupRetentionPeriod": 7,
         "CopyTagsToSnapshot": true,
         "DBClusterParameterGroupName": "default.aurora-postgresql18",
@@ -1127,7 +1128,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         ],
         "EnableHttpEndpoint": true,
         "Engine": "aurora-postgresql",
-        "EngineVersion": "18.4",
+        "EngineVersion": "18.6",
         "MasterUserPassword": {
           "Fn::Join": [
             "",
@@ -1209,6 +1210,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "SharedAuroraPostgresServerlessV2VpcDatabaseSubnet2RouteTableAssociation4CD012A8",
       ],
       "Properties": {
+        "AutoMinorVersionUpgrade": false,
         "DBClusterIdentifier": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
         },
@@ -1385,6 +1387,12 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           "GenerateStringKey": "password",
           "PasswordLength": 30,
           "SecretStringTemplate": "{"username":"clusteradmin"}",
+        },
+        "KmsKeyId": {
+          "Fn::GetAtt": [
+            "AccountKeyA70E2A1C",
+            "Arn",
+          ],
         },
       },
       "Type": "AWS::SecretsManager::Secret",

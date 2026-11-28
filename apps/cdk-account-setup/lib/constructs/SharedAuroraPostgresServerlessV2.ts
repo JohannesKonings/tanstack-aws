@@ -1,5 +1,6 @@
 import { Duration, RemovalPolicy, Validations } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import type { Key } from 'aws-cdk-lib/aws-kms';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 
@@ -7,6 +8,7 @@ type SharedAuroraPostgresServerlessV2Props = {
   databaseName?: string;
   minCapacity?: number;
   maxCapacity?: number;
+  encryptionKey: Key;
 };
 
 const DEFAULT_DATABASE_NAME = 'tanstackaws';
@@ -20,7 +22,7 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
   public readonly cluster: rds.DatabaseCluster;
   public readonly databaseName: string;
 
-  constructor(scope: Construct, id: string, props: SharedAuroraPostgresServerlessV2Props = {}) {
+  constructor(scope: Construct, id: string, props: SharedAuroraPostgresServerlessV2Props) {
     super(scope, id);
     this.databaseName = props.databaseName ?? DEFAULT_DATABASE_NAME;
 
@@ -45,12 +47,14 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
 
     this.cluster = new rds.DatabaseCluster(this, 'Cluster', {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_18_4,
+        version: rds.AuroraPostgresEngineVersion.VER_18_6,
       }),
       writer: rds.ClusterInstance.serverlessV2('Writer', {
         preferredMaintenanceWindow: PREFERRED_MAINTENANCE_WINDOW,
+        autoMinorVersionUpgrade: false,
       }),
       preferredMaintenanceWindow: PREFERRED_MAINTENANCE_WINDOW,
+      autoMinorVersionUpgrade: false,
       vpc: this.vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
@@ -58,7 +62,9 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
       securityGroups: [clusterSecurityGroup],
       enableDataApi: true,
       defaultDatabaseName: this.databaseName,
-      credentials: rds.Credentials.fromGeneratedSecret('clusteradmin'),
+      credentials: rds.Credentials.fromGeneratedSecret('clusteradmin', {
+        encryptionKey: props.encryptionKey,
+      }),
       serverlessV2MinCapacity: props.minCapacity ?? DEFAULT_MIN_CAPACITY,
       serverlessV2MaxCapacity: props.maxCapacity ?? DEFAULT_MAX_CAPACITY,
       deletionProtection: true,

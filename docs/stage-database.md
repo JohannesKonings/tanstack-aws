@@ -101,7 +101,7 @@ These tasks read the deployed workload stack. Set `APP_STAGE` to select a stack 
 | Studio   | `vp run drizzle-kit:studio`   | Open Drizzle Studio against the stage database.                                                                          |
 | Seed     | `vp run db-aurora:seed`       | Insert 100 persons with addresses, contacts, bank accounts, and employments. Existing rows with those ids stay in place. |
 
-`vp exec tsx packages/aurora/src/cli/migrate-stage-database.ts` follows the deploy path for a Create: it creates the stage database when it is missing, then applies migrations with `migrateStageDatabaseSchema`. It never drops a database. The workload stack must already be deployed, because the command reads that stack's Aurora outputs.
+`vpx packages/aurora/src/cli/migrate-stage-database.ts` follows the deploy path for a Create: it creates the stage database when it is missing, then applies migrations with `migrateStageDatabaseSchema`. It never drops a database. The workload stack must already be deployed, because the command reads that stack's Aurora outputs.
 
 ## Where the rules live
 
