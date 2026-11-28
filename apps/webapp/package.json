@@ -11,11 +11,11 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "3.1175.0",
-    "@aws-sdk/client-cloudwatch": "3.1175.0",
-    "@aws-sdk/client-dynamodb": "3.1175.0",
-    "@aws-sdk/client-rds-data": "3.1175.0",
-    "@aws-sdk/lib-dynamodb": "3.1175.0",
+    "@aws-sdk/client-bedrock-runtime": "3.1178.0",
+    "@aws-sdk/client-cloudwatch": "3.1178.0",
+    "@aws-sdk/client-dynamodb": "3.1178.0",
+    "@aws-sdk/client-rds-data": "3.1178.0",
+    "@aws-sdk/lib-dynamodb": "3.1178.0",
     "@aws-sdk/util-dynamodb": "3.996.9",
     "@faker-js/faker": "^10.6.0",
     "@phosphor-icons/react": "^2.1.10",
