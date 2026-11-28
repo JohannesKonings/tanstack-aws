@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { Stack } from 'aws-cdk-lib';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
 import { createCdkApp } from '../cdk-app.ts';
 import { repoPath } from '../repo-root.ts';
@@ -73,5 +74,36 @@ describe('StageDatabaseLifecycle', () => {
     expect(properties.migrationsHash).toBe(
       hashStageDatabaseMigrations(repoPath('packages/aurora/migrations')),
     );
+  });
+
+  it('lets the handler decrypt the account key that encrypts the Aurora secret', () => {
+    const app = createCdkApp();
+    const stack = new Stack(app, 'TanstackAwsStack-aurora-example', {
+      env: { account: '123456789012', region: 'us-east-2' },
+    });
+    new StageDatabaseLifecycle(stack, 'StageDatabaseLifecycle', {
+      clusterArn: 'arn:aws:rds:us-east-2:123456789012:cluster:tanstack',
+      dropDatabaseOnDelete: true,
+      maintenanceDatabaseName: 'tanstackaws',
+      secretArn: 'arn:aws:secretsmanager:us-east-2:123456789012:secret:tanstack',
+      stageDatabaseName: 'aurora_example',
+    });
+
+    Template.fromStack(stack).hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: ['kms:Decrypt', 'kms:DescribeKey'],
+            Condition: {
+              'ForAnyValue:StringEquals': {
+                'kms:ResourceAliases': 'alias/account',
+              },
+            },
+            Effect: 'Allow',
+            Resource: 'arn:aws:kms:us-east-2:123456789012:key/*',
+          }),
+        ]),
+      },
+    });
   });
 });

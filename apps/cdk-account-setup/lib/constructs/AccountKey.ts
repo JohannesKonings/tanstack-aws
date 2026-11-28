@@ -2,8 +2,9 @@ import { RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { ArnPrincipal, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Alias, Key } from 'aws-cdk-lib/aws-kms';
 import { Construct } from 'constructs';
+import { ACCOUNT_KEY_ALIAS } from '../../../../lib/account-key.ts';
 
-export const ACCOUNT_KEY_ALIAS = 'alias/account';
+export { ACCOUNT_KEY_ALIAS };
 
 const BOOTSTRAP_QUALIFIER = 'hnb659fds';
 
