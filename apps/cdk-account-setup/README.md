@@ -112,5 +112,5 @@ Run package-scoped validation:
 
 ```sh
 vp check apps/cdk-account-setup
-vp -C apps/cdk-account-setup test
+vp -C apps/cdk-account-setup run test
 ```

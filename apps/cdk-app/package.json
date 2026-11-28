@@ -5,7 +5,8 @@
   "scripts": {
     "cdk": "cdk",
     "synth": "cdk synth",
-    "deploy": "cdk deploy --all"
+    "deploy": "cdk deploy --all",
+    "test": "vp test"
   },
   "dependencies": {
     "@tanstack-aws/aurora": "workspace:*"

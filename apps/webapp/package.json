@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "vp dev --port 3000",
-    "serve": "node ../../.output/server/index.mjs"
+    "serve": "node ../../.output/server/index.mjs",
+    "test": "vp test"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1175.0",

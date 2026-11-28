@@ -5,7 +5,8 @@
   "scripts": {
     "cdk": "cdk",
     "synth": "cdk synth",
-    "deploy": "cdk deploy --all"
+    "deploy": "cdk deploy --all",
+    "test": "vp test"
   },
   "devDependencies": {
     "@varlock/aws-secrets-plugin": "^1.3.0",

@@ -59,7 +59,7 @@ jobs:
         run: vp check apps/cdk-account-setup
 
       - name: Run tests
-        run: mkdir -p test-results && vp -C apps/cdk-account-setup test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
+        run: mkdir -p test-results && vp -C apps/cdk-account-setup run test -- --reporter=default --reporter=junit --outputFile=test-results/vitest.junit.xml
 
       - name: Publish test report
         if: always() && hashFiles('test-results/vitest.junit.xml') != ''

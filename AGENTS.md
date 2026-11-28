@@ -8,7 +8,7 @@
 
 TanStack AWS is a Vite+ monorepo. Workspace apps under `apps/*` include the primary **Webapp** (`apps/webapp`), **Webapp admin** (`apps/webapp-admin`), workload CDK (`apps/cdk-app`), and account-setup CDK (`apps/cdk-account-setup`). Shared libraries live under `packages/*`. pnpm manages the workspace; root `vite.config.ts` governs lint, format, and check across packages.
 
-Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/cdk-account-setup test`.
+Package-scoped commands use `vp -C <package-path>`, for example `vp -C apps/cdk-account-setup run test`. Workspace tests are `vp run -r test`.
 
 ## Global conventions
 
