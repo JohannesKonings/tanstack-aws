@@ -1,6 +1,7 @@
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { describe, expect, it } from 'vite-plus/test';
 import { snapshotSafeTemplate } from '../../../tooling/cdk-snapshot.ts';
+import { AccountFoundationStack } from './account-foundation-stack.ts';
 import { AccountSetupStack } from './account-setup-stack.ts';
 import { githubActionsOidcConfig, resolveAccountSetupEnv } from './app-config.ts';
 import { createAccountSetupApp } from './cdk-app.ts';
@@ -10,6 +11,8 @@ const ACCOUNT_ID = '123456789012';
 const WORKLOAD_REGION = 'us-east-2';
 const OMNI_ADMIN_ROLE_NAME = 'AWSReservedSSO_AdministratorAccess_example';
 const OMNI_ADMIN_ROLE_ARN = `arn:aws:iam::${ACCOUNT_ID}:role/aws-reserved/sso.amazonaws.com/${OMNI_ADMIN_ROLE_NAME}`;
+const DB_FROM_SNAPSHOT_ARN =
+  'arn:aws:rds:us-east-2:123456789012:cluster-snapshot:tanstackaws-account-key';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -25,14 +28,31 @@ function resourceProperties(template: Template, type: string): Record<string, un
   });
 }
 
+function accountFoundationStack(): AccountFoundationStack {
+  const app = createAccountSetupApp();
+  return new AccountFoundationStack(app, 'AccountFoundationStack', {
+    env: {
+      account: ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+  });
+}
+
 function workloadRegionStack(
   props: {
     securityAgent?: boolean;
     devopsAgent?: boolean;
     cloudWatchOmniAdminRoleArn?: string;
+    auroraSnapshotIdentifier?: string;
   } = {},
 ): WorkloadRegionAccountSetupStack {
   const app = createAccountSetupApp();
+  const foundation = new AccountFoundationStack(app, 'AccountFoundationStack', {
+    env: {
+      account: ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+  });
   return new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
     env: {
       account: ACCOUNT_ID,
@@ -40,8 +60,9 @@ function workloadRegionStack(
     },
     cloudWatchOmniAdminRoleArn:
       props.cloudWatchOmniAdminRoleArn ?? 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
-
+    encryptionKey: foundation.key,
     ...props,
+    auroraSnapshotIdentifier: props.auroraSnapshotIdentifier ?? DB_FROM_SNAPSHOT_ARN,
   });
 }
 
@@ -82,11 +103,13 @@ describe('resolveAccountSetupEnv', () => {
         AWS_ACCOUNT_ID: '123456789012',
         AWS_REGION: 'us-east-2',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
       CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
+      DB_FROM_SNAPSHOT_ARN,
     });
   });
 
@@ -104,11 +127,13 @@ describe('resolveAccountSetupEnv', () => {
         CDK_DEFAULT_ACCOUNT: '123456789012',
         CDK_DEFAULT_REGION: 'us-east-2',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
       CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
+      DB_FROM_SNAPSHOT_ARN,
     });
   });
 
@@ -118,11 +143,13 @@ describe('resolveAccountSetupEnv', () => {
         AWS_ACCOUNT_ID: '123456789012',
         AWS_DEFAULT_REGION: 'us-east-2',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: 'us-east-2',
       CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
+      DB_FROM_SNAPSHOT_ARN,
     });
   });
 
@@ -131,11 +158,13 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toEqual({
       AWS_ACCOUNT_ID: '123456789012',
       AWS_REGION: undefined,
       CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: OMNI_ADMIN_ROLE_ARN,
+      DB_FROM_SNAPSHOT_ARN,
     });
   });
 
@@ -144,6 +173,7 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         CLOUDWATCH_OMNI_ADMIN_ROLE: 'AWSReservedSSO_AdministratorAccess_example',
+        DB_FROM_SNAPSHOT_ARN,
       }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
     ).toBe(
       'arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_example',
@@ -156,6 +186,7 @@ describe('resolveAccountSetupEnv', () => {
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         CLOUDWATCH_OMNI_ADMIN_ROLE: roleArn,
+        DB_FROM_SNAPSHOT_ARN,
       }).CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
     ).toBe(roleArn);
   });
@@ -169,11 +200,33 @@ describe('resolveAccountSetupEnv', () => {
     ).toThrow('Missing required environment variable: CLOUDWATCH_OMNI_ADMIN_ROLE');
   });
 
+  it('throws when DB_FROM_SNAPSHOT_ARN is missing', () => {
+    expect(() =>
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '123456789012',
+        AWS_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+      }),
+    ).toThrow('Missing required environment variable: DB_FROM_SNAPSHOT_ARN');
+  });
+
+  it('throws when DB_FROM_SNAPSHOT_ARN is not a cluster snapshot ARN', () => {
+    expect(() =>
+      resolveAccountSetupEnv({
+        AWS_ACCOUNT_ID: '123456789012',
+        AWS_REGION: 'us-east-2',
+        CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN: 'tanstackaws-account-key',
+      }),
+    ).toThrow('DB_FROM_SNAPSHOT_ARN must be an RDS cluster snapshot ARN');
+  });
+
   it('throws when CLOUDWATCH_OMNI_ADMIN_ROLE is neither a role ARN nor an SSO role name', () => {
     expect(() =>
       resolveAccountSetupEnv({
         AWS_ACCOUNT_ID: '123456789012',
         CLOUDWATCH_OMNI_ADMIN_ROLE: 'not-a-role',
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toThrow('CLOUDWATCH_OMNI_ADMIN_ROLE must be an IAM role ARN or an AWSReservedSSO role name');
   });
@@ -184,6 +237,7 @@ describe('resolveAccountSetupEnv', () => {
         AWS_ACCOUNT_ID: '12345',
         AWS_REGION: 'us-east-2',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toThrow('AWS_ACCOUNT_ID must be a 12-digit AWS account ID');
   });
@@ -194,6 +248,7 @@ describe('resolveAccountSetupEnv', () => {
         AWS_ACCOUNT_ID: '123456789012',
         AWS_REGION: 'invalid-region',
         CLOUDWATCH_OMNI_ADMIN_ROLE: OMNI_ADMIN_ROLE_NAME,
+        DB_FROM_SNAPSHOT_ARN,
       }),
     ).toThrow('AWS_REGION must look like an AWS region, for example us-east-2');
   });
@@ -310,30 +365,78 @@ describe('AccountSetupStack', () => {
   });
 });
 
-describe('WorkloadRegionAccountSetupStack', () => {
-  it('creates shared Aurora PostgreSQL Serverless v2 infrastructure with Data API enabled', () => {
-    const app = createAccountSetupApp();
-    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
-      env: {
-        account: '123456789012',
-        region: 'us-east-2',
+describe('AccountFoundationStack', () => {
+  it('keeps the account key, alias, and envs secret on their current logical ids', () => {
+    const template = Template.fromStack(accountFoundationStack());
+    const keyLogicalId = 'AccountKeyA70E2A1C';
+
+    expect(template.findResources('AWS::KMS::Key')).toHaveProperty(keyLogicalId);
+    template.hasResourceProperties('AWS::KMS::Key', {
+      EnableKeyRotation: true,
+      Description: 'Account key for this workload region.',
+      KeyPolicy: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Sid: 'AllowStackRefactorDescribeKey',
+            Effect: 'Allow',
+            Action: 'kms:DescribeKey',
+            Resource: '*',
+            Principal: {
+              AWS: [
+                `arn:aws:iam::${ACCOUNT_ID}:role/cdk-hnb659fds-cfn-exec-role-${ACCOUNT_ID}-${WORKLOAD_REGION}`,
+                `arn:aws:iam::${ACCOUNT_ID}:role/cdk-hnb659fds-deploy-role-${ACCOUNT_ID}-${WORKLOAD_REGION}`,
+              ],
+              Service: 'cloudformation.amazonaws.com',
+            },
+          }),
+        ]),
       },
-      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
+    });
+    expect(template.findResources('AWS::KMS::Alias')).toHaveProperty('AccountKeyAlias7BF6A84E');
+    template.hasResource('AWS::KMS::Alias', {
+      DeletionPolicy: 'Retain',
+      UpdateReplacePolicy: 'Retain',
+      Properties: {
+        AliasName: 'alias/account',
+        TargetKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
+      },
     });
 
-    const template = Template.fromStack(stack);
+    expect(template.findResources('AWS::SecretsManager::Secret')).toHaveProperty(
+      'EnvsSecretE0264FA1',
+    );
+    template.hasResource('AWS::SecretsManager::Secret', {
+      DeletionPolicy: 'Retain',
+      UpdateReplacePolicy: 'Retain',
+      Properties: {
+        Name: 'envs',
+        Description: 'Account environment values. JSON object keyed by variable name.',
+        KmsKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
+        SecretString: Match.absent(),
+        GenerateSecretString: {
+          SecretStringTemplate: '{}',
+          GenerateStringKey: 'initial',
+        },
+      },
+    });
+  });
+});
+
+describe('WorkloadRegionAccountSetupStack', () => {
+  it('creates shared Aurora PostgreSQL Serverless v2 infrastructure with Data API enabled', () => {
+    const template = Template.fromStack(workloadRegionStack());
 
     template.resourceCountIs('AWS::EC2::VPC', 1);
     template.hasResourceProperties('AWS::RDS::DBCluster', {
       Engine: 'aurora-postgresql',
       EnableHttpEndpoint: true,
-      DeletionProtection: true,
+      DeletionProtection: false,
       BackupRetentionPeriod: 7,
       ServerlessV2ScalingConfiguration: {
         MinCapacity: 0.5,
         MaxCapacity: 4,
       },
-      DatabaseName: 'tanstackaws',
+      SnapshotIdentifier: DB_FROM_SNAPSHOT_ARN,
     });
     template.hasResourceProperties('AWS::RDS::DBInstance', {
       DBInstanceClass: 'db.serverless',
@@ -372,16 +475,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
   });
 
   it('defers the account-level log retention policy until CloudFormation supports it', () => {
-    const app = createAccountSetupApp();
-    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
-      env: {
-        account: '123456789012',
-        region: 'us-east-2',
-      },
-      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
-    });
-
-    expectAccountLogRetentionPolicyDeferred(Template.fromStack(stack));
+    expectAccountLogRetentionPolicyDeferred(Template.fromStack(workloadRegionStack()));
   });
 
   it('creates a Security Agent application and a space named tanstack-aws-security', () => {
@@ -520,17 +614,7 @@ describe('WorkloadRegionAccountSetupStack', () => {
   });
 
   it('omits the Security Agent space when securityAgent is false', () => {
-    const app = createAccountSetupApp();
-    const stack = new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
-      env: {
-        account: '123456789012',
-        region: 'us-east-2',
-      },
-      securityAgent: false,
-      cloudWatchOmniAdminRoleArn: 'arn:aws:iam::123456789012:role/CloudWatchOmniAdminRole',
-    });
-
-    const template = Template.fromStack(stack);
+    const template = Template.fromStack(workloadRegionStack({ securityAgent: false }));
     template.resourceCountIs('AWS::SecurityAgent::AgentSpace', 0);
     template.resourceCountIs('AWS::SecurityAgent::Application', 0);
     template.resourceCountIs('AWS::DevOpsAgent::AgentSpace', 1);
@@ -697,29 +781,36 @@ describe('WorkloadRegionAccountSetupStack', () => {
     template.resourceCountIs('AWS::CloudWatch::AccessGrant', 1);
   });
 
-  it('creates an account KMS key and an envs secret whose value is not managed by CloudFormation', () => {
+  it('restores the Aurora cluster from a snapshot encrypted with the account foundation key', () => {
+    const template = Template.fromStack(
+      workloadRegionStack({
+        auroraSnapshotIdentifier:
+          'arn:aws:rds:us-east-2:123456789012:cluster-snapshot:other-snapshot',
+      }),
+    );
+    const [cluster] = resourceProperties(template, 'AWS::RDS::DBCluster');
+    expect(cluster?.SnapshotIdentifier).toBe(
+      'arn:aws:rds:us-east-2:123456789012:cluster-snapshot:other-snapshot',
+    );
+    expect(cluster?.DatabaseName).toBeUndefined();
+    expect(cluster?.MasterUserPassword).toBeDefined();
+    expect(cluster?.StorageEncrypted).toBe(true);
+    expect(cluster?.KmsKeyId).toEqual({ 'Fn::ImportValue': expect.any(String) });
+  });
+
+  it('encrypts Aurora storage and credentials with the account foundation key and does not create that key', () => {
     const template = Template.fromStack(workloadRegionStack());
-    template.hasResourceProperties('AWS::KMS::Key', {
-      EnableKeyRotation: true,
-      Description: 'Account key for this workload region.',
-    });
-    const [keyLogicalId] = Object.keys(template.findResources('AWS::KMS::Key'));
-    template.hasResourceProperties('AWS::KMS::Alias', {
-      AliasName: 'alias/account',
-      TargetKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
-    });
-    template.hasResource('AWS::SecretsManager::Secret', {
-      Properties: {
-        Name: 'envs',
-        Description: 'Account environment values. JSON object keyed by variable name.',
-        KmsKeyId: { 'Fn::GetAtt': [keyLogicalId, 'Arn'] },
-        SecretString: Match.absent(),
-        GenerateSecretString: {
-          SecretStringTemplate: '{}',
-          GenerateStringKey: 'initial',
-        },
-      },
-    });
+    template.resourceCountIs('AWS::KMS::Key', 0);
+    template.resourceCountIs('AWS::KMS::Alias', 0);
+    const [cluster] = resourceProperties(template, 'AWS::RDS::DBCluster');
+    expect(cluster?.StorageEncrypted).toBe(true);
+    expect(cluster?.KmsKeyId).toEqual({ 'Fn::ImportValue': expect.any(String) });
+    const secrets = resourceProperties(template, 'AWS::SecretsManager::Secret');
+    expect(secrets.some((secret) => secret.Name === 'envs')).toBe(false);
+    expect(secrets.some((secret) => secret.KmsKeyId !== undefined)).toBe(true);
+    for (const secret of secrets) {
+      expect(secret.KmsKeyId).toEqual({ 'Fn::ImportValue': expect.any(String) });
+    }
   });
 
   it('grants SPACE_ADMIN to the CloudWatch Omni admin role', () => {
@@ -870,7 +961,7 @@ function expectSharedWorkloadResources(template: Template) {
   template.resourceCountIs('AWS::RDS::DBCluster', 1);
   template.hasResourceProperties('AWS::RDS::DBCluster', {
     Engine: 'aurora-postgresql',
-    DatabaseName: 'tanstackaws',
+    SnapshotIdentifier: DB_FROM_SNAPSHOT_ARN,
   });
 }
 

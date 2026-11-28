@@ -1,22 +1,24 @@
 import * as cdk from 'aws-cdk-lib';
+import type { IKey } from 'aws-cdk-lib/aws-kms';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
-import { AccountKey } from './constructs/AccountKey.ts';
 import { AgentSpaces } from './constructs/AgentSpaces.ts';
 import { CloudWatchOmniSetup } from './constructs/CloudWatchOmniSetup.ts';
-import { EnvsSecret } from './constructs/EnvsSecret.ts';
 import { SharedAuroraPostgresServerlessV2 } from './constructs/SharedAuroraPostgresServerlessV2.ts';
 
 export type WorkloadRegionAccountSetupStackProps = cdk.StackProps & {
   readonly securityAgent?: boolean;
   readonly devopsAgent?: boolean;
   readonly cloudWatchOmniAdminRoleArn: string;
+  /** Account key from `AccountFoundationStack`. Aurora storage and credentials stay encrypted with this key. */
+  readonly encryptionKey: IKey;
+  /** Cluster snapshot copied onto `encryptionKey`. The cluster is created from this snapshot. */
+  readonly auroraSnapshotIdentifier: string;
 };
 
 export class WorkloadRegionAccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: WorkloadRegionAccountSetupStackProps) {
     super(scope, id, props);
-    const accountKey = new AccountKey(this, 'AccountKey');
 
     // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
     // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
@@ -29,7 +31,10 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
     const sharedAurora = new SharedAuroraPostgresServerlessV2(
       this,
       'SharedAuroraPostgresServerlessV2',
-      { encryptionKey: accountKey.key },
+      {
+        encryptionKey: props.encryptionKey,
+        snapshotIdentifier: props.auroraSnapshotIdentifier,
+      },
     );
     const sharedAuroraSecret = sharedAurora.cluster.secret;
 
@@ -63,10 +68,6 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'SharedAuroraDatabaseName', {
       value: sharedAurora.databaseName,
       description: 'Shared Aurora default database name.',
-    });
-
-    new EnvsSecret(this, 'EnvsSecret', {
-      encryptionKey: accountKey.key,
     });
 
     new CloudWatchOmniSetup(this, 'CloudWatchOmniSetup', {

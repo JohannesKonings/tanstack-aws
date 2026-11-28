@@ -470,7 +470,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     "SharedAuroraSecretArn": {
       "Description": "Secrets Manager ARN for shared Aurora credentials.",
       "Value": {
-        "Ref": "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29",
+        "Ref": "SharedAuroraPostgresServerlessV2ClusterSnapshotSecretAttachmentA8D14210",
       },
     },
   },
@@ -482,60 +482,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
     },
   },
   "Resources": {
-    "AccountKeyA70E2A1C": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "Description": "Account key for this workload region.",
-        "EnableKeyRotation": true,
-        "KeyPolicy": {
-          "Statement": [
-            {
-              "Action": "kms:*",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "<arn>",
-              },
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "kms:CreateGrant",
-                "kms:Decrypt",
-                "kms:DescribeKey",
-                "kms:Encrypt",
-                "kms:GenerateDataKey*",
-                "kms:ReEncrypt*",
-              ],
-              "Condition": {
-                "StringEquals": {
-                  "kms:ViaService": "secretsmanager.us-east-2.amazonaws.com",
-                },
-              },
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "<arn>",
-              },
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::KMS::Key",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "AccountKeyAlias7BF6A84E": {
-      "Properties": {
-        "AliasName": "alias/account",
-        "TargetKeyId": {
-          "Fn::GetAtt": [
-            "AccountKeyA70E2A1C",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::KMS::Alias",
-    },
     "AgentSpacesApplication6072E980": {
       "DependsOn": [
         "AgentSpacesApplicationRoleDefaultPolicyA0431784",
@@ -1066,25 +1012,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       },
       "Type": "AWS::IAM::Role",
     },
-    "EnvsSecretE0264FA1": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "Description": "Account environment values. JSON object keyed by variable name.",
-        "GenerateSecretString": {
-          "GenerateStringKey": "initial",
-          "SecretStringTemplate": "{}",
-        },
-        "KmsKeyId": {
-          "Fn::GetAtt": [
-            "AccountKeyA70E2A1C",
-            "Arn",
-          ],
-        },
-        "Name": "envs",
-      },
-      "Type": "AWS::SecretsManager::Secret",
-      "UpdateReplacePolicy": "Retain",
-    },
     "SharedAuroraClusterArnParameterD7B51CC3": {
       "Properties": {
         "Name": "/tanstack-aws/shared/aurora/cluster-arn",
@@ -1121,33 +1048,35 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "DBSubnetGroupName": {
           "Ref": "SharedAuroraPostgresServerlessV2ClusterSubnetsFBE4330F",
         },
-        "DatabaseName": "tanstackaws",
-        "DeletionProtection": true,
+        "DeletionProtection": false,
         "EnableCloudwatchLogsExports": [
           "postgresql",
         ],
         "EnableHttpEndpoint": true,
         "Engine": "aurora-postgresql",
         "EngineVersion": "18.6",
+        "KmsKeyId": {
+          "Fn::ImportValue": "AccountFoundationStack:ExportsOutputFnGetAttAccountKeyA70E2A1CArn67BE01E3",
+        },
         "MasterUserPassword": {
           "Fn::Join": [
             "",
             [
               "{{resolve:secretsmanager:",
               {
-                "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb",
+                "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSnapshotSecretE78040FB3fdaad7efa858a3daf9490cf0a702aeb",
               },
               ":SecretString:password::}}",
             ],
           ],
         },
-        "MasterUsername": "clusteradmin",
         "Port": 5432,
         "PreferredMaintenanceWindow": "Sun:03:00-Sun:03:30",
         "ServerlessV2ScalingConfiguration": {
           "MaxCapacity": 4,
           "MinCapacity": 0.5,
         },
+        "SnapshotIdentifier": "<arn>",
         "StorageEncrypted": true,
         "VpcSecurityGroupIds": [
           {
@@ -1160,18 +1089,6 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
       },
       "Type": "AWS::RDS::DBCluster",
       "UpdateReplacePolicy": "Snapshot",
-    },
-    "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29": {
-      "Properties": {
-        "SecretId": {
-          "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb",
-        },
-        "TargetId": {
-          "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
-        },
-        "TargetType": "AWS::RDS::DBCluster",
-      },
-      "Type": "AWS::SecretsManager::SecretTargetAttachment",
     },
     "SharedAuroraPostgresServerlessV2ClusterSecurityGroupE96170CF": {
       "Properties": {
@@ -1188,6 +1105,18 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         },
       },
       "Type": "AWS::EC2::SecurityGroup",
+    },
+    "SharedAuroraPostgresServerlessV2ClusterSnapshotSecretAttachmentA8D14210": {
+      "Properties": {
+        "SecretId": {
+          "Ref": "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSnapshotSecretE78040FB3fdaad7efa858a3daf9490cf0a702aeb",
+        },
+        "TargetId": {
+          "Ref": "SharedAuroraPostgresServerlessV2ClusterAD3BDD49",
+        },
+        "TargetType": "AWS::RDS::DBCluster",
+      },
+      "Type": "AWS::SecretsManager::SecretTargetAttachment",
     },
     "SharedAuroraPostgresServerlessV2ClusterSubnetsFBE4330F": {
       "Properties": {
@@ -1363,12 +1292,12 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
         "Name": "/tanstack-aws/shared/aurora/secret-arn",
         "Type": "String",
         "Value": {
-          "Ref": "SharedAuroraPostgresServerlessV2ClusterSecretAttachmentB6A97D29",
+          "Ref": "SharedAuroraPostgresServerlessV2ClusterSnapshotSecretAttachmentA8D14210",
         },
       },
       "Type": "AWS::SSM::Parameter",
     },
-    "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSecret6228CDE33fdaad7efa858a3daf9490cf0a702aeb": {
+    "WorkloadRegionAccountSetupStackSharedAuroraPostgresServerlessV2ClusterSnapshotSecretE78040FB3fdaad7efa858a3daf9490cf0a702aeb": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "Description": {
@@ -1389,10 +1318,7 @@ exports[`WorkloadRegionAccountSetupStack > creates shared Aurora PostgreSQL Serv
           "SecretStringTemplate": "{"username":"clusteradmin"}",
         },
         "KmsKeyId": {
-          "Fn::GetAtt": [
-            "AccountKeyA70E2A1C",
-            "Arn",
-          ],
+          "Fn::ImportValue": "AccountFoundationStack:ExportsOutputFnGetAttAccountKeyA70E2A1CArn67BE01E3",
         },
       },
       "Type": "AWS::SecretsManager::Secret",

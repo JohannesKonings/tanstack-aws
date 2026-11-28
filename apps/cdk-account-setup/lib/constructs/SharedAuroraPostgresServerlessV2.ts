@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy, Validations } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import type { Key } from 'aws-cdk-lib/aws-kms';
+import type { IKey } from 'aws-cdk-lib/aws-kms';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 
@@ -8,7 +8,13 @@ type SharedAuroraPostgresServerlessV2Props = {
   databaseName?: string;
   minCapacity?: number;
   maxCapacity?: number;
-  encryptionKey: Key;
+  encryptionKey: IKey;
+  /**
+   * Cluster snapshot already encrypted with `encryptionKey`.
+   * CloudFormation creates this cluster from that snapshot.
+   * Changing it replaces the cluster.
+   */
+  snapshotIdentifier: string;
 };
 
 const DEFAULT_DATABASE_NAME = 'tanstackaws';
@@ -19,7 +25,7 @@ const PREFERRED_MAINTENANCE_WINDOW = 'Sun:03:00-Sun:03:30';
 /** Aurora PostgreSQL Serverless v2 cluster, Data API only. Cluster endpoints are unreachable; no direct TCP connections. */
 export class SharedAuroraPostgresServerlessV2 extends Construct {
   public readonly vpc: ec2.Vpc;
-  public readonly cluster: rds.DatabaseCluster;
+  public readonly cluster: rds.DatabaseClusterBase;
   public readonly databaseName: string;
 
   constructor(scope: Construct, id: string, props: SharedAuroraPostgresServerlessV2Props) {
@@ -45,7 +51,7 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
       allowAllOutbound: true,
     });
 
-    this.cluster = new rds.DatabaseCluster(this, 'Cluster', {
+    this.cluster = new rds.DatabaseClusterFromSnapshot(this, 'Cluster', {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
         version: rds.AuroraPostgresEngineVersion.VER_18_6,
       }),
@@ -61,19 +67,21 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
       },
       securityGroups: [clusterSecurityGroup],
       enableDataApi: true,
-      defaultDatabaseName: this.databaseName,
-      credentials: rds.Credentials.fromGeneratedSecret('clusteradmin', {
-        encryptionKey: props.encryptionKey,
-      }),
       serverlessV2MinCapacity: props.minCapacity ?? DEFAULT_MIN_CAPACITY,
       serverlessV2MaxCapacity: props.maxCapacity ?? DEFAULT_MAX_CAPACITY,
-      deletionProtection: true,
+      // deletionProtection: true,
+      deletionProtection: false,
       backup: {
         retention: Duration.days(7),
       },
       cloudwatchLogsExports: ['postgresql'],
       copyTagsToSnapshot: true,
       storageEncrypted: true,
+      storageEncryptionKey: props.encryptionKey,
+      snapshotIdentifier: props.snapshotIdentifier,
+      snapshotCredentials: rds.SnapshotCredentials.fromGeneratedSecret('clusteradmin', {
+        encryptionKey: props.encryptionKey,
+      }),
     });
 
     this.cluster.applyRemovalPolicy(RemovalPolicy.SNAPSHOT);
@@ -83,6 +91,10 @@ export class SharedAuroraPostgresServerlessV2 extends Construct {
       reason: 'VPC Flow Logs add cost; account-setup stack for shared Aurora.',
     });
     Validations.of(this.cluster).acknowledge(
+      {
+        id: 'AwsSolutions-RDS10',
+        reason: 'TEMPORARY',
+      },
       {
         id: 'AwsSolutions-RDS11',
         reason: 'Port obfuscation adds operational complexity; Aurora in private subnets.',

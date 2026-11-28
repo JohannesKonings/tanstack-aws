@@ -11,7 +11,7 @@ this repository can rely on.
 - Shared Aurora PostgreSQL Serverless v2 cluster (workload-region stack in
   `us-east-2`)
 - Account KMS key (`alias/account`) and Secrets Manager secret `envs` in
-  `us-east-2`, read by Varlock
+  `us-east-2` (`AccountFoundationStack`), read by Varlock
 - Mandatory account-wide resource tagging (`ResourceScope=account-wide`)
 
 This package intentionally does not contain application resources.
@@ -34,7 +34,7 @@ environments for Data API access.
 
 Account setup stacks deploy through the dedicated
 [Account Setup workflow](https://github.com/JohannesKonings/tanstack-aws/blob/main/.github/workflows/account-setup.yml).
-Both stacks always deploy together.
+`AccountSetupStack`, `AccountFoundationStack`, and `WorkloadRegionAccountSetupStack` always deploy together. Do not deploy this split until the key and the `envs` secret have been moved with a CloudFormation stack refactor. A normal deploy creates a second key and a second secret.
 
 | Event                                 | CI (check + test) | CDK diff comment | Deploy                            |
 | ------------------------------------- | ----------------- | ---------------- | --------------------------------- |
@@ -49,9 +49,11 @@ is updated on each push via `cdk-notifier` (`--tag-id account-setup`).
 Required deployment order across the repository:
 
 1. Global account setup stack (`AccountSetupStack`, `us-east-1`)
-2. Workload region account setup stack (`WorkloadRegionAccountSetupStack`,
-   `us-east-2`)
-3. Application workload stacks (`TanstackAwsStack-*`, automated through main
+2. Account foundation stack (`AccountFoundationStack`, `us-east-2`), which
+   creates `alias/account` and the `envs` secret
+3. Workload region account setup stack (`WorkloadRegionAccountSetupStack`,
+   `us-east-2`), which encrypts Aurora storage and the credentials secret with that key
+4. Application workload stacks (`TanstackAwsStack-*`, automated through main
    application deploy workflows)
 
 ### Bootstrap for net-new accounts
@@ -71,6 +73,7 @@ AWS credentials are a prerequisite; the command fails when they are missing.
 
 - `AWS_ACCOUNT_ID`
 - `CLOUDWATCH_OMNI_ADMIN_ROLE`
+- `DB_FROM_SNAPSHOT_ARN`
 
 `AWS_REGION` is optional and ignored for stack region placement. Regions are
 centrally defined in `lib/workload-region.ts`.
@@ -80,18 +83,21 @@ The secret value is a JSON object:
 ```json
 {
   "AWS_ACCOUNT_ID": "123456789012",
-  "CLOUDWATCH_OMNI_ADMIN_ROLE": "AWSReservedSSO_AdministratorAccess_example"
+  "CLOUDWATCH_OMNI_ADMIN_ROLE": "AWSReservedSSO_AdministratorAccess_example",
+  "DB_FROM_SNAPSHOT_ARN": "arn:aws:rds:us-east-2:123456789012:cluster-snapshot:tanstackaws-account-key"
 }
 ```
 
 Varlock reads each key (`awsSecret("envs#AWS_ACCOUNT_ID")`,
-`awsSecret("envs#CLOUDWATCH_OMNI_ADMIN_ROLE")`). Set
+`awsSecret("envs#CLOUDWATCH_OMNI_ADMIN_ROLE")`,
+`awsSecret("envs#DB_FROM_SNAPSHOT_ARN")`). `DB_FROM_SNAPSHOT_ARN` is the Aurora
+cluster snapshot the workload-region cluster is created from. Set
 `CLOUDWATCH_OMNI_ADMIN_ROLE` to an IAM role ARN, or to an `AWSReservedSSO_` role
 name, to grant that role Space Admin on the Omni space in addition to the
 CloudFormation execution role that creates the space.
 
-CDK does not write secret values. `resolveAccountSetupEnv` throws when either
-value is missing. Set them in the `envs` secret. A repository `.env` value is
+CDK does not write secret values. `resolveAccountSetupEnv` throws when a
+required value is missing. Set them in the `envs` secret. A repository `.env` value is
 used only when that variable is not already set.
 
 ## Usage
@@ -102,7 +108,7 @@ From the repository root:
 vp run cdk:account -- synth
 ```
 
-Deploy both account setup stacks locally:
+Deploy the account setup stacks locally:
 
 ```sh
 vp run cdk:account -- deploy --all
