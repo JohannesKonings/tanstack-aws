@@ -33,7 +33,7 @@
     "format:check": "vp fmt . --check",
     "knip": "knip",
     "knip:fix": "knip --fix",
-    "cdk": "vp -C apps/cdk-app exec cdk",
+    "cdk:app": "vp -C apps/cdk-app exec cdk",
     "cdk:account": "vp -C apps/cdk-account-setup exec cdk",
     "seed:persons": "node scripts/seed-persons.ts",
     "compile": "tsc",
@@ -75,7 +75,7 @@
     "knip": "6.48.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "tsrs": "7.1.0-beta.tsrs5",
+    "tsrs": "7.1.0-beta.tsrs4",
     "tsx": "^4.23.0",
     "typescript": "catalog:",
     "vite": "catalog:",
@@ -84,12 +84,12 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.23.0",
+      "version": "12.9.1",
       "onFail": "download"
     },
     "runtime": {
       "name": "node",
-      "version": "^26.13.1",
+      "version": "^24.0.0",
       "onFail": "download"
     }
   },

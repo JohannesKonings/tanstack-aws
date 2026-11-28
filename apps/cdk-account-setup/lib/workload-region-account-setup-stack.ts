@@ -16,6 +16,7 @@ export type WorkloadRegionAccountSetupStackProps = cdk.StackProps & {
 export class WorkloadRegionAccountSetupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: WorkloadRegionAccountSetupStackProps) {
     super(scope, id, props);
+    const accountKey = new AccountKey(this, 'AccountKey');
 
     // Deferred until CloudFormation AWS::Logs::AccountPolicy supports RETENTION_POLICY.
     // new AccountLogRetentionPolicy(this, 'AccountLogRetentionPolicy');
@@ -28,6 +29,7 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
     const sharedAurora = new SharedAuroraPostgresServerlessV2(
       this,
       'SharedAuroraPostgresServerlessV2',
+      { encryptionKey: accountKey.key },
     );
     const sharedAuroraSecret = sharedAurora.cluster.secret;
 
@@ -63,7 +65,6 @@ export class WorkloadRegionAccountSetupStack extends cdk.Stack {
       description: 'Shared Aurora default database name.',
     });
 
-    const accountKey = new AccountKey(this, 'AccountKey');
     new EnvsSecret(this, 'EnvsSecret', {
       encryptionKey: accountKey.key,
     });

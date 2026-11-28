@@ -9,40 +9,40 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as ManifestDotjsonRouteImport } from './routes/manifest[.]json'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
-import { Route as DemoStoreRouteImport } from './routes/demo/store'
-import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
-import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
+import { Route as ManifestDotjsonRouteImport } from './routes/manifest[.]json'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ApiPersonsStreamRouteImport } from './routes/api/persons-stream'
-import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
-import { Route as DemoDbPersonsIndexRouteImport } from './routes/demo/db-persons.index'
-import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoDbPersonsDdbRouteImport } from './routes/demo/db-persons.ddb'
-import { Route as DemoDbPersonsAuroraRouteImport } from './routes/demo/db-persons.aurora'
-import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
-import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
-import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
-import { Route as DemoApiBedrockBudgetRouteImport } from './routes/demo/api.bedrock-budget'
-import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
-import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
+import { Route as DemoDbPersonRouteImport } from './routes/demo/db-person'
+import { Route as DemoDbTodoRouteImport } from './routes/demo/db-todo'
+import { Route as DemoStoreRouteImport } from './routes/demo/store'
+import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
+import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as ApiSseEventsRouteImport } from './routes/api.sse.events'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as ApiSseStreamRouteImport } from './routes/api.sse.stream'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
+import { Route as DemoApiBedrockBudgetRouteImport } from './routes/demo/api.bedrock-budget'
+import { Route as DemoApiDdbTodosRouteImport } from './routes/demo/api.ddb-todos'
+import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
+import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
+import { Route as DemoDbPersonsIndexRouteImport } from './routes/demo/db-persons.index'
+import { Route as DemoDbPersonsAuroraRouteImport } from './routes/demo/db-persons.aurora'
+import { Route as DemoDbPersonsDdbRouteImport } from './routes/demo/db-persons.ddb'
+import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
+import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
+import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
+import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoDbPersonsAuroraIdRouteImport } from './routes/demo/db-persons.aurora_.$id'
+import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
+import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
+import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManifestDotjsonRoute = ManifestDotjsonRouteImport.update({
@@ -50,39 +50,9 @@ const ManifestDotjsonRoute = ManifestDotjsonRouteImport.update({
   path: '/manifest.json',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTrpcTodoRoute = DemoTrpcTodoRouteImport.update({
-  id: '/demo/trpc-todo',
-  path: '/demo/trpc-todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanchatRoute = DemoTanchatRouteImport.update({
-  id: '/demo/tanchat',
-  path: '/demo/tanchat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStoreRoute = DemoStoreRouteImport.update({
-  id: '/demo/store',
-  path: '/demo/store',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDbTodoRoute = DemoDbTodoRouteImport.update({
-  id: '/demo/db-todo',
-  path: '/demo/db-todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDbPersonRoute = DemoDbPersonRouteImport.update({
-  id: '/demo/db-person',
-  path: '/demo/db-person',
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPersonsStreamRoute = ApiPersonsStreamRouteImport.update({
@@ -90,74 +60,34 @@ const ApiPersonsStreamRoute = ApiPersonsStreamRouteImport.update({
   path: '/api/persons-stream',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
-  id: '/example/guitars/',
-  path: '/example/guitars/',
+const DemoDbPersonRoute = DemoDbPersonRouteImport.update({
+  id: '/demo/db-person',
+  path: '/demo/db-person',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoDbPersonsIndexRoute = DemoDbPersonsIndexRouteImport.update({
-  id: '/demo/db-persons/',
-  path: '/demo/db-persons/',
+const DemoDbTodoRoute = DemoDbTodoRouteImport.update({
+  id: '/demo/db-todo',
+  path: '/demo/db-todo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExampleGuitarsGuitarIdRoute = ExampleGuitarsGuitarIdRouteImport.update({
-  id: '/example/guitars/$guitarId',
-  path: '/example/guitars/$guitarId',
+const DemoStoreRoute = DemoStoreRouteImport.update({
+  id: '/demo/store',
+  path: '/demo/store',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
+const DemoTanchatRoute = DemoTanchatRouteImport.update({
+  id: '/demo/tanchat',
+  path: '/demo/tanchat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
+const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
+  id: '/demo/tanstack-query',
+  path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoDbPersonsDdbRoute = DemoDbPersonsDdbRouteImport.update({
-  id: '/demo/db-persons/ddb',
-  path: '/demo/db-persons/ddb',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDbPersonsAuroraRoute = DemoDbPersonsAuroraRouteImport.update({
-  id: '/demo/db-persons/aurora',
-  path: '/demo/db-persons/aurora',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
-  id: '/demo/api/tq-todos',
-  path: '/demo/api/tq-todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiTanchatRoute = DemoApiTanchatRouteImport.update({
-  id: '/demo/api/tanchat',
-  path: '/demo/api/tanchat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiDdbTodosRoute = DemoApiDdbTodosRouteImport.update({
-  id: '/demo/api/ddb-todos',
-  path: '/demo/api/ddb-todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiBedrockBudgetRoute = DemoApiBedrockBudgetRouteImport.update({
-  id: '/demo/api/bedrock-budget',
-  path: '/demo/api/bedrock-budget',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
-  id: '/api/trpc/$',
-  path: '/api/trpc/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiSseStreamRoute = ApiSseStreamRouteImport.update({
-  id: '/api/sse/stream',
-  path: '/api/sse/stream',
+const DemoTrpcTodoRoute = DemoTrpcTodoRouteImport.update({
+  id: '/demo/trpc-todo',
+  path: '/demo/trpc-todo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSseEventsRoute = ApiSseEventsRouteImport.update({
@@ -165,19 +95,84 @@ const ApiSseEventsRoute = ApiSseEventsRouteImport.update({
   path: '/api/sse/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSseStreamRoute = ApiSseStreamRouteImport.update({
+  id: '/api/sse/stream',
+  path: '/api/sse/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiBedrockBudgetRoute = DemoApiBedrockBudgetRouteImport.update({
+  id: '/demo/api/bedrock-budget',
+  path: '/demo/api/bedrock-budget',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiDdbTodosRoute = DemoApiDdbTodosRouteImport.update({
+  id: '/demo/api/ddb-todos',
+  path: '/demo/api/ddb-todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
+  id: '/demo/api/names',
+  path: '/demo/api/names',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiTanchatRoute = DemoApiTanchatRouteImport.update({
+  id: '/demo/api/tanchat',
+  path: '/demo/api/tanchat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
+  id: '/demo/api/tq-todos',
+  path: '/demo/api/tq-todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsIndexRoute = DemoDbPersonsIndexRouteImport.update({
+  id: '/demo/db-persons/',
+  path: '/demo/db-persons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsAuroraRoute = DemoDbPersonsAuroraRouteImport.update({
+  id: '/demo/db-persons/aurora',
+  path: '/demo/db-persons/aurora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsDdbRoute = DemoDbPersonsDdbRouteImport.update({
+  id: '/demo/db-persons/ddb',
+  path: '/demo/db-persons/ddb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
+  id: '/demo/start/api-request',
+  path: '/demo/start/api-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
+  id: '/demo/start/server-funcs',
+  path: '/demo/start/server-funcs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
+  id: '/example/guitars/',
+  path: '/example/guitars/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExampleGuitarsGuitarIdRoute = ExampleGuitarsGuitarIdRouteImport.update({
+  id: '/example/guitars/$guitarId',
+  path: '/example/guitars/$guitarId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDbPersonsAuroraIdRoute = DemoDbPersonsAuroraIdRouteImport.update({
+  id: '/demo/db-persons/aurora_/$id',
+  path: '/demo/db-persons/aurora/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
@@ -185,9 +180,14 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoDbPersonsAuroraIdRoute = DemoDbPersonsAuroraIdRouteImport.update({
-  id: '/demo/db-persons/aurora_/$id',
-  path: '/demo/db-persons/aurora/$id',
+const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
+  id: '/demo/start/ssr/full-ssr',
+  path: '/demo/start/ssr/full-ssr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
+  id: '/demo/start/ssr/spa-mode',
+  path: '/demo/start/ssr/spa-mode',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -422,11 +422,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manifest.json': {
@@ -436,53 +436,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManifestDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/trpc-todo': {
-      id: '/demo/trpc-todo'
-      path: '/demo/trpc-todo'
-      fullPath: '/demo/trpc-todo'
-      preLoaderRoute: typeof DemoTrpcTodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanchat': {
-      id: '/demo/tanchat'
-      path: '/demo/tanchat'
-      fullPath: '/demo/tanchat'
-      preLoaderRoute: typeof DemoTanchatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/store': {
-      id: '/demo/store'
-      path: '/demo/store'
-      fullPath: '/demo/store'
-      preLoaderRoute: typeof DemoStoreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/db-todo': {
-      id: '/demo/db-todo'
-      path: '/demo/db-todo'
-      fullPath: '/demo/db-todo'
-      preLoaderRoute: typeof DemoDbTodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/db-person': {
-      id: '/demo/db-person'
-      path: '/demo/db-person'
-      fullPath: '/demo/db-person'
-      preLoaderRoute: typeof DemoDbPersonRouteImport
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/persons-stream': {
@@ -492,102 +450,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPersonsStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/example/guitars/': {
-      id: '/example/guitars/'
-      path: '/example/guitars'
-      fullPath: '/example/guitars/'
-      preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
+    '/demo/db-person': {
+      id: '/demo/db-person'
+      path: '/demo/db-person'
+      fullPath: '/demo/db-person'
+      preLoaderRoute: typeof DemoDbPersonRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/db-persons/': {
-      id: '/demo/db-persons/'
-      path: '/demo/db-persons'
-      fullPath: '/demo/db-persons/'
-      preLoaderRoute: typeof DemoDbPersonsIndexRouteImport
+    '/demo/db-todo': {
+      id: '/demo/db-todo'
+      path: '/demo/db-todo'
+      fullPath: '/demo/db-todo'
+      preLoaderRoute: typeof DemoDbTodoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/example/guitars/$guitarId': {
-      id: '/example/guitars/$guitarId'
-      path: '/example/guitars/$guitarId'
-      fullPath: '/example/guitars/$guitarId'
-      preLoaderRoute: typeof ExampleGuitarsGuitarIdRouteImport
+    '/demo/store': {
+      id: '/demo/store'
+      path: '/demo/store'
+      fullPath: '/demo/store'
+      preLoaderRoute: typeof DemoStoreRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
+    '/demo/tanchat': {
+      id: '/demo/tanchat'
+      path: '/demo/tanchat'
+      fullPath: '/demo/tanchat'
+      preLoaderRoute: typeof DemoTanchatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
+    '/demo/tanstack-query': {
+      id: '/demo/tanstack-query'
+      path: '/demo/tanstack-query'
+      fullPath: '/demo/tanstack-query'
+      preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/db-persons/ddb': {
-      id: '/demo/db-persons/ddb'
-      path: '/demo/db-persons/ddb'
-      fullPath: '/demo/db-persons/ddb'
-      preLoaderRoute: typeof DemoDbPersonsDdbRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/db-persons/aurora': {
-      id: '/demo/db-persons/aurora'
-      path: '/demo/db-persons/aurora'
-      fullPath: '/demo/db-persons/aurora'
-      preLoaderRoute: typeof DemoDbPersonsAuroraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/tq-todos': {
-      id: '/demo/api/tq-todos'
-      path: '/demo/api/tq-todos'
-      fullPath: '/demo/api/tq-todos'
-      preLoaderRoute: typeof DemoApiTqTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/tanchat': {
-      id: '/demo/api/tanchat'
-      path: '/demo/api/tanchat'
-      fullPath: '/demo/api/tanchat'
-      preLoaderRoute: typeof DemoApiTanchatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/ddb-todos': {
-      id: '/demo/api/ddb-todos'
-      path: '/demo/api/ddb-todos'
-      fullPath: '/demo/api/ddb-todos'
-      preLoaderRoute: typeof DemoApiDdbTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/bedrock-budget': {
-      id: '/demo/api/bedrock-budget'
-      path: '/demo/api/bedrock-budget'
-      fullPath: '/demo/api/bedrock-budget'
-      preLoaderRoute: typeof DemoApiBedrockBudgetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/trpc/$': {
-      id: '/api/trpc/$'
-      path: '/api/trpc/$'
-      fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/sse/stream': {
-      id: '/api/sse/stream'
-      path: '/api/sse/stream'
-      fullPath: '/api/sse/stream'
-      preLoaderRoute: typeof ApiSseStreamRouteImport
+    '/demo/trpc-todo': {
+      id: '/demo/trpc-todo'
+      path: '/demo/trpc-todo'
+      fullPath: '/demo/trpc-todo'
+      preLoaderRoute: typeof DemoTrpcTodoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/sse/events': {
@@ -597,25 +499,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSseEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sse/stream': {
+      id: '/api/sse/stream'
+      path: '/api/sse/stream'
+      fullPath: '/api/sse/stream'
+      preLoaderRoute: typeof ApiSseStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
+      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/bedrock-budget': {
+      id: '/demo/api/bedrock-budget'
+      path: '/demo/api/bedrock-budget'
+      fullPath: '/demo/api/bedrock-budget'
+      preLoaderRoute: typeof DemoApiBedrockBudgetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/ddb-todos': {
+      id: '/demo/api/ddb-todos'
+      path: '/demo/api/ddb-todos'
+      fullPath: '/demo/api/ddb-todos'
+      preLoaderRoute: typeof DemoApiDdbTodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/names': {
+      id: '/demo/api/names'
+      path: '/demo/api/names'
+      fullPath: '/demo/api/names'
+      preLoaderRoute: typeof DemoApiNamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/tanchat': {
+      id: '/demo/api/tanchat'
+      path: '/demo/api/tanchat'
+      fullPath: '/demo/api/tanchat'
+      preLoaderRoute: typeof DemoApiTanchatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/tq-todos': {
+      id: '/demo/api/tq-todos'
+      path: '/demo/api/tq-todos'
+      fullPath: '/demo/api/tq-todos'
+      preLoaderRoute: typeof DemoApiTqTodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/': {
+      id: '/demo/db-persons/'
+      path: '/demo/db-persons'
+      fullPath: '/demo/db-persons/'
+      preLoaderRoute: typeof DemoDbPersonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/aurora': {
+      id: '/demo/db-persons/aurora'
+      path: '/demo/db-persons/aurora'
+      fullPath: '/demo/db-persons/aurora'
+      preLoaderRoute: typeof DemoDbPersonsAuroraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/ddb': {
+      id: '/demo/db-persons/ddb'
+      path: '/demo/db-persons/ddb'
+      fullPath: '/demo/db-persons/ddb'
+      preLoaderRoute: typeof DemoDbPersonsDdbRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/api-request': {
+      id: '/demo/start/api-request'
+      path: '/demo/start/api-request'
+      fullPath: '/demo/start/api-request'
+      preLoaderRoute: typeof DemoStartApiRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/server-funcs': {
+      id: '/demo/start/server-funcs'
+      path: '/demo/start/server-funcs'
+      fullPath: '/demo/start/server-funcs'
+      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/example/guitars/': {
+      id: '/example/guitars/'
+      path: '/example/guitars'
+      fullPath: '/example/guitars/'
+      preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/example/guitars/$guitarId': {
+      id: '/example/guitars/$guitarId'
+      path: '/example/guitars/$guitarId'
+      fullPath: '/example/guitars/$guitarId'
+      preLoaderRoute: typeof ExampleGuitarsGuitarIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/db-persons/aurora_/$id': {
+      id: '/demo/db-persons/aurora_/$id'
+      path: '/demo/db-persons/aurora/$id'
+      fullPath: '/demo/db-persons/aurora/$id'
+      preLoaderRoute: typeof DemoDbPersonsAuroraIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
       fullPath: '/demo/start/ssr/'
       preLoaderRoute: typeof DemoStartSsrIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/start/ssr/data-only': {
@@ -625,11 +618,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/db-persons/aurora_/$id': {
-      id: '/demo/db-persons/aurora_/$id'
-      path: '/demo/db-persons/aurora/$id'
-      fullPath: '/demo/db-persons/aurora/$id'
-      preLoaderRoute: typeof DemoDbPersonsAuroraIdRouteImport
+    '/demo/start/ssr/full-ssr': {
+      id: '/demo/start/ssr/full-ssr'
+      path: '/demo/start/ssr/full-ssr'
+      fullPath: '/demo/start/ssr/full-ssr'
+      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/ssr/spa-mode': {
+      id: '/demo/start/ssr/spa-mode'
+      path: '/demo/start/ssr/spa-mode'
+      fullPath: '/demo/start/ssr/spa-mode'
+      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
