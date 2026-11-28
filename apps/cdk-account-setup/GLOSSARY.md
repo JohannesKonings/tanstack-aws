@@ -12,8 +12,12 @@ _Avoid_: Bootstrap stack, foundation stack, platform stack
 The global account setup stack (`AccountSetupStack`) deployed in `us-east-1` for OIDC, the GitHub Actions deploy role, and the account-level log retention policy in that region.
 _Avoid_: Global stack, OIDC stack
 
+**Account foundation stack**:
+The workload-region stack (`AccountFoundationStack`) that owns the account KMS key (`alias/account`) and the `envs` secret. It deploys on its own, before the workload-region account setup stack.
+_Avoid_: Secrets stack, key stack
+
 **Workload region account setup stack**:
-The workload-region account setup stack (`WorkloadRegionAccountSetupStack`) deployed in `us-east-2` for shared Aurora, SSM connection metadata, the account-level log retention policy in that region, CloudWatch Omni, and agent spaces.
+The workload-region account setup stack (`WorkloadRegionAccountSetupStack`) deployed in `us-east-2` for shared Aurora, SSM connection metadata, the account-level log retention policy in that region, CloudWatch Omni, and agent spaces. Aurora storage and credentials use the account foundation stack's key.
 _Avoid_: Regional stack, Aurora stack
 
 ## Observability

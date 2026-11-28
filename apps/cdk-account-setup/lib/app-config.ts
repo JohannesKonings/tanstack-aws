@@ -9,7 +9,12 @@ function optionalEnvString(value: unknown): unknown {
   return value === undefined || value === null || value === '' ? undefined : value;
 }
 
-function requiredEnv(name: 'AWS_ACCOUNT_ID' | 'CLOUDWATCH_OMNI_ADMIN_ROLE') {
+const DB_CLUSTER_SNAPSHOT_ARN_PATTERN =
+  /^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\d{12}:cluster-snapshot:\S+$/;
+
+function requiredEnv(
+  name: 'AWS_ACCOUNT_ID' | 'CLOUDWATCH_OMNI_ADMIN_ROLE' | 'DB_FROM_SNAPSHOT_ARN',
+) {
   return z.preprocess(
     (value) => value ?? '',
     z.string().trim().min(1, `Missing required environment variable: ${name}`),
@@ -37,6 +42,15 @@ export const accountSetupEnvSchema = z
         .string()
         .describe('CloudWatch Omni space admin. An IAM role ARN, or an AWSReservedSSO role name.'),
     ),
+    DB_FROM_SNAPSHOT_ARN: requiredEnv('DB_FROM_SNAPSHOT_ARN').pipe(
+      z
+        .string()
+        .regex(
+          DB_CLUSTER_SNAPSHOT_ARN_PATTERN,
+          'DB_FROM_SNAPSHOT_ARN must be an RDS cluster snapshot ARN',
+        )
+        .describe('Aurora cluster snapshot ARN encrypted with the account key.'),
+    ),
   })
   .transform((env, ctx) => {
     const adminRoleArn = cloudWatchOmniAdminRoleArn(
@@ -57,6 +71,7 @@ export const accountSetupEnvSchema = z
       AWS_ACCOUNT_ID: env.AWS_ACCOUNT_ID,
       AWS_REGION: env.AWS_REGION,
       CLOUDWATCH_OMNI_ADMIN_ROLE_ARN: adminRoleArn,
+      DB_FROM_SNAPSHOT_ARN: env.DB_FROM_SNAPSHOT_ARN,
     };
   });
 
@@ -104,6 +119,7 @@ export function resolveAccountSetupEnv(
     AWS_ACCOUNT_ID: env.AWS_ACCOUNT_ID ?? env.CDK_DEFAULT_ACCOUNT,
     AWS_REGION: env.AWS_REGION ?? env.CDK_DEFAULT_REGION ?? env.AWS_DEFAULT_REGION ?? undefined,
     CLOUDWATCH_OMNI_ADMIN_ROLE: env.CLOUDWATCH_OMNI_ADMIN_ROLE,
+    DB_FROM_SNAPSHOT_ARN: env.DB_FROM_SNAPSHOT_ARN,
   };
 
   const parsedEnv = accountSetupEnvSchema.safeParse(envWithFallbacks);

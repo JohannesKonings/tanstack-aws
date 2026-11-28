@@ -9,6 +9,7 @@ import {
   RESOURCE_SCOPE_TAG_KEY,
 } from '../../../lib/resource-tags.ts';
 import { GLOBAL_SERVICES_REGION, WORKLOAD_REGION } from '../../../lib/workload-region.ts';
+import { AccountFoundationStack } from '../lib/account-foundation-stack.ts';
 import { AccountSetupStack } from '../lib/account-setup-stack.ts';
 import { resolveAccountSetupEnv } from '../lib/app-config.ts';
 import { createAccountSetupApp } from '../lib/cdk-app.ts';
@@ -28,13 +29,27 @@ new AccountSetupStack(app, 'AccountSetupStack', {
   },
 });
 
-new WorkloadRegionAccountSetupStack(app, 'WorkloadRegionAccountSetupStack', {
+const accountFoundationStack = new AccountFoundationStack(app, 'AccountFoundationStack', {
   env: {
     account: accountSetupEnv.AWS_ACCOUNT_ID,
     region: WORKLOAD_REGION,
   },
-  cloudWatchOmniAdminRoleArn: accountSetupEnv.CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
 });
+
+const workloadRegionAccountSetupStack = new WorkloadRegionAccountSetupStack(
+  app,
+  'WorkloadRegionAccountSetupStack',
+  {
+    env: {
+      account: accountSetupEnv.AWS_ACCOUNT_ID,
+      region: WORKLOAD_REGION,
+    },
+    cloudWatchOmniAdminRoleArn: accountSetupEnv.CLOUDWATCH_OMNI_ADMIN_ROLE_ARN,
+    encryptionKey: accountFoundationStack.key,
+    auroraSnapshotIdentifier: accountSetupEnv.DB_FROM_SNAPSHOT_ARN,
+  },
+);
+workloadRegionAccountSetupStack.addDependency(accountFoundationStack);
 
 function loadRepoEnv(path: string): void {
   let contents: string;

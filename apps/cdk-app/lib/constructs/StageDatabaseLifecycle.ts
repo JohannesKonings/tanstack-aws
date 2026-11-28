@@ -5,6 +5,7 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
+import { accountKeyDecryptStatement } from '../account-key-decrypt.ts';
 import { repoPath } from '../repo-root.ts';
 import { hashStageDatabaseMigrations } from './stage-database-migrations-hash.ts';
 
@@ -62,6 +63,7 @@ export class StageDatabaseLifecycle extends Construct {
         resources: [props.secretArn],
       }),
     );
+    handler.addToRolePolicy(accountKeyDecryptStatement(this));
 
     const provider = new Provider(this, 'Provider', {
       onEventHandler: handler,
@@ -72,6 +74,11 @@ export class StageDatabaseLifecycle extends Construct {
         id: 'AwsSolutions-IAM4',
         reason:
           'Lambda uses AWS managed policies; replacing with custom policies adds operational overhead for marginal security gain.',
+      },
+      {
+        id: 'AwsSolutions-IAM5',
+        reason:
+          'Decrypt is limited to the alias/account key by kms:ResourceAliases. The key id is created in the workload region.',
       },
       {
         id: 'Serverless-LambdaDefaultMemorySize',

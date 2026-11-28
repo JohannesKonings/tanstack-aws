@@ -4,6 +4,7 @@ import { Code, Function, Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { TIMEOUT_IN_SECONDS } from '../../../../lib/sse-stream-timeout.ts';
+import { accountKeyDecryptStatement } from '../account-key-decrypt.ts';
 import { repoPath } from '../repo-root.ts';
 import type { WebappServerEnvironment } from '../webapp-server-environment.ts';
 
@@ -53,6 +54,7 @@ export class WebappServer extends Construct {
       environment.AURORA_SECRET_ARN,
     );
     auroraSecret.grantRead(this.webappServer);
+    this.webappServer.addToRolePolicy(accountKeyDecryptStatement(this));
     Tags.of(this.webappServer).add('IsWebAppServer', 'true');
 
     this.webappServer.addToRolePolicy(
@@ -75,7 +77,7 @@ export class WebappServer extends Construct {
       {
         id: 'AwsSolutions-IAM5',
         reason:
-          'Bedrock InvokeModel requires *; model ARNs are dynamic. CloudWatch ListMetrics/GetMetricStatistics require * per AWS API design. DynamoDB GSI uses table/index ARN patterns.',
+          'Bedrock InvokeModel requires *; model ARNs are dynamic. CloudWatch ListMetrics/GetMetricStatistics require * per AWS API design. DynamoDB GSI uses table/index ARN patterns. Decrypt is limited to the alias/account key by kms:ResourceAliases.',
       },
       {
         id: 'AwsSolutions-IAM4',
