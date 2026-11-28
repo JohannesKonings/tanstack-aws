@@ -13,7 +13,6 @@
     "aws-cdk-lib": "2.278.0",
     "cdk-nag": "^3.1.0",
     "constructs": "^10.8.1",
-    "tsx": "^4.23.15",
     "typescript": "catalog:",
     "varlock": "^1.25.0",
     "vite-plus": "catalog:",

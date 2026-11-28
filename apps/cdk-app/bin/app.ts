@@ -12,7 +12,7 @@ import { WORKLOAD_REGION } from '../../../lib/workload-region.ts';
 import { createCdkApp } from '../lib/cdk-app.ts';
 import { TanstackAwsStack } from '../lib/tanstack-aws.ts';
 
-const workloadAccount = process.env.CDK_DEFAULT_ACCOUNT;
+const workloadAccount = process.env.AWS_ACCOUNT_ID ?? process.env.CDK_DEFAULT_ACCOUNT;
 
 const app = createCdkApp();
 Tags.of(app).add(RESOURCE_SCOPE_TAG_KEY, APPLICATION_RESOURCE_SCOPE_TAG_VALUE);

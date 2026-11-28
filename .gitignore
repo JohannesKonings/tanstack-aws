@@ -7,6 +7,7 @@ dist-ssr
 count.txt
 .env*
 !apps/cdk-account-setup/.env.schema
+!apps/cdk-app/.env.schema
 .nitro
 .tanstack
 .wrangler

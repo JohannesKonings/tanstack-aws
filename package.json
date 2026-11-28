@@ -33,8 +33,6 @@
     "format:check": "vp fmt . --check",
     "knip": "knip",
     "knip:fix": "knip --fix",
-    "cdk:app": "vp -C apps/cdk-app exec cdk",
-    "cdk:account": "vp -C apps/cdk-account-setup exec cdk",
     "seed:persons": "node scripts/seed-persons.ts",
     "compile": "tsc",
     "intent:list": "intent list",
@@ -76,7 +74,6 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tsrs": "7.1.0-beta.tsrs4",
-    "tsx": "^4.23.0",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"

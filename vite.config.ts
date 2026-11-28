@@ -13,19 +13,19 @@ export default defineWorkspaceConfig({
     tasks: {
       'drizzle-kit:generate': {
         cache: false,
-        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts generate',
+        command: 'vpx packages/aurora/src/cli/drizzle-kit.ts generate',
       },
       'drizzle-kit:migrate': {
         cache: false,
-        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts migrate',
+        command: 'vpx packages/aurora/src/cli/drizzle-kit.ts migrate',
       },
       'drizzle-kit:studio': {
         cache: false,
-        command: 'vp exec tsx packages/aurora/src/cli/drizzle-kit.ts studio',
+        command: 'vpx packages/aurora/src/cli/drizzle-kit.ts studio',
       },
       'db-aurora:seed': {
         cache: false,
-        command: 'vp exec tsx packages/aurora/src/cli/seed-persons.ts',
+        command: 'vpx packages/aurora/src/cli/seed-persons.ts',
       },
       'docs-diagrams:blocks': {
         cache: false,
@@ -38,6 +38,15 @@ export default defineWorkspaceConfig({
       'docs-diagrams:index': {
         cache: false,
         command: 'node tooling/docs-diagrams/cli.ts index',
+      },
+      // cache: false keeps AWS credential env vars. Cached package scripts drop them.
+      'cdk:app': {
+        cache: false,
+        command: 'vp -C apps/cdk-app exec -- varlock run -- cdk',
+      },
+      'cdk:account': {
+        cache: false,
+        command: 'vp -C apps/cdk-account-setup exec -- varlock run -- cdk',
       },
     },
   },

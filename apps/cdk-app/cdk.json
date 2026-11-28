@@ -1,5 +1,5 @@
 {
-  "app": "tsx bin/app.ts",
+  "app": "vpx bin/app.ts",
   "watch": {
     "include": ["**"],
     "exclude": [

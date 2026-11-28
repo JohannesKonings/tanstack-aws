@@ -66,47 +66,46 @@ automated pipeline can deploy account setup.
 
 ## Required Environment Variables
 
-- `AWS_ACCOUNT_ID` (for local synth/deploy)
+Varlock loads these from the `envs` secret in `us-east-2` when CDK commands run.
+AWS credentials are a prerequisite; the command fails when they are missing.
+
+- `AWS_ACCOUNT_ID`
 - `CLOUDWATCH_OMNI_ADMIN_ROLE`
 
 `AWS_REGION` is optional and ignored for stack region placement. Regions are
 centrally defined in `lib/workload-region.ts`.
 
-Add `CLOUDWATCH_OMNI_ADMIN_ROLE` in the `envs` secret in the `us-east-2`
-console. The secret value is a JSON object:
+The secret value is a JSON object:
 
 ```json
-{ "CLOUDWATCH_OMNI_ADMIN_ROLE": "AWSReservedSSO_AdministratorAccess_example" }
+{
+  "AWS_ACCOUNT_ID": "123456789012",
+  "CLOUDWATCH_OMNI_ADMIN_ROLE": "AWSReservedSSO_AdministratorAccess_example"
+}
 ```
 
-Varlock reads that key (`awsSecret("envs#CLOUDWATCH_OMNI_ADMIN_ROLE")`) when
-commands run through `scripts/with-env.ts`. Set the value to an IAM role ARN,
-or to an `AWSReservedSSO_` role name, to grant that role Space Admin on the
-Omni space in addition to the CloudFormation execution role that creates the
-space.
+Varlock reads each key (`awsSecret("envs#AWS_ACCOUNT_ID")`,
+`awsSecret("envs#CLOUDWATCH_OMNI_ADMIN_ROLE")`). Set
+`CLOUDWATCH_OMNI_ADMIN_ROLE` to an IAM role ARN, or to an `AWSReservedSSO_` role
+name, to grant that role Space Admin on the Omni space in addition to the
+CloudFormation execution role that creates the space.
 
-CDK does not write secret values. `resolveAccountSetupEnv` throws when
-`CLOUDWATCH_OMNI_ADMIN_ROLE` is missing. Set it in the `envs` secret, the
-repository `.env`, or the GitHub Actions variable `CLOUDWATCH_OMNI_ADMIN_ROLE`.
+CDK does not write secret values. `resolveAccountSetupEnv` throws when either
+value is missing. Set them in the `envs` secret. A repository `.env` value is
+used only when that variable is not already set.
 
 ## Usage
 
 From the repository root:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk synth
+vp run cdk:account -- synth
 ```
 
 Deploy both account setup stacks locally:
 
 ```sh
-AWS_ACCOUNT_ID=123456789012 vpx scripts/with-env.ts -- vp -C apps/cdk-account-setup exec cdk deploy --all
-```
-
-Or via the root script alias:
-
-```sh
-AWS_ACCOUNT_ID=123456789012 vp run cdk:account -- deploy --all
+vp run cdk:account -- deploy --all
 ```
 
 Run package-scoped validation:
